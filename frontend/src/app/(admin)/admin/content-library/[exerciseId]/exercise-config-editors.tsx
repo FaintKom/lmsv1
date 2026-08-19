@@ -1,8 +1,13 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { Plus, Trash2, Upload, MapPin as MapPinIcon } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { buildCrosswordLayout } from "@/components/exercises/crossword-layout";
+import {
+ generateWordSearchGrid,
+ seedFromWords,
+} from "@/components/exercises/word-search-grid";
 import dynamic from "next/dynamic";
 
 const MonacoEditor = dynamic(() => import("@monaco-editor/react"), {
@@ -360,6 +365,22 @@ export function SentenceBuilderConfigEditor({ config, onChange }: EditorProps) {
  return (
    <div className="space-y-4">
      <div>
+       <label className={labelCls}>Paste a sentence</label>
+       <input
+         type="text"
+         defaultValue=""
+         onChange={(e) => {
+           // Split on whitespace; punctuation stays glued to its word so
+           // "Park." is one tile, not two.
+           const parts = e.target.value.trim().split(/\s+/).filter(Boolean);
+           if (parts.length > 0) onChange({ ...config, correct_order: parts, words: parts });
+         }}
+         placeholder="Type or paste the whole sentence — it splits into words below"
+         className={inputCls}
+       />
+       <p className={hintCls}>The words appear below in the correct order; students get them shuffled.</p>
+     </div>
+     <div>
        <label className={labelCls}>Words in Correct Order</label>
        <p className={hintCls}>Enter words in the correct sentence order. Students will see them shuffled and must arrange them.</p>
        <div className="space-y-2 mt-2">
@@ -458,10 +479,13 @@ export function DialogueConfigEditor({ config, onChange }: EditorProps) {
          </div>
          {msg.options && (
            <div className="pl-6 space-y-2">
-             <p className="text-xs font-semibold text-primary">Student choices:</p>
+             <p className="text-xs font-semibold text-primary">Student choices — mark the correct reply:</p>
              {msg.options.map((opt, oi) => (
-               <div key={oi} className="flex items-center gap-2">
-                 <input type="radio" name={`correct_${mi}`} checked={opt.is_correct} onChange={() => updateOption(mi, oi, "is_correct", true)} className="accent-green-600" />
+               <div key={oi} className={`flex items-center gap-2 rounded-lg px-2 py-1 ${opt.is_correct ? "bg-success-soft/40" : ""}`}>
+                 <label className="flex flex-shrink-0 cursor-pointer items-center gap-1 text-2xs font-medium text-text-muted">
+                   <input type="radio" name={`correct_${mi}`} checked={opt.is_correct} onChange={() => updateOption(mi, oi, "is_correct", true)} className="accent-green-600" aria-label={`Mark option ${oi + 1} as the correct reply`} />
+                   Correct
+                 </label>
                  <input type="text" value={opt.text} onChange={(e) => updateOption(mi, oi, "text", e.target.value)} placeholder={`Option ${oi + 1}`} className={`flex-1 ${inputCls}`} />
                  {msg.options!.length > 2 && (
                    <Button variant="ghost" size="sm" onClick={() => removeOption(mi, oi)} className="text-danger-fg"><Trash2 className="h-3.5 w-3.5" /></Button>
@@ -841,6 +865,22 @@ export function CrosswordConfigEditor({ config, onChange }: EditorProps) {
    words: [...words, { word: "", clue: "", row: 0, col: 0, direction: "across" as const }],
  });
 
+ const [unplaced, setUnplaced] = useState<string[]>([]);
+
+ /** One click instead of per-word Row/Col picking: the layout builder
+  *  crosses the words and writes their positions back. */
+ const autoLayout = () => {
+   const layout = buildCrosswordLayout(words.map((w) => w.word), gridSize);
+   const byWord = new Map(layout.placed.map((p) => [p.word, p]));
+   const next = words.map((w) => {
+     const p = byWord.get((w.word || "").trim().toUpperCase());
+     return p ? { ...w, row: p.row, col: p.col, direction: p.direction } : w;
+   });
+   setUnplaced(layout.unplaced);
+   onChange({ ...config, words: next });
+   setPlacingIdx(null);
+ };
+
  const removeWord = (i: number) => {
    if (placingIdx === i) setPlacingIdx(null);
    onChange({ ...config, words: words.filter((_, j) => j !== i) });
@@ -915,6 +955,16 @@ export function CrosswordConfigEditor({ config, onChange }: EditorProps) {
      <div>
        <div className="mb-1 flex items-center gap-3">
          <label className={labelCls}>Grid preview</label>
+         <Button variant="default" size="sm" onClick={autoLayout}
+           disabled={words.filter((w) => (w.word || "").trim()).length === 0}
+           title="Cross the words automatically — no manual Row/Col needed">
+           Build the grid
+         </Button>
+         {unplaced.length > 0 && (
+           <span className="rounded-pill bg-danger-soft px-2 py-0.5 text-2xs font-medium text-danger-fg">
+             Did not fit: {unplaced.join(", ")} — enlarge the grid or shorten the words
+           </span>
+         )}
          {placingIdx !== null && activeWord && (
            <span className="rounded-pill bg-primary-soft px-2 py-0.5 text-2xs font-medium text-primary">
              Click a cell to place "{activeWord.word || `word ${placingIdx + 1}`}" ({activeWord.direction})
@@ -1009,55 +1059,62 @@ export function CrosswordConfigEditor({ config, onChange }: EditorProps) {
                    placeholder="Clue for this word..."
                    className={`flex-1 ${inputCls}`}
                  />
-                 <Button
-                   variant={isPlacing ? "default" : "outline"}
-                   size="sm"
-                   onClick={() => setPlacingIdx(isPlacing ? null : i)}
-                   title="Pick a cell on the grid to place this word"
-                 >
-                   {isPlacing ? "Cancel" : "Place on grid"}
-                 </Button>
                  <Button variant="ghost" size="sm" onClick={() => removeWord(i)} className="text-danger-fg">
                    <Trash2 className="h-3.5 w-3.5" />
                  </Button>
                </div>
-               <div className="flex items-center gap-3 pl-9">
-                 <div className="flex items-center gap-1">
-                   <label className="text-xs text-text-muted">Row:</label>
-                   <input
-                     type="number"
-                     min={0}
-                     max={gridSize - 1}
-                     value={w.row}
-                     onChange={(e) => updateWord(i, "row", parseInt(e.target.value) || 0)}
-                     className={`w-16 ${inputCls}`}
-                   />
+               {/* "Build the grid" is the normal path; hand-placement is the
+                   escape hatch, folded away so it stops reading as required. */}
+               <details className="pl-9" open={isPlacing}>
+                 <summary className="cursor-pointer text-xs text-text-subtle">
+                   Advanced: manual placement
+                 </summary>
+                 <div className="mt-2 flex items-center gap-3">
+                   <Button
+                     variant={isPlacing ? "default" : "outline"}
+                     size="sm"
+                     onClick={() => setPlacingIdx(isPlacing ? null : i)}
+                     title="Pick a cell on the grid to place this word"
+                   >
+                     {isPlacing ? "Cancel" : "Place on grid"}
+                   </Button>
+                   <div className="flex items-center gap-1">
+                     <label className="text-xs text-text-muted">Row:</label>
+                     <input
+                       type="number"
+                       min={0}
+                       max={gridSize - 1}
+                       value={w.row}
+                       onChange={(e) => updateWord(i, "row", parseInt(e.target.value) || 0)}
+                       className={`w-16 ${inputCls}`}
+                     />
+                   </div>
+                   <div className="flex items-center gap-1">
+                     <label className="text-xs text-text-muted">Col:</label>
+                     <input
+                       type="number"
+                       min={0}
+                       max={gridSize - 1}
+                       value={w.col}
+                       onChange={(e) => updateWord(i, "col", parseInt(e.target.value) || 0)}
+                       className={`w-16 ${inputCls}`}
+                     />
+                   </div>
+                   <select
+                     value={w.direction}
+                     onChange={(e) => updateWord(i, "direction", e.target.value)}
+                     className={`w-28 ${inputCls}`}
+                   >
+                     <option value="across">Across →</option>
+                     <option value="down">Down ↓</option>
+                   </select>
                  </div>
-                 <div className="flex items-center gap-1">
-                   <label className="text-xs text-text-muted">Col:</label>
-                   <input
-                     type="number"
-                     min={0}
-                     max={gridSize - 1}
-                     value={w.col}
-                     onChange={(e) => updateWord(i, "col", parseInt(e.target.value) || 0)}
-                     className={`w-16 ${inputCls}`}
-                   />
-                 </div>
-                 <select
-                   value={w.direction}
-                   onChange={(e) => updateWord(i, "direction", e.target.value)}
-                   className={`w-28 ${inputCls}`}
-                 >
-                   <option value="across">Across →</option>
-                   <option value="down">Down ↓</option>
-                 </select>
-                 {overflow && (
-                   <span className="text-2xs text-danger-fg">
-                     ⚠ Word extends past grid edge
-                   </span>
-                 )}
-               </div>
+               </details>
+               {overflow && (
+                 <span className="pl-9 text-2xs text-danger-fg">
+                   ⚠ Word extends past grid edge
+                 </span>
+               )}
              </div>
            );
          })}
@@ -1076,6 +1133,12 @@ export function CrosswordConfigEditor({ config, onChange }: EditorProps) {
 export function WordSearchConfigEditor({ config, onChange }: EditorProps) {
  const words = (config.words as string[]) || [];
  const gridSize = (config.grid_size as number) || 12;
+ // The exact grid the pupil will get: same pure generator, same seed.
+ const seed = (config.seed as number) ?? seedFromWords(words);
+ const layout = useMemo(
+   () => generateWordSearchGrid(words, gridSize, seed),
+   [words, gridSize, seed],
+ );
 
  const updateWord = (i: number, val: string) => {
    const next = [...words]; next[i] = val.toUpperCase();
@@ -1093,6 +1156,34 @@ export function WordSearchConfigEditor({ config, onChange }: EditorProps) {
          onChange={(e) => onChange({ ...config, grid_size: parseInt(e.target.value) || 12 })}
          className={`w-24 ${inputCls}`} />
        <p className={hintCls}>{gridSize} x {gridSize} letter grid. Words are hidden horizontally, vertically, and diagonally.</p>
+     </div>
+     <div>
+       <div className="mb-1 flex items-center gap-3">
+         <label className={labelCls}>Grid preview — exactly what the student gets</label>
+         <Button variant="outline" size="sm"
+           onClick={() => onChange({ ...config, seed: ((seed * 1103515245 + 12345) >>> 0) })}>
+           Regenerate layout
+         </Button>
+         {layout.skipped.length > 0 && (
+           <span className="rounded-pill bg-danger-soft px-2 py-0.5 text-2xs font-medium text-danger-fg">
+             Did not fit: {layout.skipped.join(", ")}
+           </span>
+         )}
+       </div>
+       {words.filter(Boolean).length > 0 && (
+         <div className="inline-grid border border-border-strong bg-bg"
+           style={{ gridTemplateColumns: `repeat(${gridSize}, 22px)`, gridTemplateRows: `repeat(${gridSize}, 22px)` }}>
+           {layout.grid.flatMap((row, r) =>
+             row.map((ch, c) => (
+               <div key={`${r}:${c}`}
+                 className="flex items-center justify-center border border-border font-mono text-2xs text-text">
+                 {ch}
+               </div>
+             ))
+           )}
+         </div>
+       )}
+       <p className={hintCls}>Saved with the exercise — the student sees this exact grid on every open.</p>
      </div>
      <div>
        <label className={labelCls}>Hidden Words ({words.length})</label>

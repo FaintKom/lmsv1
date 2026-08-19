@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { useParams, useRouter, useSearchParams } from "next/navigation";
 import { toast } from "sonner";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -24,6 +24,7 @@ import {
  type ExerciseTestCase,
 } from "@/lib/api/exercises";
 import { getApiError } from "@/lib/api-client";
+import { buildTestCaseCsvTemplate, parseTestCaseCsv } from "@/lib/test-case-csv";
 import dynamic from "next/dynamic";
 import {
  TrueFalseConfigEditor,
@@ -911,6 +912,41 @@ function TestCasesEditor({
  const [showForm, setShowForm] = useState(false);
  const [form, setForm] = useState({ input: "", expected_output: "", is_hidden: false });
  const [saving, setSaving] = useState(false);
+ const csvInputRef = useRef<HTMLInputElement>(null);
+
+ // All-or-nothing on format: the file is fully parsed and validated
+ // before the first POST, so a bad CSV imports zero cases.
+ const handleCsvImport = async (file: File) => {
+   const parsed = parseTestCaseCsv(await file.text());
+   if (!parsed.ok) {
+     toast.error(parsed.error);
+     return;
+   }
+   setSaving(true);
+   let done = 0;
+   try {
+     for (const tc of parsed.cases) {
+       await exercisesApi.addTestCase(exerciseId, { ...tc });
+       done++;
+     }
+     toast.success(`Imported ${done} test case${done === 1 ? "" : "s"}`);
+   } catch (e) {
+     toast.error(getApiError(e, `Import stopped after ${done} of ${parsed.cases.length} cases`));
+   } finally {
+     setSaving(false);
+     onRefresh();
+   }
+ };
+
+ const handleTemplateDownload = () => {
+   const blob = new Blob([buildTestCaseCsvTemplate()], { type: "text/csv" });
+   const url = URL.createObjectURL(blob);
+   const a = document.createElement("a");
+   a.href = url;
+   a.download = "test-cases-template.csv";
+   a.click();
+   URL.revokeObjectURL(url);
+ };
 
  const handleAdd = async () => {
  if (!form.expected_output.trim()) return;
@@ -942,10 +978,29 @@ function TestCasesEditor({
  <Card>
  <CardHeader className="flex flex-row items-center justify-between">
  <CardTitle>Test Cases ({testCases.length})</CardTitle>
+ <div className="flex gap-2">
+ <input
+ ref={csvInputRef}
+ type="file"
+ accept=".csv,text/csv"
+ className="hidden"
+ onChange={(e) => {
+ const f = e.target.files?.[0];
+ if (f) void handleCsvImport(f);
+ e.target.value = "";
+ }}
+ />
+ <Button size="sm" variant="outline" disabled={saving} onClick={() => csvInputRef.current?.click()}>
+ Import CSV
+ </Button>
+ <Button size="sm" variant="ghost" onClick={handleTemplateDownload}>
+ Download template
+ </Button>
  <Button size="sm" variant="outline" onClick={() => setShowForm(true)}>
  <Plus className="mr-1.5 h-4 w-4" />
  Add Test Case
  </Button>
+ </div>
  </CardHeader>
  <CardContent className="space-y-3">
  {testCases.map((tc, idx) => (

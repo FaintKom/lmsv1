@@ -2244,6 +2244,7 @@ const tr: TranslationMap = {
  "exercise.categorize.announceWrong": "“{item}” {bucket} grubuna ait değil",
  "exercise.categorize.announceReturned": "“{item}” tepsiye geri alındı",
  "exercise.fillBlanks.checkHint": "Önce tüm boşlukları doldur",
+ "exercise.fillBlanks.howTo": "Bir kelimeye, sonra ait olduğu boşluğa dokun. Dolu boşluğa dokunursan kelime geri gelir.",
  "exercise.fillBlanks.here": "buraya!",
  "exercise.fillBlanks.announcePlaced": "“{word}” {n}. boşluğa yerleştirildi",
  "exercise.fillBlanks.announceRemoved": "“{word}” {n}. boşluktan kaldırıldı",

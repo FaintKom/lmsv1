@@ -2303,6 +2303,7 @@ const en: TranslationMap = {
  "exercise.categorize.announceWrong": "“{item}” doesn't belong in {bucket}",
  "exercise.categorize.announceReturned": "“{item}” returned to the tray",
  "exercise.fillBlanks.checkHint": "Fill every blank first",
+ "exercise.fillBlanks.howTo": "Tap a word, then tap the blank it belongs in. Tap a filled blank to take the word back.",
  "exercise.fillBlanks.here": "here!",
  "exercise.fillBlanks.announcePlaced": "Placed “{word}” in blank {n}",
  "exercise.fillBlanks.announceRemoved": "Removed “{word}” from blank {n}",

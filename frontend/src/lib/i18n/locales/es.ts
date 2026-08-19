@@ -2241,6 +2241,7 @@ const es: TranslationMap = {
  "exercise.categorize.announceWrong": "“{item}” no pertenece a {bucket}",
  "exercise.categorize.announceReturned": "“{item}” devuelto a la bandeja",
  "exercise.fillBlanks.checkHint": "Rellena todos los huecos primero",
+ "exercise.fillBlanks.howTo": "Toca una palabra y luego el hueco donde va. Toca un hueco lleno para recuperar la palabra.",
  "exercise.fillBlanks.here": "¡aquí!",
  "exercise.fillBlanks.announcePlaced": "“{word}” colocada en el hueco {n}",
  "exercise.fillBlanks.announceRemoved": "“{word}” quitada del hueco {n}",

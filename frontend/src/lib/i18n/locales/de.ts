@@ -2303,6 +2303,7 @@ const de: TranslationMap = {
  "exercise.categorize.announceWrong": "„{item}“ gehört nicht zu {bucket}",
  "exercise.categorize.announceReturned": "„{item}“ zurück in die Ablage",
  "exercise.fillBlanks.checkHint": "Fülle zuerst alle Lücken",
+ "exercise.fillBlanks.howTo": "Tippe auf ein Wort und dann auf seine Lücke. Tippe auf eine gefüllte Lücke, um das Wort zurückzunehmen.",
  "exercise.fillBlanks.here": "hier!",
  "exercise.fillBlanks.announcePlaced": "„{word}“ in Lücke {n} eingesetzt",
  "exercise.fillBlanks.announceRemoved": "„{word}“ aus Lücke {n} entfernt",
