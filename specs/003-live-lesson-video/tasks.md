@@ -445,6 +445,10 @@ small, and every one of them broke the feature completely.
 - [x] T116 Admin-only deletion of recordings (FR-040): endpoint that removes
   bytes and row together, refused to teachers — with the teacher refusal as
   the control — and a delete control on the recordings surfaces for admins
+- [x] T117 Compact the teacher's console (FR-041): measure what overflows at a
+  laptop viewport, tighten the group tab — media panel, split row, roster,
+  class message — so everything is on screen and only the roster scrolls
+  (owner, 2026-08-19: "удобно и компактно")
 - [x] T114 A recordings page for staff (FR-038): list from the endpoint that
   already exists, watch in place, toggle sharing with the group. Found by the
   owner asking "как посмотреть запись?" — the honest answer was "only from a

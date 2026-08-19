@@ -319,6 +319,11 @@ finished file arrives against that lesson and can be played back.
 - **FR-040**: An administrator — and only an administrator — MUST be able to
   delete a recording, file and row together. Teachers share; administrators
   dispose.
+- **FR-041**: The teacher's console MUST be compact enough to run a lesson
+  from: at a laptop viewport every control — scene rail, media controls,
+  roster, class message — is on screen without scrolling the page, and the
+  roster is the part that grows, scrolling within itself. A teacher mid-lesson
+  navigates by glance, not by scroll.
 - **FR-038**: Recordings MUST be findable after the toast is gone: a page
   lists the school's recordings for staff — newest first, with the length,
   the size and a way to watch — and each row can be shared with the group or

@@ -250,7 +250,7 @@ test.describe("a lesson with video in it", () => {
   test("the conversation is a thread both sides can read", async () => {
     // Teacher speaks to the class; the pupil reads it in the rail, not in a
     // toast that dies in fifteen seconds (FR-036).
-    await teacher.getByLabel(/message the class|сообщение классу/i).fill("Открываем страницу 42");
+    await teacher.getByRole("textbox", { name: /message the class|сообщение классу/i }).fill("Открываем страницу 42");
     await teacher.getByRole("button", { name: /message the class|отправить классу/i }).click();
     await expect(pupilA.getByText("Открываем страницу 42")).toBeVisible({ timeout: 15_000 });
 
