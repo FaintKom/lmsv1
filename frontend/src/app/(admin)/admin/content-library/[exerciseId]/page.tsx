@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { useParams, useRouter } from "next/navigation";
+import { useParams, useRouter, useSearchParams } from "next/navigation";
 import { toast } from "sonner";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -48,6 +48,7 @@ import {
 import { SCORMConfigEditor } from "@/components/exercises/scorm-package-exercise";
 import { MathStepwiseConfigEditor } from "@/components/exercises/math-stepwise-exercise";
 import { useTranslation } from "@/lib/i18n/context";
+import { backTarget } from "./back-target";
 
 const JsonConfigPanel = dynamic(() => import("./json-config-panel"), {
  ssr: false,
@@ -77,6 +78,9 @@ export default function ExerciseEditorPage() {
  const { t } = useTranslation();
  const { exerciseId } = useParams<{ exerciseId: string }>();
  const router = useRouter();
+ // Opened from a course editor? Its links carry ?courseId= so back returns there.
+ const fromCourseId = useSearchParams().get("courseId");
+ const backHref = backTarget(fromCourseId);
  const [exercise, setExercise] = useState<Exercise | null>(null);
  const [loading, setLoading] = useState(true);
  const [saving, setSaving] = useState(false);
@@ -160,7 +164,7 @@ export default function ExerciseEditorPage() {
  return (
  <div className="flex flex-col items-center justify-center py-24 text-text-subtle">
  <p>{t("admin.exerciseEditor.notFound")}</p>
- <Button variant="outline" className="mt-4" onClick={() => router.push("/admin/content-library")}>
+ <Button variant="outline" className="mt-4" onClick={() => router.push(backHref)}>
  {t("admin.exerciseEditor.backToLibrary")}
  </Button>
  </div>
@@ -172,7 +176,7 @@ export default function ExerciseEditorPage() {
  {/* Header */}
  <div className="flex items-center justify-between">
  <div className="flex items-center gap-3">
- <Button variant="ghost" size="sm" onClick={() => router.push("/admin/content-library")}>
+ <Button variant="ghost" size="sm" onClick={() => router.push(backHref)}>
  <ArrowLeft className="h-4 w-4" />
  </Button>
  <div>
@@ -207,7 +211,7 @@ export default function ExerciseEditorPage() {
  <Button
  variant="outline"
  size="sm"
- onClick={() => router.push(`/admin/content-library/${exerciseId}/submissions`)}
+ onClick={() => router.push(`/admin/content-library/${exerciseId}/submissions${fromCourseId ? `?courseId=${fromCourseId}` : ""}`)}
  >
  <Eye className="mr-1.5 h-4 w-4" />
  {t("admin.exerciseEditor.submissions")}

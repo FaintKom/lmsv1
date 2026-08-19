@@ -130,17 +130,18 @@ export default function NumberLine({ config, onComplete }: MathTemplateProps) {
  return (
  <g key={i} onPointerDown={() => handlePointerDown(i)} style={{ cursor: "grab" }}>
  {/* Hit area */}
- <rect x={x - 15} y={lineY - 35} width={30} height={55} fill="transparent" />
+ <rect x={x - 16} y={lineY - 42} width={32} height={62} fill="transparent" />
  {/* Marker triangle */}
  <polygon
- points={`${x},${lineY - 4} ${x - 9},${lineY - 24} ${x + 9},${lineY - 24}`}
+ points={`${x},${lineY - 4} ${x - 12},${lineY - 30} ${x + 12},${lineY - 30}`}
  fill={color} stroke="var(--color-surface)" strokeWidth={1.5}
  />
- {/* Letter inside triangle */}
- <text x={x} y={lineY - 13} textAnchor="middle" dominantBaseline="central"
- fontSize={9} fill="white" fontWeight="bold">{style.name}</text>
+ {/* Letter inside triangle — dark outline keeps it legible on any fill (specs/016 US3) */}
+ <text x={x} y={lineY - 20} textAnchor="middle" dominantBaseline="central"
+ fontSize={13} fill="white" fontWeight="bold"
+ stroke="rgba(0,0,0,0.6)" strokeWidth={2} paintOrder="stroke">{style.name}</text>
  {/* Value label above */}
- <text x={x} y={lineY - 32} textAnchor="middle" fontSize={10} fill={color} fontWeight="600">
+ <text x={x} y={lineY - 36} textAnchor="middle" fontSize={12} fill={color} fontWeight="600">
  {val}
  </text>
  </g>
