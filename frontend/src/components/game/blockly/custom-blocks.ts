@@ -148,6 +148,38 @@ defineMovementBlock("jump", ACTION);
 javascriptGenerator.forBlock["jump"] = () => 'robot.jump();\n';
 pythonGenerator.forBlock["jump"] = () => "jump()\n";
 
+// ─── World 3D vocabulary ────────────────────────────────────────────
+//
+// Block id == command name, as in the 2D vocabulary below: the level stores one
+// list of commands and the toolbox is filtered by that same list. If the ids
+// drifted from the names, a level offering `press` would show no block for it —
+// the class of bug this whole feature exists to remove.
+//
+// `move_forward`, `turn_left`, `turn_right`, `jump`, `take` and `drop` are
+// defined elsewhere in this file and shared. What follows is what only 3D has.
+
+defineMovementBlock("press", ACTION);
+javascriptGenerator.forBlock["press"] = () => "robot.interact();\n";
+pythonGenerator.forBlock["press"] = () => "press()\n";
+
+/** Sensors, one shape: a boolean with no inputs. */
+function defineWorldSensor(id: string, python: string) {
+  Blockly.Blocks[id] = {
+    init(this: Blockly.Block) {
+      this.appendDummyInput().appendField(getBlockLabel(id));
+      this.setOutput(true, "Boolean");
+      this.setColour(SENSE);
+      this.setTooltip(getBlockTooltip(id));
+    },
+  };
+  pythonGenerator.forBlock[id] = () => [python, PythonOrder.FUNCTION_CALL];
+}
+
+defineWorldSensor("gap_ahead", "gap_ahead()");
+defineWorldSensor("step_ahead", "step_ahead()");
+defineWorldSensor("button_ahead", "button_ahead()");
+defineWorldSensor("door_ahead", "door_ahead()");
+
 defineMovementBlock("interact", ACTION);
 javascriptGenerator.forBlock["interact"] = () => 'robot.interact();\n';
 pythonGenerator.forBlock["interact"] = () => "interact()\n";

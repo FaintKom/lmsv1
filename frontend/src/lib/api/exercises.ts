@@ -308,6 +308,68 @@ export interface RobotSolveAnswer {
  blockers: RobotBlocker[];
 }
 
+// ─── World 3D ───────────────────────────────────────────────────────
+//
+// The same shapes as the Robot ones above, because the two exercise types ask
+// the server the same two questions. See `specs/012-world-3d-rework/`.
+
+export interface WorldRunResult {
+  frames: WorldFrame[];
+  won: boolean;
+  steps: number;
+  /** Statements in the program that ran — the same rule for blocks and Python. */
+  size: number;
+  stars: number;
+  stopped: "end_of_program" | "steps_exhausted" | "error";
+  /** What the pupil printed, apart from what the character did. */
+  output: string;
+  output_truncated: boolean;
+  error: { type: string; line: number | null; message: string } | null;
+}
+
+export interface WorldFrame {
+  i: number;
+  cmd: string;
+  ok: boolean;
+  x: number;
+  z: number;
+  /** Height — the surface the character now stands on. */
+  y: number;
+  facing: "north" | "east" | "south" | "west";
+  /**
+   * What the scene should animate. Recorded rather than inferred: a jump, a
+   * climb and a fall all move the character one square, and telling them apart
+   * by comparing coordinates is the guesswork this field removes.
+   */
+  motion: "walk" | "climb" | "jump" | "fall" | "turn" | "none";
+  carrying: number;
+  items_left: number;
+  cells: { x: number; z: number; y: number; item?: boolean; pressed?: boolean; open?: boolean }[];
+  /** A refusal key — `wall`, `edge`, `too_high`. Translated before display. */
+  msg: string | null;
+}
+
+export interface WorldBlocker {
+  code: string;
+  commands?: string[];
+}
+
+/**
+ * What the Check button learned.
+ *
+ * `answer` is the field that matters. A `shortest` count is an optimum; a
+ * `reference_only` count is what the teacher's own solution happened to take,
+ * and showing the second as the first is the thing the editor must never do.
+ */
+export interface WorldSolveAnswer {
+  answer: "shortest" | "reference_only" | "unsolvable";
+  steps: number | null;
+  size: number | null;
+  /** Why no search was run: `too_many_targets` or `win_uses_steps`. */
+  reason: string | null;
+  blockers: WorldBlocker[];
+}
+
 export const exercisesApi = {
  list: (params?: {
  exercise_type?: ExerciseType;
@@ -348,6 +410,21 @@ export const exercisesApi = {
  /** Can this level be finished, and in how few steps. Staff only. */
  solveRobotLevel: (data: { config: Record<string, unknown> }) =>
  apiClient.post<RobotSolveAnswer>("/exercises/robot/solve", data),
+
+ /**
+ * Run a 3D program. Free — it never costs an attempt, because pressing Run is
+ * how a child finds out what their program does.
+ */
+ runWorld: (id: string, data: { source: string; mode: "python" | "blocks" }) =>
+ apiClient.post<WorldRunResult>(`/exercises/${id}/world/run`, data),
+
+ /** Playtest a 3D level nobody has saved yet. Staff only. */
+ previewWorldLevel: (data: { config: Record<string, unknown>; source: string }) =>
+ apiClient.post<WorldRunResult>("/exercises/world/preview", data),
+
+ /** Can this 3D level be finished, and in how few steps. Staff only. */
+ solveWorldLevel: (data: { config: Record<string, unknown> }) =>
+ apiClient.post<WorldSolveAnswer>("/exercises/world/solve", data),
 
  // Submissions
  submit: (id: string, data: Record<string, unknown>) =>

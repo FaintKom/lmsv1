@@ -21,6 +21,11 @@ const BLOCK_TRANSLATIONS: Record<string, BlockTranslations> = {
  jump: { label: "🦘 jump", tooltip: "Jump forward" },
  interact: { label: "👆 press", tooltip: "Press a button or open a door" },
  if_near_object: { label: "🔍 object nearby?", tooltip: "Check if there is a button or door ahead" },
+ press: { label: "👉 press", tooltip: "Press the button in front" },
+ gap_ahead: { label: "🕳️ gap ahead?", tooltip: "Is the square ahead lower down?" },
+ step_ahead: { label: "🪜 step ahead?", tooltip: "Is the square ahead one level up?" },
+ button_ahead: { label: "🔴 button ahead?", tooltip: "Is there an unpressed button ahead?" },
+ door_ahead: { label: "🚪 door ahead?", tooltip: "Is there a closed door ahead?" },
  },
  ru: {
  move_up: { label: "⬆️ вверх", tooltip: "Повернуться вверх и сделать шаг" },
@@ -39,6 +44,11 @@ const BLOCK_TRANSLATIONS: Record<string, BlockTranslations> = {
  jump: { label: "🦘 прыжок", tooltip: "Прыгнуть вперёд" },
  interact: { label: "👆 нажать", tooltip: "Нажать кнопку или открыть дверь" },
  if_near_object: { label: "🔍 объект рядом?", tooltip: "Проверить, есть ли кнопка или дверь впереди" },
+ press: { label: "👉 нажать", tooltip: "Нажать кнопку впереди" },
+ gap_ahead: { label: "🕳️ обрыв впереди?", tooltip: "Клетка впереди ниже?" },
+ step_ahead: { label: "🪜 ступенька впереди?", tooltip: "Клетка впереди на уровень выше?" },
+ button_ahead: { label: "🔴 кнопка впереди?", tooltip: "Впереди ненажатая кнопка?" },
+ door_ahead: { label: "🚪 дверь впереди?", tooltip: "Впереди закрытая дверь?" },
  },
  es: {
  move_up: { label: "⬆️ arriba", tooltip: "Girar hacia arriba y avanzar un paso" },
@@ -57,6 +67,11 @@ const BLOCK_TRANSLATIONS: Record<string, BlockTranslations> = {
  jump: { label: "🦘 saltar", tooltip: "Saltar hacia adelante" },
  interact: { label: "👆 presionar", tooltip: "Presionar un botón o abrir una puerta" },
  if_near_object: { label: "🔍 ¿objeto cerca?", tooltip: "Verificar si hay un botón o puerta adelante" },
+ press: { label: "👉 pulsar", tooltip: "Pulsa el botón de delante" },
+ gap_ahead: { label: "🕳️ ¿hueco delante?", tooltip: "¿La casilla de delante está más abajo?" },
+ step_ahead: { label: "🪜 ¿escalón delante?", tooltip: "¿La casilla de delante está un nivel más arriba?" },
+ button_ahead: { label: "🔴 ¿botón delante?", tooltip: "¿Hay un botón sin pulsar delante?" },
+ door_ahead: { label: "🚪 ¿puerta delante?", tooltip: "¿Hay una puerta cerrada delante?" },
  },
  tr: {
  move_up: { label: "⬆️ yukarı", tooltip: "Yukarı dön ve bir adım at" },
@@ -75,6 +90,11 @@ const BLOCK_TRANSLATIONS: Record<string, BlockTranslations> = {
  jump: { label: "🦘 zıpla", tooltip: "İleri zıpla" },
  interact: { label: "👆 bas", tooltip: "Bir düğmeye bas veya bir kapı aç" },
  if_near_object: { label: "🔍 yakında nesne var mı?", tooltip: "İleride düğme veya kapı olup olmadığını kontrol et" },
+ press: { label: "👉 bas", tooltip: "Önündeki düğmeye bas" },
+ gap_ahead: { label: "🕳️ önde boşluk?", tooltip: "Öndeki kare daha alçakta mı?" },
+ step_ahead: { label: "🪜 önde basamak?", tooltip: "Öndeki kare bir seviye yukarıda mı?" },
+ button_ahead: { label: "🔴 önde düğme?", tooltip: "İleride basılmamış bir düğme var mı?" },
+ door_ahead: { label: "🚪 önde kapı?", tooltip: "İleride kapalı bir kapı var mı?" },
  },
 };
 

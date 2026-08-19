@@ -15,7 +15,7 @@ interface SceneRendererProps {
 const CELL_COLORS: Record<string, string> = {
  empty: "#334155",
  wall: "#475569",
- collectible: "#f59e0b",
+ item: "#f59e0b",
  button: "#ef4444",
  door: "#8b5cf6",
  platform: "#64748b",
@@ -104,10 +104,10 @@ function GridFloor({ width, depth }: { width: number; depth: number }) {
 
 /** Render a single grid cell */
 function CellMesh({ cell }: { cell: GridCell3D }) {
- const color = cell.color || CELL_COLORS[cell.type] || "#94a3b8";
+ const color = CELL_COLORS[cell.type] || "#94a3b8";
  const baseY = cell.y * 0.5; // Each elevation level is 0.5 units
 
- if (cell.collected || (cell.type === "door" && cell.activated)) return null;
+ if (cell.type === "door" && cell.open) return null;
 
  switch (cell.type) {
  case "wall":
@@ -126,7 +126,7 @@ function CellMesh({ cell }: { cell: GridCell3D }) {
  </mesh>
  );
 
- case "collectible":
+ case "item":
  return <FloatingGem position={[cell.x, baseY + 0.6, cell.z]} color={color} />;
 
  case "goal":
@@ -157,8 +157,8 @@ function CellMesh({ cell }: { cell: GridCell3D }) {
  <mesh position={[0, 0.08, 0]} castShadow>
  <cylinderGeometry args={[0.2, 0.25, 0.16, 16]} />
  <meshStandardMaterial
- color={cell.activated ? "#22c55e" : color}
- emissive={cell.activated ? "#22c55e" : color}
+ color={cell.pressed ? "#22c55e" : color}
+ emissive={cell.pressed ? "#22c55e" : color}
  emissiveIntensity={0.4}
  />
  </mesh>
@@ -200,7 +200,7 @@ function PlayerMesh({ player }: { player: WorldState["player"] }) {
  current.z += (targetPos.z - current.z) * 0.15;
 
  // Jump arc for Y
- if (player.isJumping) {
+ if (player.motion === "jump") {
  const midY = targetPos.y + 0.6; // Jump arc peak
  const t = 1 - Math.abs(current.y - midY) / 0.6;
  current.y += (midY - current.y) * 0.1;

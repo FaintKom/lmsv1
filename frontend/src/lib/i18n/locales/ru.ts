@@ -665,6 +665,15 @@ const ru: TranslationMap = {
  "game.goalAnd": "и",
  "game.goalOr": "или",
  "game.goalNot": "не",
+
+ // World 3D — цель словами. Это инструкция ученику, а не секрет.
+ "world.goal.atGoal": "🏁 Дойти до флага",
+ "world.goal.allItems": "⭐ Собрать всё",
+ "world.goal.allButtons": "🔴 Нажать все кнопки",
+ "world.goal.allDoors": "🚪 Открыть все двери",
+ "world.goal.at": "📍 Встать на",
+ "world.goal.height": "🪜 Подняться на высоту",
+ "world.goal.steps": "👣 Уложиться в шагов:",
  "game.goal.at_goal": "🏁 Привести робота к флажку",
  "game.goal.all_items_taken": "⭐ Собрать всё",
  "game.goal.all_marks_painted": "🎨 Закрасить все отмеченные клетки",

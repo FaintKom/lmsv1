@@ -37,9 +37,9 @@ export interface Frame {
   msg: string | null;
 }
 
-export interface TracePlayerOptions {
+export interface TracePlayerOptions<F = Frame> {
   /** Called with each frame as it is reached, and with null on reset. */
-  onFrame?: (frame: Frame | null, index: number) => void;
+  onFrame?: (frame: F | null, index: number) => void;
   /** Called once the last frame has been shown, or playback stopped. */
   onEnd?: (reachedEnd: boolean) => void;
 }
@@ -47,17 +47,27 @@ export interface TracePlayerOptions {
 const MIN_DELAY_MS = 30;
 const MAX_DELAY_MS = 1000;
 
-export class TracePlayer {
+/**
+ * Generic in the frame, because the player never looks inside one — it counts
+ * them, indexes them, and hands them back. 2D and 3D describe a moment
+ * differently (a 3D frame carries a height, and what to animate), and one
+ * player serving both is the same reasoning that parameterised the backend
+ * runner.
+ *
+ * The type argument defaults to the 2D frame, so existing callers read as they
+ * did.
+ */
+export class TracePlayer<F = Frame> {
   /**
    * Assignable after construction, not only through the constructor, so a React
    * caller can build the player in a lazy state initialiser and wire the
    * callbacks up in an effect. Reading a ref inside a `useMemo` factory counts
    * as reading it during render, and the lint rule is right to say so.
    */
-  onFrame: TracePlayerOptions["onFrame"] | null = null;
-  onEnd: TracePlayerOptions["onEnd"] | null = null;
+  onFrame: TracePlayerOptions<F>["onFrame"] | null = null;
+  onEnd: TracePlayerOptions<F>["onEnd"] | null = null;
 
-  private frames: Frame[] = [];
+  private frames: F[] = [];
   private index = -1;
   private delayMs = 300;
   private playing = false;
@@ -65,12 +75,12 @@ export class TracePlayer {
   /** Bumped on every load and stop, so a sleeping play loop knows it is stale. */
   private generation = 0;
 
-  constructor(options: TracePlayerOptions = {}) {
+  constructor(options: TracePlayerOptions<F> = {}) {
     this.onFrame = options.onFrame ?? null;
     this.onEnd = options.onEnd ?? null;
   }
 
-  load(frames: Frame[]) {
+  load(frames: F[]) {
     this.generation += 1;
     this.frames = frames;
     this.index = -1;
@@ -84,7 +94,7 @@ export class TracePlayer {
   }
 
   /** Show one more frame. Returns it, or null at the end. */
-  step(): Frame | null {
+  step(): F | null {
     if (this.index >= this.frames.length - 1) return null;
     this.index += 1;
     const frame = this.frames[this.index];
@@ -96,7 +106,7 @@ export class TracePlayer {
    * Jump to a frame. Accepts -1 for "before anything happened", which is how
    * the player shows the level as the pupil found it.
    */
-  seek(index: number): Frame | null {
+  seek(index: number): F | null {
     const clamped = Math.max(-1, Math.min(this.frames.length - 1, index));
     this.index = clamped;
     const frame = clamped < 0 ? null : this.frames[clamped];
@@ -151,7 +161,7 @@ export class TracePlayer {
     return this.index;
   }
 
-  get current(): Frame | null {
+  get current(): F | null {
     return this.index < 0 ? null : (this.frames[this.index] ?? null);
   }
 

@@ -1,293 +1,479 @@
 "use client";
 
-import { useState, useRef, useCallback, useEffect } from "react";
-import dynamic from "next/dynamic";
-import {
- Play,
- Pause,
- SkipForward,
- RotateCcw,
- Gauge,
- Code,
- Blocks,
- Lightbulb,
- Trophy,
-} from "lucide-react";
-import { Button } from "@/components/ui/button";
-import { SceneEngine, type WorldState, type GridCell3D } from "./scene-engine";
-import {
- StepExecutor,
- parseCommands,
- type GameCommand,
-} from "./legacy-step-executor";
-import type { Difficulty } from "@/components/game/blockly/toolbox-configs";
-import { DIFFICULTY_3D_TOOLBOXES } from "@/components/game/blockly/toolbox-configs";
+/**
+ * The pupil's side of a 3D level.
+ *
+ * Run posts the program and gets back every frame the server's own run
+ * produced. Nothing here decides whether the level was won — it plays what it
+ * is handed. That is the point: the browser used to declare its own victory,
+ * and the server recorded the claim.
+ *
+ * The 2D twin is `robot-2d/robot-2d-exercise.tsx`, deliberately the same shape.
+ * A child moving between the two exercise types meets the same controls, and a
+ * reader who knows one file knows this one.
+ */
 
-const BlocklyWorkspace = dynamic(
- () => import("@/components/game/blockly/blockly-workspace"),
- { ssr: false }
-);
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import dynamic from "next/dynamic";
+import { Blocks, Code, Gauge, Lightbulb, Pause, Play, RotateCcw, SkipForward } from "lucide-react";
+import Editor from "@monaco-editor/react";
+
+import { Button } from "@/components/ui/button";
+import { useTranslation } from "@/lib/i18n/context";
+import { exercisesApi, type WorldRunResult } from "@/lib/api/exercises";
+import { initialState, stateAt, type WorldState } from "./scene-engine";
+import { TracePlayer } from "@/components/game/engine/trace-player";
+import { buildWorldToolbox } from "@/components/game/blockly/toolbox-configs";
+
+const BlocklyWorkspace = dynamic(() => import("@/components/game/blockly/blockly-workspace"), {
+  ssr: false,
+});
 
 const SceneRenderer = dynamic(() => import("./scene-renderer"), {
- ssr: false,
- loading: () => (
- <div className="flex h-full items-center justify-center bg-[#1a1a2e] text-text-subtle text-sm">
- Loading 3D scene...
- </div>
- ),
+  ssr: false,
+  loading: () => <div className="h-full w-full bg-surface-2" />,
 });
 
 interface World3DExerciseProps {
- exerciseId: string;
- config: Record<string, unknown>;
- onSubmit: (result: {
- completed: boolean;
- score: number;
- steps_used: number;
- time_seconds: number;
- code_snapshot: string | null;
- }) => void;
+  exerciseId: string;
+  config: Record<string, unknown>;
+  /** The program, and nothing about how it went. */
+  onSubmit: (result: { source: string; mode: "python" | "blocks" }) => void;
 }
 
-export default function World3DExercise({
- exerciseId,
- config,
- onSubmit,
-}: World3DExerciseProps) {
- const gridWidth = (config.grid_width as number) || 6;
- const gridDepth = (config.grid_depth as number) || 6;
- const cells = (config.cells as GridCell3D[]) || [];
- const playerStart = (config.player_start as { x: number; y?: number; z: number; direction?: "north" | "east" | "south" | "west" }) || { x: 0, z: 0 };
- const winCondition = (config.win_condition as "reach_goal" | "collect_all" | "custom") || "reach_goal";
- const difficulty = (config.difficulty as Difficulty) || "beginner";
- const maxBlocks = config.max_blocks as number | undefined;
- const hints = (config.hints as string[]) || [];
- const allowPython = (config.allow_python as boolean) || false;
+const DEFAULT_COMMANDS = ["move_forward", "turn_left", "turn_right", "at_goal"];
 
- const [worldState, setWorldState] = useState<WorldState | null>(null);
- const [mode, setMode] = useState<"blocks" | "python">("blocks");
- const [isRunning, setIsRunning] = useState(false);
- const [isPaused, setIsPaused] = useState(false);
- const [speed, setSpeed] = useState(400);
- const [showHint, setShowHint] = useState(false);
- const [hintIndex, setHintIndex] = useState(0);
- const [completed, setCompleted] = useState(false);
- const [failed, setFailed] = useState<string | null>(null);
- const [stepsUsed, setStepsUsed] = useState(0);
+export default function World3DExercise({ exerciseId, config, onSubmit }: World3DExerciseProps) {
+  const { t } = useTranslation();
 
- const engineRef = useRef<SceneEngine | null>(null);
- const executorRef = useRef<StepExecutor>(new StepExecutor());
- const codeRef = useRef({ js: "", python: "", xml: "" });
- const startTimeRef = useRef<number>(0);
+  /** The one record of what this level offers (FR-019). */
+  const commands = useMemo(() => {
+    const chosen = config.commands as string[] | undefined;
+    return chosen?.length ? chosen : DEFAULT_COMMANDS;
+  }, [config.commands]);
 
- useEffect(() => {
- const engine = new SceneEngine(gridWidth, gridDepth, cells, playerStart, winCondition);
- engineRef.current = engine;
- setWorldState(engine.getState());
- setCompleted(false);
- setFailed(null);
- setStepsUsed(0);
- }, []);
+  const hints = useMemo(() => (config.hints as string[]) || [], [config.hints]);
+  const toolbox = useMemo(() => buildWorldToolbox(commands), [commands]);
 
- const handleCodeChange = useCallback((js: string, python: string, xml: string) => {
- codeRef.current = { js, python, xml };
- }, []);
+  /** Header and autocompletion read the same list, so they cannot disagree. */
+  const starter = useMemo(
+    () => `# ${t("game.starterHeader")}\n` + commands.map((c) => `#   ${c}()`).join("\n") + "\n\n",
+    [commands, t],
+  );
 
- const handleReset = useCallback(() => {
- executorRef.current.reset();
- if (engineRef.current) {
- setWorldState(engineRef.current.reset());
- }
- setIsRunning(false);
- setIsPaused(false);
- setCompleted(false);
- setFailed(null);
- setStepsUsed(0);
- }, []);
+  // Held in refs so the player's callbacks never read a stale render's copy.
+  const frames = useRef<WorldRunResult["frames"]>([]);
+  const won = useRef(false);
+  const blocklyPython = useRef("");
+  /** The program the loaded trace came from, so Step re-runs edited code. */
+  const ranSource = useRef<string | null>(null);
 
- const handlePlay = useCallback(async () => {
- if (!engineRef.current) return;
- const engine = engineRef.current;
- handleReset();
+  const [mode, setMode] = useState<"blocks" | "python">("blocks");
+  const [pythonCode, setPythonCode] = useState(starter);
+  const [world, setWorld] = useState<WorldState>(() => initialState(config));
+  const [result, setResult] = useState<WorldRunResult | null>(null);
+  const [running, setRunning] = useState(false);
+  const [paused, setPaused] = useState(false);
+  const [speed, setSpeed] = useState(320);
+  const [showHint, setShowHint] = useState(false);
+  const [hintIndex, setHintIndex] = useState(0);
+  const [isDark, setIsDark] = useState(false);
+  const [failure, setFailure] = useState<string | null>(null);
 
- const commands = parseCommands(codeRef.current.js);
- if (commands.length === 0) {
- setFailed("No commands to execute. Add some blocks!");
- return;
- }
+  // Built in an effect, not during render: a ref read from a `useMemo` factory
+  // is a read during render, and the lint rule that catches it is right.
+  const playerRef = useRef<TracePlayer<WorldRunResult["frames"][number]> | null>(null);
 
- const executor = executorRef.current;
- executor.load(commands, (cond) => engine.evaluateCondition(cond));
- executor.setSpeed(speed);
- startTimeRef.current = Date.now();
+  useEffect(() => {
+    const player = new TracePlayer<WorldRunResult["frames"][number]>({
+      onFrame: (_frame, index) => {
+        setWorld(stateAt(config, frames.current, index + 1, won.current));
+      },
+      onEnd: () => {
+        setRunning(false);
+        setPaused(false);
+      },
+    });
+    playerRef.current = player;
+    return () => player.stop();
+  }, [config]);
 
- executor.onStep = (cmd: GameCommand) => {
- const result = engine.executeCommand(cmd.type);
- setWorldState(engine.getState());
- setStepsUsed(executor.totalSteps);
+  // No effect resets this component when the level changes. The renderer keys it
+  // on the exercise id, so a different level is a different instance.
 
- if (!result.success) {
- setFailed(result.message || "Command failed");
- return true;
- }
- if (engine.checkWinCondition()) {
- setCompleted(true);
- return true;
- }
- };
+  useEffect(() => {
+    const mq = window.matchMedia("(prefers-color-scheme: dark)");
+    const check = () =>
+      setIsDark(document.documentElement.classList.contains("dark") || mq.matches);
+    check();
+    const observer = new MutationObserver(check);
+    observer.observe(document.documentElement, { attributes: true, attributeFilter: ["class"] });
+    mq.addEventListener("change", check);
+    return () => {
+      observer.disconnect();
+      mq.removeEventListener("change", check);
+    };
+  }, []);
 
- executor.onComplete = () => {
- setIsRunning(false);
- if (!engine.checkWinCondition()) {
- setFailed("Program finished but the goal was not reached.");
- }
- };
+  const currentSource = useCallback(
+    () => (mode === "python" ? pythonCode : blocklyPython.current),
+    [mode, pythonCode],
+  );
 
- executor.onError = (msg: string) => {
- setFailed(msg);
- setIsRunning(false);
- };
+  const handleReset = useCallback(() => {
+    playerRef.current?.reset();
+    setWorld(initialState(config));
+    setResult(null);
+    setFailure(null);
+    setRunning(false);
+    setPaused(false);
+  }, [config]);
 
- setIsRunning(true);
- setFailed(null);
- await executor.executeAll(speed);
- setIsRunning(false);
- }, [speed, handleReset]);
+  const runProgram = useCallback(async (): Promise<WorldRunResult | null> => {
+    const source = currentSource().trim();
+    if (!source) {
+      setFailure(t(mode === "python" ? "game.noCommandsPython" : "game.noCommands"));
+      return null;
+    }
 
- const handlePause = useCallback(() => {
- if (isPaused) {
- executorRef.current.resume();
- setIsPaused(false);
- } else {
- executorRef.current.pause();
- setIsPaused(true);
- }
- }, [isPaused]);
+    setFailure(null);
+    try {
+      const { data } = await exercisesApi.runWorld(exerciseId, { source, mode });
+      setResult(data);
+      frames.current = data.frames;
+      won.current = data.won;
+      ranSource.current = source;
+      playerRef.current?.load(data.frames);
+      return data;
+    } catch {
+      setFailure(t("game.runnerUnavailable"));
+      return null;
+    }
+  }, [currentSource, exerciseId, mode, t]);
 
- const handleSubmit = useCallback(() => {
- const elapsed = (Date.now() - startTimeRef.current) / 1000;
- onSubmit({
- completed: true,
- score: 1.0,
- steps_used: stepsUsed,
- time_seconds: elapsed,
- code_snapshot: codeRef.current.python || codeRef.current.js,
- });
- }, [onSubmit, stepsUsed]);
+  const handlePlay = useCallback(async () => {
+    handleReset();
+    if (!(await runProgram())) return;
+    setRunning(true);
+    await playerRef.current?.play(speed);
+  }, [handleReset, runProgram, speed]);
 
- if (!worldState) return null;
+  const handleStep = useCallback(async () => {
+    const stale =
+      (playerRef.current?.length ?? 0) === 0 || ranSource.current !== currentSource().trim();
+    if (stale) {
+      handleReset();
+      if (!(await runProgram())) return;
+    }
+    playerRef.current?.step();
+  }, [currentSource, handleReset, runProgram]);
 
- return (
- <div className="flex h-full flex-col gap-0">
- {/* Toolbar */}
- <div className="flex items-center justify-between border-b border-border-strong bg-surface px-4 py-2 ">
- <div className="flex items-center gap-2">
- {allowPython && (
- <div className="flex rounded-lg border border-border-strong ">
- <button onClick={() => setMode("blocks")}
- className={`flex items-center gap-1 px-3 py-1.5 text-xs font-medium transition-colors ${mode === "blocks" ? "bg-primary-soft text-success-fg " : "text-text-muted"}`}>
- <Blocks className="h-3.5 w-3.5" /> Blocks
- </button>
- <button onClick={() => setMode("python")}
- className={`flex items-center gap-1 px-3 py-1.5 text-xs font-medium transition-colors ${mode === "python" ? "bg-primary-soft text-success-fg " : "text-text-muted"}`}>
- <Code className="h-3.5 w-3.5" /> Python
- </button>
- </div>
- )}
- <span className="text-xs text-text-subtle">Steps: {stepsUsed}</span>
- </div>
+  const handlePause = useCallback(() => {
+    if (paused) {
+      playerRef.current?.resume();
+      setPaused(false);
+    } else {
+      playerRef.current?.pause();
+      setPaused(true);
+    }
+  }, [paused]);
 
- <div className="flex items-center gap-2">
- <Gauge className="h-3.5 w-3.5 text-text-subtle" />
- <input type="range" min={50} max={800} step={50} value={850 - speed}
- onChange={(e) => setSpeed(850 - parseInt(e.target.value))}
- className="h-1.5 w-16 accent-primary" title="Speed" />
+  const handleSubmit = useCallback(() => {
+    onSubmit({ source: currentSource(), mode });
+  }, [currentSource, mode, onSubmit]);
 
- {isRunning ? (
- <Button size="sm" onClick={handlePause}>
- {isPaused ? <Play className="h-3.5 w-3.5" /> : <Pause className="h-3.5 w-3.5" />}
- {isPaused ? "Resume" : "Pause"}
- </Button>
- ) : (
- <Button size="sm" onClick={handlePlay} disabled={completed}>
- <Play className="h-3.5 w-3.5" /> Run
- </Button>
- )}
+  const task = describeGoal(config.win, t);
+  const stars = result?.stars ?? 0;
+  const finished = Boolean(result?.won);
+  const problem = failure ?? describeStop(result, t);
 
- <Button variant="outline" size="sm" onClick={handleReset}>
- <RotateCcw className="h-3.5 w-3.5" />
- </Button>
- </div>
- </div>
+  return (
+    <div className="flex h-full flex-col">
+      <div className="flex min-h-0 flex-1 flex-col lg:flex-row">
+        {/* The world */}
+        <div className="flex w-full shrink-0 flex-col lg:w-[520px]">
+          <div className="flex items-center gap-3 border-b border-border-strong bg-surface px-4 py-3">
+            <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-pill bg-lagoon-400 text-lg">
+              🧭
+            </div>
+            <p className="text-sm font-semibold text-text">{task}</p>
+          </div>
 
- {/* Main: Blockly + 3D Scene */}
- <div className="flex flex-1" style={{ minHeight: 520 }}>
- {/* Blockly */}
- <div className="w-[380px] border-r border-border-strong ">
- <BlocklyWorkspace
- toolbox={DIFFICULTY_3D_TOOLBOXES[difficulty]}
- mode={mode}
- maxBlocks={maxBlocks}
- onCodeChange={handleCodeChange}
- className="h-full w-full"
- />
- </div>
+          <div className="min-h-[280px] flex-1 lg:min-h-0">
+            <SceneRenderer state={world} isRunning={running} />
+          </div>
 
- {/* 3D Viewport + status */}
- <div className="flex flex-1 flex-col">
- <div className="flex-1">
- <SceneRenderer state={worldState} isRunning={isRunning} />
- </div>
+          <div className="flex items-center justify-between border-t border-border-strong bg-surface px-3 py-2.5">
+            <div className="flex items-center gap-2">
+              <span className="rounded-md bg-surface-2 px-2 py-1 text-2xs font-semibold text-text-muted">
+                {world.stepsUsed} {t("game.steps")}
+              </span>
+              {result && (
+                <span className="rounded-md bg-surface-2 px-2 py-1 text-2xs font-semibold text-text-muted">
+                  {result.size} {t("game.statements")}
+                </span>
+              )}
+            </div>
 
- {/* Status */}
- <div className="border-t border-border-strong bg-surface p-3 ">
- {completed ? (
- <div className="flex items-center justify-between">
- <div className="flex items-center gap-2 text-primary ">
- <Trophy className="h-5 w-5" />
- <span className="text-sm font-semibold">Level Complete!</span>
- <span className="text-xs text-text-subtle">{stepsUsed} steps</span>
- </div>
- <Button size="sm" onClick={handleSubmit}>Submit</Button>
- </div>
- ) : failed ? (
- <div className="space-y-2">
- <p className="text-sm text-danger-fg ">{failed}</p>
- <div className="flex gap-2">
- <Button variant="outline" size="sm" onClick={handleReset}>Try Again</Button>
- {hints.length > 0 && (
- <Button variant="ghost" size="sm" onClick={() => { setShowHint(true); setHintIndex(Math.min(hintIndex, hints.length - 1)); }}>
- <Lightbulb className="mr-1 h-3.5 w-3.5" /> Hint
- </Button>
- )}
- </div>
- </div>
- ) : (
- <div className="flex items-center justify-between text-xs text-text-subtle">
- <span>
- {winCondition === "reach_goal" ? "Navigate to the green goal" :
- winCondition === "collect_all" ? `Collect all items (${worldState.player.collected}/${worldState.cells.filter(o => o.type === "collectible").length})` :
- "Complete the objective"}
- </span>
- {hints.length > 0 && (
- <button onClick={() => setShowHint(!showHint)} className="flex items-center gap-1 text-warning-fg hover:text-warning-fg">
- <Lightbulb className="h-3 w-3" /> Hint
- </button>
- )}
- </div>
- )}
+            <div className="flex items-center gap-2">
+              <button
+                onClick={handleReset}
+                title={t("game.reset")}
+                className="flex h-10 w-10 items-center justify-center rounded-lg bg-[#8B5CF6] text-white shadow-sm transition hover:bg-[#7c3aed] active:scale-95"
+              >
+                <RotateCcw className="h-4 w-4" />
+              </button>
 
- {showHint && hints.length > 0 && (
- <div className="mt-2 rounded-lg bg-warning-soft p-2.5 text-xs text-warning-fg ">
- <p>{hints[hintIndex]}</p>
- {hintIndex < hints.length - 1 && (
- <button onClick={() => setHintIndex(hintIndex + 1)} className="mt-1 text-warning-fg underline ">Next hint</button>
- )}
- </div>
- )}
- </div>
- </div>
- </div>
- </div>
- );
+              <button
+                onClick={handleStep}
+                disabled={running}
+                title={t("game.step")}
+                className="flex h-10 w-10 items-center justify-center rounded-lg bg-ink-200 text-text-muted transition hover:bg-ink-300 active:scale-95 disabled:opacity-30"
+              >
+                <SkipForward className="h-4 w-4" />
+              </button>
+
+              {running ? (
+                <button
+                  onClick={handlePause}
+                  title={paused ? t("game.resume") : t("game.pause")}
+                  className="flex h-10 items-center gap-1.5 rounded-lg bg-[#FFA400] px-5 text-sm font-bold text-white shadow-md transition hover:bg-[#e69400] active:scale-95"
+                >
+                  {paused ? <Play className="h-4 w-4" /> : <Pause className="h-4 w-4" />}
+                </button>
+              ) : (
+                <button
+                  onClick={handlePlay}
+                  className="flex h-10 items-center gap-1.5 rounded-lg bg-[#FFA400] px-6 text-sm font-bold text-white shadow-md transition hover:bg-[#e69400] active:scale-95"
+                >
+                  <Play className="h-4 w-4" />
+                  {t("game.run")}
+                </button>
+              )}
+
+              <div className="ml-1 hidden items-center gap-1 sm:flex">
+                <Gauge className="h-3.5 w-3.5 text-text-subtle" />
+                <input
+                  type="range"
+                  min={50}
+                  max={600}
+                  step={50}
+                  value={650 - speed}
+                  onChange={(e) => setSpeed(650 - parseInt(e.target.value, 10))}
+                  className="h-1 w-12 accent-[#FFA400]"
+                  aria-label={t("game.speed")}
+                />
+              </div>
+            </div>
+
+            <div>
+              {hints.length > 0 && !finished && (
+                <button
+                  onClick={() => setShowHint(!showHint)}
+                  className="flex items-center gap-1 rounded-lg bg-warning-soft px-2.5 py-1.5 text-xs font-semibold text-warning-fg transition-colors"
+                >
+                  <Lightbulb className="h-3.5 w-3.5" />
+                  {t("game.hint")}
+                </button>
+              )}
+            </div>
+          </div>
+
+          {(finished || problem || showHint) && (
+            <div className="border-t border-border-strong bg-surface px-4 py-3">
+              {finished && (
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-3">
+                    <div className="flex gap-0.5">
+                      {[1, 2, 3].map((n) => (
+                        <span
+                          key={n}
+                          className={`text-xl transition ${n <= stars ? "scale-110 text-warning" : "text-text-subtle"}`}
+                        >
+                          ★
+                        </span>
+                      ))}
+                    </div>
+                    <div>
+                      <span className="text-sm font-bold text-primary">
+                        {t("game.levelComplete")}
+                      </span>
+                      <span className="ml-2 text-xs text-text-subtle">
+                        {result?.steps} {t("game.steps")} · {result?.size} {t("game.statements")}
+                      </span>
+                    </div>
+                  </div>
+                  <Button size="sm" onClick={handleSubmit}>
+                    {t("game.submit")}
+                  </Button>
+                </div>
+              )}
+
+              {problem && !finished && (
+                <div className="flex items-center gap-3">
+                  <span className="text-sm text-danger-fg">{problem}</span>
+                  <Button variant="outline" size="sm" onClick={handleReset}>
+                    {t("game.tryAgain")}
+                  </Button>
+                </div>
+              )}
+
+              {showHint && hints.length > 0 && !finished && (
+                <div className="mt-2 rounded-lg bg-warning-soft p-2.5 text-xs text-warning-fg">
+                  <p>{hints[hintIndex]}</p>
+                  {hintIndex < hints.length - 1 && (
+                    <button onClick={() => setHintIndex(hintIndex + 1)} className="mt-1 underline">
+                      {t("game.nextHint")}
+                    </button>
+                  )}
+                </div>
+              )}
+            </div>
+          )}
+        </div>
+
+        {/* The program */}
+        <div className="flex min-h-[250px] min-w-0 flex-1 flex-col border-t border-border-strong lg:border-l lg:border-t-0">
+          <div className="flex items-center gap-1 border-b border-border-strong/60 bg-surface px-4 py-2">
+            <button
+              onClick={() => setMode("blocks")}
+              className={`flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs font-medium transition-colors ${
+                mode === "blocks"
+                  ? "bg-primary-soft text-success-fg"
+                  : "text-text-muted hover:text-text"
+              }`}
+            >
+              <Blocks className="h-3.5 w-3.5" /> {t("game.blocksTab")}
+            </button>
+            <button
+              onClick={() => setMode("python")}
+              className={`flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs font-medium transition-colors ${
+                mode === "python"
+                  ? "bg-primary-soft text-success-fg"
+                  : "text-text-muted hover:text-text"
+              }`}
+            >
+              <Code className="h-3.5 w-3.5" /> {t("game.pythonTab")}
+            </button>
+          </div>
+
+          <div className="min-h-0 flex-1">
+            {mode === "python" ? (
+              <Editor
+                height="100%"
+                language="python"
+                value={pythonCode}
+                onChange={(v) => setPythonCode(v || "")}
+                theme={isDark ? "vs-dark" : "vs-light"}
+                onMount={(_editor, monaco) => registerCommandCompletion(monaco, commands)}
+                options={{
+                  minimap: { enabled: false },
+                  fontSize: 14,
+                  lineNumbers: "on",
+                  scrollBeyondLastLine: false,
+                  automaticLayout: true,
+                  tabSize: 4,
+                  padding: { top: 12 },
+                  fontFamily: "'Geist Mono', 'Fira Code', 'Consolas', monospace",
+                }}
+              />
+            ) : (
+              <BlocklyWorkspace
+                toolbox={toolbox}
+                mode="blocks"
+                onCodeChange={(_js, python) => {
+                  blocklyPython.current = python;
+                }}
+                className="h-full w-full"
+              />
+            )}
+          </div>
+
+          {/* What the pupil printed, apart from what the character did. */}
+          {result && (result.output || result.error) && (
+            <div className="max-h-32 overflow-auto border-t border-border-strong bg-surface-2 px-4 py-2 font-mono text-2xs">
+              {result.error && (
+                <p className="font-semibold text-danger-fg">
+                  {result.error.line !== null ? `${t("game.line")} ${result.error.line}: ` : ""}
+                  {result.error.type}: {result.error.message}
+                </p>
+              )}
+              {result.output && (
+                <pre className="whitespace-pre-wrap text-text-muted">
+                  {result.output}
+                  {result.output_truncated ? `\n… ${t("game.outputTruncated")}` : ""}
+                </pre>
+              )}
+            </div>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+type Translate = (key: string) => string;
+
+/** The goal, in words. It is the pupil's instructions, not a secret (FR-023). */
+function describeGoal(win: unknown, t: Translate): string {
+  const node = win as Record<string, unknown> | undefined;
+  if (!node) return t("game.completeTask");
+
+  const op = node.op as string | undefined;
+  if (op) {
+    const children = (node.of as Record<string, unknown>[]) || [];
+    const parts = children.map((c) => describeGoal(c, t));
+    if (op === "not") return `${t("game.goalNot")} ${parts[0]}`;
+    const joiner = op === "and" ? t("game.goalAnd") : t("game.goalOr");
+    return parts.join(` ${joiner} `);
+  }
+
+  switch (node.cond) {
+    case "at_goal":
+      return t("world.goal.atGoal");
+    case "all_items_taken":
+      return t("world.goal.allItems");
+    case "all_buttons_pressed":
+      return t("world.goal.allButtons");
+    case "all_doors_open":
+      return t("world.goal.allDoors");
+    case "at":
+      return `${t("world.goal.at")} (${node.x}, ${node.z})`;
+    case "height_at_least":
+      return `${t("world.goal.height")} ${node.n}`;
+    case "steps_at_most":
+      return `${t("world.goal.steps")} ${node.n}`;
+    default:
+      return t("game.completeTask");
+  }
+}
+
+/** Why the run stopped, in a sentence rather than an exception. */
+function describeStop(result: WorldRunResult | null, t: Translate): string | null {
+  if (!result || result.won) return null;
+  if (result.stopped === "steps_exhausted") return t("game.stepsExhausted");
+  if (result.error) return null; // the output pane already shows it, with its line
+  return t("game.goalNotReached");
+}
+
+/** Offer exactly the commands this level offers, and nothing else. */
+function registerCommandCompletion(monaco: typeof import("monaco-editor"), commands: string[]) {
+  monaco.languages.registerCompletionItemProvider("python", {
+    provideCompletionItems: (model, position) => {
+      const word = model.getWordUntilPosition(position);
+      return {
+        suggestions: commands.map((name) => ({
+          label: `${name}()`,
+          kind: monaco.languages.CompletionItemKind.Function,
+          insertText: `${name}()`,
+          range: {
+            startLineNumber: position.lineNumber,
+            endLineNumber: position.lineNumber,
+            startColumn: word.startColumn,
+            endColumn: word.endColumn,
+          },
+        })),
+      };
+    },
+  });
 }
