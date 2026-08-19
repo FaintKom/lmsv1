@@ -2303,6 +2303,7 @@ const uk: TranslationMap = {
  "exercise.categorize.announceWrong": "«{item}» не належить до {bucket}",
  "exercise.categorize.announceReturned": "«{item}» повернено в лоток",
  "exercise.fillBlanks.checkHint": "Спочатку заповни всі пропуски",
+ "exercise.fillBlanks.howTo": "Натисни на слово, а потім на пропуск, куди воно стає. Натисни на заповнений пропуск — слово повернеться.",
  "exercise.fillBlanks.here": "сюди!",
  "exercise.fillBlanks.announcePlaced": "«{word}» вставлено в пропуск {n}",
  "exercise.fillBlanks.announceRemoved": "«{word}» прибрано з пропуску {n}",

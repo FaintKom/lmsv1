@@ -2251,6 +2251,7 @@ const ru: TranslationMap = {
  "exercise.categorize.announceWrong": "«{item}» не относится к {bucket}",
  "exercise.categorize.announceReturned": "«{item}» возвращено в лоток",
  "exercise.fillBlanks.checkHint": "Сначала заполни все пропуски",
+ "exercise.fillBlanks.howTo": "Нажми на слово, потом на пропуск, куда оно встаёт. Нажми на заполненный пропуск — слово вернётся.",
  "exercise.fillBlanks.here": "сюда!",
  "exercise.fillBlanks.announcePlaced": "«{word}» вставлено в пропуск {n}",
  "exercise.fillBlanks.announceRemoved": "«{word}» убрано из пропуска {n}",

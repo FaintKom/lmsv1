@@ -1,9 +1,12 @@
 "use client";
 import { useState, useMemo, useCallback } from "react";
+import { generateWordSearchGrid, seedFromWords } from "./word-search-grid";
 
 interface WordSearchConfig {
   grid_size?: number;
   words?: string[];
+  /** Layout seed the teacher chose in the editor; absent on old exercises. */
+  seed?: number;
 }
 
 interface Props {
@@ -17,60 +20,17 @@ interface Cell {
   col: number;
 }
 
-function generateGrid(size: number, words: string[]): string[][] {
-  const grid: string[][] = Array.from({ length: size }, () =>
-    Array.from({ length: size }, () => "")
-  );
-  const directions = [
-    [0, 1],
-    [1, 0],
-    [1, 1],
-    [0, -1],
-    [1, -1],
-  ];
-
-  for (const word of words) {
-    const upper = word.toUpperCase();
-    let placed = false;
-    for (let attempt = 0; attempt < 100 && !placed; attempt++) {
-      const dir = directions[Math.floor(Math.random() * directions.length)];
-      const maxR = size - (dir[0] === 1 ? upper.length : 1);
-      const maxC = dir[1] === 1 ? size - upper.length : dir[1] === -1 ? size - 1 : size - 1;
-      const minC = dir[1] === -1 ? upper.length - 1 : 0;
-      if (maxR < 0 || maxC < minC) continue;
-      const r = Math.floor(Math.random() * (maxR + 1));
-      const c = minC + Math.floor(Math.random() * (maxC - minC + 1));
-
-      let fits = true;
-      for (let i = 0; i < upper.length; i++) {
-        const nr = r + dir[0] * i;
-        const nc = c + dir[1] * i;
-        if (nr < 0 || nr >= size || nc < 0 || nc >= size) { fits = false; break; }
-        if (grid[nr][nc] && grid[nr][nc] !== upper[i]) { fits = false; break; }
-      }
-      if (fits) {
-        for (let i = 0; i < upper.length; i++) {
-          grid[r + dir[0] * i][c + dir[1] * i] = upper[i];
-        }
-        placed = true;
-      }
-    }
-  }
-
-  const alpha = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
-  for (let r = 0; r < size; r++) {
-    for (let c = 0; c < size; c++) {
-      if (!grid[r][c]) grid[r][c] = alpha[Math.floor(Math.random() * 26)];
-    }
-  }
-  return grid;
-}
-
 export default function WordSearchExercise({ config, onSubmit }: Props) {
-  const words = config.words || [];
+  const words = useMemo(() => config.words || [], [config.words]);
   const gridSize = config.grid_size || 10;
 
-  const grid = useMemo(() => generateGrid(gridSize, words), [gridSize, words]);
+  // Deterministic: the teacher's chosen seed, or a stable hash for old
+  // exercises. The pupil sees the same grid on every open — and the same
+  // grid the editor previewed.
+  const grid = useMemo(
+    () => generateWordSearchGrid(words, gridSize, config.seed ?? seedFromWords(words)).grid,
+    [gridSize, words, config.seed],
+  );
 
   const [selecting, setSelecting] = useState(false);
   const [selStart, setSelStart] = useState<Cell | null>(null);

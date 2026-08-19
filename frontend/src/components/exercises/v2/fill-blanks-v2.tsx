@@ -414,6 +414,21 @@ export function FillBlanksV2({
             </button>
           ))}
         </div>
+        {/* The how-to lives UNDER the answer area, where the eye already is —
+            not off in the bottom bar (owner feedback #7). */}
+        {!feedback && (
+          <p
+            style={{
+              margin: "14px auto 0",
+              maxWidth: 520,
+              textAlign: "center",
+              fontSize: 12,
+              color: "var(--color-text-subtle)",
+            }}
+          >
+            {t("exercise.fillBlanks.howTo")}
+          </p>
+        )}
       </LessonShell>
     </div>
   );
