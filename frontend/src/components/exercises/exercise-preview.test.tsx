@@ -31,6 +31,12 @@ describe("ExercisePreview", () => {
     expect(screen.queryByTestId("v2")).toBeNull();
   });
 
+  it("shows a placeholder for a block whose type is not picked yet", () => {
+    render(<ExercisePreview exercise={null} />);
+    expect(screen.queryByTestId("v2")).toBeNull();
+    expect(screen.queryByTestId("legacy")).toBeNull();
+  });
+
   it("always previews — no attempt is spent on either path", () => {
     const { unmount } = render(<ExercisePreview exercise={{ exercise_type: "matching" }} />);
     expect(screen.getByTestId("v2").dataset.preview).toBe("true");

@@ -18,13 +18,25 @@
 import ExerciseRenderer from "@/components/exercises/exercise-renderer";
 import { V2ExerciseLive } from "@/components/exercises/v2-exercise-live";
 import { isV2LiveType } from "@/lib/exercises/v2-adapter";
+import { useTranslation } from "@/lib/i18n/context";
 
 interface ExercisePreviewProps {
-  /** The exercise as the editor currently has it — unsaved edits included. */
-  exercise: { exercise_type: string; [key: string]: unknown };
+  /** The exercise as the editor currently has it — unsaved edits included.
+   *  Null while a block has been added but no type picked yet. */
+  exercise: { exercise_type: string; [key: string]: unknown } | null | undefined;
 }
 
 export function ExercisePreview({ exercise }: ExercisePreviewProps) {
+  const { t } = useTranslation();
+
+  if (!exercise) {
+    return (
+      <div className="rounded-lg border border-dashed border-border-strong bg-surface-2 p-4 text-center text-sm text-text-subtle">
+        {t("admin.lessonEditor.emptyExercise")}
+      </div>
+    );
+  }
+
   if (isV2LiveType(exercise.exercise_type)) {
     return <V2ExerciseLive exercise={exercise as never} previewMode />;
   }
