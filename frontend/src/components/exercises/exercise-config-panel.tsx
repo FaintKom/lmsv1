@@ -593,7 +593,9 @@ function QuizQuestionsEditor({
     setForm({
       question_text: q.question_text,
       question_type: q.question_type as "multiple_choice" | "text_answer",
-      options: (q.options || []).map((o, i) => ({
+      // text questions carry a rules dict in options (specs/019) — only a
+      // list is editable here
+      options: (Array.isArray(q.options) ? q.options : []).map((o, i) => ({
         id: o.id ?? i,
         text: o.text,
         is_correct: !!o.is_correct,
@@ -682,7 +684,7 @@ function QuizQuestionsEditor({
                   <span className="mr-2 text-text-subtle">#{idx + 1}</span>
                   {q.question_text}
                 </p>
-                {q.options && (
+                {Array.isArray(q.options) && (
                   <div className="mt-2 space-y-1">
                     {q.options.map((opt, oi) => (
                       <div
@@ -747,14 +749,17 @@ function QuizQuestionsEditor({
                 <div className="space-y-2">
                   {form.options.map((opt, i) => (
                     <div key={i} className="flex items-center gap-2">
+                      {/* Adaptive choice (specs/019): any number of options
+                          may be correct; the student widget follows the key */}
                       <input
-                        type="radio"
-                        name="correct"
+                        type="checkbox"
                         checked={opt.is_correct}
                         onChange={() =>
                           setForm({
                             ...form,
-                            options: form.options.map((o, j) => ({ ...o, is_correct: j === i })),
+                            options: form.options.map((o, j) =>
+                              j === i ? { ...o, is_correct: !o.is_correct } : o
+                            ),
                           })
                         }
                         className="accent-green-600"

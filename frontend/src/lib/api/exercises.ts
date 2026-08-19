@@ -74,10 +74,13 @@ export interface ExerciseQuestion {
  id: string;
  question_text: string;
  question_type: string;
- options: Array<{ id?: number; text: string; is_correct?: boolean }> | null;
+ // list for choice options; dict = text-answer checking rules (specs/019)
+ options: Array<{ id?: number; text: string; is_correct?: boolean }> | Record<string, unknown> | null;
  correct_answer: string | null;
  points: number;
  sort_order: number;
+ /** Derived on stripped reads: several correct options ⇒ checkboxes. */
+ multi?: boolean;
 }
 
 export interface ExerciseTestCase {

@@ -373,6 +373,11 @@ def _grade_translation(content: dict, answers: dict) -> tuple[float, bool]:
     if student in accepted:
         return 1.0, True
 
+    # Approximate matching is the author's explicit choice (specs/019 US4);
+    # on by default so existing exercises grade as before.
+    if content.get("fuzzy_match", True) is False:
+        return 0.0, False
+
     # Fuzzy match — simple character-level similarity
     best_score = 0.0
     for answer in accepted:
@@ -507,20 +512,40 @@ def _grade_reading_detail(content: dict, answers: dict) -> tuple[float, bool, Pe
         if q_type == "multiple_choice":
             options = q.get("options") or []
             expected_answer = (q.get("correct_answer") or "").strip().lower()
-            student_str = (student or "").strip().lower()
-            for opt in options:
-                if isinstance(opt, str):
-                    # Label-only fixture: compare student pick to correct_answer.
-                    if student_str and student_str == expected_answer:
-                        matched = True
-                        break
-                elif isinstance(opt, dict):
-                    if opt.get("id") == student and opt.get("is_correct"):
-                        matched = True
-                        break
+            student_str = (student if isinstance(student, str) else "").strip().lower()
+            # Adaptive choice (specs/019 US3): several correct dict-options
+            # make the question multi — graded by set equality of ids.
+            correct_ids = {
+                opt.get("id") for opt in options if isinstance(opt, dict) and opt.get("is_correct")
+            }
+            if len(correct_ids) > 1:
+                picked = student if isinstance(student, list) else None
+                matched = picked is not None and set(picked) == correct_ids
+            else:
+                picked_one = student
+                if isinstance(student, list) and len(student) == 1:
+                    picked_one = student[0]
+                for opt in options:
+                    if isinstance(opt, str):
+                        # Label-only fixture: compare student pick to correct_answer.
+                        if student_str and student_str == expected_answer:
+                            matched = True
+                            break
+                    elif isinstance(opt, dict):
+                        if opt.get("id") == picked_one and opt.get("is_correct"):
+                            matched = True
+                            break
         elif q_type == "text":
-            expected = (q.get("correct_answer") or "").strip().lower()
-            matched = (student or "").strip().lower() == expected
+            # Same visible rules as quiz text questions (specs/019 FR-006):
+            # the question dict carries case_sensitive / trim /
+            # ignore_punctuation / accepted alongside correct_answer.
+            from app.assessments.grading import text_answer_matches
+
+            matched = text_answer_matches(
+                q.get("correct_answer"),
+                student if isinstance(student, str) else "",
+                q,
+            )
         per_item[str(i)] = matched
     score = sum(per_item.values()) / len(questions)
     return score, score >= 0.7, per_item

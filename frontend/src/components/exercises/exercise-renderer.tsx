@@ -94,10 +94,13 @@ interface Question {
  id: string;
  question_text: string;
  question_type: string;
- options: { text: string; is_correct?: boolean }[] | null;
+ // list for choice options; dict = text-question rules (never rendered)
+ options: { text: string; is_correct?: boolean }[] | Record<string, unknown> | null;
  correct_answer: string | null;
  points: number;
  sort_order: number;
+ /** Adaptive choice (specs/019): several correct ⇒ checkboxes. */
+ multi?: boolean;
 }
 
 interface TestCase {
@@ -319,8 +322,19 @@ export default function ExerciseRenderer({ exercise, courseId, prevLesson, nextL
  }
  };
 
+ const instructionsNote =
+ typeof exercise.config?.instructions === "string" && exercise.config.instructions.trim()
+ ? (exercise.config.instructions as string)
+ : null;
+
  const exerciseContent = (
  <>
+ {/* Teacher's optional "what to do" note (specs/019 US5) */}
+ {instructionsNote && (
+ <p className="mb-3 rounded-lg bg-surface-2 px-3 py-2 text-sm text-text-muted">
+ {instructionsNote}
+ </p>
+ )}
  {/* Attempt counter */}
  {maxAttempts < 1000 && attemptCount > 0 && !maxReached && (
  <div className="mb-3 flex items-center justify-between rounded-lg bg-surface-2 px-3 py-2 text-xs text-text-muted ">
@@ -820,23 +834,37 @@ function QuizExercise({
  onSubmit,
 }: {
  questions: Question[];
- onSubmit: (answers: { question_id: string; selected_option: string }[]) => void;
+ onSubmit: (
+ answers: { question_id: string; selected_option?: string; selected_options?: string[]; text?: string }[]
+ ) => void;
 }) {
- const [selected, setSelected] = useState<Record<string, string>>({});
+ const { t } = useTranslation();
+ // string for single/text, string[] for multi (specs/019 adaptive choice)
+ const [selected, setSelected] = useState<Record<string, string | string[]>>({});
 
- const handleSelect = (questionId: string, value: string) => {
- setSelected((prev) => ({ ...prev, [questionId]: value }));
- };
+ const optionList = (q: Question) => (Array.isArray(q.options) ? q.options : []);
+ const isText = (q: Question) => q.question_type === "text_answer";
+ const isMulti = (q: Question) =>
+ !isText(q) &&
+ (q.multi ?? optionList(q).filter((o) => o.is_correct).length > 1);
 
  const handleSubmit = () => {
- const answers = questions.map((q) => ({
- question_id: q.id,
- selected_option: selected[q.id] || "",
- }));
+ const answers = questions.map((q) => {
+ const value = selected[q.id];
+ if (isText(q)) return { question_id: q.id, text: typeof value === "string" ? value : "" };
+ if (isMulti(q))
+ return { question_id: q.id, selected_options: Array.isArray(value) ? value : [] };
+ return { question_id: q.id, selected_option: typeof value === "string" ? value : "" };
+ });
  onSubmit(answers);
  };
 
- const allAnswered = questions.every((q) => selected[q.id]);
+ const answered = (q: Question) => {
+ const value = selected[q.id];
+ if (isMulti(q)) return Array.isArray(value) && value.length > 0;
+ return typeof value === "string" && value.trim().length > 0;
+ };
+ const allAnswered = questions.every(answered);
 
  return (
  <div className="space-y-6">
@@ -845,28 +873,58 @@ function QuizExercise({
  <p className="mb-3 text-sm font-medium text-text ">
  {qi + 1}. <MaybeMath text={q.question_text} />
  </p>
+ {isText(q) ? (
+ <input
+ type="text"
+ value={typeof selected[q.id] === "string" ? (selected[q.id] as string) : ""}
+ onChange={(e) => setSelected((prev) => ({ ...prev, [q.id]: e.target.value }))}
+ className="w-full rounded-lg border border-border-strong px-4 py-2.5 text-sm focus:border-primary focus:outline-none"
+ />
+ ) : (
  <div className="space-y-2">
- {(q.options || []).map((opt, oi) => (
+ {isMulti(q) && (
+ <p className="text-xs text-text-subtle">{t("exercise.quiz.pickAllThatApply")}</p>
+ )}
+ {optionList(q).map((opt, oi) => {
+ const multi = isMulti(q);
+ const value = selected[q.id];
+ const checked = multi
+ ? Array.isArray(value) && value.includes(opt.text)
+ : value === opt.text;
+ return (
  <label
  key={oi}
  className={`flex cursor-pointer items-center gap-3 rounded-lg border px-4 py-2.5 text-sm transition-colors ${
- selected[q.id] === opt.text
+ checked
  ? "border-primary bg-success-soft text-success-fg "
  : "border-border-strong text-text-muted hover:border-border-strong "
  }`}
  >
  <input
- type="radio"
+ type={multi ? "checkbox" : "radio"}
  name={`question-${q.id}`}
  value={opt.text}
- checked={selected[q.id] === opt.text}
- onChange={() => handleSelect(q.id, opt.text)}
+ checked={checked}
+ onChange={() =>
+ setSelected((prev) => {
+ if (!multi) return { ...prev, [q.id]: opt.text };
+ const current = Array.isArray(prev[q.id]) ? (prev[q.id] as string[]) : [];
+ return {
+ ...prev,
+ [q.id]: current.includes(opt.text)
+ ? current.filter((t) => t !== opt.text)
+ : [...current, opt.text],
+ };
+ })
+ }
  className="h-4 w-4 text-primary"
  />
  <MaybeMath text={opt.text} />
  </label>
- ))}
+ );
+ })}
  </div>
+ )}
  </div>
  ))}
 

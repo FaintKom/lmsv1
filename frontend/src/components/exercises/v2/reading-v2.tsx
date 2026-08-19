@@ -22,6 +22,7 @@ import {
   type LessonFeedback,
 } from "@/components/lesson/lesson-shell";
 import { useTranslation } from "@/lib/i18n/context";
+import { ContentRenderer } from "@/components/common/content-renderer";
 import type { V2GradeFn } from "@/lib/exercises/v2-adapter";
 
 export interface ReadingQuestion {
@@ -35,6 +36,11 @@ export interface ReadingQuestion {
   optionIds?: string[];
   /** Hint shown alongside wrong-attempt feedback. */
   hint?: string;
+  /** Adaptive choice (specs/019): several correct ⇒ checkboxes, answered as
+   *  a set of option values. */
+  multiSelect?: boolean;
+  /** Free-text question (specs/019): renders an input; server-checked. */
+  textMode?: boolean;
 }
 
 export interface ReadingV2Props {
@@ -99,6 +105,9 @@ export function ReadingV2({
 
   const [qIdx, setQIdx] = useState(0);
   const [pick, setPick] = useState<number | null>(null);
+  // specs/019: multi-select picks and free-text input per question.
+  const [picks, setPicks] = useState<number[]>([]);
+  const [textInput, setTextInput] = useState("");
   /** RD-04: wrong picks eliminated for the current question (persist retries). */
   const [eliminated, setEliminated] = useState<number[]>([]);
   const [feedback, setFeedback] = useState<LessonFeedback | null>(null);
@@ -117,21 +126,31 @@ export function ReadingV2({
   const serverGraded = !!onCheck;
   const [checking, setChecking] = useState(false);
   /** Every answer given so far, keyed by question index — the payload shape
-   *  `_grade_reading` expects. */
-  const answersRef = useRef<Record<string, string>>({});
+   *  `_grade_reading` expects (string for single/text, list for multi). */
+  const answersRef = useRef<Record<string, string | string[]>>({});
 
   /** What to submit for option `i` of the current question: the option id
    *  when the config carried dict options, the label otherwise. */
   const valueFor = (i: number) => q.optionIds?.[i] ?? q.options[i] ?? "";
 
+  const isTextQ = !!q?.textMode;
+  const isMultiQ = !isTextQ && !!q?.multiSelect;
+  const canCheck = isTextQ ? textInput.trim().length > 0 : isMultiQ ? picks.length > 0 : pick !== null;
+
   const handleCheck = async () => {
-    if (checking) return;
+    if (checking || !canCheck) return;
     setTotalAttempts((n) => n + 1);
 
     let isCorrect: boolean;
     if (serverGraded) {
-      if (pick === null) return;
-      answersRef.current = { ...answersRef.current, [String(qIdx)]: valueFor(pick) };
+      answersRef.current = {
+        ...answersRef.current,
+        [String(qIdx)]: isTextQ
+          ? textInput
+          : isMultiQ
+            ? picks.map(valueFor)
+            : valueFor(pick as number),
+      };
       onAnswersChange?.({ answers: answersRef.current });
       setChecking(true);
       try {
@@ -148,6 +167,10 @@ export function ReadingV2({
       } finally {
         setChecking(false);
       }
+    } else if (isMultiQ || isTextQ) {
+      // Local preview has no rules engine — server mode covers these; treat
+      // as unknown-wrong so nothing false-passes.
+      isCorrect = false;
     } else {
       isCorrect = pick === q.correct;
     }
@@ -165,7 +188,7 @@ export function ReadingV2({
     const remaining = attemptsLeft - 1;
     setAttemptsLeft(remaining);
     setUsedAttempts((u) => u + 1);
-    if (pick !== null) {
+    if (!isMultiQ && !isTextQ && pick !== null) {
       setEliminated((e) => (e.includes(pick) ? e : [...e, pick]));
     }
     setLostHeart(true);
@@ -195,6 +218,7 @@ export function ReadingV2({
   const handleRetry = () => {
     setPick(null);
     setFeedback(null);
+    // multi/text keep their state so the student can adjust, not restart
   };
 
   const handleContinue = () => {
@@ -202,6 +226,8 @@ export function ReadingV2({
       // RD-03: next question — fresh hearts, fresh eliminations.
       setQIdx((i) => i + 1);
       setPick(null);
+      setPicks([]);
+      setTextInput("");
       setEliminated([]);
       setFeedback(null);
       setAttemptsLeft(maxAttemptsPerTask);
@@ -233,7 +259,7 @@ export function ReadingV2({
         eyebrow={eyebrow}
         title={title ?? t("exercise.reading.title")}
         feedback={feedback}
-        canCheck={pick !== null}
+        canCheck={canCheck}
         onCheck={handleCheck}
         onContinue={handleContinue}
         onRetry={canRetry ? handleRetry : undefined}
@@ -258,28 +284,64 @@ export function ReadingV2({
             <div className="gp-eyebrow" style={{ marginBottom: 8 }}>
               {passageLabel ?? t("exercise.passage")}
             </div>
-            <p style={{ margin: 0, whiteSpace: "pre-wrap" }}>{passage}</p>
+            {/* specs/019 US3: passages may carry inline images as HTML —
+                rendered through the same ContentRenderer lesson HTML uses */}
+            {/<img|<p|<br|<h\d/i.test(passage) ? (
+              <div className="prose prose-sm max-w-none">
+                <ContentRenderer body={passage} format="html" />
+              </div>
+            ) : (
+              <p style={{ margin: 0, whiteSpace: "pre-wrap" }}>{passage}</p>
+            )}
           </div>
           <div>
             <div style={{ fontWeight: 700, fontSize: 16, marginBottom: 12 }}>
               {q.question}
             </div>
+            {isTextQ ? (
+              /* specs/019: free-text reading question, server-checked */
+              <input
+                type="text"
+                value={textInput}
+                onChange={(e) => setTextInput(e.target.value)}
+                disabled={!!feedback}
+                placeholder={t("exercise.quiz.textAnswerPlaceholder")}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter" && canCheck && !feedback) handleCheck();
+                }}
+                style={{
+                  width: "100%",
+                  padding: "12px 16px",
+                  fontSize: 14,
+                  borderRadius: 12,
+                  border: "2px solid var(--color-border-strong)",
+                  background: "var(--color-surface)",
+                  color: "var(--color-text)",
+                }}
+              />
+            ) : (
             <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+              {isMultiQ && (
+                <p style={{ margin: 0, fontSize: 12, color: "var(--color-text-muted)" }}>
+                  {t("exercise.quiz.pickAllThatApply")}
+                </p>
+              )}
               {q.options.map((opt, i) => {
                 const isElim = eliminated.includes(i);
+                const chosen = isMultiQ ? picks.includes(i) : pick === i;
                 let state = "";
                 if (taskOver) {
-                  if (i === q.correct) state = "correct";
-                  else if (i === pick && feedback?.kind === "no") state = "wrong";
+                  if (!isMultiQ && i === q.correct) state = "correct";
+                  else if (chosen && feedback?.kind === "no") state = "wrong";
                   else if (isElim) state = "eliminated";
                   else state = "locked";
                 } else if (feedback) {
-                  if (i === pick) state = "wrong";
+                  if (chosen) state = "wrong";
                   else if (isElim) state = "eliminated";
                   else state = "locked";
                 } else if (isElim) {
                   state = "eliminated"; // RD-04
-                } else if (pick === i) {
+                } else if (chosen) {
                   state = "selected";
                 }
                 return (
@@ -293,14 +355,21 @@ export function ReadingV2({
                       fontSize: 14,
                     }}
                     disabled={!!feedback || isElim}
-                    aria-pressed={pick === i}
-                    onClick={() => setPick(i)}
+                    aria-pressed={chosen}
+                    onClick={() =>
+                      isMultiQ
+                        ? setPicks((p) =>
+                            p.includes(i) ? p.filter((x) => x !== i) : [...p, i]
+                          )
+                        : setPick(i)
+                    }
                   >
                     {opt}
                   </button>
                 );
               })}
             </div>
+            )}
           </div>
         </div>
       </LessonShell>
