@@ -39,9 +39,10 @@ export default function MultipleChoiceMath({ config, onComplete }: MathTemplateP
 
  const handleSubmit = () => {
  setSubmitted(true);
- if (isCorrect) {
- onComplete(true, 1.0);
- }
+ // Report either way, and send which option was picked: the server marks it
+ // (specs/012). Reporting only the right answers left a wrong one unrecorded,
+ // so a teacher could not see that the pupil had tried.
+ onComplete(!!isCorrect, isCorrect ? 1.0 : 0, { choice: selected });
  };
 
  const labels = ["A", "B", "C", "D", "E"];

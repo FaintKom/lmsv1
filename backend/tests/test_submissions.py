@@ -768,3 +768,108 @@ async def test_an_unmarked_math_template_still_reaches_the_teacher(
     assert sent.json()["passed"] is None
     assert sent.json()["score"] is None
     assert sent.json()["status"] == "submitted"
+
+
+@pytest.mark.asyncio
+@pytest.mark.parametrize(
+    "template,template_config,right,wrong",
+    [
+        (
+            "numeric_input",
+            {"correct_answers": [7], "tolerance": 0.01, "question": "3x - 7 = 14?"},
+            {"value": "7"},
+            {"value": "8"},
+        ),
+        (
+            "numeric_input",
+            # A fraction is accepted because the widget accepts one.
+            {"correct_answers": [0.75], "tolerance": 0.01},
+            {"value": "3/4"},
+            {"value": "1/2"},
+        ),
+        (
+            "multiple_choice_math",
+            {"choices": [{"text": "4", "correct": False}, {"text": "6", "correct": True}]},
+            {"choice": 1},
+            {"choice": 0},
+        ),
+    ],
+)
+async def test_answer_shaped_maths_templates_are_marked_here(
+    client: AsyncClient, db, org, teacher, student, template, template_config, right, wrong
+):
+    """Slice 2 of spec 012: one value or one choice, judged against the key.
+
+    Each rule is the widget's own - any accepted answer within tolerance for the
+    typed number, `choices[].correct` for the picked option - so a pupil is marked
+    the same whether they check in the page or submit.
+    """
+    course = await make_course(db, org, teacher)
+    module = await make_module(db, course.id)
+    lesson = await make_lesson(db, module.id)
+    await make_enrollment(db, course.id, student.id)
+    ex = await make_exercise(
+        db,
+        lesson.id,
+        org.id,
+        exercise_type=ExerciseType.math_interactive,
+        config={"template_type": template, "template_config": template_config},
+    )
+
+    good = await client.post(
+        f"/api/v1/exercises/{ex.id}/submit",
+        json={"interactive_answers": right},
+        headers=auth_header(student),
+    )
+    assert good.status_code == 200, good.text
+    assert good.json()["score"] == 100
+    assert good.json()["passed"] is True
+
+    bad = await client.post(
+        f"/api/v1/exercises/{ex.id}/submit",
+        json={"interactive_answers": wrong},
+        headers=auth_header(student),
+    )
+    assert bad.json()["score"] == 0
+    assert bad.json()["passed"] is False
+
+    # Still no forging, on a template the server does mark.
+    forged = await client.post(
+        f"/api/v1/exercises/{ex.id}/submit",
+        json={"game_result": {"completed": True, "score": 1.0}},
+        headers=auth_header(student),
+    )
+    assert forged.json()["passed"] is None
+    assert forged.json()["status"] == "submitted"
+
+
+@pytest.mark.asyncio
+async def test_equation_solver_is_left_to_the_teacher_on_purpose(
+    client: AsyncClient, db, org, teacher, student
+):
+    """Its score counts hints taken and wrong turns made in the page.
+
+    The server sees none of that, so marking it here would mean inventing a
+    number. It keeps the recorded-unmarked path until someone decides what the
+    score should mean.
+    """
+    course = await make_course(db, org, teacher)
+    module = await make_module(db, course.id)
+    lesson = await make_lesson(db, module.id)
+    await make_enrollment(db, course.id, student.id)
+    ex = await make_exercise(
+        db,
+        lesson.id,
+        org.id,
+        exercise_type=ExerciseType.math_interactive,
+        config={"template_type": "equation_solver", "template_config": {"final_answer": "x = 6"}},
+    )
+
+    sent = await client.post(
+        f"/api/v1/exercises/{ex.id}/submit",
+        json={"game_result": {"completed": True, "score": 1.0}},
+        headers=auth_header(student),
+    )
+    assert sent.status_code == 200, sent.text
+    assert sent.json()["passed"] is None
+    assert sent.json()["status"] == "submitted"
