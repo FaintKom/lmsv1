@@ -65,7 +65,7 @@ Repository root is this worktree. The probe lives in `scripts/`, findings in
 - [x] T010 [US1] Check wave 2's axis-A results against what the wave-1 fixes promise: an empty answer scores zero instead of 500, the attempt limit stops at two, and a wrong answer does not pass
 - [x] T011 [P] [US1] Axis B at `localhost:3000`: per wave-2 type record `disabled`, `aria-disabled`, computed `opacity` and `cursor` on the submit control before input, then press it and record what the page does
 - [x] T012 [P] [US1] Axis D at 375 x 812: record page-level horizontal overflow, the widest element inside each wave-2 exercise, and every tap target under 44px
-- [ ] T013 [US1] Reopen a wave-2 exercise the probe solved and record whether score and last attempt are shown, which is finding 5 asked of a different wave
+- [x] T013 [US1] Reopen a wave-2 exercise the probe solved and record whether score and last attempt are shown, which is finding 5 asked of a different wave — reopened stereometry solved at 100: pristine board; recorded as finding 13, fixed in v2-exercise-live (restore banner + test shown failing first)
 - [x] T014 [US1] Write wave 2 up in `tasks/qa-audit-exercise-types-2026-08-17.md`, replacing the "серверные оси в этой волне не проводились" caveat with results, each carrying its status code or measurement
 
 **Checkpoint**: wave 2 fully recorded, stale caveat gone
@@ -112,9 +112,9 @@ this measurement on 2026-08-17
 - [x] T026 Re-check finding 2 across every type walked here and say how far the dishonest submit control reaches, replacing the single-wave count
 - [x] T027 Re-check finding 7 by comparing each type's on-screen instruction with the condition its grader applies, and say whether the mismatch is one fixture or a pattern
 - [x] T028 Correct the audit's stale fix statuses against `main`: finding 6 fixed by `ae67aa4`, findings 3 and 4 by `59ba620`, finding 5 by `735e559`, all inside `#319`
-- [ ] T029 Per new finding, decide fix-now or record-with-reason; where fixed, add the regression test to `backend/tests/` shown failing first
-- [ ] T030 Run the backend suite against real PostgreSQL and confirm the QA seed data the Playwright gate reads is untouched
-- [ ] T031 Open the pull request with the audit, the probe and any fixes, listing what was measured and what was skipped with reasons
+- [x] T029 Per new finding, decide fix-now or record-with-reason; where fixed, add the regression test to `backend/tests/` shown failing first — finding 13 fixed now; the leak is frontend-side, so the failing-first test lives in `frontend/src/components/exercises/v2-exercise-live.test.tsx`
+- [x] T030 Run the backend suite against real PostgreSQL and confirm the QA seed data the Playwright gate reads is untouched
+- [x] T031 Open the pull request with the audit, the probe and any fixes, listing what was measured and what was skipped with reasons — the audit shipped across #319–#353; finding 13's PR closes the residue
 
 ---
 
