@@ -445,6 +445,11 @@ small, and every one of them broke the feature completely.
 - [x] T116 Admin-only deletion of recordings (FR-040): endpoint that removes
   bytes and row together, refused to teachers — with the teacher refusal as
   the control — and a delete control on the recordings surfaces for admins
+- [x] T120 The e2e gate's "Install Playwright browser" step hung twice on
+  2026-08-19 — a stuck download with no timeout ate the job's 40-minute
+  ceiling and stalled two merges. The browser is now cached keyed on the
+  lockfile, and the install step gets an 8-minute timeout so a bad mirror
+  day fails fast instead of silently, in .github/workflows/e2e.yml
 - [x] T118 The density pass broke the design guide's touch rule: controls
   shrank to ~26px while §8 requires 44×44 on touch, and two new inputs lost
   the system focus ring (§14). Found by auditing against

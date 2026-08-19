@@ -123,8 +123,19 @@ jobs:
         working-directory: frontend
         run: npm ci
 
+      # The bare download hung twice on 2026-08-19 (stuck until the job's
+      # 40-minute ceiling, or until someone cancelled it). Cache the browser
+      # so most runs skip the download entirely, and give the download that
+      # does happen a timeout that fails fast instead of eating the ceiling.
+      - name: Cache Playwright browser
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/ms-playwright
+          key: playwright-${{ runner.os }}-${{ hashFiles('frontend/package-lock.json') }}
+
       - name: Install Playwright browser
         working-directory: frontend
+        timeout-minutes: 8
         run: npx playwright install --with-deps chromium
 
       - name: Run Playwright E2E
