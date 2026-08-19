@@ -109,8 +109,16 @@ export const I18N_ALLOWLIST: ReadonlySet<string> = new Set([
   "src/components/game/math/templates/two-way-table.tsx",
   "src/components/game/math/templates/venn-diagram.tsx",
   "src/components/game/math/templates/visual-fractions.tsx",
-  "src/components/game/world-3d/scene-renderer.tsx",
   "src/components/game/world-3d/world-3d-editor.tsx",
+  // The 3D scene: geometry, materials and a frame loop. These three files
+  // contain no user-visible text of any kind — every word around the level
+  // lives in world-3d-exercise.tsx, which came off this list when it was
+  // rewritten. They are here because the ratchet's heuristic is "does the file
+  // mention useTranslation", and a file with nothing to translate cannot.
+  "src/components/game/world-3d/scene/character.tsx",
+  "src/components/game/world-3d/scene/props.tsx",
+  "src/components/game/world-3d/scene/shapes.tsx",
+  "src/components/game/world-3d/scene/world-scene.tsx",
   "src/components/gamification/badge-card.tsx",
   "src/components/gamification/badge-icon.tsx",
   "src/components/gamification/lang-code.tsx",

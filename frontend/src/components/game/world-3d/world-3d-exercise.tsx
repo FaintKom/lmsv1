@@ -29,7 +29,7 @@ const BlocklyWorkspace = dynamic(() => import("@/components/game/blockly/blockly
   ssr: false,
 });
 
-const SceneRenderer = dynamic(() => import("./scene-renderer"), {
+const WorldScene = dynamic(() => import("./scene/world-scene"), {
   ssr: false,
   loading: () => <div className="h-full w-full bg-surface-2" />,
 });
@@ -199,8 +199,14 @@ export default function World3DExercise({ exerciseId, config, onSubmit }: World3
             <p className="text-sm font-semibold text-text">{task}</p>
           </div>
 
-          <div className="min-h-[280px] flex-1 lg:min-h-0">
-            <SceneRenderer state={world} isRunning={running} />
+          {/*
+            An explicit height, not `flex-1`. The lesson player renders this
+            inside a plain `p-5` box with no height of its own, so `h-full`
+            resolved to nothing and the canvas collapsed to 223px — a level
+            drawn too small to read. Fullscreen has room; inline has to ask.
+          */}
+          <div className="h-[360px] lg:h-[440px]">
+            <WorldScene state={world} isRunning={running} />
           </div>
 
           <div className="flex items-center justify-between border-t border-border-strong bg-surface px-3 py-2.5">
