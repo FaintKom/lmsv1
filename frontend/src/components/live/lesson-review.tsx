@@ -1,6 +1,10 @@
 "use client";
 
 import { useRef, useState } from "react";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { Play } from "lucide-react";
+
+import apiClient from "@/lib/api-client";
 
 import { BoardView, type BoardViewHandle } from "@/components/live/board-view";
 import type { LiveLesson } from "@/lib/api/live";
@@ -44,6 +48,12 @@ export function LessonReview({
   return (
     <div className="p-8">
       <h1 className="mb-5 text-xl font-extrabold text-text">{t("live.review")}</h1>
+
+      {/* The lesson's recordings live with the lesson's other leavings —
+          boards, results, timeline — because this page is where people come
+          for "what happened in that lesson" (FR-038). Pupils only receive
+          rows a teacher deliberately shared; the server trims the list. */}
+      <LessonRecordings lessonId={lesson.id} teacherView={teacherView} />
 
       {teacherView && results.length > 0 && (
         <div className="mb-6">
@@ -144,6 +154,99 @@ export function LessonReview({
             )}
           </div>
         ))}
+      </div>
+    </div>
+  );
+}
+
+function LessonRecordings({
+  lessonId,
+  teacherView,
+}: {
+  lessonId: string;
+  teacherView: boolean;
+}) {
+  const { t, locale } = useTranslation();
+  const qc = useQueryClient();
+  const [watching, setWatching] = useState<string | null>(null);
+
+  interface Row {
+    id: string;
+    download_url: string | null;
+    duration_seconds: number | null;
+    created_at: string | null;
+    live_lesson_id: string | null;
+    shared_with_group: boolean;
+  }
+
+  const { data } = useQuery({
+    queryKey: ["recordings", lessonId],
+    queryFn: () => apiClient.get("/recordings").then((r) => r.data as Row[]),
+  });
+  const rows = (data ?? []).filter((r) => r.live_lesson_id === lessonId && r.download_url);
+
+  const share = useMutation({
+    mutationFn: (r: Row) =>
+      apiClient.patch(`/recordings/${r.id}`, { shared_with_group: !r.shared_with_group }),
+    onSuccess: () => void qc.invalidateQueries({ queryKey: ["recordings", lessonId] }),
+  });
+
+  if (rows.length === 0) return null;
+
+  return (
+    <div className="mb-6">
+      <div className="mb-2 font-mono text-xs font-bold uppercase tracking-wide text-text">
+        {t("recordings.title")}
+      </div>
+      <div className="space-y-2">
+        {rows.map((r) => (
+          <div
+            key={r.id}
+            className="flex items-center gap-3 rounded-lg border border-border bg-surface px-4 py-2.5 shadow-sm"
+          >
+            <span className="min-w-0 flex-1 text-sm font-semibold text-text">
+              {r.created_at
+                ? new Date(r.created_at).toLocaleString(locale, {
+                    dateStyle: "medium",
+                    timeStyle: "short",
+                  })
+                : t("recordings.title")}
+              {r.duration_seconds ? (
+                <span className="ml-2 font-mono text-2xs text-text-muted">
+                  {Math.floor(r.duration_seconds / 60)}:
+                  {String(r.duration_seconds % 60).padStart(2, "0")}
+                </span>
+              ) : null}
+            </span>
+            {teacherView && (
+              <label className="flex shrink-0 cursor-pointer items-center gap-1.5 text-xs font-semibold text-text">
+                <input
+                  type="checkbox"
+                  checked={r.shared_with_group}
+                  disabled={share.isPending}
+                  onChange={() => share.mutate(r)}
+                  className="h-4 w-4 accent-[var(--primary)]"
+                />
+                {t("recordings.shared")}
+              </label>
+            )}
+            <button
+              onClick={() => setWatching(watching === r.id ? null : r.download_url && r.id)}
+              className="btn-pop inline-flex shrink-0 items-center gap-1.5 rounded-sm bg-primary px-3 py-1.5 text-xs font-bold text-primary-fg"
+            >
+              <Play size={13} aria-hidden />
+              {t("recordings.watch")}
+            </button>
+          </div>
+        ))}
+        {watching && (
+          <video
+            controls
+            autoPlay
+            className="max-h-[60dvh] w-full rounded-lg bg-black"
+            src={rows.find((r) => r.id === watching)?.download_url ?? undefined}
+          />
+        )}
       </div>
     </div>
   );

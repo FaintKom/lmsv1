@@ -438,6 +438,17 @@ small, and every one of them broke the feature completely.
   a lesson-scoped course list on the backend — every-member enrollment, plus
   the group's own course — with the one-pupil-missing case as the control;
   the picker asks it instead of the whole catalogue (owner, 2026-08-19)
+- [x] T115 Record what is shown, not who is showing it (FR-039): the recorder
+  prefers the shared screen, then a capture of the teacher's own lesson tab,
+  and only then the camera — found by the owner playing back a real lesson and
+  seeing nothing but their face while the board did the teaching
+- [x] T116 Admin-only deletion of recordings (FR-040): endpoint that removes
+  bytes and row together, refused to teachers — with the teacher refusal as
+  the control — and a delete control on the recordings surfaces for admins
+- [x] T114 A recordings page for staff (FR-038): list from the endpoint that
+  already exists, watch in place, toggle sharing with the group. Found by the
+  owner asking "как посмотреть запись?" — the honest answer was "only from a
+  toast that died fifteen seconds after you stopped"
 - [~] T096 (browser-provable part done 2026-08-18 — the journey records, tells everybody, uploads and hands back a real WebM with a duration; the source-attribution half stays with T086, because Chrome's fake cameras paint one identical pattern for every participant and no pixel can say whose it was) Finish T086 itself: a lesson held by two people, camera on for the
   pupil, and the recording played back to confirm it holds the teacher and the
   shared screen and nobody else (FR-027)

@@ -121,7 +121,7 @@ describe("startLessonRecording", () => {
     const { startLessonRecording } = await import("./recorder");
     const local = participant({ camera: "cam", microphone: "mic" });
 
-    const handle = startLessonRecording(local as never);
+    const handle = await startLessonRecording(local as never);
     vi.advanceTimersByTime(42_000);
     const result = await handle.stop();
 
@@ -134,7 +134,7 @@ describe("startLessonRecording", () => {
     vi.stubGlobal("MediaRecorder", FakeRecorder);
 
     const { startLessonRecording } = await import("./recorder");
-    const handle = startLessonRecording(participant({ camera: "cam" }) as never);
+    const handle = await startLessonRecording(participant({ camera: "cam" }) as never);
     const result = await handle.stop();
 
     expect(result.seconds).toBeGreaterThanOrEqual(1);

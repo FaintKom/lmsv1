@@ -72,7 +72,7 @@ export function RecordingIndicator({
 
       // Local tracks only, and the recorder enforces that rather than trusting
       // this caller to hand it the right thing.
-      setHandle(startLessonRecording(localParticipant));
+      setHandle(await startLessonRecording(localParticipant));
       setRecordingId(started.recording_id);
     } catch {
       toast.error(t("live.media.recordFailed"));
