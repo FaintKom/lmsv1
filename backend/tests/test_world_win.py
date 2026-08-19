@@ -68,12 +68,15 @@ def test_at_a_named_square():
 
 
 def test_height_at_least():
+    # A platform on floor 0 stands one floor up, which is a walk. On floor 1 it
+    # would stand two, walking would refuse it, and the character would never
+    # leave the ground — so assert the move succeeded, not only the verdict.
     w = world(
-        [{"x": 1, "z": 0, "y": 1, "type": "platform"}],
+        [{"x": 1, "z": 0, "y": 0, "type": "platform"}],
         {"cond": "height_at_least", "n": 1},
     )
     assert w.evaluate() is False
-    w.perform("move_forward")
+    assert w.perform("move_forward")["ok"] is True
     assert w.evaluate() is True
 
 

@@ -831,6 +831,9 @@ const de: TranslationMap = {
  "Dieses Level hat noch niemand geschafft. Schreib unten eine Lösung, damit es geprüft werden kann.",
  "robot.blocker.runner_unavailable": "Das Level ließ sich gerade nicht prüfen. Versuch es nochmal.",
  // ─── Der 3D-Level-Editor ──────────────────────────────────────────
+ "world.climb.one": "steigt eine Etage",
+ "world.climb.two": "steigt zwei Etagen",
+ "world.climbHint": "Gehen steigt eine Etage, Springen zwei. Höher kommt keines von beiden.",
  "world.depth": "Tiefe",
  "world.level": "Etage",
  "world.levelHint": "Wände und Plattformen entstehen auf dieser Etage. Alles andere liegt am Boden.",

@@ -831,6 +831,9 @@ const en: TranslationMap = {
  "Nobody has finished this level yet. Write a solution below so it can be checked.",
  "robot.blocker.runner_unavailable": "Could not check the level just now. Try again.",
  // ─── The 3D level editor ──────────────────────────────────────────
+ "world.climb.one": "climbs one floor",
+ "world.climb.two": "climbs two floors",
+ "world.climbHint": "Walking climbs one floor, jumping two. Neither goes higher.",
  "world.depth": "Depth",
  "world.level": "Floor",
  "world.levelHint": "Walls and platforms are painted on this floor. Everything else sits on the ground.",

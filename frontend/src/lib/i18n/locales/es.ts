@@ -801,6 +801,9 @@ const es: TranslationMap = {
  "Nadie ha terminado este nivel todavía. Escribe abajo una solución para poder comprobarlo.",
  "robot.blocker.runner_unavailable": "No se pudo comprobar el nivel ahora. Inténtalo otra vez.",
  // ─── El editor de niveles en 3D ───────────────────────────────────
+ "world.climb.one": "sube un piso",
+ "world.climb.two": "sube dos pisos",
+ "world.climbHint": "Caminar sube un piso, saltar dos. Ninguno llega más alto.",
  "world.depth": "Profundidad",
  "world.level": "Piso",
  "world.levelHint": "Los muros y las plataformas se pintan en este piso. Lo demás va en el suelo.",

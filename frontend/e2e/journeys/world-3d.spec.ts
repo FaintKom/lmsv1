@@ -45,9 +45,21 @@ let lessonId = "";
 let exerciseId = "";
 
 /**
- * Three by three, the goal one step north of the start. Everything else is
- * bare, because the teacher paints it: this test would pass against an editor
- * that saved nothing if the level arrived finished.
+ * Three by three, with one block to climb onto, and winning *is* climbing onto
+ * it. The platform sits on floor 0 — the floor the editor opens on, so this is
+ * the level a teacher builds by accident on their first try.
+ *
+ * The win is a height rather than a flag, and that is deliberate. A flag
+ * beyond the step is reached whichever way a platform's floor is counted: the
+ * character either walks over the block or walks around at ground level, and
+ * arrives either way. The first version of this level did exactly that, and
+ * passed against the old rule as happily as the new one. Asking for the height
+ * cannot be satisfied by accident — under the old counting a platform on floor
+ * 0 left the surface at 0, and nothing in this level could ever get off the
+ * ground.
+ *
+ * Everything else is bare, because the teacher paints it: these tests would
+ * pass against an editor that saved nothing if the level arrived finished.
  *
  * Saved without star thresholds on purpose — Check fills them in, and a test
  * cannot show that if they arrive already filled.
@@ -56,13 +68,14 @@ const LEVEL = {
   grid_width: 3,
   grid_depth: 3,
   start: { x: 0, z: 2, y: 0, facing: "north" },
-  cells: [{ x: 0, z: 1, type: "goal" }],
+  cells: [{ x: 0, z: 1, y: 0, type: "platform" }],
   commands: ["move_forward", "turn_left", "turn_right", "jump", "press", "at_goal"],
-  win: { cond: "at_goal" },
+  win: { cond: "height_at_least", n: 1 },
   max_steps: 50,
-  preset: "beginner",
+  preset: "climbing",
 };
 
+/** One step, onto the block. */
 const PYTHON_SOLUTION = 'print("hello")\nmove_forward()\n';
 
 interface SavedCell {
@@ -171,6 +184,7 @@ test("teacher builds the level with height and a door, and Check answers", async
         const doors = cells.filter((c) => c.type === "door");
         const button = cells.find((c) => c.type === "button");
         return {
+          // Four: the step the level shipped with, plus the three painted here.
           platforms: cells.filter((c) => c.type === "platform").length,
           // The one this rework exists for: a platform on each floor of the
           // same square, rather than the upper one having eaten the lower.
@@ -185,7 +199,7 @@ test("teacher builds the level with height and a door, and Check answers", async
       { timeout: 20_000, message: "the level the teacher built never reached the server" },
     )
     .toEqual({
-      platforms: 3,
+      platforms: 4,
       floorsOnThatSquare: [0, 1],
       buttonOpensADoorThatExists: true,
       starSteps: 1,

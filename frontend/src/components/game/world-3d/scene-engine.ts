@@ -137,10 +137,25 @@ export function stateAt(
   return state;
 }
 
-/** The height a character stands at on a square: the tallest platform, or the floor. */
+/**
+ * The height a character stands at on a square: one above the tallest platform
+ * there, or the floor when there is none.
+ *
+ * This is the second implementation of one rule — `surface()` in the server's
+ * `world_sim.py` is the other, and the server's is the one that decides
+ * outcomes. The copy lives here because the scene has to draw a level before
+ * any program has run: the teacher's preview redraws on every brush stroke, and
+ * asking the server for the shape of a level would put a round trip inside a
+ * drag.
+ *
+ * The two drifting apart would be invisible — a scene that draws a level
+ * differently from the way it is graded is a level that lies to the pupil — so
+ * a test replays a server trace here and compares the heights step by step.
+ * Change one of these and change the other.
+ */
 export function surfaceAt(cells: GridCell3D[], x: number, z: number): number {
   const tops = cells.filter((c) => c.type === "platform" && c.x === x && c.z === z).map((c) => c.y);
-  return tops.length > 0 ? Math.max(...tops) : 0;
+  return tops.length > 0 ? Math.max(...tops) + 1 : 0;
 }
 
 function applyChange(state: WorldState, change: WorldFrame["cells"][number]) {

@@ -48,10 +48,11 @@ def check(level: dict) -> list[dict]:
     if not goals and _needs(win, "at_goal"):
         blockers.append({"code": "no_goal"})
     for goal in goals:
-        buried = any(
-            p["x"] == goal["x"] and p["z"] == goal["z"] and int(p.get("y", 0)) > 0
-            for p in platforms
-        )
+        # Any platform on the square buries the flag, floor 0 included. A
+        # platform occupies the floor it is recorded at, so every one of them
+        # stands above the ground the goal sits on. This used to test for a
+        # platform above floor 0, back when floor 0 was the ground itself.
+        buried = any(p["x"] == goal["x"] and p["z"] == goal["z"] for p in platforms)
         if buried:
             blockers.append({"code": "goal_under_platform"})
             break
