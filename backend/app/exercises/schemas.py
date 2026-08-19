@@ -197,6 +197,85 @@ class WebEditorConfig(BaseModel):
     requirements: list[str] = []
 
 
+class CrosswordConfig(BaseModel):
+    """Read by `_grade_crossword_detail` (words) and the widget (grid_size, words)."""
+
+    grid_size: int = 5
+    words: list[dict] = []  # [{word, clue, row, col, direction}]
+
+
+class WordSearchConfig(BaseModel):
+    """Read by `_grade_word_search` (words) and the widget, which builds the grid
+    from the same list."""
+
+    grid_size: int = 8
+    words: list[str] = []
+
+
+class SrsFlashcardConfig(BaseModel):
+    """Read by `_grade_srs_flashcard`: cards, and mastery_threshold for the pass mark."""
+
+    cards: list[dict] = []  # [{front, back}]
+    mastery_threshold: float = 0.7
+
+
+class BubbleSheetConfig(BaseModel):
+    """Read by `_grade_bubble_sheet_detail` (questions, passing_score) and the widget
+    (questions, num_options).
+
+    Written after the fixture spent months on question_count/correct_answers, which
+    neither side reads: the card drew no bubbles and the grader, finding nothing to
+    mark, awarded full marks to everyone.
+    """
+
+    questions: list[dict] = []  # [{number, question, correct}]
+    num_options: int = 4
+    passing_score: int = 70
+
+
+class MathStepwiseConfig(BaseModel):
+    """Read by `_submit_math_stepwise` (final_answer) and the widget for the rest."""
+
+    problem: str = ""
+    variable: str = "x"
+    max_steps: int = 6
+    final_answer: str = ""
+    validate_steps: bool = False
+    expected_steps: list[str] = []
+
+
+class MathSystemConfig(BaseModel):
+    """Read by `_submit_math_system`, which re-solves the teacher's equations rather
+    than storing an answer."""
+
+    prompt: str = ""
+    equations: list[str] = []
+    variables: list[str] = []
+
+
+class StereometryConfig(BaseModel):
+    """Read by `_submit_stereometry`, which computes the number from the solid."""
+
+    problem: str = ""
+    solid: str = ""
+    dimensions: dict = {}
+    quantity: str = ""
+    decimals: int = 2
+    unit: str = ""
+    tolerance: float | None = None
+
+
+class ScormPackageConfig(BaseModel):
+    """Read by `scorm-package-exercise.tsx`: package_id and launch_url.
+
+    Not package_url, which the fixture used and nobody has ever read - the player
+    asks /scorm-import/packages/{package_id}/launch-token and opens launch_url.
+    """
+
+    package_id: str = ""
+    launch_url: str = ""
+
+
 # ─── Exercise CRUD schemas ──────────────────────────────────────────
 
 

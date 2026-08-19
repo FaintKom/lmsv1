@@ -105,11 +105,10 @@ def test_fixture_configs_only_use_keys_the_product_declares():
     nothing anywhere reads, next to an instruction that contradicted what the
     template actually asks.
 
-    Eighteen of the twenty-six types declare a `*Config` model in
-    `app/exercises/schemas.py`. Where one exists it is the closest thing to a
+    All twenty-six types declare a `*Config` model in `app/exercises/schemas.py`. Where one exists it is the closest thing to a
     written contract, so a fixture key outside it is either a typo or a field the
-    product forgot to implement. The eight without one are listed rather than
-    silently skipped.
+    product forgot to implement. A type that loses its model fails here rather than
+    quietly dropping out of the check.
     """
 
     from app.exercises import schemas as schema_module
@@ -138,7 +137,10 @@ def test_fixture_configs_only_use_keys_the_product_declares():
     assert not problems, "fixture keys nobody declares:" + newline + newline.join(problems)
     # Informational, and deliberately not an assertion: these types have no model
     # to check against, which is a gap in the schemas rather than in the fixtures.
-    assert len(unmodelled) <= 8, f"more types lost their config model: {sorted(unmodelled)}"
+    assert not unmodelled, (
+        "these types have no config model, so nothing checks their fixture keys: "
+        + ", ".join(sorted(unmodelled))
+    )
 
 
 def test_fixture_asset_paths_are_shipped_with_the_frontend():
