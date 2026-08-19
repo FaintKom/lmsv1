@@ -1,3 +1,6 @@
+"use client";
+
+import { useState } from "react";
 import Link from "next/link";
 import type { Course } from "@/types/api";
 
@@ -25,16 +28,19 @@ interface CourseCardProps {
 
 export function CourseCard({ course, progress }: CourseCardProps) {
  const theme = SUBJECT_THEMES[course.category || ""] || DEFAULT_THEME;
+ // Broken thumbnail URL falls back to the themed cover (specs/016 US1 edge case)
+ const [imageFailed, setImageFailed] = useState(false);
 
  return (
  <Link href={`/courses/${course.id}`} className="group">
  <div className="overflow-hidden rounded-lg border border-border bg-surface shadow-sm transition duration-200 hover:-translate-y-0.5 hover:border-green-300 hover:shadow-md">
  {/* Cover */}
- {course.thumbnail_url ? (
+ {course.thumbnail_url && !imageFailed ? (
  <div className="relative h-36 overflow-hidden">
  <img
  src={course.thumbnail_url}
  alt={course.title}
+ onError={() => setImageFailed(true)}
  className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105"
  />
  <div className="absolute inset-0 bg-gradient-to-b from-transparent via-transparent to-black/40" />

@@ -372,6 +372,10 @@ export default function CourseEditorPage() {
  // Active tab for expanded lesson
  const [lessonTab, setLessonTab] = useState<"content" | "settings">("content");
 
+ // Course picture (specs/016 US1)
+ const [savingThumbnail, setSavingThumbnail] = useState(false);
+ const thumbnailInputRef = useRef<HTMLInputElement>(null);
+
  const fetchCourse = useCallback(() => {
  apiClient
  .get(`/courses/${courseId}`)
@@ -459,6 +463,39 @@ export default function CourseEditorPage() {
  toast.error("Failed to save");
  } finally {
  setSaving(false);
+ }
+ };
+
+ const handleThumbnailUpload = async (file: File) => {
+ const formData = new FormData();
+ formData.append("file", file);
+ setSavingThumbnail(true);
+ try {
+ const { data } = await apiClient.post<{ url: string }>(
+ "/courses/upload-image",
+ formData,
+ { headers: { "Content-Type": "multipart/form-data" } },
+ );
+ await apiClient.put(`/courses/${courseId}/`, { thumbnail_url: data.url });
+ toast.success(t("admin.courseEdit.thumbnailSaved"));
+ fetchCourse();
+ } catch {
+ toast.error(t("admin.courseEdit.thumbnailUploadFailed"));
+ } finally {
+ setSavingThumbnail(false);
+ }
+ };
+
+ const handleThumbnailRemove = async () => {
+ setSavingThumbnail(true);
+ try {
+ await apiClient.put(`/courses/${courseId}/`, { thumbnail_url: null });
+ toast.success(t("admin.courseEdit.thumbnailSaved"));
+ fetchCourse();
+ } catch {
+ toast.error("Failed to save");
+ } finally {
+ setSavingThumbnail(false);
  }
  };
 
@@ -893,7 +930,16 @@ export default function CourseEditorPage() {
  }
 
  if (!course) {
- return <div className="text-center text-text-muted ">Course not found</div>;
+ // Also the landing spot when an exercise editor's back points at a deleted
+ // course (specs/016 FR-004) — must not be a dead end.
+ return (
+ <div className="flex flex-col items-center gap-4 py-24 text-center text-text-muted ">
+ <p>Course not found</p>
+ <Button variant="outline" onClick={() => router.push("/admin/courses")}>
+ {t("admin.courseEdit.backToCourses")}
+ </Button>
+ </div>
+ );
  }
 
  return (
@@ -987,6 +1033,56 @@ export default function CourseEditorPage() {
  placeholder="e.g., programming, math, languages"
  className="w-full rounded-lg border border-border-strong px-3 py-2 text-sm focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary"
  />
+ </div>
+ <div>
+ <label className="mb-1 block text-sm font-medium text-text ">{t("admin.courseEdit.thumbnailLabel")}</label>
+ <div className="flex items-center gap-3">
+ {course.thumbnail_url ? (
+ // eslint-disable-next-line @next/next/no-img-element
+ <img
+ src={course.thumbnail_url}
+ alt={t("admin.courseEdit.thumbnailLabel")}
+ className="h-20 w-32 rounded-lg border border-border-strong object-cover"
+ />
+ ) : (
+ <div className="flex h-20 w-32 items-center justify-center rounded-lg border border-dashed border-border-strong text-3xs text-text-subtle">
+ —
+ </div>
+ )}
+ <div className="flex flex-col gap-1.5">
+ <Button
+ variant="outline"
+ size="sm"
+ disabled={savingThumbnail}
+ onClick={() => thumbnailInputRef.current?.click()}
+ >
+ {course.thumbnail_url
+ ? t("admin.courseEdit.thumbnailReplace")
+ : t("admin.courseEdit.thumbnailUpload")}
+ </Button>
+ {course.thumbnail_url && (
+ <Button
+ variant="ghost"
+ size="sm"
+ disabled={savingThumbnail}
+ onClick={handleThumbnailRemove}
+ >
+ {t("admin.courseEdit.thumbnailRemove")}
+ </Button>
+ )}
+ </div>
+ <input
+ ref={thumbnailInputRef}
+ type="file"
+ accept="image/*"
+ className="hidden"
+ onChange={(e) => {
+ const f = e.target.files?.[0];
+ if (f) handleThumbnailUpload(f);
+ e.target.value = "";
+ }}
+ />
+ </div>
  </div>
  <Button onClick={handleSaveMeta} disabled={saving}>
  <Save className="mr-1 h-4 w-4" />
@@ -1356,7 +1452,7 @@ export default function CourseEditorPage() {
  {block.exercise_id.slice(0, 8)}...
  </span>
  <a
- href={`/admin/content-library/${block.exercise_id}`}
+ href={`/admin/content-library/${block.exercise_id}?courseId=${courseId}`}
  target="_blank"
  rel="noopener noreferrer"
  className="flex items-center gap-1 text-xs font-medium text-primary hover:underline "
@@ -2005,6 +2101,7 @@ function ExerciseBlockCreator({
 }
 
 function LessonExercises({ lessonId }: { lessonId: string }) {
+ const courseId = useParams().courseId as string;
  const [exercises, setExercises] = useState<
  { id: string; exercise_type: string; title: string; display_id: string; sort_order: number }[]
  >([]);
@@ -2129,7 +2226,7 @@ function LessonExercises({ lessonId }: { lessonId: string }) {
  {EXERCISE_TYPE_LABELS[ex.exercise_type] || ex.exercise_type}
  </span>
  <a
- href={`/admin/content-library/${ex.id}`}
+ href={`/admin/content-library/${ex.id}?courseId=${courseId}`}
  target="_blank"
  rel="noopener noreferrer"
  className="rounded p-1 text-primary hover:bg-success-soft hover:text-primary "

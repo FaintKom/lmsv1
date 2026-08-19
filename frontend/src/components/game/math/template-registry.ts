@@ -230,6 +230,16 @@ export const MATH_TEMPLATES: Record<string, MathTemplateConfig> = {
  },
 };
 
+// Hidden from the picker: custom_html has its own entry point, and the legacy
+// aliases stay in MATH_TEMPLATES only so configs saved under old names resolve.
+const PICKER_HIDDEN = new Set([
+ "custom_html",
+ "function_graphing",
+ "graph_transformation",
+ "inequality_graphing",
+ "card_sorting",
+]);
+
 export const TEMPLATE_LIST = Object.values(MATH_TEMPLATES).filter(
- (t) => t.type !== "custom_html"
+ (t) => !PICKER_HIDDEN.has(t.type)
 );

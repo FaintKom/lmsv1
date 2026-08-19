@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { useParams, useRouter } from "next/navigation";
+import { useParams, useRouter, useSearchParams } from "next/navigation";
 import { toast } from "sonner";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -31,6 +31,8 @@ export default function SubmissionsViewerPage() {
  const { t } = useTranslation();
  const { exerciseId } = useParams<{ exerciseId: string }>();
  const router = useRouter();
+ // Keep the origin-course context alive so the editor's back still knows it.
+ const fromCourseId = useSearchParams().get("courseId");
  const [exercise, setExercise] = useState<Exercise | null>(null);
  const [submissions, setSubmissions] = useState<ExerciseSubmission[]>([]);
  const [total, setTotal] = useState(0);
@@ -97,7 +99,7 @@ export default function SubmissionsViewerPage() {
  <Button
  variant="ghost"
  size="sm"
- onClick={() => router.push(`/admin/content-library/${exerciseId}`)}
+ onClick={() => router.push(`/admin/content-library/${exerciseId}${fromCourseId ? `?courseId=${fromCourseId}` : ""}`)}
  >
  <ArrowLeft className="h-4 w-4" />
  </Button>
