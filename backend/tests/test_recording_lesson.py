@@ -578,3 +578,84 @@ async def test_the_teacher_is_offered_recording(client: AsyncClient, db, org, te
         f"/api/v1/live-lessons/{lesson.id}/media/token", headers=auth_header(teacher)
     )
     assert grant.json()["can_record"] is True
+
+
+async def test_the_list_tells_when_and_whether_shared(
+    client: AsyncClient, db, org, teacher, student
+):
+    """A list a person scans needs the date and the sharing state (FR-038)."""
+    enable_recording(org)
+    await db.flush()
+    lesson = await make_lesson(db, org, teacher, [student])
+    rid = await start(client, lesson, teacher)
+    await upload(client, rid, teacher)
+
+    rows = (await client.get("/api/v1/recordings", headers=auth_header(teacher))).json()
+    row = next(r for r in rows if r["id"] == rid)
+    assert row["created_at"] is not None
+    assert row["live_lesson_id"] == str(lesson.id)
+    assert row["shared_with_group"] is False
+
+    await client.patch(
+        f"/api/v1/recordings/{rid}",
+        json={"shared_with_group": True},
+        headers=auth_header(teacher),
+    )
+    rows = (await client.get("/api/v1/recordings", headers=auth_header(teacher))).json()
+    assert next(r for r in rows if r["id"] == rid)["shared_with_group"] is True
+
+
+# --- Disposal is the school's decision, not the recorder's ------------------
+
+
+async def test_a_teacher_cannot_delete_even_their_own_recording(
+    client: AsyncClient, db, org, teacher, student
+):
+    """The control for admin-only deletion: the person who pressed record is
+    refused, so the admin path below cannot pass by allowing everybody."""
+    enable_recording(org)
+    await db.flush()
+    lesson = await make_lesson(db, org, teacher, [student])
+    rid = await start(client, lesson, teacher)
+    await upload(client, rid, teacher)
+
+    resp = await client.delete(f"/api/v1/recordings/{rid}", headers=auth_header(teacher))
+    assert resp.status_code == 403
+
+    still = await client.get(f"/api/v1/recordings/{rid}/file", headers=auth_header(teacher))
+    assert still.status_code == 200
+
+
+async def test_an_admin_deletes_bytes_and_row_together(
+    client: AsyncClient, db, org, teacher, student, admin
+):
+    enable_recording(org)
+    await db.flush()
+    lesson = await make_lesson(db, org, teacher, [student])
+    rid = await start(client, lesson, teacher)
+    await upload(client, rid, teacher)
+
+    resp = await client.delete(f"/api/v1/recordings/{rid}", headers=auth_header(admin))
+    assert resp.status_code == 204
+
+    assert (
+        await db.execute(select(Recording).where(Recording.id == rid))
+    ).scalar_one_or_none() is None
+    gone = await client.get(f"/api/v1/recordings/{rid}/file", headers=auth_header(teacher))
+    assert gone.status_code == 404
+
+
+async def test_another_schools_admin_cannot_delete(
+    client: AsyncClient, db, org, teacher, student, admin2
+):
+    enable_recording(org)
+    await db.flush()
+    lesson = await make_lesson(db, org, teacher, [student])
+    rid = await start(client, lesson, teacher)
+    await upload(client, rid, teacher)
+
+    resp = await client.delete(f"/api/v1/recordings/{rid}", headers=auth_header(admin2))
+    assert resp.status_code == 404
+
+    still = await client.get(f"/api/v1/recordings/{rid}/file", headers=auth_header(teacher))
+    assert still.status_code == 200

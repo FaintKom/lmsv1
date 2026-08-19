@@ -44,9 +44,16 @@ export interface LessonRecorder {
 /**
  * Build the stream to record.
  *
- * `MediaRecorder` writes a single video track, so a screen being shared is what
- * gets recorded: the class is looking at the screen, and of the two the
- * teacher's face is the less useful. Falls back to the camera.
+ * `MediaRecorder` writes a single video track, and what belongs in it is what
+ * the teacher is SHOWING, not who is showing it (FR-039). The first real
+ * playback proved the point: a lesson taught on the board came back as
+ * fifty minutes of the teacher's face.
+ *
+ * Priority: the shared screen; else a capture of the teacher's own lesson
+ * tab, which carries the board, the material and the task as shown; else the
+ * camera, so a recording still exists on a browser that refuses tab capture.
+ * The microphone rides along in every case, and no remote participant's
+ * track is ever touched — that boundary has its own test.
  */
 export function localRecordingStream(local: LocalParticipant): MediaStream {
   const tracks: MediaStreamTrack[] = [];
@@ -63,15 +70,49 @@ export function localRecordingStream(local: LocalParticipant): MediaStream {
 }
 
 /**
+ * The teacher's own lesson tab as a video track, or null where the browser
+ * refuses. Asked for only when nothing better is being shared: with a screen
+ * share running, the screen itself is already the thing being shown.
+ */
+async function captureOwnTab(): Promise<MediaStreamTrack | null> {
+  try {
+    const gdm = navigator.mediaDevices?.getDisplayMedia;
+    if (!gdm) return null;
+    const stream = await navigator.mediaDevices.getDisplayMedia({
+      video: { displaySurface: "browser" },
+      audio: false,
+      // Chrome-only hints; other browsers ignore them and show their picker.
+      preferCurrentTab: true,
+      selfBrowserSurface: "include",
+    } as MediaStreamConstraints);
+    return stream.getVideoTracks()[0] ?? null;
+  } catch {
+    return null;
+  }
+}
+
+/**
  * Start recording.
  *
  * Returns a handle whose `stop` resolves with the finished file, so the caller
  * uploads what it is handed rather than reaching into recorder internals.
  */
-export function startLessonRecording(local: LocalParticipant): LessonRecorder {
+export async function startLessonRecording(local: LocalParticipant): Promise<LessonRecorder> {
   const stream = localRecordingStream(local);
   if (stream.getTracks().length === 0) {
     throw new Error("nothing to record: no local camera, screen or microphone");
+  }
+
+  // No screen share running: the camera is currently the video, and the tab —
+  // the board, the material, the task, as shown — is the better witness.
+  const sharingScreen = !!local.getTrackPublication(Track.Source.ScreenShare)?.track;
+  let tabTrack: MediaStreamTrack | null = null;
+  if (!sharingScreen) {
+    tabTrack = await captureOwnTab();
+    if (tabTrack) {
+      for (const v of stream.getVideoTracks()) stream.removeTrack(v);
+      stream.addTrack(tabTrack);
+    }
   }
 
   const chunks: Blob[] = [];
@@ -92,11 +133,15 @@ export function startLessonRecording(local: LocalParticipant): LessonRecorder {
   return {
     stop: () =>
       new Promise<LessonRecording>((resolve) => {
-        recorder.onstop = () =>
+        recorder.onstop = () => {
+          // The tab capture is ours alone — release it, or the browser keeps
+          // announcing "this tab is being shared" after the recording ended.
+          tabTrack?.stop();
           resolve({
             file: new Blob(chunks, { type: "video/webm" }),
             seconds: Math.max(1, Math.round((Date.now() - startedAt) / 1000)),
           });
+        };
         recorder.stop();
       }),
   };

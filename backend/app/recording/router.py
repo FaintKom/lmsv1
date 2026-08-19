@@ -33,6 +33,11 @@ class RecordingResponse(BaseModel):
     duration_seconds: int | None
     size_bytes: int | None
     status: str
+    # Enough for a list a person scans: when it was made, which lesson it
+    # belongs to, and whether the class may watch it (FR-038).
+    created_at: datetime | None = None
+    live_lesson_id: uuid.UUID | None = None
+    shared_with_group: bool = False
 
     model_config = {"from_attributes": True}
 
@@ -56,6 +61,9 @@ def _visible(recording: Recording) -> RecordingResponse:
         status=(
             recording.status.value if hasattr(recording.status, "value") else str(recording.status)
         ),
+        created_at=recording.created_at,
+        live_lesson_id=recording.live_lesson_id,
+        shared_with_group=bool(recording.shared_with_group),
     )
 
 
@@ -239,6 +247,40 @@ async def share_recording(
     recording.shared_with_group = body.shared_with_group
     await db.flush()
     return _visible(recording)
+
+
+@router.delete("/{recording_id}", status_code=status.HTTP_204_NO_CONTENT)
+async def delete_recording(
+    recording_id: uuid.UUID,
+    user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db),
+):
+    """Remove a recording for good — bytes and row together (FR-040).
+
+    Administrators only. A teacher decides who may watch; deciding that nobody
+    ever will again is a different kind of decision, and on a subject that is
+    a room full of children it belongs to the school, not to whoever pressed
+    record.
+    """
+    if user.role not in (UserRole.admin, UserRole.super_admin):
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Administrators only")
+
+    recording = (
+        await db.execute(
+            select(Recording).where(Recording.id == recording_id, Recording.org_id == user.org_id)
+        )
+    ).scalar_one_or_none()
+    if not recording:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Recording not found")
+
+    # Bytes first: a row without its file is a broken link, a file without its
+    # row is invisible disk usage on a 40 GB host.
+    if recording.storage_url:
+        try:
+            get_storage().delete(rec_service.storage_path(recording))
+        except Exception:  # noqa: BLE001 — a missing file must not save the row
+            pass
+    await db.delete(recording)
 
 
 @router.get("/{recording_id}/file")

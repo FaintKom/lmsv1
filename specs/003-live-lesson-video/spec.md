@@ -309,6 +309,21 @@ finished file arrives against that lesson and can be played back.
 - **FR-033**: A participant MUST stay in the call while moving around the
   platform. Opening a material, a task or any other page is part of taking a
   lesson, and today each one drops the person out of the room they are in.
+- **FR-039**: A recording MUST hold everything the teacher shows, not only
+  their camera: while a screen is shared, the screen; otherwise a capture of
+  the teacher's lesson tab, which carries the board, the material and the task
+  as they are shown. The teacher's microphone rides along either way, and
+  FR-027 stands: no other participant's camera or microphone enters the file.
+  A pixel-exact pupil's-eye recording requires server-side rendering and stays
+  the documented upgrade path.
+- **FR-040**: An administrator — and only an administrator — MUST be able to
+  delete a recording, file and row together. Teachers share; administrators
+  dispose.
+- **FR-038**: Recordings MUST be findable after the toast is gone: a page
+  lists the school's recordings for staff — newest first, with the length,
+  the size and a way to watch — and each row can be shared with the group or
+  not. A file reachable only by remembering its link is not stored, it is
+  mislaid.
 - **FR-037**: The material picker inside a live lesson MUST offer only courses
   available to that lesson's group: a course counts as available when every
   member of the group is enrolled in it, and the group's own course is always
