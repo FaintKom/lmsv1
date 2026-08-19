@@ -60,8 +60,10 @@ export default function GraphTransform({ config, onComplete }: MathTemplateProps
  const all = hOk && vOk && aOk;
  setChecked(true);
  setIsCorrect(all);
- if (all) onComplete(true, 1.0);
- else onComplete(false, [hOk, vOk, aOk].filter(Boolean).length / 3);
+ // The three parameters go up; the server marks them (specs/012).
+ const work = { h, v, a };
+ if (all) onComplete(true, 1.0, work);
+ else onComplete(false, [hOk, vOk, aOk].filter(Boolean).length / 3, work);
  };
 
  // Grid

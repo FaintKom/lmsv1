@@ -57,10 +57,13 @@ export default function InequalityGraph({ config, onComplete }: MathTemplateProp
  const allCorrect = slopeOk && intOk && sideOk;
  setChecked(true);
  setIsCorrect(allCorrect);
- if (allCorrect) onComplete(true, 1.0);
+ // Line and shading, for the server to mark (specs/012). The operator and the
+ // dashed line are shown but not scored, here or there.
+ const work = { slope: userSlope, intercept: userIntercept, side: shadedSide };
+ if (allCorrect) onComplete(true, 1.0, work);
  else {
  const partial = [slopeOk, intOk, sideOk].filter(Boolean).length / 3;
- onComplete(false, partial);
+ onComplete(false, partial, work);
  }
  };
 

@@ -4,7 +4,7 @@
 
 **Created**: 2026-08-19
 
-**Status**: Draft, awaiting a slice choice
+**Status**: Slices 1 and 2 shipped (#372, #376); slice 3 in progress (#378)
 
 **Input**: The follow-up named in `specs/010-game-verdict-not-from-client/spec.md` and in the corner-case audit.
 
@@ -96,3 +96,35 @@ better left to the teacher than approximated.
 Which slice to build first is a product call: slice 1 is the only one with content
 behind it, and the two demo rows are ours. If the answer is "none for now", the
 current state is defensible — nothing can be forged, and the work reaches a human.
+
+---
+
+## Progress, 2026-08-19
+
+Ten of the sixteen templates are marked on the server:
+
+| Marked here | The rule, taken from its widget |
+|---|---|
+| `coordinate_plane` | each point within tolerance (0.5), all of them |
+| `numeric_input` | any accepted answer within tolerance (0.01), fractions included |
+| `multiple_choice_math` | the picked option against `choices[].correct` |
+| `number_line` | each marker within tolerance (0.3), all of them |
+| `card_sort` | each card in the category it names |
+| `table_pattern` | blanks within tolerance, plus the rule with spaces and case removed |
+| `two_way_table` | whole numbers, exact |
+| `visual_fractions` | the count of shaded parts against the numerator |
+| `graph_transform` | three parameters within tolerance (0.3), a third each |
+| `inequality_graph` | slope, intercept and shaded side, a third each |
+
+Still unmarked, and recorded for the teacher instead:
+
+- **`equation_solver`** — its score counts hints taken and wrong turns made in the
+  page. The server sees none of that, and inventing a number is worse than saying
+  a person should look.
+- **`equation_balance`**, **`arithmetic_puzzle`**, **`venn_diagram`**,
+  **`function_graph`**, **`scatter_plot`** — each needs its own reading before
+  anything is claimed about it. `scatter_plot` has three modes, only one of which
+  has a numeric key; `function_graph` matches a curve rather than a value.
+
+The forgery stays closed for all sixteen either way: a `game_result` with no work
+behind it is recorded unmarked, which every marked template's test asserts.

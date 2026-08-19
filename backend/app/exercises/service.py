@@ -1395,6 +1395,207 @@ def _mark_multiple_choice_math(template_config: dict, work: dict) -> tuple[float
     return (1.0, True) if correct else (0.0, False)
 
 
+def _mark_number_line(template_config: dict, work: dict) -> tuple[float, bool] | None:
+    """Mark markers dropped on a number line, as `number-line.tsx` does.
+
+    Each marker within `tolerance` of its target, default 0.3 in the widget, and
+    solved only when every one lands.
+    """
+    targets = template_config.get("targets")
+    markers = work.get("markers")
+    if not isinstance(targets, list) or not targets or not isinstance(markers, list):
+        return None
+
+    tolerance = template_config.get("tolerance")
+    if isinstance(tolerance, bool) or not isinstance(tolerance, (int, float)):
+        tolerance = 0.3
+    tolerance = abs(float(tolerance))
+
+    correct = 0
+    for i, target in enumerate(targets):
+        if i >= len(markers):
+            continue
+        try:
+            if abs(float(markers[i]) - float(target)) <= tolerance:
+                correct += 1
+        except (TypeError, ValueError):
+            continue
+    return correct / len(targets), correct == len(targets)
+
+
+def _mark_card_sort(template_config: dict, work: dict) -> tuple[float, bool] | None:
+    """Mark cards dropped into buckets against the category each card names.
+
+    `card-sort.tsx` counts a card correct when it sits in the category its own
+    `category` field names, and calls the task solved only when every card does -
+    a card left unsorted counts as wrong, which falls out of the same arithmetic
+    here because it is absent from the placements.
+    """
+    cards = template_config.get("cards")
+    placements = work.get("placements")
+    if not isinstance(cards, list) or not cards or not isinstance(placements, dict):
+        return None
+
+    correct = 0
+    for card in cards:
+        if not isinstance(card, dict):
+            continue
+        card_id = str(card.get("id", ""))
+        if card_id and placements.get(card_id) == card.get("category"):
+            correct += 1
+    return correct / len(cards), correct == len(cards)
+
+
+def _mark_table_pattern(template_config: dict, work: dict) -> tuple[float, bool] | None:
+    """Mark the blanks in a function table, and the rule if one is asked for.
+
+    `table-pattern.tsx` counts one point per blank cell, matched against
+    `answers[index]` within `tolerance` (0.01 by default), plus one for the rule
+    when `rule_label` and `rule_answer` are both set - compared with whitespace
+    and case removed, exactly as the widget compares it.
+    """
+    answers = template_config.get("answers")
+    if not isinstance(answers, dict) or not answers:
+        return None
+    cells = work.get("cells")
+    if not isinstance(cells, dict):
+        return None
+
+    tolerance = template_config.get("tolerance")
+    if isinstance(tolerance, bool) or not isinstance(tolerance, (int, float)):
+        tolerance = 0.01
+    tolerance = abs(float(tolerance))
+
+    total = 0
+    correct = 0
+    for index, expected in answers.items():
+        total += 1
+        raw = cells.get(str(index), cells.get(index))
+        try:
+            if raw is not None and abs(float(raw) - float(expected)) <= tolerance:
+                correct += 1
+        except (TypeError, ValueError):
+            continue
+
+    rule_answer = template_config.get("rule_answer")
+    if template_config.get("rule_label") and rule_answer:
+        total += 1
+        given = str(work.get("rule") or "")
+        if _squashed(given) == _squashed(str(rule_answer)):
+            correct += 1
+
+    if total == 0:
+        return None
+    return correct / total, correct == total
+
+
+def _squashed(text: str) -> str:
+    """Lower-case with every space removed, the way the widget compares a rule."""
+    return "".join(text.split()).lower()
+
+
+def _mark_two_way_table(template_config: dict, work: dict) -> tuple[float, bool] | None:
+    """Mark the blanks of a two-way table against `answers["rNcM"]`.
+
+    Whole numbers, compared exactly - `two-way-table.tsx` parses with parseInt and
+    tests equality, and a frequency table has no business with tolerances.
+    """
+    answers = template_config.get("answers")
+    cells = work.get("cells")
+    if not isinstance(answers, dict) or not answers or not isinstance(cells, dict):
+        return None
+
+    correct = 0
+    for key, expected in answers.items():
+        raw = cells.get(str(key))
+        try:
+            if raw is not None and int(raw) == int(expected):
+                correct += 1
+        except (TypeError, ValueError):
+            continue
+    return correct / len(answers), correct == len(answers)
+
+
+def _mark_visual_fractions(template_config: dict, work: dict) -> tuple[float, bool] | None:
+    """Mark how many parts were shaded against the target numerator.
+
+    `visual-fractions.tsx` asks for a fraction of a whole and checks the count of
+    selected parts, not which ones - shading any three eighths is three eighths.
+    """
+    target = template_config.get("target_numerator")
+    if not isinstance(target, int) or isinstance(target, bool):
+        return None
+    if "selected" not in work:
+        return None
+
+    selected = work.get("selected")
+    count = len(selected) if isinstance(selected, list) else selected
+    if not isinstance(count, int) or isinstance(count, bool):
+        return 0.0, False
+    return (1.0, True) if count == target else (0.0, False)
+
+
+def _tolerant(template_config: dict, default: float) -> float:
+    raw = template_config.get("tolerance")
+    if isinstance(raw, bool) or not isinstance(raw, (int, float)):
+        raw = default
+    return abs(float(raw))
+
+
+def _mark_graph_transform(template_config: dict, work: dict) -> tuple[float, bool] | None:
+    """Mark the three sliders of a transformed parent function.
+
+    `graph-transform.tsx` scores one third per parameter within `tolerance`
+    (0.3 by default) and calls it solved only when all three land.
+    """
+    wanted = {k: template_config.get(f"target_{k}") for k in ("h", "v", "a")}
+    if all(v is None for v in wanted.values()):
+        return None
+    if not any(k in work for k in ("h", "v", "a")):
+        return None
+
+    tolerance = _tolerant(template_config, 0.3)
+    defaults = {"h": 2, "v": -1, "a": 1}
+    hits = 0
+    for key, target in wanted.items():
+        target = defaults[key] if target is None else target
+        try:
+            if abs(float(work.get(key, 0)) - float(target)) <= tolerance:
+                hits += 1
+        except (TypeError, ValueError):
+            continue
+    return hits / 3, hits == 3
+
+
+def _mark_inequality_graph(template_config: dict, work: dict) -> tuple[float, bool] | None:
+    """Mark the line and the shaded half-plane.
+
+    `inequality-graph.tsx` scores slope, intercept and which side is shaded, one
+    third each, within `tolerance` (0.4 by default). The operator and the dashed
+    line are shown but not scored there, so they are not scored here either.
+    """
+    if not any(k in template_config for k in ("slope", "intercept", "operator")):
+        return None
+    if not any(k in work for k in ("slope", "intercept", "side")):
+        return None
+
+    tolerance = _tolerant(template_config, 0.4)
+    operator = str(template_config.get("operator") or ">=")
+    wanted_side = "above" if operator in (">", ">=") else "below"
+
+    hits = 0
+    for key, default in (("slope", 1), ("intercept", 0)):
+        target = template_config.get(key, default)
+        try:
+            if abs(float(work.get(key, 0)) - float(target)) <= tolerance:
+                hits += 1
+        except (TypeError, ValueError):
+            continue
+    if str(work.get("side") or "") == wanted_side:
+        hits += 1
+    return hits / 3, hits == 3
+
+
 async def _submit_math_interactive(
     db: AsyncSession,
     exercise: Exercise,
@@ -1424,6 +1625,13 @@ async def _submit_math_interactive(
         "coordinate_plane": _mark_coordinate_plane,
         "numeric_input": _mark_numeric_input,
         "multiple_choice_math": _mark_multiple_choice_math,
+        "number_line": _mark_number_line,
+        "card_sort": _mark_card_sort,
+        "table_pattern": _mark_table_pattern,
+        "two_way_table": _mark_two_way_table,
+        "visual_fractions": _mark_visual_fractions,
+        "graph_transform": _mark_graph_transform,
+        "inequality_graph": _mark_inequality_graph,
     }
     marker = markers.get(str(config.get("template_type") or ""))
     marked = marker(template_config, work) if marker else None
