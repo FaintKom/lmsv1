@@ -53,9 +53,10 @@ export default function NumberLine({ config, onComplete }: MathTemplateProps) {
  const correct = res.filter(Boolean).length;
  const score = correct / targets.length;
  if (res.every(Boolean)) {
- onComplete(true, 1.0);
+ // The markers travel with the report; the server marks them (specs/012).
+ onComplete(true, 1.0, { markers });
  } else if (correct > 0) {
- onComplete(false, score);
+ onComplete(false, score, { markers });
  }
  };
 

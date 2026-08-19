@@ -873,3 +873,84 @@ async def test_equation_solver_is_left_to_the_teacher_on_purpose(
     assert sent.status_code == 200, sent.text
     assert sent.json()["passed"] is None
     assert sent.json()["status"] == "submitted"
+
+
+@pytest.mark.asyncio
+@pytest.mark.parametrize(
+    "template,template_config,perfect,partial,partial_score",
+    [
+        (
+            "number_line",
+            {"targets": [3, 7], "tolerance": 0.3, "range_min": 0, "range_max": 10},
+            {"markers": [3, 7]},
+            {"markers": [3, 9]},
+            50,
+        ),
+        (
+            "card_sort",
+            {
+                "categories": [{"id": "even", "label": "Even"}, {"id": "odd", "label": "Odd"}],
+                "cards": [
+                    {"id": "c1", "text": "2", "category": "even"},
+                    {"id": "c2", "text": "3", "category": "odd"},
+                ],
+            },
+            {"placements": {"c1": "even", "c2": "odd"}},
+            {"placements": {"c1": "even"}},
+            50,
+        ),
+    ],
+)
+async def test_slice_three_templates_are_marked_here(
+    client: AsyncClient,
+    db,
+    org,
+    teacher,
+    student,
+    template,
+    template_config,
+    perfect,
+    partial,
+    partial_score,
+):
+    """Two more templates whose rule is exact: a marker within tolerance, a card in
+    the bucket its own category names.
+
+    A card left unsorted counts as wrong, which is what the widget does and what
+    falls out of the same arithmetic here - it simply is not in the placements.
+    """
+    course = await make_course(db, org, teacher)
+    module = await make_module(db, course.id)
+    lesson = await make_lesson(db, module.id)
+    await make_enrollment(db, course.id, student.id)
+    ex = await make_exercise(
+        db,
+        lesson.id,
+        org.id,
+        exercise_type=ExerciseType.math_interactive,
+        config={"template_type": template, "template_config": template_config},
+    )
+
+    good = await client.post(
+        f"/api/v1/exercises/{ex.id}/submit",
+        json={"interactive_answers": perfect},
+        headers=auth_header(student),
+    )
+    assert good.status_code == 200, good.text
+    assert good.json()["score"] == 100
+    assert good.json()["passed"] is True
+
+    half = await client.post(
+        f"/api/v1/exercises/{ex.id}/submit",
+        json={"interactive_answers": partial},
+        headers=auth_header(student),
+    )
+    assert half.json()["score"] == partial_score
+    assert half.json()["passed"] is False
+
+    forged = await client.post(
+        f"/api/v1/exercises/{ex.id}/submit",
+        json={"game_result": {"completed": True, "score": 1.0}},
+        headers=auth_header(student),
+    )
+    assert forged.json()["passed"] is None

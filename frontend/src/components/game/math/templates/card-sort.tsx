@@ -90,8 +90,13 @@ export default function CardSort({ config, onComplete }: MathTemplateProps) {
  setChecked(true);
  const total = initialCards.length;
  const score = correct / total;
- if (correct === total) onComplete(true, 1.0);
- else if (correct > 0) onComplete(false, score);
+ // Where each card ended up, for the server to mark (specs/012). A card left
+ // unsorted is simply absent, which is the wrong answer it already was.
+ const placements: Record<string, string> = {};
+ for (const [categoryId, cards] of Object.entries(sorted)) {
+ for (const card of cards) placements[card.id] = categoryId;
+ }
+ onComplete(correct === total, correct === total ? 1.0 : score, { placements });
  };
 
  const handleReset = () => {

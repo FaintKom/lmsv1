@@ -1395,6 +1395,57 @@ def _mark_multiple_choice_math(template_config: dict, work: dict) -> tuple[float
     return (1.0, True) if correct else (0.0, False)
 
 
+def _mark_number_line(template_config: dict, work: dict) -> tuple[float, bool] | None:
+    """Mark markers dropped on a number line, as `number-line.tsx` does.
+
+    Each marker within `tolerance` of its target, default 0.3 in the widget, and
+    solved only when every one lands.
+    """
+    targets = template_config.get("targets")
+    markers = work.get("markers")
+    if not isinstance(targets, list) or not targets or not isinstance(markers, list):
+        return None
+
+    tolerance = template_config.get("tolerance")
+    if isinstance(tolerance, bool) or not isinstance(tolerance, (int, float)):
+        tolerance = 0.3
+    tolerance = abs(float(tolerance))
+
+    correct = 0
+    for i, target in enumerate(targets):
+        if i >= len(markers):
+            continue
+        try:
+            if abs(float(markers[i]) - float(target)) <= tolerance:
+                correct += 1
+        except (TypeError, ValueError):
+            continue
+    return correct / len(targets), correct == len(targets)
+
+
+def _mark_card_sort(template_config: dict, work: dict) -> tuple[float, bool] | None:
+    """Mark cards dropped into buckets against the category each card names.
+
+    `card-sort.tsx` counts a card correct when it sits in the category its own
+    `category` field names, and calls the task solved only when every card does -
+    a card left unsorted counts as wrong, which falls out of the same arithmetic
+    here because it is absent from the placements.
+    """
+    cards = template_config.get("cards")
+    placements = work.get("placements")
+    if not isinstance(cards, list) or not cards or not isinstance(placements, dict):
+        return None
+
+    correct = 0
+    for card in cards:
+        if not isinstance(card, dict):
+            continue
+        card_id = str(card.get("id", ""))
+        if card_id and placements.get(card_id) == card.get("category"):
+            correct += 1
+    return correct / len(cards), correct == len(cards)
+
+
 async def _submit_math_interactive(
     db: AsyncSession,
     exercise: Exercise,
@@ -1424,6 +1475,8 @@ async def _submit_math_interactive(
         "coordinate_plane": _mark_coordinate_plane,
         "numeric_input": _mark_numeric_input,
         "multiple_choice_math": _mark_multiple_choice_math,
+        "number_line": _mark_number_line,
+        "card_sort": _mark_card_sort,
     }
     marker = markers.get(str(config.get("template_type") or ""))
     marked = marker(template_config, work) if marker else None
