@@ -263,7 +263,22 @@ export default function AdminCoursesPage() {
  )}
  </div>
 
- <h3 className="mb-1 font-semibold text-text ">{course.title}</h3>
+ {/* The title opens the course, the way a title in a list is expected to.
+     Until now only the Edit button did, so clicking the name — the first
+     thing anyone tries — did nothing at all. */}
+ <h3 className="mb-1 font-semibold text-text ">
+ {showEdit ? (
+ <button
+ type="button"
+ onClick={() => router.push(`/admin/courses/${course.id}/edit`)}
+ className="text-left hover:text-primary focus:text-primary focus:outline-none"
+ >
+ {course.title}
+ </button>
+ ) : (
+ course.title
+ )}
+ </h3>
  <p className="mb-3 line-clamp-2 text-sm leading-relaxed text-text-muted ">
  {course.description || t("admin.courses.noDescription")}
  </p>
