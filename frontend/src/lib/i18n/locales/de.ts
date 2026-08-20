@@ -1461,6 +1461,7 @@ const de: TranslationMap = {
 
  // Admin lesson editor
  "admin.lessonEditor.missingIds": "courseId/moduleId in URL fehlt.",
+ "admin.lessonEditor.textSourceNote": "Quelltext – der Rich-Text-Editor würde Tabellen und Hinweisboxen dieses Blocks verwerfen. In der Vorschau siehst du den fertigen Aufbau.",
  "admin.lessonEditor.failedLoad": "Lektion konnte nicht geladen werden",
  "admin.lessonEditor.failedCreateExercise": "Übung konnte nicht erstellt werden",
  "admin.lessonEditor.deleteAssignmentBlockMsg": "Diese Aufgabe löschen? Abgaben der Lernenden werden mitgelöscht.",

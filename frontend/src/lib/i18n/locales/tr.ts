@@ -1402,6 +1402,7 @@ const tr: TranslationMap = {
 
  // Admin lesson editor
  "admin.lessonEditor.missingIds": "URL'de courseId/moduleId eksik.",
+ "admin.lessonEditor.textSourceNote": "Kaynak metin — zengin düzenleyici bu bloğun tablolarını ve bilgi kutularını atardı. Düzenlenmiş hâlini Önizleme'de görebilirsiniz.",
  "admin.lessonEditor.failedLoad": "Ders yüklenemedi",
  "admin.lessonEditor.failedCreateExercise": "Alıştırma oluşturulamadı",
  "admin.lessonEditor.deleteAssignmentBlockMsg": "Bu ödev silinsin mi? Öğrenci gönderimleri de silinecek.",

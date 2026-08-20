@@ -1399,6 +1399,7 @@ const es: TranslationMap = {
 
  // Admin lesson editor
  "admin.lessonEditor.missingIds": "Faltan courseId/moduleId en la URL.",
+ "admin.lessonEditor.textSourceNote": "Texto de origen: el editor enriquecido perdería las tablas y los avisos de este bloque. Usa la vista previa para verlo compuesto.",
  "admin.lessonEditor.failedLoad": "Error al cargar lección",
  "admin.lessonEditor.failedCreateExercise": "Error al crear ejercicio",
  "admin.lessonEditor.deleteAssignmentBlockMsg": "¿Eliminar esta tarea? Las entregas de los estudiantes se eliminarán con ella.",

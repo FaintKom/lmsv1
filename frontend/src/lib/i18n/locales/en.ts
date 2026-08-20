@@ -1461,6 +1461,7 @@ const en: TranslationMap = {
 
  // Admin lesson editor
  "admin.lessonEditor.missingIds": "Missing courseId/moduleId in URL.",
+ "admin.lessonEditor.textSourceNote": "Source text — rich editing would drop this block's tables and callouts. Use Preview to see it laid out.",
  "admin.lessonEditor.failedLoad": "Failed to load lesson",
  "admin.lessonEditor.failedCreateExercise": "Failed to create exercise",
  "admin.lessonEditor.deleteAssignmentBlockMsg": "Delete this assignment? Student submissions will be deleted with it.",

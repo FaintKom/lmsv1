@@ -1461,6 +1461,7 @@ const uk: TranslationMap = {
 
  // Admin lesson editor
  "admin.lessonEditor.missingIds": "У URL відсутні courseId або moduleId.",
+ "admin.lessonEditor.textSourceNote": "Вихідний текст — звичайний редактор втратив би таблиці та рамки цього блоку. Готовий вигляд покаже попередній перегляд.",
  "admin.lessonEditor.failedLoad": "Не вдалося завантажити урок",
  "admin.lessonEditor.failedCreateExercise": "Не вдалося створити вправу",
  "admin.lessonEditor.deleteAssignmentBlockMsg": "Видалити це завдання? Здані роботи учнів буде видалено разом із ним.",
