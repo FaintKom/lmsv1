@@ -87,15 +87,20 @@ import {
 import { useTranslation } from "@/lib/i18n/context";
 import { adoptDetachedExercises } from "./adopt-exercises";
 
+function EditorLoading() {
+  const { t } = useTranslation();
+  return (
+    <div className="flex h-[120px] items-center justify-center rounded-lg border border-dashed border-border-strong">
+      <p className="text-xs text-text-subtle">{t("admin.lessonEditor.loadingEditor")}</p>
+    </div>
+  );
+}
+
 const BlockEditor = dynamic(
   () => import("@/components/editor/block-editor").then((m) => ({ default: m.BlockEditor })),
   {
     ssr: false,
-    loading: () => (
-      <div className="flex h-[120px] items-center justify-center rounded-lg border border-dashed border-border-strong">
-        <p className="text-xs text-text-subtle">Loading editor…</p>
-      </div>
-    ),
+    loading: EditorLoading,
   }
 );
 
@@ -632,22 +637,23 @@ export default function LessonEditorPage() {
 /* ─── Save indicator ─────────────────────────────────────────────────── */
 
 function SaveIndicator({ status }: { status: SaveStatus }) {
+  const { t } = useTranslation();
   if (status === "idle") return <span className="text-xs text-text-subtle">·</span>;
-  if (status === "dirty") return <span className="text-xs text-text-subtle">Unsaved…</span>;
+  if (status === "dirty") return <span className="text-xs text-text-subtle">{t("admin.lessonEditor.unsaved")}</span>;
   if (status === "saving")
     return (
       <span className="flex items-center gap-1 text-xs text-text-subtle">
-        <Loader2 className="h-3 w-3 animate-spin" /> Saving
+        <Loader2 className="h-3 w-3 animate-spin" /> {t("admin.lessonEditor.saving")}
       </span>
     );
   if (status === "saved")
     return (
       <span className="flex items-center gap-1 text-xs text-primary">
-        <Check className="h-3 w-3" /> Saved
+        <Check className="h-3 w-3" /> {t("admin.lessonEditor.saved")}
       </span>
     );
   if (status === "error")
-    return <span className="text-xs text-danger-fg">Save failed</span>;
+    return <span className="text-xs text-danger-fg">{t("admin.lessonEditor.saveFailed")}</span>;
   return null;
 }
 
@@ -655,14 +661,15 @@ function SaveIndicator({ status }: { status: SaveStatus }) {
 
 /** The one list of what a page can hold. Both add controls offer it. */
 function BlockTypeChips({ onPick }: { onPick: (kind: BlockKind) => void }) {
+  const { t } = useTranslation();
   return (
     <>
-      <BlockTypeChip icon={<FileText className="h-3 w-3" />} label="Text" onClick={() => onPick("text")} />
-      <BlockTypeChip icon={<Code className="h-3 w-3" />} label="HTML" onClick={() => onPick("html")} />
-      <BlockTypeChip icon={<PlayCircle className="h-3 w-3" />} label="Video" onClick={() => onPick("video")} />
-      <BlockTypeChip icon={<Presentation className="h-3 w-3" />} label="Slides" onClick={() => onPick("presentation")} />
-      <BlockTypeChip icon={<Puzzle className="h-3 w-3" />} label="Exercise" onClick={() => onPick("exercise")} />
-      <BlockTypeChip icon={<ClipboardCheck className="h-3 w-3" />} label="Assignment" onClick={() => onPick("assignment")} />
+      <BlockTypeChip icon={<FileText className="h-3 w-3" />} label={t("admin.lessonEditor.blockText")} onClick={() => onPick("text")} />
+      <BlockTypeChip icon={<Code className="h-3 w-3" />} label={t("admin.lessonEditor.blockHtml")} onClick={() => onPick("html")} />
+      <BlockTypeChip icon={<PlayCircle className="h-3 w-3" />} label={t("admin.lessonEditor.blockVideo")} onClick={() => onPick("video")} />
+      <BlockTypeChip icon={<Presentation className="h-3 w-3" />} label={t("admin.lessonEditor.blockSlides")} onClick={() => onPick("presentation")} />
+      <BlockTypeChip icon={<Puzzle className="h-3 w-3" />} label={t("admin.lessonEditor.blockExercise")} onClick={() => onPick("exercise")} />
+      <BlockTypeChip icon={<ClipboardCheck className="h-3 w-3" />} label={t("admin.lessonEditor.blockAssignment")} onClick={() => onPick("assignment")} />
     </>
   );
 }
@@ -765,6 +772,7 @@ function SortableBlock({
   onExerciseChanged: () => void;
 }) {
   const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({ id: block.id });
+  const { t } = useTranslation();
   const style = {
     transform: CSS.Transform.toString(transform),
     transition,
@@ -779,14 +787,14 @@ function SortableBlock({
             {...attributes}
             {...listeners}
             className="cursor-grab rounded p-1 text-text-subtle hover:bg-surface-2 hover:text-text active:cursor-grabbing"
-            title="Drag to reorder"
+            title={t("admin.lessonEditor.dragToReorder")}
           >
             <GripVertical className="h-4 w-4" />
           </button>
           <button
             onClick={onDelete}
             className="rounded p-1 text-text-subtle hover:bg-danger-soft hover:text-danger-fg"
-            title="Delete block"
+            title={t("admin.lessonEditor.deleteBlockTitle")}
           >
             <Trash2 className="h-4 w-4" />
           </button>
@@ -872,7 +880,7 @@ function TextBlockBody({
   const { t } = useTranslation();
 
   if (previewMode) {
-    if (!block.body) return <div className="text-sm italic text-text-subtle">Empty text block</div>;
+    if (!block.body) return <div className="text-sm italic text-text-subtle">{t("admin.lessonEditor.emptyText")}</div>;
     return (
       <div className={block.format === "tiptap" ? "" : "prose prose-slate max-w-none"}>
         <ContentRenderer body={block.body} format={(block.format as "markdown" | "html" | "tiptap") || "tiptap"} />
@@ -944,8 +952,9 @@ function VideoBlockBody({
   previewMode: boolean;
   onUpdate: (patch: Partial<LessonBlock>) => void;
 }) {
+  const { t } = useTranslation();
   if (previewMode) {
-    if (!block.url) return <div className="text-sm italic text-text-subtle">No video URL</div>;
+    if (!block.url) return <div className="text-sm italic text-text-subtle">{t("admin.lessonEditor.noVideoUrl")}</div>;
     return <VideoPlayer url={block.url} lessonId="preview" />;
   }
   return (
@@ -1037,7 +1046,7 @@ function ExerciseBlockBody({
     return (
       <div className="rounded-lg border-2 border-dashed border-primary-soft bg-primary-soft/20 p-4">
         <p className="mb-3 text-xs font-semibold uppercase tracking-wider text-primary">
-          Pick exercise type — created instantly
+          {t("admin.lessonEditor.pickExerciseType")}
         </p>
         <div className="space-y-3">
           {EXERCISE_GROUPS.map((group) => (
