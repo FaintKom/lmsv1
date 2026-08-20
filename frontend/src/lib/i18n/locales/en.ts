@@ -2130,6 +2130,7 @@ const en: TranslationMap = {
  "exercise.stereometry.title": "Solids",
  "exercise.stereometry.ask": "Find the {quantity} of this {solid}.",
  "exercise.stereometry.unset": "This task has no solid set yet.",
+ "exercise.stereometry.unsized": "This solid has no measurements yet.",
  "exercise.stereometry.right": "Right.",
  "exercise.stereometry.ariaAnswer": "Your answer",
  "exercise.stereometry.viewAlt": "A {solid} you can turn with the mouse",

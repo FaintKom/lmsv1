@@ -2078,6 +2078,7 @@ const ru: TranslationMap = {
  "exercise.stereometry.title": "Тела",
  "exercise.stereometry.ask": "Найдите {quantity} этого тела: {solid}.",
  "exercise.stereometry.unset": "В этом задании ещё не выбрано тело.",
+ "exercise.stereometry.unsized": "У этого тела ещё не заданы размеры.",
  "exercise.stereometry.right": "Верно.",
  "exercise.stereometry.ariaAnswer": "Твой ответ",
  "exercise.stereometry.viewAlt": "{solid}, который можно повернуть мышью",

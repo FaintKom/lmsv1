@@ -37,8 +37,14 @@ type EditorProps = {
  onChange: (c: Record<string, unknown>) => void;
 };
 
-const inputCls =
- "w-full rounded-lg border border-border-strong bg-surface px-3 py-2 text-sm text-text outline-none focus:border-primary focus:ring-2 focus:ring-primary-soft";
+/* Оформление поля без ширины. Место вызова задаёт ширину само —
+   `w-32 ${inputBase}`, `flex-1 ${inputBase}`. */
+const inputBase =
+ "rounded-lg border border-border-strong bg-surface px-3 py-2 text-sm text-text outline-none focus:border-primary focus:ring-2 focus:ring-primary-soft";
+/* Поле во всю ширину — для тех, кто ширину не задаёт. Ставить его
+   вместе с другой шириной нельзя: победит не то правило, и сосед
+   с flex-1 схлопнется. */
+const inputCls = `w-full ${inputBase}`;
 const labelCls = "mb-1 block text-sm font-medium text-text";
 const hintCls = "mt-1 text-xs text-text-muted";
 
@@ -123,7 +129,7 @@ export function FillBlanksConfigEditor({ config, onChange }: EditorProps) {
          rows={3}
          className={inputCls}
        />
-       <p className={hintCls}>Use __ (double underscore) to mark each blank position.</p>
+       <p className={hintCls}>Two underscores mark a blank, three work too. The answers below fill them in order.</p>
      </div>
      {blankCount > 0 && (
        <div>
@@ -213,7 +219,7 @@ export function OrderingConfigEditor({ config, onChange }: EditorProps) {
      {items.map((item, i) => (
        <div key={i} className="flex items-center gap-2">
          <span className="flex-shrink-0 w-7 h-7 rounded-full bg-primary-soft flex items-center justify-center text-xs font-bold text-primary">{i + 1}</span>
-         <input type="text" value={item} onChange={(e) => updateItem(i, e.target.value)} placeholder={`Step ${i + 1}`} className={`flex-1 ${inputCls}`} />
+         <input type="text" value={item} onChange={(e) => updateItem(i, e.target.value)} placeholder={`Step ${i + 1}`} className={`flex-1 ${inputBase}`} />
          <div className="flex flex-col">
            <button type="button" onClick={() => moveItem(i, i - 1)} disabled={i === 0} className="text-text-muted hover:text-text disabled:opacity-30 text-xs leading-none p-0.5">{"▲"}</button>
            <button type="button" onClick={() => moveItem(i, i + 1)} disabled={i === items.length - 1} className="text-text-muted hover:text-text disabled:opacity-30 text-xs leading-none p-0.5">{"▼"}</button>
@@ -263,7 +269,7 @@ export function CategorizeConfigEditor({ config, onChange }: EditorProps) {
      {categories.map((cat, ci) => (
        <div key={ci} className="rounded-lg border border-border-strong p-4 space-y-3">
          <div className="flex items-center gap-2">
-           <input type="text" value={cat.name} onChange={(e) => updateCatName(ci, e.target.value)} placeholder="Category name" className={`flex-1 ${inputCls} font-semibold`} />
+           <input type="text" value={cat.name} onChange={(e) => updateCatName(ci, e.target.value)} placeholder="Category name" className={`flex-1 ${inputBase} font-semibold`} />
            {categories.length > 1 && (
              <Button variant="ghost" size="sm" onClick={() => removeCategory(ci)} className="text-danger-fg"><Trash2 className="h-3.5 w-3.5" /></Button>
            )}
@@ -271,7 +277,7 @@ export function CategorizeConfigEditor({ config, onChange }: EditorProps) {
          <div className="space-y-2 pl-4 border-l-2 border-primary-soft">
            {cat.items.map((item, ii) => (
              <div key={ii} className="flex items-center gap-2">
-               <input type="text" value={item} onChange={(e) => updateCatItem(ci, ii, e.target.value)} placeholder={`Item ${ii + 1}`} className={`flex-1 ${inputCls}`} />
+               <input type="text" value={item} onChange={(e) => updateCatItem(ci, ii, e.target.value)} placeholder={`Item ${ii + 1}`} className={`flex-1 ${inputBase}`} />
                {cat.items.length > 1 && (
                  <Button variant="ghost" size="sm" onClick={() => removeItemFromCat(ci, ii)} className="text-danger-fg"><Trash2 className="h-3.5 w-3.5" /></Button>
                )}
@@ -340,7 +346,7 @@ export function TranslationConfigEditor({ config, onChange }: EditorProps) {
        <div className="space-y-2 mt-2">
          {accepted.map((ans, i) => (
            <div key={i} className="flex items-center gap-2">
-             <input type="text" value={ans} onChange={(e) => updateAccepted(i, e.target.value)} placeholder={`Accepted translation ${i + 1}`} className={`flex-1 ${inputCls}`} />
+             <input type="text" value={ans} onChange={(e) => updateAccepted(i, e.target.value)} placeholder={`Accepted translation ${i + 1}`} className={`flex-1 ${inputBase}`} />
              {accepted.length > 1 && (
                <Button variant="ghost" size="sm" onClick={() => removeAccepted(i)} className="text-danger-fg"><Trash2 className="h-3.5 w-3.5" /></Button>
              )}
@@ -388,7 +394,7 @@ export function SentenceBuilderConfigEditor({ config, onChange }: EditorProps) {
          {correctOrder.map((word, i) => (
            <div key={i} className="flex items-center gap-2">
              <span className="flex-shrink-0 w-7 h-7 rounded-full bg-primary-soft flex items-center justify-center text-xs font-bold text-primary">{i + 1}</span>
-             <input type="text" value={word} onChange={(e) => updateWord(i, e.target.value)} placeholder={`Word ${i + 1}`} className={`flex-1 ${inputCls}`} />
+             <input type="text" value={word} onChange={(e) => updateWord(i, e.target.value)} placeholder={`Word ${i + 1}`} className={`flex-1 ${inputBase}`} />
              {correctOrder.length > 2 && (
                <Button variant="ghost" size="sm" onClick={() => removeWord(i)} className="text-danger-fg"><Trash2 className="h-3.5 w-3.5" /></Button>
              )}
@@ -477,8 +483,8 @@ export function DialogueConfigEditor({ config, onChange }: EditorProps) {
        <div key={mi} className={`rounded-lg border p-4 space-y-3 ${msg.options ? "border-primary-soft bg-success-soft/20" : "border-border-strong"}`}>
          <div className="flex items-center gap-2">
            <span className="text-xs font-bold text-text-muted">#{mi + 1}</span>
-           <input type="text" value={msg.speaker} onChange={(e) => updateMessage(mi, "speaker", e.target.value)} placeholder="Speaker name" className={`w-32 ${inputCls}`} />
-           <input type="text" value={msg.text} onChange={(e) => updateMessage(mi, "text", e.target.value)} placeholder="Message text..." className={`flex-1 ${inputCls}`} />
+           <input type="text" value={msg.speaker} onChange={(e) => updateMessage(mi, "speaker", e.target.value)} placeholder="Speaker name" className={`w-32 ${inputBase}`} />
+           <input type="text" value={msg.text} onChange={(e) => updateMessage(mi, "text", e.target.value)} placeholder="Message text..." className={`flex-1 ${inputBase}`} />
            <Button variant="ghost" size="sm" onClick={() => removeMessage(mi)} className="text-danger-fg flex-shrink-0"><Trash2 className="h-3.5 w-3.5" /></Button>
          </div>
          {msg.options && (
@@ -490,7 +496,7 @@ export function DialogueConfigEditor({ config, onChange }: EditorProps) {
                    <input type="radio" name={`correct_${mi}`} checked={opt.is_correct} onChange={() => updateOption(mi, oi, "is_correct", true)} className="accent-green-600" aria-label={`Mark option ${oi + 1} as the correct reply`} />
                    Correct
                  </label>
-                 <input type="text" value={opt.text} onChange={(e) => updateOption(mi, oi, "text", e.target.value)} placeholder={`Option ${oi + 1}`} className={`flex-1 ${inputCls}`} />
+                 <input type="text" value={opt.text} onChange={(e) => updateOption(mi, oi, "text", e.target.value)} placeholder={`Option ${oi + 1}`} className={`flex-1 ${inputBase}`} />
                  {msg.options!.length > 2 && (
                    <Button variant="ghost" size="sm" onClick={() => removeOption(mi, oi)} className="text-danger-fg"><Trash2 className="h-3.5 w-3.5" /></Button>
                  )}
@@ -736,7 +742,7 @@ export function ReadingConfigEditor({ config, onChange }: EditorProps) {
            <div key={qi} className="rounded-lg border border-border-strong p-4 space-y-3">
              <div className="flex items-center gap-2">
                <span className="flex-shrink-0 w-7 h-7 rounded-full bg-primary-soft flex items-center justify-center text-xs font-bold text-primary">{qi + 1}</span>
-               <input type="text" value={q.text} onChange={(e) => updateQuestion(qi, "text", e.target.value)} placeholder="Question text..." className={`flex-1 ${inputCls}`} />
+               <input type="text" value={q.text} onChange={(e) => updateQuestion(qi, "text", e.target.value)} placeholder="Question text..." className={`flex-1 ${inputBase}`} />
                <span className="text-xs text-text-muted px-2 py-1 rounded bg-surface-2">{q.type === "multiple_choice" ? "MC" : "Text"}</span>
                <Button variant="ghost" size="sm" onClick={() => removeQuestion(qi)} className="text-danger-fg"><Trash2 className="h-3.5 w-3.5" /></Button>
              </div>
@@ -749,7 +755,7 @@ export function ReadingConfigEditor({ config, onChange }: EditorProps) {
                  {q.options.map((opt, oi) => (
                    <div key={oi} className="flex items-center gap-2">
                      <input type="checkbox" checked={opt.is_correct} onChange={() => updateOption(qi, oi, "is_correct", true)} className="accent-green-600" />
-                     <input type="text" value={opt.text} onChange={(e) => updateOption(qi, oi, "text", e.target.value)} placeholder={`Option ${oi + 1}`} className={`flex-1 ${inputCls}`} />
+                     <input type="text" value={opt.text} onChange={(e) => updateOption(qi, oi, "text", e.target.value)} placeholder={`Option ${oi + 1}`} className={`flex-1 ${inputBase}`} />
                      {q.options!.length > 2 && (
                        <Button variant="ghost" size="sm" onClick={() => removeOption(qi, oi)} className="text-danger-fg"><Trash2 className="h-3.5 w-3.5" /></Button>
                      )}
@@ -947,7 +953,7 @@ export function CrosswordConfigEditor({ config, onChange }: EditorProps) {
          max={20}
          value={gridSize}
          onChange={(e) => onChange({ ...config, grid_size: parseInt(e.target.value) || 10 })}
-         className={`w-24 ${inputCls}`}
+         className={`w-24 ${inputBase}`}
        />
        <p className={hintCls}>
          {gridSize} × {gridSize} grid. Words must fit within. Click "Place on grid" on a row to position it visually.
@@ -1054,14 +1060,14 @@ export function CrosswordConfigEditor({ config, onChange }: EditorProps) {
                    value={w.word}
                    onChange={(e) => updateWord(i, "word", e.target.value.toUpperCase())}
                    placeholder="WORD"
-                   className={`w-32 ${inputCls} font-mono uppercase`}
+                   className={`w-32 ${inputBase} font-mono uppercase`}
                  />
                  <input
                    type="text"
                    value={w.clue}
                    onChange={(e) => updateWord(i, "clue", e.target.value)}
                    placeholder="Clue for this word..."
-                   className={`flex-1 ${inputCls}`}
+                   className={`flex-1 ${inputBase}`}
                  />
                  <Button variant="ghost" size="sm" onClick={() => removeWord(i)} className="text-danger-fg">
                    <Trash2 className="h-3.5 w-3.5" />
@@ -1090,7 +1096,7 @@ export function CrosswordConfigEditor({ config, onChange }: EditorProps) {
                        max={gridSize - 1}
                        value={w.row}
                        onChange={(e) => updateWord(i, "row", parseInt(e.target.value) || 0)}
-                       className={`w-16 ${inputCls}`}
+                       className={`w-16 ${inputBase}`}
                      />
                    </div>
                    <div className="flex items-center gap-1">
@@ -1101,13 +1107,13 @@ export function CrosswordConfigEditor({ config, onChange }: EditorProps) {
                        max={gridSize - 1}
                        value={w.col}
                        onChange={(e) => updateWord(i, "col", parseInt(e.target.value) || 0)}
-                       className={`w-16 ${inputCls}`}
+                       className={`w-16 ${inputBase}`}
                      />
                    </div>
                    <select
                      value={w.direction}
                      onChange={(e) => updateWord(i, "direction", e.target.value)}
-                     className={`w-28 ${inputCls}`}
+                     className={`w-28 ${inputBase}`}
                    >
                      <option value="across">Across →</option>
                      <option value="down">Down ↓</option>
@@ -1158,7 +1164,7 @@ export function WordSearchConfigEditor({ config, onChange }: EditorProps) {
        <label className={labelCls}>Grid Size</label>
        <input type="number" min={8} max={20} value={gridSize}
          onChange={(e) => onChange({ ...config, grid_size: parseInt(e.target.value) || 12 })}
-         className={`w-24 ${inputCls}`} />
+         className={`w-24 ${inputBase}`} />
        <p className={hintCls}>{gridSize} x {gridSize} letter grid. Words are hidden horizontally, vertically, and diagonally.</p>
      </div>
      <div>
@@ -1199,7 +1205,7 @@ export function WordSearchConfigEditor({ config, onChange }: EditorProps) {
          {words.map((word, i) => (
            <div key={i} className="flex items-center gap-2">
              <span className="flex-shrink-0 w-7 h-7 rounded-full bg-primary-soft flex items-center justify-center text-xs font-bold text-primary">{i + 1}</span>
-             <input type="text" value={word} onChange={(e) => updateWord(i, e.target.value)} placeholder="WORD" className={`flex-1 ${inputCls} font-mono uppercase`} />
+             <input type="text" value={word} onChange={(e) => updateWord(i, e.target.value)} placeholder="WORD" className={`flex-1 ${inputBase} font-mono uppercase`} />
              {words.length > 1 && (
                <Button variant="ghost" size="sm" onClick={() => removeWord(i)} className="text-danger-fg"><Trash2 className="h-3.5 w-3.5" /></Button>
              )}
@@ -1301,7 +1307,7 @@ export function MapPinDropConfigEditor({ config, onChange }: EditorProps) {
      <div>
        <label className={labelCls}>Background Image</label>
        <div className="flex gap-2">
-         <input type="text" value={imageUrl} onChange={(e) => onChange({ ...config, image_url: e.target.value })} placeholder="https://example.com/map.png" className={`flex-1 ${inputCls}`} />
+         <input type="text" value={imageUrl} onChange={(e) => onChange({ ...config, image_url: e.target.value })} placeholder="https://example.com/map.png" className={`flex-1 ${inputBase}`} />
          <input ref={fileRef} type="file" accept="image/*" onChange={handleFileUpload} className="hidden" />
          <Button variant="outline" size="sm" onClick={() => fileRef.current?.click()} disabled={uploading} className="flex-shrink-0">
            <Upload className="mr-1.5 h-3.5 w-3.5" />{uploading ? "Uploading..." : "Upload"}
@@ -1380,15 +1386,15 @@ export function MapPinDropConfigEditor({ config, onChange }: EditorProps) {
              >
                {i === activePinIndex ? <MapPinIcon className="h-3.5 w-3.5" /> : i + 1}
              </button>
-             <input type="text" value={pin.label} onChange={(e) => updatePin(i, "label", e.target.value)} placeholder="Label" className={`w-32 ${inputCls}`} />
+             <input type="text" value={pin.label} onChange={(e) => updatePin(i, "label", e.target.value)} placeholder="Label" className={`w-32 ${inputBase}`} />
              <div className="flex items-center gap-1"><label className="text-xs text-text-muted">X%:</label>
-               <input type="number" min={0} max={100} value={pin.x} onChange={(e) => updatePin(i, "x", parseInt(e.target.value) || 0)} className={`w-16 ${inputCls}`} />
+               <input type="number" min={0} max={100} value={pin.x} onChange={(e) => updatePin(i, "x", parseInt(e.target.value) || 0)} className={`w-16 ${inputBase}`} />
              </div>
              <div className="flex items-center gap-1"><label className="text-xs text-text-muted">Y%:</label>
-               <input type="number" min={0} max={100} value={pin.y} onChange={(e) => updatePin(i, "y", parseInt(e.target.value) || 0)} className={`w-16 ${inputCls}`} />
+               <input type="number" min={0} max={100} value={pin.y} onChange={(e) => updatePin(i, "y", parseInt(e.target.value) || 0)} className={`w-16 ${inputBase}`} />
              </div>
              <div className="flex items-center gap-1"><label className="text-xs text-text-muted">Tolerance:</label>
-               <input type="number" min={1} max={50} value={pin.tolerance} onChange={(e) => updatePin(i, "tolerance", parseInt(e.target.value) || 30)} className={`w-16 ${inputCls}`} />
+               <input type="number" min={1} max={50} value={pin.tolerance} onChange={(e) => updatePin(i, "tolerance", parseInt(e.target.value) || 30)} className={`w-16 ${inputBase}`} />
              </div>
              <Button variant="ghost" size="sm" onClick={() => removePin(i)} className="text-danger-fg"><Trash2 className="h-3.5 w-3.5" /></Button>
            </div>

@@ -2130,6 +2130,7 @@ const de: TranslationMap = {
  "exercise.stereometry.title": "Körper",
  "exercise.stereometry.ask": "Berechnen Sie {quantity} dieses Körpers: {solid}.",
  "exercise.stereometry.unset": "In dieser Aufgabe ist noch kein Körper gewählt.",
+ "exercise.stereometry.unsized": "Dieser Körper hat noch keine Maße.",
  "exercise.stereometry.right": "Richtig.",
  "exercise.stereometry.ariaAnswer": "Deine Antwort",
  "exercise.stereometry.viewAlt": "Ein {solid}, den du mit der Maus drehen kannst",

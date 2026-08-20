@@ -76,10 +76,67 @@ export function isV2LiveType(t: string | undefined | null): t is V2LiveType {
   return !!t && (V2_LIVE_TYPES as readonly string[]).includes(t);
 }
 
-/** Count `{{blank}}` markers in a fill-blanks template — the live config
- * strips `blanks`, so slot count must come from the text, not the answers. */
+/**
+ * Turn the underscores a teacher types into the markers a widget reads.
+ *
+ * The Fill Blanks editor offers `__` and `___` and counts the answer rows
+ * from them. Every widget splits on `{{blank}}` and nothing translated
+ * between the two, so a sentence authored in the editor reached the student
+ * with its underscores intact and no input slots at all.
+ *
+ * Two underscores is the floor deliberately: a single one belongs to
+ * `user_name`, and a lesson about code should not sprout holes.
+ */
+export function toBlankMarkers(text: string): string {
+  return text.replace(/___?/g, "{{blank}}");
+}
+
+/** One bubble-sheet row as the widget wants it. */
+export interface BubbleQuestionView {
+  n: number;
+  q: string;
+  opts: string[];
+  /** 0-based index of the right option; absent when there is no key yet. */
+  correct?: number;
+}
+
+/**
+ * Read a bubble sheet's rows out of its config.
+ *
+ * The config holds `question_text`, `options`, and `correct` as a letter —
+ * the widget wants `q`, `opts`, and an index. The names were read as
+ * `question` here for a while, so the text a teacher typed sat in the config
+ * and never reached the sheet; both spellings are accepted now because
+ * content exists either way.
+ */
+export function toBubbleQuestions(config: Record<string, unknown>): BubbleQuestionView[] {
+  const raw =
+    (config.questions as {
+      number?: number;
+      question_text?: string;
+      question?: string;
+      options?: string[];
+      correct?: string;
+    }[]) ?? [];
+  const numOptions = (config.num_options as number) ?? 4;
+  return raw.map((q, i) => {
+    const letter = (q.correct ?? "").trim().toUpperCase();
+    return {
+      n: q.number ?? i + 1,
+      q: q.question_text ?? q.question ?? "",
+      opts:
+        q.options && q.options.length > 0
+          ? q.options
+          : Array.from({ length: numOptions }, (_, j) => String.fromCharCode(65 + j)),
+      correct: letter ? letter.charCodeAt(0) - 65 : undefined,
+    };
+  });
+}
+
+/** Count the blanks in a fill-blanks template — the live config strips
+ * `blanks`, so slot count must come from the text, not the answers. */
 export function countBlanks(text: string | undefined): number {
   if (!text) return 0;
-  const m = text.match(/\{\{blank\}\}/g);
+  const m = toBlankMarkers(text).match(/\{\{blank\}\}/g);
   return m ? m.length : 0;
 }

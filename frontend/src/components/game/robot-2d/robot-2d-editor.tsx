@@ -20,7 +20,7 @@
  * translated command would be a command the runner refuses.
  */
 
-import { useCallback, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import {
   Apple,
   Box,
@@ -43,6 +43,7 @@ import {
 } from "@/lib/api/exercises";
 import GridRenderer from "./grid-renderer";
 import { initialState, type Cell, type CellType, type Direction } from "./grid-engine";
+import { robotDefaultsApplied, withRobotDefaults } from "./robot-defaults";
 
 type Config = Record<string, unknown>;
 
@@ -135,6 +136,13 @@ function fill(template: string, values: Record<string, string | number>): string
 
 export default function Robot2DEditor({ config, onConfigChange }: Robot2DEditorProps) {
   const { t } = useTranslation();
+
+  // Умолчания записываются, а не только рисуются: уровень без `win` не
+  // проходится в принципе, и проверка отвечала «нет пути» вместо «нет
+  // условия победы» (находка 14 обхода 2026-08-21).
+  useEffect(() => {
+    if (!robotDefaultsApplied(config)) onConfigChange(withRobotDefaults);
+  }, [config, onConfigChange]);
 
   const gridWidth = (config.grid_width as number) || 5;
   const gridHeight = (config.grid_height as number) || 5;

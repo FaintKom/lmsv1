@@ -82,4 +82,94 @@ describe("livePreviewState", () => {
       field: "launch_url",
     });
   });
+
+  // Обход авторства 2026-08-20, находка 9: превью считало задание готовым,
+  // если массив просто существует. Пустые строки внутри — это не задание.
+
+  it("пункт без текста — ещё не задание", () => {
+    expect(livePreviewState("ordering", { correct_order: ["", ""] })).toEqual({
+      kind: "missing",
+      field: "correct_order",
+    });
+    expect(livePreviewState("ordering", { correct_order: ["Boil the water", ""] })).toMatchObject({
+      kind: "widget",
+    });
+  });
+
+  it("вопрос без текста и варианты без текста — ещё не задание", () => {
+    const blank = { questions: [{ text: "", options: [{ text: "" }, { text: "" }] }] };
+    expect(livePreviewState("reading", { passage: "...", ...blank })).toEqual({
+      kind: "missing",
+      field: "questions",
+    });
+  });
+
+  it("реплика без слов — ещё не диалог", () => {
+    expect(livePreviewState("dialogue", { messages: [{ speaker: "", text: "" }] })).toEqual({
+      kind: "missing",
+      field: "messages",
+    });
+  });
+
+  it("принимаемый ответ из пустой строки не считается ответом", () => {
+    expect(livePreviewState("translation", { text: "Hello", accepted_answers: [""] })).toEqual({
+      kind: "missing",
+      field: "accepted_answers",
+    });
+  });
+
+  it("утверждение — это содержимое true/false, а не ключ ответа", () => {
+    // Ключ (`correct_answer`) стоит по умолчанию, поэтому раньше превью
+    // рисовало готовый вопрос с пустыми кавычками.
+    expect(livePreviewState("true_false", { statement: "", correct_answer: true })).toEqual({
+      kind: "missing",
+      field: "statement",
+    });
+    expect(
+      livePreviewState("true_false", {
+        statement: "The Pacific is the largest ocean.",
+        correct_answer: true,
+      }),
+    ).toMatchObject({ kind: "widget" });
+  });
+
+  it("система уравнений без уравнений — ещё не задание", () => {
+    expect(livePreviewState("math_system", { variables: ["x", "y"], equations: ["", ""] })).toEqual({
+      kind: "missing",
+      field: "equations",
+    });
+  });
+
+  it("точки без карты — задание, в котором нечего искать", () => {
+    const pins = [{ x: 50, y: 50, label: "The door", tolerance: 8 }];
+    expect(livePreviewState("map_pin_drop", { pins, image_url: "" })).toEqual({
+      kind: "missing",
+      field: "image_url",
+    });
+    expect(livePreviewState("map_pin_drop", { pins, image_url: "/plan.png" })).toMatchObject({
+      kind: "widget",
+    });
+  });
+
+  it("тело без размеров — превью называет размеры, а не тело", () => {
+    // Находка 7: виджет в этом случае писал «This task has no solid set yet»,
+    // хотя тело выбрано.
+    expect(livePreviewState("stereometry", { solid: "box", quantity: "volume" })).toEqual({
+      kind: "missing",
+      field: "dimensions",
+    });
+    expect(
+      livePreviewState("stereometry", {
+        solid: "box",
+        quantity: "volume",
+        dimensions: { a: 3, b: 4, c: 5 },
+      }),
+    ).toMatchObject({ kind: "widget" });
+  });
+
+  it("веб-редактор тянет Monaco, поэтому разворачивается по требованию", () => {
+    expect(
+      livePreviewState("web_editor", { instructions: "Build a card", starter_html: "" }),
+    ).toMatchObject({ kind: "widget", heavy: true });
+  });
 });

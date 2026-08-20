@@ -1,0 +1,193 @@
+/* Флешкарты (SRS).
+ *
+ * Виджет приехал из другого проекта без своей таблицы стилей, и ученик
+ * видел вместо карточки столбик текста. Здесь объявлено ровно то, что
+ * расставляет srs-flashcard.tsx, и ничего сверх. Цвета — токены из
+ * globals.css: палитра одна на весь продукт.
+ */
+
+.gl-mobile-card {
+  max-width: 34rem;
+  margin-inline: auto;
+  padding: 1.25rem;
+  border: 1px solid var(--color-border-strong);
+  border-radius: 1rem;
+  background: var(--color-surface);
+  box-shadow: var(--shadow-sm);
+}
+
+/* ---- Полоса прогресса сессии ---------------------------------------- */
+
+.gl-mobile-progress {
+  height: 0.375rem;
+  margin-bottom: 0.75rem;
+  border-radius: 999px;
+  background: var(--color-surface-2);
+  overflow: hidden;
+}
+
+.gl-mobile-progress .fill {
+  height: 100%;
+  border-radius: inherit;
+  background: var(--color-primary);
+  transition: width 240ms ease;
+}
+
+/* ---- Карточка и её переворот ---------------------------------------- */
+
+.gl-flashcard {
+  perspective: 1000px;
+  min-height: 11rem;
+  margin-bottom: 1rem;
+  cursor: pointer;
+}
+
+.gl-flashcard:focus-visible {
+  outline: 2px solid var(--color-border-focus);
+  outline-offset: 3px;
+  border-radius: 0.875rem;
+}
+
+.gl-flashcard-inner {
+  position: relative;
+  width: 100%;
+  min-height: inherit;
+  transform-style: preserve-3d;
+  transition: transform 260ms ease;
+}
+
+.gl-flashcard.is-flipped .gl-flashcard-inner {
+  transform: rotateY(180deg);
+}
+
+.gl-flashcard-face {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 1.25rem;
+  border: 1px solid var(--color-border);
+  border-radius: 0.875rem;
+  background: var(--color-surface-2);
+  backface-visibility: hidden;
+  text-align: center;
+}
+
+.gl-flashcard-face.back {
+  transform: rotateY(180deg);
+}
+
+.gl-flashcard-face .term {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: var(--color-text);
+}
+
+.gl-flashcard-face .definition {
+  font-size: 1.25rem;
+  color: var(--color-text);
+}
+
+.gl-flashcard-face .hint {
+  font-size: 0.8125rem;
+  color: var(--color-text-subtle);
+}
+
+/* Кому вращение мешает — тому подмена стороны без вращения. */
+@media (prefers-reduced-motion: reduce) {
+  .gl-flashcard-inner {
+    transition: none;
+  }
+
+  .gl-flashcard.is-flipped .gl-flashcard-inner,
+  .gl-flashcard-face.back {
+    transform: none;
+  }
+
+  .gl-flashcard-face.back {
+    opacity: 0;
+    pointer-events: none;
+  }
+
+  .gl-flashcard.is-flipped .gl-flashcard-face.back {
+    opacity: 1;
+    pointer-events: auto;
+  }
+
+  .gl-flashcard.is-flipped .gl-flashcard-face:not(.back) {
+    opacity: 0;
+  }
+}
+
+/* ---- Четыре кнопки оценки ------------------------------------------- */
+
+.gl-thumb-zone {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 0.5rem;
+}
+
+.gl-srs-btn {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.125rem;
+  /* Палец, а не курсор: 44 пикселя — нижняя граница, ниже промахиваются. */
+  min-height: 2.75rem;
+  min-width: 2.75rem;
+  padding: 0.5rem 0.25rem;
+  border: 1px solid transparent;
+  border-radius: 0.625rem;
+  font-size: 0.875rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: opacity 160ms ease, filter 160ms ease;
+}
+
+.gl-srs-btn small {
+  font-size: 0.6875rem;
+  font-weight: 500;
+  opacity: 0.85;
+}
+
+.gl-srs-btn:focus-visible {
+  outline: 2px solid var(--color-border-focus);
+  outline-offset: 2px;
+}
+
+.gl-srs-btn:not(:disabled):hover {
+  filter: brightness(0.94);
+}
+
+/* Пока карточка не перевёрнута, оценивать нечего — и это видно, а не
+   только не нажимается. */
+.gl-srs-btn:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+.gl-srs-btn.again {
+  background: var(--color-danger);
+  color: var(--color-text-inverse);
+}
+
+/* Жёлтое поле — только с тёмным текстом: белый по солнечному в этом
+   продукте запрещён, он не читается. */
+.gl-srs-btn.hard {
+  background: var(--color-reward);
+  color: var(--ink-900);
+}
+
+.gl-srs-btn.good {
+  background: var(--color-info);
+  color: var(--color-text-inverse);
+}
+
+.gl-srs-btn.easy {
+  background: var(--color-success);
+  color: var(--color-text-inverse);
+}

@@ -2130,6 +2130,7 @@ const uk: TranslationMap = {
  "exercise.stereometry.title": "Тіла",
  "exercise.stereometry.ask": "Знайдіть {quantity} цього тіла: {solid}.",
  "exercise.stereometry.unset": "У цьому завданні ще не обрано тіло.",
+ "exercise.stereometry.unsized": "У цього тіла ще не задано розміри.",
  "exercise.stereometry.right": "Правильно.",
  "exercise.stereometry.ariaAnswer": "Твоя відповідь",
  "exercise.stereometry.viewAlt": "{solid}, який можна обертати мишею",

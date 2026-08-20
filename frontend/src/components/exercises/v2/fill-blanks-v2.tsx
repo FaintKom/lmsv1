@@ -33,7 +33,7 @@ import {
 import { flyClone } from "@/components/lesson/fb-motion";
 import { useTranslation } from "@/lib/i18n/context";
 import { MaybeMath } from "@/components/common/math-renderer";
-import type { V2GradeFn, V2GradeResult } from "@/lib/exercises/v2-adapter";
+import { toBlankMarkers, type V2GradeFn, type V2GradeResult } from "@/lib/exercises/v2-adapter";
 
 export interface FillBlanksV2Props {
   /** Sentence template with `{{blank}}` markers — mutually exclusive with `parts`. */
@@ -67,16 +67,18 @@ type SlotMark = "" | "flash" | "ok" | "no";
 
 /** Parse `"Hello {{blank}} world {{blank}}"` → `["Hello ", null, " world ", null, ""]`. */
 function parseTemplate(text: string): (string | null)[] {
+  // Через редактор задание приходит с подчёркиваниями — это тот же пропуск.
+  const src = toBlankMarkers(text);
   const out: (string | null)[] = [];
   const re = /\{\{blank\}\}/g;
   let last = 0;
   let m: RegExpExecArray | null;
-  while ((m = re.exec(text))) {
-    out.push(text.slice(last, m.index));
+  while ((m = re.exec(src))) {
+    out.push(src.slice(last, m.index));
     out.push(null);
     last = m.index + m[0].length;
   }
-  out.push(text.slice(last));
+  out.push(src.slice(last));
   return out;
 }
 

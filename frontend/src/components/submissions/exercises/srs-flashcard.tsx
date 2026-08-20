@@ -3,6 +3,8 @@
 import { PartyPopper } from "lucide-react";
 import { useState, useEffect, useMemo, useCallback } from "react";
 
+import "./srs-flashcard.css";
+
 interface Card {
   id?: string;
   front: string;
