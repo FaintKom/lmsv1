@@ -23,6 +23,7 @@
 import ExerciseRenderer from "@/components/exercises/exercise-renderer";
 import { V2ExerciseLive } from "@/components/exercises/v2-exercise-live";
 import { isV2LiveType } from "@/lib/exercises/v2-adapter";
+import { missingAnswerKey } from "@/lib/exercises/answer-key";
 import { useTranslation } from "@/lib/i18n/context";
 
 interface LessonNavItem {
@@ -83,7 +84,33 @@ export function ExerciseView({
   );
 }
 
-/** A teacher's preview — the same view, with nothing recorded. */
+/**
+ * A teacher's preview — the same view, with nothing recorded, plus the one
+ * thing a preview can say that a student's screen must not: that this
+ * exercise has no answer to mark against, and will pass everybody.
+ */
 export function ExercisePreview({ exercise }: { exercise: ExerciseViewProps["exercise"] }) {
-  return <ExerciseView exercise={exercise} preview />;
+  const { t } = useTranslation();
+  const missing = exercise
+    ? missingAnswerKey(
+        exercise.exercise_type,
+        exercise.config as Record<string, unknown> | undefined,
+      )
+    : null;
+
+  return (
+    <>
+      {missing && (
+        <p className="mb-3 rounded-lg border border-warning bg-warning-soft px-3 py-2 text-sm text-warning-fg">
+          {fill(t("admin.exercisePreview.noAnswerKey"), { key: missing })}
+        </p>
+      )}
+      <ExerciseView exercise={exercise} preview />
+    </>
+  );
+}
+
+/** `t()` takes no parameters; the key carries a `{key}` placeholder. */
+function fill(template: string, values: Record<string, string>): string {
+  return template.replace(/\{(\w+)\}/g, (_, name) => values[name] ?? "");
 }

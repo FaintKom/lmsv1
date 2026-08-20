@@ -1426,6 +1426,7 @@ const ru: TranslationMap = {
  "admin.lessonEditor.legacyLessonNotice": "Этот урок старого типа и редактируется со страницы курса — там его специальный редактор. Правка здесь заменила бы его содержимое.",
  "admin.exercisePreview.title": "Превью и тестовый прогон",
  "admin.exercisePreview.banner": "Тестовый прогон — ничего не сохраняется: ни сдач, ни попыток, ни XP.",
+ "admin.exercisePreview.noAnswerKey": "Проверять не с чем: «{key}» пусто, поэтому любой ученик, нажавший «отправить», получит полный балл. Заполните до того, как выдавать задание.",
  "admin.exercisePreview.verdictsFollowSave": "Вёрстка следует несохранённым правкам; серверная проверка использует последнюю сохранённую версию.",
  "admin.exercisePreview.checkedNotSaved": "Проверено — ничего не сохранено",
  "admin.exercisePreview.verdictUnavailable": "Для этого типа проверка в тест-режиме недоступна — ничего не сохранено",

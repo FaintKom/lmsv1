@@ -1478,6 +1478,7 @@ const uk: TranslationMap = {
  "admin.lessonEditor.legacyLessonNotice": "Цей урок старого типу й редагується зі сторінки курсу — там його спеціальний редактор. Редагування тут замінило б його вміст.",
  "admin.exercisePreview.title": "Превʼю та тестовий прогін",
  "admin.exercisePreview.banner": "Тестовий прогін — нічого не зберігається: ні здач, ні спроб, ні XP.",
+ "admin.exercisePreview.noAnswerKey": "Перевіряти немає з чим: «{key}» порожнє, тож будь-який учень, який натисне «надіслати», отримає повний бал. Заповніть, перш ніж видавати завдання.",
  "admin.exercisePreview.verdictsFollowSave": "Вигляд слідує незбереженим правкам; серверна перевірка використовує останню збережену версію.",
  "admin.exercisePreview.checkedNotSaved": "Перевірено — нічого не збережено",
  "admin.exercisePreview.verdictUnavailable": "Для цього типу перевірка в тест-режимі недоступна — нічого не збережено",

@@ -1478,6 +1478,7 @@ const de: TranslationMap = {
  "admin.lessonEditor.legacyLessonNotice": "Diese Lektion nutzt einen alten Typ und wird auf der Kursseite bearbeitet — dort liegt ihr eigener Editor. Eine Bearbeitung hier würde ihren Inhalt ersetzen.",
  "admin.exercisePreview.title": "Vorschau & Testlauf",
  "admin.exercisePreview.banner": "Testlauf — nichts wird gespeichert: keine Abgaben, keine Versuche, kein XP.",
+ "admin.exercisePreview.noAnswerKey": "Es gibt nichts zu bewerten: „{key}“ ist leer, also bekommt jede Abgabe die volle Punktzahl. Fülle es aus, bevor du die Aufgabe vergibst.",
  "admin.exercisePreview.verdictsFollowSave": "Die Darstellung folgt ungespeicherten Änderungen; Server-Urteile nutzen die zuletzt gespeicherte Version.",
  "admin.exercisePreview.checkedNotSaved": "Geprüft — nichts wurde gespeichert",
  "admin.exercisePreview.verdictUnavailable": "Für diesen Typ sind Urteile im Testmodus nicht verfügbar — nichts wurde gespeichert",
