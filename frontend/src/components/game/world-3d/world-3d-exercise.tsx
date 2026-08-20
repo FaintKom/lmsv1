@@ -15,7 +15,21 @@
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import dynamic from "next/dynamic";
-import { Blocks, Code, Gauge, Lightbulb, Pause, Play, RotateCcw, SkipForward } from "lucide-react";
+import {
+  Blocks,
+  ChevronDown,
+  ChevronRight,
+  Code,
+  Compass,
+  Gauge,
+  Lightbulb,
+  Pause,
+  Play,
+  RotateCcw,
+  SkipForward,
+  Star,
+  Terminal,
+} from "lucide-react";
 import Editor from "@monaco-editor/react";
 
 import { Button } from "@/components/ui/button";
@@ -95,6 +109,15 @@ export default function World3DExercise({ exerciseId, config, onSubmit }: World3
   // Built in an effect, not during render: a ref read from a `useMemo` factory
   // is a read during render, and the lint rule that catches it is right.
   const playerRef = useRef<TracePlayer<WorldRunResult["frames"][number]> | null>(null);
+
+  /* ── The editor itself, so a run can point at the line that broke ── */
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const editorRef = useRef<any>(null);
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const monacoRef = useRef<any>(null);
+  /** Run from a keyboard shortcut, which fires with a stale closure otherwise. */
+  const playRef = useRef<() => void>(() => {});
+  const [showCommands, setShowCommands] = useState(true);
 
   useEffect(() => {
     const player = new TracePlayer<WorldRunResult["frames"][number]>({
@@ -194,6 +217,50 @@ export default function World3DExercise({ exerciseId, config, onSubmit }: World3
     onSubmit({ source: currentSource(), mode });
   }, [currentSource, mode, onSubmit]);
 
+  // Ctrl/Cmd+Enter reads this, so the shortcut always runs the current code.
+  useEffect(() => {
+    playRef.current = handlePlay;
+  }, [handlePlay]);
+
+  /** The run's error, marked on its own line in the editor and cleared by the
+   *  next run — the same treatment the 2D robot gives it. */
+  useEffect(() => {
+    const editor = editorRef.current;
+    const monaco = monacoRef.current;
+    if (!editor || !monaco) return;
+    const model = editor.getModel();
+    if (!model) return;
+
+    const error = result?.error;
+    if (!error || error.line == null) {
+      monaco.editor.setModelMarkers(model, "world", []);
+      return;
+    }
+    const line = Math.min(Math.max(error.line, 1), model.getLineCount());
+    monaco.editor.setModelMarkers(model, "world", [
+      {
+        severity: monaco.MarkerSeverity.Error,
+        message: `${error.type}: ${error.message}`,
+        startLineNumber: line,
+        endLineNumber: line,
+        startColumn: 1,
+        endColumn: model.getLineMaxColumn(line),
+      },
+    ]);
+    editor.revealLineInCenter(line);
+  }, [result]);
+
+  /** Drop a command at the cursor — the reference list is clickable. */
+  const insertCommand = useCallback((command: string) => {
+    const editor = editorRef.current;
+    if (!editor) return;
+    const selection = editor.getSelection();
+    editor.executeEdits("commands", [
+      { range: selection, text: `${command}\n`, forceMoveMarkers: true },
+    ]);
+    editor.focus();
+  }, []);
+
   const task = describeGoal(config.win, t);
   const stars = result?.stars ?? 0;
   const finished = Boolean(result?.won);
@@ -215,8 +282,9 @@ export default function World3DExercise({ exerciseId, config, onSubmit }: World3
         {/* The world */}
         <div className="flex w-full shrink-0 flex-col lg:w-[520px]">
           <div className="flex items-center gap-3 border-b border-border-strong bg-surface px-4 py-3">
-            <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-pill bg-lagoon-400 text-lg">
-              🧭
+            {/* An SVG, not an emoji: the same picture on every machine. */}
+            <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-pill bg-lagoon-400 text-white">
+              <Compass className="h-5 w-5" />
             </div>
             <p className="text-sm font-semibold text-text">{task}</p>
           </div>
@@ -272,10 +340,14 @@ export default function World3DExercise({ exerciseId, config, onSubmit }: World3
               ) : (
                 <button
                   onClick={handlePlay}
+                  title={`${t("game.run")} — ${t("game.runShortcut")}`}
                   className="flex h-10 items-center gap-1.5 rounded-lg bg-[#FFA400] px-6 text-sm font-bold text-white shadow-md transition hover:bg-[#e69400] active:scale-95"
                 >
                   <Play className="h-4 w-4" />
                   {t("game.run")}
+                  <span className="hidden text-2xs font-medium opacity-80 sm:inline">
+                    {t("game.runShortcut")}
+                  </span>
                 </button>
               )}
 
@@ -314,12 +386,12 @@ export default function World3DExercise({ exerciseId, config, onSubmit }: World3
                   <div className="flex items-center gap-3">
                     <div className="flex gap-0.5">
                       {[1, 2, 3].map((n) => (
-                        <span
+                        <Star
                           key={n}
-                          className={`text-xl transition ${n <= stars ? "scale-110 text-warning" : "text-text-subtle"}`}
-                        >
-                          ★
-                        </span>
+                          className={`h-5 w-5 transition ${
+                            n <= stars ? "scale-110 fill-warning text-warning" : "text-text-subtle"
+                          }`}
+                        />
                       ))}
                     </div>
                     <div>
@@ -393,7 +465,14 @@ export default function World3DExercise({ exerciseId, config, onSubmit }: World3
                 value={pythonCode}
                 onChange={(v) => setPythonCode(v || "")}
                 theme={isDark ? "vs-dark" : "vs-light"}
-                onMount={(_editor, monaco) => registerCommandCompletion(monaco, commands)}
+                onMount={(editor, monaco) => {
+                  editorRef.current = editor;
+                  monacoRef.current = monaco;
+                  registerCommandCompletion(monaco, commands);
+                  editor.addCommand(monaco.KeyMod.CtrlCmd | monaco.KeyCode.Enter, () =>
+                    playRef.current(),
+                  );
+                }}
                 options={{
                   minimap: { enabled: false },
                   fontSize: 14,
@@ -417,21 +496,57 @@ export default function World3DExercise({ exerciseId, config, onSubmit }: World3
             )}
           </div>
 
-          {/* What the pupil printed, apart from what the character did. */}
+          {/* The commands this level offers, spelled out and clickable. */}
+          {mode === "python" && commands.length > 0 && (
+            <div className="border-t border-border-strong bg-surface">
+              <button
+                onClick={() => setShowCommands((s) => !s)}
+                className="flex w-full items-center gap-1.5 px-4 py-1.5 text-2xs font-semibold uppercase tracking-wider text-text-subtle hover:text-text"
+              >
+                {showCommands ? (
+                  <ChevronDown className="h-3 w-3" />
+                ) : (
+                  <ChevronRight className="h-3 w-3" />
+                )}
+                {t("game.commandsTitle")}
+              </button>
+              {showCommands && (
+                <div className="flex flex-wrap gap-1 px-4 pb-2">
+                  {commands.map((c) => (
+                    <button
+                      key={c}
+                      onClick={() => insertCommand(`${c}()`)}
+                      className="rounded-md bg-surface-2 px-2 py-1 font-mono text-2xs text-text-muted transition-colors hover:bg-primary-soft hover:text-success-fg"
+                    >
+                      {c}()
+                    </button>
+                  ))}
+                </div>
+              )}
+            </div>
+          )}
+
+          {/* The console: what the program printed, and what broke. */}
           {result && (result.output || result.error) && (
-            <div className="max-h-32 overflow-auto border-t border-border-strong bg-surface-2 px-4 py-2 font-mono text-2xs">
-              {result.error && (
-                <p className="font-semibold text-danger-fg">
-                  {result.error.line !== null ? `${t("game.line")} ${result.error.line}: ` : ""}
-                  {result.error.type}: {result.error.message}
-                </p>
-              )}
-              {result.output && (
-                <pre className="whitespace-pre-wrap text-text-muted">
-                  {result.output}
-                  {result.output_truncated ? `\n… ${t("game.outputTruncated")}` : ""}
-                </pre>
-              )}
+            <div className="max-h-32 overflow-auto border-t border-border-strong bg-surface-2">
+              <div className="flex items-center gap-1.5 px-4 pt-2 text-2xs font-semibold uppercase tracking-wider text-text-subtle">
+                <Terminal className="h-3 w-3" />
+                {t("game.console")}
+              </div>
+              <div className="px-4 pb-2 font-mono text-2xs">
+                {result.error && (
+                  <p className="font-semibold text-danger-fg">
+                    {result.error.line !== null ? `${t("game.line")} ${result.error.line}: ` : ""}
+                    {result.error.type}: {result.error.message}
+                  </p>
+                )}
+                {result.output && (
+                  <pre className="whitespace-pre-wrap text-text-muted">
+                    {result.output}
+                    {result.output_truncated ? `\n… ${t("game.outputTruncated")}` : ""}
+                  </pre>
+                )}
+              </div>
             </div>
           )}
         </div>
