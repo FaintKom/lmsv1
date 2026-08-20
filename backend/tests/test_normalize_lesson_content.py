@@ -6,6 +6,7 @@ an empty v2 text block on the single-lesson GET, so the student saw a blank
 lesson. These types must be returned UNCHANGED so the player falls back to the
 legacy type-specific viewer (content.version !== 2).
 """
+
 from __future__ import annotations
 
 from app.courses.service import normalize_lesson_content
@@ -32,6 +33,40 @@ def test_video_lesson_converts_to_v2_video_block():
 def test_already_v2_returned_unchanged():
     content = {"version": 2, "blocks": [{"id": "b0", "type": "text", "body": "hi"}]}
     out = normalize_lesson_content({"content_type": "text", "content": content})
+    assert out["content"] is content
+
+
+def test_page_based_lesson_survives_its_own_exercises():
+    """A v3 lesson (specs/023) keeps its pages.
+
+    The normaliser used to convert anything that was not v2, and its
+    exercise loop then produced a non-empty block list from the lesson's own
+    attached exercises — so a paginated lesson came back as a flat v2 list of
+    exercises, with its text, assignments and page grouping dropped. The
+    student would have read an empty lesson.
+    """
+    content = {
+        "version": 3,
+        "pages": [
+            {
+                "id": "p1",
+                "blocks": [
+                    {"id": "b1", "type": "text", "sort_order": 0, "page": 1, "body": "Read me"},
+                    {
+                        "id": "b2",
+                        "type": "exercise",
+                        "sort_order": 1,
+                        "page": 1,
+                        "exercise_id": "e1",
+                    },
+                ],
+            }
+        ],
+    }
+    out = normalize_lesson_content(
+        {"content_type": "text", "content": content},
+        exercises=[{"id": "e1"}],
+    )
     assert out["content"] is content
 
 

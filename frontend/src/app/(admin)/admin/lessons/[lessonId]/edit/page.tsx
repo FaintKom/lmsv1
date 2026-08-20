@@ -27,6 +27,7 @@ import {
   ArrowLeft,
   Check,
   ChevronDown,
+  ChevronUp,
   ClipboardCheck,
   Eye,
   EyeOff,
@@ -35,6 +36,7 @@ import {
   Loader2,
   PlayCircle,
   Plus,
+  Presentation,
   Puzzle,
   Trash2,
   Code,
@@ -62,6 +64,7 @@ import { useConfirm } from "@/components/ui/confirm-dialog";
 import { ContentRenderer } from "@/components/common/content-renderer";
 import { VideoPlayer } from "@/components/video-player";
 import { ExercisePreview } from "@/components/exercises/exercise-preview";
+import { PresentationEmbed } from "@/components/lesson/presentation-embed";
 import { ExerciseConfigPanel } from "@/components/exercises/exercise-config-panel";
 import {
   EXERCISE_GROUPS,
@@ -72,6 +75,13 @@ import {
 } from "@/lib/api/exercises";
 import { TEMPLATE_LIST } from "@/components/game/math/template-registry";
 import type { LessonBlock } from "@/types/api";
+import {
+  buildPagesContent,
+  extractPages,
+  flattenPages,
+  generatePageId,
+  type LessonPage,
+} from "@/lib/lessons/lesson-pages";
 import { useTranslation } from "@/lib/i18n/context";
 import { adoptDetachedExercises } from "./adopt-exercises";
 
@@ -87,8 +97,13 @@ const BlockEditor = dynamic(
   }
 );
 
-type BlockKind = "text" | "html" | "video" | "exercise" | "assignment";
+type BlockKind = "text" | "html" | "video" | "presentation" | "exercise" | "assignment";
 type SaveStatus = "idle" | "dirty" | "saving" | "saved" | "error";
+
+/** `t()` takes no parameters; the keys carry `{n}` placeholders instead. */
+function fill(template: string, values: Record<string, string | number>): string {
+  return template.replace(/\{(\w+)\}/g, (_, key) => String(values[key] ?? ""));
+}
 
 interface ExerciseSummary {
   id: string;
@@ -103,42 +118,9 @@ function generateBlockId(): string {
   return `block_${Date.now()}_${Math.random().toString(36).slice(2, 9)}`;
 }
 
-function buildV2Content(blocks: LessonBlock[]): Record<string, unknown> {
-  return {
-    version: 2,
-    blocks: blocks.map((b, i) => ({ ...b, sort_order: i })),
-  };
-}
-
-/** Read existing v2 blocks or migrate single-content lesson into a one-block array. */
-function extractBlocks(content: Record<string, unknown> | undefined, contentType: string): LessonBlock[] {
-  if (content && content.version === 2 && Array.isArray(content.blocks)) {
-    return (content.blocks as LessonBlock[]).slice().sort((a, b) => a.sort_order - b.sort_order);
-  }
-  if (contentType === "text") {
-    return [
-      {
-        id: generateBlockId(),
-        type: "text",
-        sort_order: 0,
-        page: 1,
-        body: (content?.body as string | Record<string, unknown>) || "",
-        format: (content?.format as string) || "tiptap",
-      },
-    ];
-  }
-  if (contentType === "video") {
-    return [
-      {
-        id: generateBlockId(),
-        type: "video",
-        sort_order: 0,
-        page: 1,
-        url: (content?.url as string) || "",
-      },
-    ];
-  }
-  return [];
+/** A new, empty page — what "+ Add page" drops at the end of the lesson. */
+function blankPage(): LessonPage {
+  return { id: generatePageId(), blocks: [] };
 }
 
 /* ─── Page ──────────────────────────────────────────────────────────── */
@@ -157,7 +139,9 @@ export default function LessonEditorPage() {
   const [loading, setLoading] = useState(true);
   const [title, setTitle] = useState("");
   const [duration, setDuration] = useState("");
-  const [blocks, setBlocks] = useState<LessonBlock[]>([]);
+  // A page is the owner's "block": a screen the student scrolls and leaves
+  // by pressing Next. Typed content lives inside it, mixed freely.
+  const [pages, setPages] = useState<LessonPage[]>([blankPage()]);
   const [exercises, setExercises] = useState<ExerciseSummary[]>([]);
   const [saveStatus, setSaveStatus] = useState<SaveStatus>("idle");
   const [previewMode, setPreviewMode] = useState(false);
@@ -199,14 +183,20 @@ export default function LessonEditorPage() {
         }
         setTitle(lesson.title || "");
         setDuration(lesson.duration_minutes ? String(lesson.duration_minutes) : "");
-        // Exercises attached outside blocks become trailing blocks here, in
-        // by-lesson order — same order students already saw (specs/017 US2).
-        setBlocks(
-          adoptDetachedExercises(
-            extractBlocks(lesson.content, lesson.content_type),
-            ((exercisesRes.data || []) as ExerciseSummary[]).map((e) => e.id)
-          )
+        // Exercises attached outside any block become trailing blocks on the
+        // last page, in by-lesson order — the order students already saw
+        // (specs/017 US2).
+        const loaded = extractPages(lesson.content, lesson.content_type);
+        const flat = flattenPages(loaded);
+        const adopted = adoptDetachedExercises(
+          flat,
+          ((exercisesRes.data || []) as ExerciseSummary[]).map((e) => e.id)
         );
+        const orphans = adopted.slice(flat.length);
+        if (orphans.length > 0) {
+          loaded[loaded.length - 1].blocks.push(...orphans);
+        }
+        setPages(loaded);
         setExercises(exercisesRes.data || []);
         setCourseTitle(courseRes.data?.title || "");
       } catch (err) {
@@ -235,7 +225,7 @@ export default function LessonEditorPage() {
       try {
         await apiClient.put(`/courses/${courseId}/modules/${moduleId}/lessons/${lessonId}/`, {
           title: title.trim() || t("admin.lessonEditor.untitled"),
-          content: buildV2Content(blocks),
+          content: buildPagesContent(pages),
           duration_minutes: duration ? parseInt(duration, 10) : null,
         });
         setSaveStatus("saved");
@@ -245,15 +235,20 @@ export default function LessonEditorPage() {
         console.error("autosave failed", err);
       }
     }, 1200);
-  }, [blocks, courseId, duration, lessonId, legacyType, moduleId, title]);
+  }, [pages, courseId, duration, lessonId, legacyType, moduleId, title]);
 
   useEffect(() => {
     triggerSave();
   }, [triggerSave]);
 
-  /* ── Block ops ── */
+  /* ── Block ops (block ids are unique across pages) ── */
   const updateBlock = useCallback((id: string, patch: Partial<LessonBlock>) => {
-    setBlocks((bs) => bs.map((b) => (b.id === id ? { ...b, ...patch } : b)));
+    setPages((ps) =>
+      ps.map((p) => ({
+        ...p,
+        blocks: p.blocks.map((b) => (b.id === id ? { ...b, ...patch } : b)),
+      }))
+    );
   }, []);
 
   const deleteBlock = useCallback(
@@ -285,36 +280,89 @@ export default function LessonEditorPage() {
           return; // keep the block so the assignment stays reachable
         }
       }
-      setBlocks((bs) => bs.filter((b) => b.id !== block.id));
+      setPages((ps) =>
+        ps.map((p) => ({ ...p, blocks: p.blocks.filter((b) => b.id !== block.id) }))
+      );
     },
     [confirm, t]
   );
 
-  const addBlock = useCallback((kind: BlockKind, position: number) => {
-    setBlocks((bs) => {
-      const newBlock: LessonBlock = {
-        id: generateBlockId(),
-        type: kind,
-        sort_order: position,
-        page: 1,
-      };
-      if (kind === "text") {
-        newBlock.body = "";
-        newBlock.format = "tiptap";
-      } else if (kind === "html") {
-        newBlock.body = "";
-        newBlock.format = "html";
-      } else if (kind === "video") {
-        newBlock.url = "";
-      } else if (kind === "exercise") {
-        newBlock.exercise_id = "";
-      } else if (kind === "assignment") {
-        newBlock.assignment_id = "";
-      }
-      const next = [...bs];
-      next.splice(position, 0, newBlock);
+  const addBlock = useCallback((kind: BlockKind, pageIndex: number, position: number) => {
+    setPages((ps) =>
+      ps.map((p, i) => {
+        if (i !== pageIndex) return p;
+        const newBlock: LessonBlock = {
+          id: generateBlockId(),
+          type: kind,
+          sort_order: position,
+          page: pageIndex + 1,
+        };
+        if (kind === "text") {
+          newBlock.body = "";
+          newBlock.format = "tiptap";
+        } else if (kind === "html") {
+          newBlock.body = "";
+          newBlock.format = "html";
+        } else if (kind === "video") {
+          newBlock.url = "";
+        } else if (kind === "presentation") {
+          newBlock.url = "";
+        } else if (kind === "exercise") {
+          newBlock.exercise_id = "";
+        } else if (kind === "assignment") {
+          newBlock.assignment_id = "";
+        }
+        const blocks = [...p.blocks];
+        blocks.splice(position, 0, newBlock);
+        return { ...p, blocks };
+      })
+    );
+  }, []);
+
+  /* ── Page ops ── */
+  const addPage = useCallback(() => setPages((ps) => [...ps, blankPage()]), []);
+
+  const movePage = useCallback((index: number, delta: number) => {
+    setPages((ps) => {
+      const to = index + delta;
+      if (to < 0 || to >= ps.length) return ps;
+      const next = [...ps];
+      [next[index], next[to]] = [next[to], next[index]];
       return next;
     });
+  }, []);
+
+  const deletePage = useCallback(
+    async (index: number) => {
+      const page = pages[index];
+      if (!page) return;
+      if (pages.length === 1) {
+        // The lesson always has a page to write on; emptying is enough.
+        const ok = page.blocks.length === 0 ||
+          (await confirm({
+            message: t("admin.lessonEditor.deletePageMsg"),
+            variant: "danger",
+            confirmLabel: t("common.delete"),
+          }));
+        if (!ok) return;
+        setPages([blankPage()]);
+        return;
+      }
+      if (page.blocks.length > 0) {
+        const ok = await confirm({
+          message: t("admin.lessonEditor.deletePageMsg"),
+          variant: "danger",
+          confirmLabel: t("common.delete"),
+        });
+        if (!ok) return;
+      }
+      setPages((ps) => ps.filter((_, i) => i !== index));
+    },
+    [confirm, pages, t]
+  );
+
+  const renamePage = useCallback((index: number, title: string) => {
+    setPages((ps) => ps.map((p, i) => (i === index ? { ...p, title } : p)));
   }, []);
 
   /* ── Instantly create an exercise of a given type and attach to a block.
@@ -351,15 +399,20 @@ export default function LessonEditorPage() {
     useSensor(KeyboardSensor, { coordinateGetter: sortableKeyboardCoordinates })
   );
 
+  /** Reorder within one page. Dragging across pages is not offered — a page
+   *  is a screen the teacher composes, and the page controls move whole
+   *  screens. */
   const handleDragEnd = useCallback((event: DragEndEvent) => {
     const { active, over } = event;
     if (!over || active.id === over.id) return;
-    setBlocks((bs) => {
-      const oldIndex = bs.findIndex((b) => b.id === active.id);
-      const newIndex = bs.findIndex((b) => b.id === over.id);
-      if (oldIndex === -1 || newIndex === -1) return bs;
-      return arrayMove(bs, oldIndex, newIndex);
-    });
+    setPages((ps) =>
+      ps.map((p) => {
+        const oldIndex = p.blocks.findIndex((b) => b.id === active.id);
+        const newIndex = p.blocks.findIndex((b) => b.id === over.id);
+        if (oldIndex === -1 || newIndex === -1) return p;
+        return { ...p, blocks: arrayMove(p.blocks, oldIndex, newIndex) };
+      })
+    );
   }, []);
 
   /* ── Render ── */
@@ -451,42 +504,122 @@ export default function LessonEditorPage() {
             )}
           </div>
 
-          {/* Blocks list */}
+          {/* Pages. Each one is a screen the student scrolls; Next takes
+              them to the following page. */}
           <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
-            <SortableContext items={blocks.map((b) => b.id)} strategy={verticalListSortingStrategy}>
-              <div className="space-y-1">
-                {!previewMode && <AddZone onAdd={(kind) => addBlock(kind, 0)} />}
-                {blocks.map((block, i) => (
-                  <div key={block.id}>
-                    <SortableBlock
-                      block={block}
-                      exercises={exercises}
-                      previewMode={previewMode}
-                      courseId={courseId}
-                      onUpdate={(patch) => updateBlock(block.id, patch)}
-                      onDelete={() => deleteBlock(block)}
-                      onPickExerciseType={(t, cfg) => createAndAttachExercise(block.id, t, cfg)}
-                      onExerciseChanged={async () => {
-                        try {
-                          const { data } = await apiClient.get(`/exercises/by-lesson/${lessonId}`);
-                          setExercises(data || []);
-                        } catch {
-                          /* non-fatal */
-                        }
-                      }}
-                    />
+            <div className="space-y-6">
+              {pages.map((page, pageIndex) => (
+                <section
+                  key={page.id}
+                  className={
+                    previewMode
+                      ? "space-y-1"
+                      : "rounded-xl border border-border-strong bg-surface/40 p-4"
+                  }
+                >
+                  <div className="mb-2 flex items-center gap-2">
+                    <span className="rounded-pill bg-surface-2 px-2 py-0.5 text-2xs font-semibold uppercase tracking-wider text-text-subtle">
+                      {fill(t("admin.lessonEditor.pageLabel"), {
+                        n: pageIndex + 1,
+                        total: pages.length,
+                      })}
+                    </span>
                     {!previewMode && (
-                      <AddZone onAdd={(kind) => addBlock(kind, i + 1)} />
+                      <>
+                        <input
+                          type="text"
+                          value={page.title || ""}
+                          onChange={(e) => renamePage(pageIndex, e.target.value)}
+                          placeholder={t("admin.lessonEditor.pageTitlePlaceholder")}
+                          className="flex-1 border-none bg-transparent text-sm font-medium text-text placeholder:text-text-subtle focus:outline-none"
+                        />
+                        <button
+                          onClick={() => movePage(pageIndex, -1)}
+                          disabled={pageIndex === 0}
+                          title={t("admin.lessonEditor.movePageUp")}
+                          className="rounded p-1 text-text-subtle hover:bg-surface-2 hover:text-text disabled:opacity-30"
+                        >
+                          <ChevronUp className="h-4 w-4" />
+                        </button>
+                        <button
+                          onClick={() => movePage(pageIndex, 1)}
+                          disabled={pageIndex === pages.length - 1}
+                          title={t("admin.lessonEditor.movePageDown")}
+                          className="rounded p-1 text-text-subtle hover:bg-surface-2 hover:text-text disabled:opacity-30"
+                        >
+                          <ChevronDown className="h-4 w-4" />
+                        </button>
+                        <button
+                          onClick={() => deletePage(pageIndex)}
+                          title={t("admin.lessonEditor.deletePage")}
+                          className="rounded p-1 text-text-subtle hover:bg-danger-soft hover:text-danger-fg"
+                        >
+                          <Trash2 className="h-4 w-4" />
+                        </button>
+                      </>
+                    )}
+                    {previewMode && page.title && (
+                      <span className="text-sm font-medium text-text">{page.title}</span>
                     )}
                   </div>
-                ))}
-                {blocks.length === 0 && !previewMode && (
-                  <p className="py-8 text-center text-sm text-text-subtle">
-                    {t("admin.lessonEditor.emptyHint")}
-                  </p>
-                )}
-              </div>
-            </SortableContext>
+
+                  <SortableContext
+                    items={page.blocks.map((b) => b.id)}
+                    strategy={verticalListSortingStrategy}
+                  >
+                    <div className="space-y-1">
+                      {!previewMode && page.blocks.length > 0 && (
+                        <AddZone onAdd={(kind) => addBlock(kind, pageIndex, 0)} />
+                      )}
+                      {page.blocks.map((block, i) => (
+                        <div key={block.id}>
+                          <SortableBlock
+                            block={block}
+                            exercises={exercises}
+                            previewMode={previewMode}
+                            courseId={courseId}
+                            onUpdate={(patch) => updateBlock(block.id, patch)}
+                            onDelete={() => deleteBlock(block)}
+                            onPickExerciseType={(t, cfg) => createAndAttachExercise(block.id, t, cfg)}
+                            onExerciseChanged={async () => {
+                              try {
+                                const { data } = await apiClient.get(`/exercises/by-lesson/${lessonId}`);
+                                setExercises(data || []);
+                              } catch {
+                                /* non-fatal */
+                              }
+                            }}
+                          />
+                          {!previewMode && (
+                            <AddZone onAdd={(kind) => addBlock(kind, pageIndex, i + 1)} />
+                          )}
+                        </div>
+                      ))}
+                    </div>
+                  </SortableContext>
+
+                  {/* Always visible, because a control that appears on hover
+                      is a control a teacher never finds. */}
+                  {!previewMode && (
+                    <AddContentButton
+                      empty={page.blocks.length === 0}
+                      onAdd={(kind) => addBlock(kind, pageIndex, page.blocks.length)}
+                      t={t}
+                    />
+                  )}
+                </section>
+              ))}
+
+              {!previewMode && (
+                <button
+                  onClick={addPage}
+                  className="flex w-full items-center justify-center gap-2 rounded-xl border border-dashed border-border-strong py-3 text-sm font-medium text-text-muted transition-colors hover:border-primary hover:text-primary"
+                >
+                  <Plus className="h-4 w-4" />
+                  {t("admin.lessonEditor.addPage")}
+                </button>
+              )}
+            </div>
           </DndContext>
         </div>
       </div>
@@ -516,8 +649,24 @@ function SaveIndicator({ status }: { status: SaveStatus }) {
   return null;
 }
 
-/* ─── Add zone (inline +) ────────────────────────────────────────────── */
+/* ─── Adding content ─────────────────────────────────────────────────── */
 
+/** The one list of what a page can hold. Both add controls offer it. */
+function BlockTypeChips({ onPick }: { onPick: (kind: BlockKind) => void }) {
+  return (
+    <>
+      <BlockTypeChip icon={<FileText className="h-3 w-3" />} label="Text" onClick={() => onPick("text")} />
+      <BlockTypeChip icon={<Code className="h-3 w-3" />} label="HTML" onClick={() => onPick("html")} />
+      <BlockTypeChip icon={<PlayCircle className="h-3 w-3" />} label="Video" onClick={() => onPick("video")} />
+      <BlockTypeChip icon={<Presentation className="h-3 w-3" />} label="Slides" onClick={() => onPick("presentation")} />
+      <BlockTypeChip icon={<Puzzle className="h-3 w-3" />} label="Exercise" onClick={() => onPick("exercise")} />
+      <BlockTypeChip icon={<ClipboardCheck className="h-3 w-3" />} label="Assignment" onClick={() => onPick("assignment")} />
+    </>
+  );
+}
+
+/** Hover-revealed "+" between two blocks — the quick path for someone who
+ *  already knows it is there. Never the only way in: see AddContentButton. */
 function AddZone({ onAdd }: { onAdd: (kind: BlockKind) => void }) {
   const [open, setOpen] = useState(false);
   return (
@@ -531,11 +680,41 @@ function AddZone({ onAdd }: { onAdd: (kind: BlockKind) => void }) {
       </button>
       {open && (
         <div className="absolute left-1/2 top-full z-20 mt-1 flex -translate-x-1/2 gap-1 rounded-lg border border-border-strong bg-bg p-1 shadow-lg">
-          <BlockTypeChip icon={<FileText className="h-3 w-3" />} label="Text" onClick={() => { onAdd("text"); setOpen(false); }} />
-          <BlockTypeChip icon={<Code className="h-3 w-3" />} label="HTML" onClick={() => { onAdd("html"); setOpen(false); }} />
-          <BlockTypeChip icon={<PlayCircle className="h-3 w-3" />} label="Video" onClick={() => { onAdd("video"); setOpen(false); }} />
-          <BlockTypeChip icon={<Puzzle className="h-3 w-3" />} label="Exercise" onClick={() => { onAdd("exercise"); setOpen(false); }} />
-          <BlockTypeChip icon={<ClipboardCheck className="h-3 w-3" />} label="Assignment" onClick={() => { onAdd("assignment"); setOpen(false); }} />
+          <BlockTypeChips onPick={(k) => { onAdd(k); setOpen(false); }} />
+        </div>
+      )}
+    </div>
+  );
+}
+
+/** The visible way to fill a page. Sits at the end of every page and never
+ *  hides — the hover-only "+" is why the owner could not add a block at all. */
+function AddContentButton({
+  empty,
+  onAdd,
+  t,
+}: {
+  empty: boolean;
+  onAdd: (kind: BlockKind) => void;
+  t: (key: string) => string;
+}) {
+  const [open, setOpen] = useState(false);
+  return (
+    <div className="relative mt-2">
+      <button
+        onClick={() => setOpen((o) => !o)}
+        className={`flex w-full items-center justify-center gap-2 rounded-lg border border-dashed py-2.5 text-sm font-medium transition-colors ${
+          empty
+            ? "border-primary-soft bg-primary-soft/20 text-primary hover:border-primary"
+            : "border-border-strong text-text-muted hover:border-primary hover:text-primary"
+        }`}
+      >
+        <Plus className="h-4 w-4" />
+        {t("admin.lessonEditor.addContent")}
+      </button>
+      {open && (
+        <div className="absolute left-1/2 top-full z-20 mt-1 flex -translate-x-1/2 flex-wrap justify-center gap-1 rounded-lg border border-border-strong bg-bg p-1 shadow-lg">
+          <BlockTypeChips onPick={(k) => { onAdd(k); setOpen(false); }} />
         </div>
       )}
     </div>
@@ -652,6 +831,9 @@ function BlockBody({
   if (block.type === "video") {
     return <VideoBlockBody block={block} previewMode={previewMode} onUpdate={onUpdate} />;
   }
+  if (block.type === "presentation") {
+    return <PresentationBlockBody block={block} previewMode={previewMode} onUpdate={onUpdate} />;
+  }
   if (block.type === "exercise") {
     return (
       <ExerciseBlockBody
@@ -757,6 +939,34 @@ function VideoBlockBody({
   );
 }
 
+function PresentationBlockBody({
+  block,
+  previewMode,
+  onUpdate,
+}: {
+  block: LessonBlock;
+  previewMode: boolean;
+  onUpdate: (patch: Partial<LessonBlock>) => void;
+}) {
+  const { t } = useTranslation();
+  if (previewMode) {
+    return <PresentationEmbed url={block.url} emptyLabel={t("admin.lessonEditor.slidesEmpty")} />;
+  }
+  return (
+    <div className="space-y-2">
+      <input
+        type="text"
+        value={block.url || ""}
+        onChange={(e) => onUpdate({ url: e.target.value })}
+        placeholder="https://docs.google.com/presentation/d/e/…/embed"
+        className="w-full rounded-lg border border-border-strong px-3 py-2 text-sm focus:border-primary focus:outline-none"
+      />
+      <p className="text-xs text-text-muted">{t("admin.lessonEditor.slidesHint")}</p>
+      <PresentationEmbed url={block.url} emptyLabel={t("admin.lessonEditor.slidesEmpty")} />
+    </div>
+  );
+}
+
 function ExerciseBlockBody({
   block,
   exercises,
@@ -775,15 +985,9 @@ function ExerciseBlockBody({
   const exercise = block.exercise_id ? exercises.find((e) => e.id === block.exercise_id) : null;
 
   if (previewMode) {
-    if (!exercise) {
-      return (
-        <div className="rounded-lg border border-dashed border-border-strong bg-surface-2 p-4 text-center text-sm text-text-subtle">
-          Empty exercise block
-        </div>
-      );
-    }
     // The same component the exercise page previews with, so a matching
-    // task draws its connection lines here and an ordering task drags.
+    // task draws its connection lines here and an ordering task drags. It
+    // also owns the "nothing picked yet" placeholder.
     return <ExercisePreview exercise={exercise as never} />;
   }
 

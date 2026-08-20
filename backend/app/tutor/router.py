@@ -76,10 +76,11 @@ def _lesson_text(lesson) -> str:
     """Readable prose of a lesson, or an empty string if it has none.
 
     normalize_lesson_content converts the legacy ``content.body`` shape into
-    v2 blocks, so only the block shape has to be handled here. Lesson types it
-    cannot convert (quiz, theory, code_challenge, file_upload, interactive)
-    come back untouched and yield nothing, which is correct — none of them
-    carry prose to ask about.
+    v2 blocks, so two block shapes have to be handled here: the flat v2 list
+    and the v3 pages that group the same blocks into screens. Lesson types the
+    normaliser cannot convert (quiz, theory, code_challenge, file_upload,
+    interactive) come back untouched and yield nothing, which is correct —
+    none of them carry prose to ask about.
     """
     normalized = normalize_lesson_content(
         {
@@ -92,11 +93,23 @@ def _lesson_text(lesson) -> str:
         }
     )
     content = normalized.get("content") or {}
-    if content.get("version") != 2:
+    version = content.get("version")
+    if version == 3:
+        # Pages (specs/023) group the same blocks into screens; for reading
+        # they are one document, in page order.
+        blocks = [
+            b
+            for page in content.get("pages") or []
+            if isinstance(page, dict)
+            for b in page.get("blocks") or []
+        ]
+    elif version == 2:
+        blocks = content.get("blocks") or []
+    else:
         return ""
 
     parts: list[str] = []
-    for block in content.get("blocks") or []:
+    for block in blocks:
         if block.get("type") != "text":
             continue
         body = block.get("body") or ""
