@@ -63,7 +63,7 @@ import apiClient from "@/lib/api-client";
 import { useConfirm } from "@/components/ui/confirm-dialog";
 import { ContentRenderer } from "@/components/common/content-renderer";
 import { VideoPlayer } from "@/components/video-player";
-import { ExercisePreview } from "@/components/exercises/exercise-preview";
+import { ExercisePreview } from "@/components/exercises/exercise-view";
 import { PresentationEmbed } from "@/components/lesson/presentation-embed";
 import { ExerciseConfigPanel } from "@/components/exercises/exercise-config-panel";
 import {

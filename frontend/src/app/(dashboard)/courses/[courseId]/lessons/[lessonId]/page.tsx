@@ -37,9 +37,7 @@ import { ContentRenderer } from "@/components/common/content-renderer";
 import { HighlightableContent } from "@/components/lesson/highlightable-content";
 import { PresentationEmbed } from "@/components/lesson/presentation-embed";
 import { AskWidget } from "@/components/lesson/ask-widget";
-import ExerciseRenderer from "@/components/exercises/exercise-renderer";
-import { V2ExerciseLive } from "@/components/exercises/v2-exercise-live";
-import { isV2LiveType } from "@/lib/exercises/v2-adapter";
+import { ExerciseView } from "@/components/exercises/exercise-view";
 import { TheoryViewer } from "@/components/theory/theory-viewer";
 import type { TheoryContent } from "@/lib/theory";
 import { VideoPlayer } from "@/components/video-player";
@@ -625,19 +623,15 @@ export default function LessonViewerPage() {
         <h2 className="mx-auto max-w-[720px] text-lg font-bold tracking-tight text-text">
          {t("lesson.exercises")}
         </h2>
-        {orphaned.map((ex) =>
-         isV2LiveType(ex.exercise_type) ? (
-          <V2ExerciseLive key={ex.id} exercise={ex as any} />
-         ) : (
-          <ExerciseRenderer
-           key={ex.id}
-           exercise={ex as any}
-           courseId={courseId}
-           prevLesson={prevLesson ? { id: prevLesson.lesson.id, title: prevLesson.lesson.title } : null}
-           nextLesson={nextLesson ? { id: nextLesson.lesson.id, title: nextLesson.lesson.title } : null}
-          />
-         )
-        )}
+        {orphaned.map((ex) => (
+         <ExerciseView
+          key={ex.id}
+          exercise={ex as never}
+          courseId={courseId}
+          prevLesson={prevLesson ? { id: prevLesson.lesson.id, title: prevLesson.lesson.title } : null}
+          nextLesson={nextLesson ? { id: nextLesson.lesson.id, title: nextLesson.lesson.title } : null}
+         />
+        ))}
        </div>
       );
      })()}
@@ -831,14 +825,9 @@ function BlockRenderer({
   case "exercise": {
    const exercise = exercises.find((ex) => ex.id === block.exercise_id);
    if (!exercise) return null;
-   // stripped types must go through the server-graded V2 path — the legacy
-   // renderers grade client-side from answer keys the config no longer has
-   if (isV2LiveType(exercise.exercise_type)) {
-    return <V2ExerciseLive exercise={exercise as any} />;
-   }
    return (
-    <ExerciseRenderer
-     exercise={exercise as any}
+    <ExerciseView
+     exercise={exercise as never}
      courseId={courseId}
      prevLesson={prevLesson ? { id: prevLesson.lesson.id, title: prevLesson.lesson.title } : null}
      nextLesson={nextLesson ? { id: nextLesson.lesson.id, title: nextLesson.lesson.title } : null}

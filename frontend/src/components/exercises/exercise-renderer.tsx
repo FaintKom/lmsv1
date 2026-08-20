@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { useState, useEffect, useCallback, useRef } from "react";
 import { createPortal } from "react-dom";
@@ -7,45 +7,14 @@ import { useRouter } from "next/navigation";
 import apiClient from "@/lib/api-client";
 import { startExerciseTimer, type ExerciseTimer } from "@/lib/api/exercises";
 import { toast } from "sonner";
-import { CheckCircle, XCircle, Upload, Loader2, Play, Send, ChevronDown, Maximize2, Minimize2, X, ChevronLeft, ChevronRight } from "lucide-react";
+import { CheckCircle, XCircle, Upload, Loader2, Play, Send, ChevronDown, Maximize2, Minimize2, ChevronLeft, ChevronRight } from "lucide-react";
 import { useTranslation } from "@/lib/i18n/context";
 import { Button } from "@/components/ui/button";
-import { MaybeMath } from "@/components/common/math-renderer";
 
 const ExerciseLoading = () => <div className="flex items-center justify-center py-12 text-sm text-text-muted"><Loader2 className="mr-2 h-4 w-4 animate-spin" />Loading exercise...</div>;
 
 const Editor = dynamic(() => import("@monaco-editor/react"), {
  ssr: false,
- loading: ExerciseLoading,
-});
-const MatchingExercise = dynamic(() => import("@/components/submissions/exercises/matching"), {
- loading: ExerciseLoading,
-});
-const OrderingExercise = dynamic(() => import("@/components/submissions/exercises/ordering"), {
- loading: ExerciseLoading,
-});
-const FillBlanksExercise = dynamic(() => import("@/components/submissions/exercises/fill-blanks"), {
- loading: ExerciseLoading,
-});
-const TrueFalseExercise = dynamic(() => import("@/components/submissions/exercises/true-false"), {
- loading: ExerciseLoading,
-});
-const CategorizeExercise = dynamic(() => import("@/components/submissions/exercises/categorize"), {
- loading: ExerciseLoading,
-});
-const TranslationExercise = dynamic(() => import("@/components/exercises/translation-exercise"), {
- loading: ExerciseLoading,
-});
-const SentenceBuilderExercise = dynamic(() => import("@/components/exercises/sentence-builder-exercise"), {
- loading: ExerciseLoading,
-});
-const DialogueExercise = dynamic(() => import("@/components/exercises/dialogue-exercise"), {
- loading: ExerciseLoading,
-});
-const ConjugationExercise = dynamic(() => import("@/components/exercises/conjugation-exercise"), {
- loading: ExerciseLoading,
-});
-const ReadingExercise = dynamic(() => import("@/components/exercises/reading-exercise"), {
  loading: ExerciseLoading,
 });
 const SCORMPackageRenderer = dynamic(() => import("@/components/exercises/scorm-package-exercise").then(m => ({ default: m.SCORMPackageRenderer })), {
@@ -57,16 +26,7 @@ const MathStepwiseRenderer = dynamic(() => import("@/components/exercises/math-s
 const SrsFlashcardExercise = dynamic(() => import("@/components/submissions/exercises/srs-flashcard"), {
  loading: ExerciseLoading,
 });
-const CrosswordExercise = dynamic(() => import("@/components/exercises/crossword-exercise"), {
- loading: ExerciseLoading,
-});
 const WordSearchExercise = dynamic(() => import("@/components/exercises/word-search-exercise"), {
- loading: ExerciseLoading,
-});
-const MapPinDropExercise = dynamic(() => import("@/components/exercises/map-pin-drop-exercise"), {
- loading: ExerciseLoading,
-});
-const BubbleSheetExercise = dynamic(() => import("@/components/exercises/bubble-sheet-exercise"), {
  loading: ExerciseLoading,
 });
 
@@ -602,68 +562,6 @@ function ExerciseBody({
  previewMode?: boolean;
 }) {
  switch (exercise.exercise_type) {
- case "quiz":
- return (
- <QuizExercise
- questions={exercise.questions || []}
- onSubmit={(answers) => onSubmit({ answers })}
- />
- );
-
- case "matching":
- return (
- <MatchingExercise
- pairs={(exercise.config as { pairs?: { left: string; right: string }[] }).pairs || []}
- onSubmit={(answers) => onSubmit({ interactive_answers: answers })}
- />
- );
-
- case "ordering":
- return (
- <OrderingExercise
- items={(exercise.config as { items?: string[] }).items || []}
- onSubmit={(answers) => onSubmit({ interactive_answers: answers })}
- />
- );
-
- case "fill_blanks": {
- const cfg = exercise.config as { text?: string; blanks?: string[]; word_bank?: string[] };
- const text = cfg.text || "";
- const words = cfg.word_bank || cfg.blanks || [];
- const blankCount = (text.match(/\{\{blank\}\}/g) || []).length;
- return (
- <FillBlanksExercise
- textTemplate={text}
- blankCount={blankCount}
- words={words}
- onSubmit={(answers) => onSubmit({ interactive_answers: answers })}
- />
- );
- }
-
- case "true_false":
- return (
- <TrueFalseExercise
- statement={(exercise.config as { statement?: string }).statement || ""}
- onSubmit={(answers) => onSubmit({ interactive_answers: answers })}
- />
- );
-
- case "categorize": {
- const catCfg = exercise.config as {
- categories?: { name: string; items: string[] }[];
- };
- const categories = catCfg.categories || [];
- const allItems = categories.flatMap((c) => c.items);
- return (
- <CategorizeExercise
- categories={categories}
- allItems={allItems}
- onSubmit={(answers) => onSubmit({ interactive_answers: answers })}
- />
- );
- }
-
  case "code_challenge":
  return (
  <CodeChallengeExercise
@@ -727,31 +625,6 @@ function ExerciseBody({
  />
  );
 
- case "translation": {
- const cfg = exercise.config as { source_text?: string; source_language?: string; target_language?: string; hints?: string[]; accepted_answers?: string[]; case_sensitive?: boolean };
- return <TranslationExercise config={cfg} onSubmit={(answers) => onSubmit({ interactive_answers: answers })} />;
- }
-
- case "sentence_builder": {
- const cfg = exercise.config as { words?: string[]; correct_order?: string[]; distractors?: string[]; instructions?: string };
- return <SentenceBuilderExercise config={cfg} onSubmit={(answers) => onSubmit({ interactive_answers: answers })} />;
- }
-
- case "dialogue": {
- const cfg = exercise.config as { context?: string; messages?: { speaker: string; text: string; options?: { id: string; text: string; is_correct?: boolean }[] }[] };
- return <DialogueExercise config={cfg} onSubmit={(answers) => onSubmit({ interactive_answers: answers })} />;
- }
-
- case "conjugation": {
- const cfg = exercise.config as { verb?: string; tense?: string; language?: string; table?: { pronoun: string; correct: string }[] };
- return <ConjugationExercise config={cfg} onSubmit={(answers) => onSubmit({ interactive_answers: answers })} />;
- }
-
- case "reading": {
- const cfg = exercise.config as { passage?: string; questions?: { question: string; type: "multiple_choice" | "text"; options?: { id: string; text: string; is_correct?: boolean }[]; correct_answer?: string }[] };
- return <ReadingExercise config={cfg} onSubmit={(answers) => onSubmit({ interactive_answers: answers })} />;
- }
-
  case "web_editor":
  return (
  <WebEditorExercise
@@ -798,24 +671,9 @@ function ExerciseBody({
  );
  }
 
- case "crossword": {
- const cfg = exercise.config as { grid_size?: number; words?: { word: string; clue: string; row: number; col: number; direction: "across" | "down" }[] };
- return <CrosswordExercise config={cfg} onSubmit={(answers) => onSubmit({ interactive_answers: answers })} />;
- }
-
  case "word_search": {
  const cfg = exercise.config as { grid_size?: number; words?: string[] };
  return <WordSearchExercise config={cfg} onSubmit={(answers) => onSubmit({ interactive_answers: answers })} />;
- }
-
- case "map_pin_drop": {
- const cfg = exercise.config as { image_url?: string; instructions?: string; pins?: { label: string; x: number; y: number; tolerance?: number }[] };
- return <MapPinDropExercise config={cfg} onSubmit={(answers) => onSubmit({ interactive_answers: answers })} />;
- }
-
- case "bubble_sheet": {
- const cfg = exercise.config as { questions?: { number: number; options: string[]; correct: string }[]; num_options?: number; passing_score?: number };
- return <BubbleSheetExercise config={cfg} onSubmit={(answers) => onSubmit({ interactive_answers: answers })} />;
  }
 
  default:
@@ -825,118 +683,6 @@ function ExerciseBody({
  </p>
  );
  }
-}
-
-// ─── Quiz ────────────────────────────────────────────────────────────
-
-function QuizExercise({
- questions,
- onSubmit,
-}: {
- questions: Question[];
- onSubmit: (
- answers: { question_id: string; selected_option?: string; selected_options?: string[]; text?: string }[]
- ) => void;
-}) {
- const { t } = useTranslation();
- // string for single/text, string[] for multi (specs/019 adaptive choice)
- const [selected, setSelected] = useState<Record<string, string | string[]>>({});
-
- const optionList = (q: Question) => (Array.isArray(q.options) ? q.options : []);
- const isText = (q: Question) => q.question_type === "text_answer";
- const isMulti = (q: Question) =>
- !isText(q) &&
- (q.multi ?? optionList(q).filter((o) => o.is_correct).length > 1);
-
- const handleSubmit = () => {
- const answers = questions.map((q) => {
- const value = selected[q.id];
- if (isText(q)) return { question_id: q.id, text: typeof value === "string" ? value : "" };
- if (isMulti(q))
- return { question_id: q.id, selected_options: Array.isArray(value) ? value : [] };
- return { question_id: q.id, selected_option: typeof value === "string" ? value : "" };
- });
- onSubmit(answers);
- };
-
- const answered = (q: Question) => {
- const value = selected[q.id];
- if (isMulti(q)) return Array.isArray(value) && value.length > 0;
- return typeof value === "string" && value.trim().length > 0;
- };
- const allAnswered = questions.every(answered);
-
- return (
- <div className="space-y-6">
- {questions.map((q, qi) => (
- <div key={q.id}>
- <p className="mb-3 text-sm font-medium text-text ">
- {qi + 1}. <MaybeMath text={q.question_text} />
- </p>
- {isText(q) ? (
- <input
- type="text"
- value={typeof selected[q.id] === "string" ? (selected[q.id] as string) : ""}
- onChange={(e) => setSelected((prev) => ({ ...prev, [q.id]: e.target.value }))}
- className="w-full rounded-lg border border-border-strong px-4 py-2.5 text-sm focus:border-primary focus:outline-none"
- />
- ) : (
- <div className="space-y-2">
- {isMulti(q) && (
- <p className="text-xs text-text-subtle">{t("exercise.quiz.pickAllThatApply")}</p>
- )}
- {optionList(q).map((opt, oi) => {
- const multi = isMulti(q);
- const value = selected[q.id];
- const checked = multi
- ? Array.isArray(value) && value.includes(opt.text)
- : value === opt.text;
- return (
- <label
- key={oi}
- className={`flex cursor-pointer items-center gap-3 rounded-lg border px-4 py-2.5 text-sm transition-colors ${
- checked
- ? "border-primary bg-success-soft text-success-fg "
- : "border-border-strong text-text-muted hover:border-border-strong "
- }`}
- >
- <input
- type={multi ? "checkbox" : "radio"}
- name={`question-${q.id}`}
- value={opt.text}
- checked={checked}
- onChange={() =>
- setSelected((prev) => {
- if (!multi) return { ...prev, [q.id]: opt.text };
- const current = Array.isArray(prev[q.id]) ? (prev[q.id] as string[]) : [];
- return {
- ...prev,
- [q.id]: current.includes(opt.text)
- ? current.filter((t) => t !== opt.text)
- : [...current, opt.text],
- };
- })
- }
- className="h-4 w-4 text-primary"
- />
- <MaybeMath text={opt.text} />
- </label>
- );
- })}
- </div>
- )}
- </div>
- ))}
-
- <button
- onClick={handleSubmit}
- disabled={!allAnswered}
- className="w-full rounded-lg bg-primary px-4 py-2.5 text-sm font-semibold text-primary-fg transition-colors hover:bg-primary-hover disabled:opacity-50 "
- >
- Submit Quiz
- </button>
- </div>
- );
 }
 
 // ─── Code Challenge ──────────────────────────────────────────────────
