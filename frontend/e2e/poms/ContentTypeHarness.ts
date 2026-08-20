@@ -157,6 +157,24 @@ export class Api {
   ) {
     return this.put(`/courses/${courseId}/modules/${moduleId}/lessons/${lessonId}`, { content });
   }
+  /**
+   * An exercise, and the page block that puts it in front of a pupil.
+   *
+   * A lesson used to carry its content by type — a quiz lesson, an
+   * interactive lesson. Since specs/027 there is one shape: pages of blocks,
+   * where an exercise appears as a reference. So a test that wants a pupil to
+   * meet a matching task creates the exercise, then writes a page holding a
+   * block that points at it.
+   */
+  createExercise(body: {
+    lesson_id: string;
+    exercise_type: string;
+    title: string;
+    config: Record<string, unknown>;
+  }) {
+    return this.post(`/exercises`, body);
+  }
+
   publish(courseId: string) {
     return this.post(`/courses/${courseId}/publish`);
   }

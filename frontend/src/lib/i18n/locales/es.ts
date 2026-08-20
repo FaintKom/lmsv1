@@ -2275,6 +2275,8 @@ const es: TranslationMap = {
  "exercise.ordering.movedToAria": "“{item}” movido a la posición {n} de {total}",
  "exercise.categorize.checkHint": "Ordena todas las tarjetas primero",
  "exercise.categorize.tapHint": "arrastra una tarjeta — o tócala y luego toca su grupo",
+ "exercise.categorize.chipAria": "{item}: elige un grupo para esta tarjeta",
+ "exercise.categorize.chipArmedAria": "{item}: ahora toca su grupo",
  "exercise.categorize.bucketAria": "Grupo {bucket}, {n} tarjetas",
  "exercise.categorize.bucketPlaceAria": "Colocar “{item}” en {bucket}",
  "exercise.categorize.placedChipAria": "“{item}” en {bucket}. Toca para devolverla a la bandeja",

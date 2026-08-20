@@ -29,17 +29,12 @@ import {
 } from "lucide-react";
 import type { Course, Module, Lesson, LessonBlock } from "@/types/api";
 import { extractPages, flattenPages, type LessonPage } from "@/lib/lessons/lesson-pages";
-import QuizTaker from "@/components/assessments/quiz-taker";
 import { EditorLayout } from "@/components/code-editor/editor-layout";
-import FileUploader from "@/components/submissions/file-uploader";
-import InteractiveTaker from "@/components/submissions/interactive-taker";
 import { ContentRenderer } from "@/components/common/content-renderer";
 import { HighlightableContent } from "@/components/lesson/highlightable-content";
 import { PresentationEmbed } from "@/components/lesson/presentation-embed";
 import { AskWidget } from "@/components/lesson/ask-widget";
 import { ExerciseView } from "@/components/exercises/exercise-view";
-import { TheoryViewer } from "@/components/theory/theory-viewer";
-import type { TheoryContent } from "@/lib/theory";
 import { VideoPlayer } from "@/components/video-player";
 import { useTranslation } from "@/lib/i18n/context";
 import { useAuthStore } from "@/stores/auth-store";
@@ -110,14 +105,6 @@ export default function LessonViewerPage() {
   return Number.isFinite(n) && n > 0 ? n : 1;
  }, [searchParams]);
  const [currentPage, setCurrentPageState] = useState(pageFromUrl);
- const [challenge, setChallenge] = useState<{
-  id: string;
-  title: string;
-  description: string;
-  language: string;
-  starter_code: string | null;
-  test_cases: { id: string; input: string; expected_output: string }[];
- } | null>(null);
  const footerSentinelRef = useRef<HTMLDivElement>(null);
  const [footerVisible, setFooterVisible] = useState(false);
 
@@ -188,18 +175,6 @@ export default function LessonViewerPage() {
     (courseRes.data.modules || []).map((m: Module) => m.id)
    );
    setExpandedModules(allModules);
-
-   // Load challenge if code_challenge lesson
-   if (lessonRes.data.content_type === "code_challenge") {
-    try {
-     const challengeRes = await apiClient.get(`/sandbox/lessons/${lessonId}/challenge`);
-     setChallenge(challengeRes.data);
-    } catch {
-     setChallenge(null);
-    }
-   } else {
-    setChallenge(null);
-   }
 
    // Load exercises attached to this lesson
    try {
@@ -551,10 +526,11 @@ export default function LessonViewerPage() {
      <div className="mx-auto max-w-[720px]">
       {/* Hero pills */}
       <div className="mb-3.5 flex flex-wrap items-center gap-2">
-       <span className="inline-flex items-center gap-1.5 rounded-pill bg-success-soft px-3 py-[5px] text-xs font-bold capitalize text-green-800">
-        <span className="h-1.5 w-1.5 rounded-full bg-current" />
-        {lesson.content_type.replace("_", " ")}
-       </span>
+       {/* The lesson's "type" used to sit here, from lesson.content_type.
+         That field stopped meaning anything when lessons became pages of
+         mixed blocks, so every lesson — whatever was inside — told the
+         pupil it was "text". A label that is always the same word is not
+         information. */}
        {lesson.duration_minutes && (
         <span className="inline-flex items-center gap-1.5 rounded-pill bg-surface-2 px-3 py-[5px] text-xs font-bold text-text">
          <Clock className="h-3 w-3" />
@@ -568,8 +544,12 @@ export default function LessonViewerPage() {
        {lesson.title}
       </h1>
 
-      {/* Content rendering — page-based (v2/v3) or legacy fallback */}
-      {lesson.content?.version === 2 || lesson.content?.version === 3 ? (
+      {/* One way to read a lesson: pages of blocks. The branch that used to
+        stand here rendered lessons by their content_type — a quiz taker, a
+        file uploader, an interactive taker — and became unreachable when
+        the p4g3sv3rs10n migration turned every lesson into pages. Content
+        that is not pages says so instead of drawing a blank screen. */}
+      {lesson.content?.version === 3 ? (
        <BlockContent
         pages={lessonPages}
         exercises={exercises}
@@ -581,12 +561,7 @@ export default function LessonViewerPage() {
         nextLesson={nextLesson}
        />
       ) : (
-       <LegacyContent
-        lesson={lesson}
-        challenge={challenge}
-        lessonId={lessonId}
-        onComplete={handleComplete}
-       />
+       <p className="text-sm text-text-muted">{t("lesson.noContent")}</p>
       )}
      </div>
 
@@ -940,100 +915,5 @@ function PageNav({
     <ArrowRight className="h-3 w-3" />
    </button>
   </div>
- );
-}
-
-/* ─── Legacy content rendering (v1 / pre-blocks) ────────────────────── */
-
-function LegacyContent({
- lesson,
- challenge,
- lessonId,
- onComplete,
-}: {
- lesson: Lesson;
- challenge: { id: string; title: string; description: string; language: string; starter_code: string | null; test_cases: { id: string; input: string; expected_output: string }[] } | null;
- lessonId: string;
- onComplete: () => void;
-}) {
- const { t } = useTranslation();
- return (
-  <>
-   {/* Theory content — shown for ALL lesson types when content.body exists */}
-   {typeof lesson.content?.body === "string" && lesson.content.body.trim().length > 0 && (
-    <div className="mb-8">
-     <HighlightableContent lessonId={lessonId} blockKey="legacy">
-      <div className={lesson.content.format === "tiptap" ? "" : "prose prose-slate max-w-none"}>
-       <ContentRenderer
-        body={lesson.content.body as string}
-        format={(lesson.content.format as "markdown" | "html" | "tiptap") || "markdown"}
-       />
-      </div>
-     </HighlightableContent>
-    </div>
-   )}
-
-   {/* Type-specific content */}
-   <div className="mb-8">
-    {lesson.content_type === "text" && !lesson.content?.body && (
-     <div className="text-sm text-text-muted">{t("lesson.noContent")}</div>
-    )}
-
-    {lesson.content_type === "video" &&
-     (lesson.content.url ? (
-      <VideoPlayer url={lesson.content.url as string} lessonId={lessonId} />
-     ) : (
-      <div className="flex aspect-video items-center justify-center rounded-md bg-ink-900 text-white">
-       {t("lesson.noVideo")}
-      </div>
-     ))}
-
-    {lesson.content_type === "code_challenge" && challenge && (
-     <div>
-      {challenge.description && (
-       <div className="mb-4 rounded-md border border-border bg-surface p-5">
-        <h3 className="mb-2 text-sm font-bold text-text">{challenge.title}</h3>
-        <div className="prose prose-sm prose-slate max-w-none text-text-muted">
-         <p>{challenge.description}</p>
-        </div>
-       </div>
-      )}
-      <div className="h-[500px] overflow-hidden rounded-md border border-border">
-       <EditorLayout
-        challengeId={challenge.id}
-        language={challenge.language}
-        starterCode={challenge.starter_code || ""}
-        testCases={challenge.test_cases}
-       />
-      </div>
-     </div>
-    )}
-
-    {lesson.content_type === "code_challenge" && !challenge && (
-     <div className="rounded-md border border-border bg-surface-2 p-6 text-center">
-      <Code className="mx-auto mb-2 h-10 w-10 text-text-subtle" />
-      <p className="text-sm text-text-muted">
-       {t("lesson.noChallenge")}
-      </p>
-     </div>
-    )}
-
-    {lesson.content_type === "quiz" && (
-     <QuizTaker lessonId={lessonId} onComplete={onComplete} />
-    )}
-
-    {lesson.content_type === "file_upload" && (
-     <FileUploader lessonId={lessonId} content={lesson.content} onComplete={onComplete} />
-    )}
-
-    {lesson.content_type === "interactive" && (
-     <InteractiveTaker lessonId={lessonId} content={lesson.content} onComplete={onComplete} />
-    )}
-
-    {lesson.content_type === "theory" && (
-     <TheoryViewer content={lesson.content as TheoryContent} onContinue={onComplete} />
-    )}
-   </div>
-  </>
  );
 }

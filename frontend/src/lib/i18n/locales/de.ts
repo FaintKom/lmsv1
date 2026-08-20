@@ -2337,6 +2337,8 @@ const de: TranslationMap = {
  "exercise.ordering.movedToAria": "„{item}“ auf Position {n} von {total} verschoben",
  "exercise.categorize.checkHint": "Sortiere zuerst alle Karten",
  "exercise.categorize.tapHint": "Karte ziehen — oder antippen, dann ihre Gruppe antippen",
+ "exercise.categorize.chipAria": "{item} — wähle eine Gruppe dafür",
+ "exercise.categorize.chipArmedAria": "{item} — jetzt die passende Gruppe antippen",
  "exercise.categorize.bucketAria": "Gruppe {bucket}, {n} Karten",
  "exercise.categorize.bucketPlaceAria": "„{item}“ in {bucket} legen",
  "exercise.categorize.placedChipAria": "„{item}“ in {bucket}. Antippen, um es zurückzulegen",

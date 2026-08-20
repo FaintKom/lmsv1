@@ -2337,6 +2337,8 @@ const en: TranslationMap = {
  "exercise.ordering.movedToAria": "“{item}” moved to position {n} of {total}",
  "exercise.categorize.checkHint": "Sort every card first",
  "exercise.categorize.tapHint": "drag a card — or tap it, then tap its group",
+ "exercise.categorize.chipAria": "{item} — choose a group for it",
+ "exercise.categorize.chipArmedAria": "{item} — now tap the group it belongs to",
  "exercise.categorize.bucketAria": "{bucket} group, {n} cards",
  "exercise.categorize.bucketPlaceAria": "Place “{item}” in {bucket}",
  "exercise.categorize.placedChipAria": "“{item}” in {bucket}. Tap to return it to the tray",
