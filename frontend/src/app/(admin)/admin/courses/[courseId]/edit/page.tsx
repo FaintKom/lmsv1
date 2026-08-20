@@ -53,7 +53,18 @@ import {
  Video,
  Presentation,
 } from "lucide-react";
-import type { Course, Module, Lesson, LessonBlock } from "@/types/api";
+import type { Course, Module, Lesson } from "@/types/api";
+import { lessonSummary, type BlockKind } from "./lesson-summary";
+
+/** One translation key per kind of thing a page can hold. */
+const KIND_KEYS: Record<BlockKind, string> = {
+  text: "admin.courseEdit.kindText",
+  html: "admin.courseEdit.kindHtml",
+  video: "admin.courseEdit.kindVideo",
+  presentation: "admin.courseEdit.kindPresentation",
+  exercise: "admin.courseEdit.kindExercise",
+  assignment: "admin.courseEdit.kindAssignment",
+};
 import dynamic from "next/dynamic";
 import { markdownToTiptap } from "@/components/editor/utils/markdown-to-tiptap";
 import {
@@ -662,45 +673,24 @@ export default function CourseEditorPage() {
  });
  };
 
- // Content summary for collapsed lesson
+ /** `t()` takes no parameters; these keys carry an `{n}` placeholder. */
+ const counted = (key: string, n: number): string => t(key).replace("{n}", String(n));
+
+ // What the lesson holds, for the line under its name. The branches that
+ // used to live here read the v2 block list and the v1 body keyed on
+ // content_type. Every lesson has been pages since the p4g3sv3rs10n
+ // migration, so both were dead — and their fallthrough is what reported
+ // "No content yet" under lessons with eight blocks in them.
  const getContentSummary = (lesson: Lesson): string => {
- const content = lesson.content || {};
- // v2 block content
- if (content.version === 2 && Array.isArray(content.blocks)) {
- const blocks = content.blocks as LessonBlock[];
- if (blocks.length === 0) return "No blocks";
- const count = blocks.length;
- const types = [...new Set(blocks.map((b) => b.type))];
- return `${count} block${count !== 1 ? "s" : ""}: ${types.join(", ")}`;
+ const summary = lessonSummary(lesson.content);
+ if (summary.kind === "empty") return t("admin.courseEdit.summaryEmpty");
+
+ const parts = summary.counts.map((c) => counted(KIND_KEYS[c.type], c.count));
+ // One page is the ordinary case; saying so adds nothing.
+ if (summary.pages > 1) {
+ return `${counted("admin.courseEdit.summaryPages", summary.pages)} · ${parts.join(", ")}`;
  }
- // v1 fallback
- switch (lesson.content_type) {
- case "text": {
- if (content.format === "tiptap") {
- const doc = content.body as { content?: Array<{ content?: Array<{ text?: string }> }> };
- const firstText = doc?.content?.[0]?.content?.[0]?.text || "";
- return firstText.length > 80 ? firstText.slice(0, 80) + "..." : firstText || "Block editor content";
- }
- const body = (content.body as string) || "";
- return body.length > 80 ? body.slice(0, 80) + "..." : body || "No content yet";
- }
- case "video":
- return (content.url as string) || "No video URL";
- case "quiz":
- return "Click to manage quiz questions";
- case "code_challenge":
- return "Click to manage code challenge & test cases";
- case "file_upload": {
- const types = (content.allowed_types as string[]) || [];
- return types.length ? `Accepts: ${types.join(", ")}` : "Click to configure";
- }
- case "interactive": {
- const exType = (content.exercise_type as string) || "";
- return exType ? `Type: ${exType.replace("_", " ")}` : "Click to build exercise";
- }
- default:
- return "Click to edit";
- }
+ return parts.join(", ");
  };
 
  if (loading) {
