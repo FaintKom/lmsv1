@@ -1171,6 +1171,10 @@ const tr: TranslationMap = {
 
  // Admin course edit
  "admin.courseEdit.backToCourses": "Kurslara dön",
+ "admin.commaList.variables": "x, y",
+ "admin.commaList.accepted": "Ayrıca kabul edilir (virgülle ayrılmış varyantlar)",
+ "admin.commaList.fileTypes": ".pdf, .png, .jpg",
+ "admin.commaList.distractors": "Bu adım için yanlış seçenekler, virgülle ayrılmış (boş = genel olanlar)",
  "admin.livePreview.title": "Önizleme",
  "admin.livePreview.empty": "Formu doldurun; öğrencinin göreceği şey burada belirir.",
  "admin.livePreview.missing": "Henüz gösterilecek bir şey yok — “{field}” boş.",

@@ -4,6 +4,8 @@ import { useState, useCallback, useEffect, useRef, Suspense } from "react";
 import { Check, ChevronDown, Loader2, Eye } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { MATH_TEMPLATES, TEMPLATE_LIST } from "./template-registry";
+import { CommaListInput } from "@/components/exercises/comma-list-input";
+import { parseNumberList } from "@/components/exercises/comma-list";
 import Editor from "@monaco-editor/react";
 
 /** Compact dropdown that lists math templates with their lucide icon. */
@@ -268,8 +270,10 @@ function NumberLineConfig({ config, onChange }: { config: Record<string, unknown
  </div>
  <div>
  <label className="mb-1 block text-xs text-text-muted">Targets (comma-sep)</label>
- <input type="text" value={((config.targets as number[]) || [3, 7]).join(", ")}
- onChange={(e) => onChange({ ...config, targets: e.target.value.split(",").map((s) => parseFloat(s.trim())).filter((n) => !isNaN(n)) })}
+ <CommaListInput<number>
+ value={(config.targets as number[]) || [3, 7]}
+ onChange={(next) => onChange({ ...config, targets: next })}
+ parse={parseNumberList}
  className="w-full rounded-lg border border-border-strong bg-surface px-3 py-2 text-sm " />
  </div>
  <div>
@@ -364,29 +368,19 @@ function EquationBalanceConfig({
  <div className="grid grid-cols-3 gap-3">
  <div>
  <label className="mb-1 block text-xs text-text-muted">Left Side Numbers (comma-sep)</label>
- <input
- type="text"
- value={((config.left_fixed as number[]) || [5]).join(", ")}
- onChange={(e) =>
- onChange({
- ...config,
- left_fixed: e.target.value.split(",").map((s) => parseInt(s.trim())).filter((n) => !isNaN(n)),
- })
- }
+ <CommaListInput<number>
+ value={(config.left_fixed as number[]) || [5]}
+ onChange={(next) => onChange({ ...config, left_fixed: next })}
+ parse={parseNumberList}
  className="w-full rounded-lg border border-border-strong bg-surface px-3 py-2 text-sm"
  />
  </div>
  <div>
  <label className="mb-1 block text-xs text-text-muted">Right Side Fixed (comma-sep)</label>
- <input
- type="text"
- value={((config.right_fixed as number[]) || [2]).join(", ")}
- onChange={(e) =>
- onChange({
- ...config,
- right_fixed: e.target.value.split(",").map((s) => parseInt(s.trim())).filter((n) => !isNaN(n)),
- })
- }
+ <CommaListInput<number>
+ value={(config.right_fixed as number[]) || [2]}
+ onChange={(next) => onChange({ ...config, right_fixed: next })}
+ parse={parseNumberList}
  className="w-full rounded-lg border border-border-strong bg-surface px-3 py-2 text-sm"
  />
  </div>
@@ -1004,18 +998,10 @@ function EquationSolverConfig({
  </div>
  {/* specs/020 US3: authored wrong options for this step */}
  <div className="pl-10">
- <input
- type="text"
- value={(s.distractors || []).join(", ")}
- onChange={(e) =>
- updateStep(i, {
- distractors: e.target.value
- .split(",")
- .map((d) => d.trim())
- .filter(Boolean),
- })
- }
- placeholder="Wrong options for this step, comma-separated (empty = generic ones)"
+ <CommaListInput
+ value={s.distractors || []}
+ onChange={(next) => updateStep(i, { distractors: next })}
+ placeholderKey="admin.commaList.distractors"
  className={`w-full ${inputCls}`}
  />
  </div>
@@ -1161,8 +1147,10 @@ function NumericInputConfig({ config, onChange }: { config: Record<string, unkno
  <div className="grid grid-cols-2 gap-3">
  <div>
  <label className="mb-1 block text-xs text-text-muted">Correct Answers (comma-sep)</label>
- <input type="text" value={((config.correct_answers as number[]) || [7]).join(", ")}
- onChange={(e) => onChange({ ...config, correct_answers: e.target.value.split(",").map(s => parseFloat(s.trim())).filter(n => !isNaN(n)) })}
+ <CommaListInput<number>
+ value={(config.correct_answers as number[]) || [7]}
+ onChange={(next) => onChange({ ...config, correct_answers: next })}
+ parse={parseNumberList}
  className="w-full rounded-lg border border-border-strong bg-surface px-3 py-2 text-sm " />
  </div>
  <div>
