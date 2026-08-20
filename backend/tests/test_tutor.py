@@ -23,18 +23,23 @@ from tests.conftest import (
 ASK = "/api/v1/tutor/lessons/{lesson_id}/ask"
 
 LESSON_BLOCKS = {
-    "version": 2,
-    "blocks": [
+    "version": 3,
+    "pages": [
         {
-            "id": "b1",
-            "type": "text",
-            "sort_order": 0,
-            "page": 1,
-            "format": "html",
-            "body": (
-                "<h2>Floor division</h2><p>The // operator rounds down rather "
-                "than toward zero, so -7 // 2 is -4 and not -3.</p>"
-            ),
+            "id": "page_1",
+            "blocks": [
+                {
+                    "id": "b1",
+                    "type": "text",
+                    "sort_order": 0,
+                    "page": 1,
+                    "format": "html",
+                    "body": (
+                        "<h2>Floor division</h2><p>The // operator rounds down rather "
+                        "than toward zero, so -7 // 2 is -4 and not -3.</p>"
+                    ),
+                }
+            ],
         }
     ],
 }
@@ -282,32 +287,38 @@ def test_lesson_text_reads_a_lesson_split_into_pages():
     assert "  " not in text  # whitespace collapsed
 
 
-def test_lesson_text_converts_legacy_body():
-    """Legacy content.body is turned into a v2 text block before extraction."""
+def test_lesson_text_ignores_content_that_is_not_pages():
+    """Lessons are stored as pages; the legacy shapes were rewritten by the
+    p4g3sv3rs10n migration. Anything still carrying a type-specific config —
+    a quiz, a theory deck — has no prose to ask about and yields nothing."""
     legacy = {"body": "<p>Old-style lesson body with enough text to pass.</p>"}
-    text = _lesson_text(_FakeLesson(legacy))
-    assert "Old-style lesson body" in text
+    assert _lesson_text(_FakeLesson(legacy)) == ""
 
 
 def test_lesson_text_excludes_exercise_blocks():
     """Exercise configs hold the correct answers — they must never be sent."""
     content = {
-        "version": 2,
-        "blocks": [
+        "version": 3,
+        "pages": [
             {
-                "id": "b1",
-                "type": "text",
-                "sort_order": 0,
-                "page": 1,
-                "body": "<p>Some theory.</p>",
-            },
-            {
-                "id": "b2",
-                "type": "exercise",
-                "sort_order": 1,
-                "page": 1,
-                "exercise_id": "3f2b0000-0000-0000-0000-000000000000",
-            },
+                "id": "page_1",
+                "blocks": [
+                    {
+                        "id": "b1",
+                        "type": "text",
+                        "sort_order": 0,
+                        "page": 1,
+                        "body": "<p>Some theory.</p>",
+                    },
+                    {
+                        "id": "b2",
+                        "type": "exercise",
+                        "sort_order": 1,
+                        "page": 1,
+                        "exercise_id": "3f2b0000-0000-0000-0000-000000000000",
+                    },
+                ],
+            }
         ],
     }
     text = _lesson_text(_FakeLesson(content))
@@ -327,7 +338,14 @@ def test_lesson_text_is_truncated():
 
     long_body = "<p>" + ("word " * 20_000) + "</p>"
     content = {
-        "version": 2,
-        "blocks": [{"id": "b1", "type": "text", "sort_order": 0, "page": 1, "body": long_body}],
+        "version": 3,
+        "pages": [
+            {
+                "id": "page_1",
+                "blocks": [
+                    {"id": "b1", "type": "text", "sort_order": 0, "page": 1, "body": long_body}
+                ],
+            }
+        ],
     }
     assert len(_lesson_text(_FakeLesson(content))) == MAX_LESSON_CHARS

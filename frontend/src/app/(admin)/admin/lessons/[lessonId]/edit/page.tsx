@@ -186,7 +186,7 @@ export default function LessonEditorPage() {
         // Exercises attached outside any block become trailing blocks on the
         // last page, in by-lesson order — the order students already saw
         // (specs/017 US2).
-        const loaded = extractPages(lesson.content, lesson.content_type);
+        const loaded = extractPages(lesson.content);
         const flat = flattenPages(loaded);
         const adopted = adoptDetachedExercises(
           flat,

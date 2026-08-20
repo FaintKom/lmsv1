@@ -39,33 +39,22 @@ describe("extractPages", () => {
     expect(page.blocks.map((b) => b.id)).toEqual(["first", "second"]);
   });
 
-  it("shows a v2 lesson as one page — the student sees what they saw before", () => {
-    const pages = extractPages({ version: 2, blocks: [text("a"), text("b", 1)] });
-    expect(pages).toHaveLength(1);
-    expect(pages[0].blocks.map((b) => b.id)).toEqual(["a", "b"]);
-  });
-
-  it("turns a v1 text lesson into one page with one text block", () => {
-    const pages = extractPages({ body: "<p>hello</p>", format: "html" }, "text");
-    expect(pages).toHaveLength(1);
-    expect(pages[0].blocks).toHaveLength(1);
-    expect(pages[0].blocks[0].type).toBe("text");
-  });
-
-  it("turns a v1 video lesson into one page with a video block", () => {
-    const pages = extractPages({ url: "https://example.test/v.mp4" }, "video");
-    expect(pages[0].blocks.map((b) => b.type)).toEqual(["video"]);
-  });
-
   it("gives an empty or unknown lesson a single blank page", () => {
     expect(extractPages(undefined)).toEqual([{ id: "page_1", blocks: [] }]);
     expect(extractPages({})).toEqual([{ id: "page_1", blocks: [] }]);
     expect(extractPages({ version: 3, pages: [] })).toEqual([{ id: "page_1", blocks: [] }]);
   });
 
-  it("does not treat a v1 video url as a block when the lesson is not a video", () => {
-    const pages = extractPages({ url: "https://example.test/v.mp4" }, "text");
-    expect(pages[0].blocks).toEqual([]);
+  it("reads nothing from the shapes the migration retired", () => {
+    // Every row was rewritten into pages by p4g3sv3rs10n; anything still
+    // carrying a flat block list or a v1 body is not a lesson this module
+    // draws, and inventing content for it would hide that.
+    expect(extractPages({ version: 2, blocks: [text("a")] })).toEqual([
+      { id: "page_1", blocks: [] },
+    ]);
+    expect(extractPages({ body: "<p>hello</p>", format: "html" })).toEqual([
+      { id: "page_1", blocks: [] },
+    ]);
   });
 });
 
