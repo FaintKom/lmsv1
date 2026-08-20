@@ -361,11 +361,17 @@ export default function Robot2DExercise({
                 <button
                   onClick={handlePlay}
                   title={`${t("game.run")} — ${t("game.runShortcut")}`}
+                  // The shortcut is a hint for the eye and a fact for assistive
+                  // tech — but not part of the button's name, which stays "Run".
+                  aria-keyshortcuts="Control+Enter"
                   className="flex h-10 items-center gap-1.5 rounded-lg bg-[#FFA400] px-6 text-sm font-bold text-white shadow-md shadow-orange-200 transition hover:bg-[#e69400] active:scale-95"
                 >
                   <Play className="h-4 w-4" />
                   {t("game.run")}
-                  <span className="hidden text-2xs font-medium opacity-80 sm:inline">
+                  <span
+                    aria-hidden="true"
+                    className="hidden text-2xs font-medium opacity-80 sm:inline"
+                  >
                     {t("game.runShortcut")}
                   </span>
                 </button>

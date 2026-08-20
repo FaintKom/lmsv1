@@ -341,11 +341,16 @@ export default function World3DExercise({ exerciseId, config, onSubmit }: World3
                 <button
                   onClick={handlePlay}
                   title={`${t("game.run")} — ${t("game.runShortcut")}`}
+                  // Same as the 2D robot: the hint is visible, the name is "Run".
+                  aria-keyshortcuts="Control+Enter"
                   className="flex h-10 items-center gap-1.5 rounded-lg bg-[#FFA400] px-6 text-sm font-bold text-white shadow-md transition hover:bg-[#e69400] active:scale-95"
                 >
                   <Play className="h-4 w-4" />
                   {t("game.run")}
-                  <span className="hidden text-2xs font-medium opacity-80 sm:inline">
+                  <span
+                    aria-hidden="true"
+                    className="hidden text-2xs font-medium opacity-80 sm:inline"
+                  >
                     {t("game.runShortcut")}
                   </span>
                 </button>
