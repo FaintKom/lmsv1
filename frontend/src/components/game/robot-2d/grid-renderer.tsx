@@ -30,9 +30,37 @@ const MARK_STROKE: Record<string, string> = {
  red: "#dc2626", green: "#16a34a", blue: "#2563eb", yellow: "#ca8a04",
 };
 
-/** What each item kind looks like. Anything unknown falls back to the star. */
-const KIND_SPRITE: Record<string, string> = {
- gem: "💎", key: "🗝️", apple: "🍎", flag: "🚩",
+/**
+ * What each item kind looks like — drawings we ship, not emoji.
+ *
+ * An emoji here is a character the machine draws with whatever font it has:
+ * a different gem on Windows than on a Mac, an empty box where no emoji font
+ * is installed. These are paths, so every pupil sees the same square.
+ */
+const KIND_SPRITE: Record<string, React.ReactNode> = {
+ gem: <path d="M6 3h12l4 6-10 12L2 9Z" />,
+ key: (
+ <>
+ <circle cx="7.5" cy="15.5" r="5.5" />
+ <path d="m21 2-9.6 9.6" />
+ <path d="m15.5 7.5 3 3L22 7l-3-3" />
+ </>
+ ),
+ apple: (
+ <>
+ <path d="M12 20.94c1.5 0 2.75 1.06 4 1.06 3 0 6-8 6-12.22A4.91 4.91 0 0 0 17 5c-2.22 0-4 1.44-5 2-1-.56-2.78-2-5-2a4.9 4.9 0 0 0-5 4.78C2 14 5 22 8 22c1.25 0 2.5-1.06 4-1.06Z" />
+ <path d="M10 2c1 .5 2 2 2 5" />
+ </>
+ ),
+ flag: (
+ <>
+ <path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1Z" />
+ <path d="M4 22v-7" />
+ </>
+ ),
+ star: (
+ <path d="M11.5 2.9a.6.6 0 0 1 1 0l2.4 4.9 5.4.8c.5.1.7.7.3 1l-3.9 3.8.9 5.4c.1.5-.4.9-.9.6L12 16.9l-4.8 2.5c-.4.3-1-.1-.9-.6l.9-5.4-3.9-3.8c-.4-.3-.2-.9.3-1l5.4-.8Z" />
+ ),
 };
 
 export default function GridRenderer({
@@ -173,10 +201,17 @@ export default function GridRenderer({
  {type === "item" && (
  <g>
  <circle cx={center_x} cy={center_y} r={cs * 0.35} fill="url(#starGlow)" />
- <text x={center_x} y={center_y + 2} textAnchor="middle" dominantBaseline="central"
- fontSize={cs * 0.48} className="select-none">
- {KIND_SPRITE[detailMap.get(`${x},${y}`)?.kind ?? ""] ?? "⭐"}
- </text>
+ {/* A 24-unit icon scaled into the cell and centred on it. */}
+ <g
+ transform={`translate(${center_x - cs * 0.24}, ${center_y - cs * 0.24}) scale(${(cs * 0.48) / 24})`}
+ fill="none"
+ stroke="#b45309"
+ strokeWidth={2}
+ strokeLinecap="round"
+ strokeLinejoin="round"
+ >
+ {KIND_SPRITE[detailMap.get(`${x},${y}`)?.kind ?? ""] ?? KIND_SPRITE.star}
+ </g>
  </g>
  )}
 

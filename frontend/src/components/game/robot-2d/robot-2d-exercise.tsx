@@ -13,6 +13,9 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import dynamic from "next/dynamic";
 import {
   Blocks,
+  Bot,
+  ChevronDown,
+  ChevronRight,
   Code,
   Gauge,
   Lightbulb,
@@ -20,12 +23,15 @@ import {
   Play,
   RotateCcw,
   SkipForward,
+  Star,
+  Terminal,
 } from "lucide-react";
 import Editor from "@monaco-editor/react";
 
 import { Button } from "@/components/ui/button";
 import { useTranslation } from "@/lib/i18n/context";
 import { exercisesApi, type RobotRunResult } from "@/lib/api/exercises";
+import { SplitHandle, useSplitSize } from "@/components/game/split-handle";
 import GridRenderer from "./grid-renderer";
 import { initialState, stateAt, type GridState } from "./grid-engine";
 import { TracePlayer } from "@/components/game/engine/trace-player";
@@ -114,6 +120,17 @@ export default function Robot2DExercise({
   // read from a `useMemo` factory or a state initialiser is a read during
   // render — which is the rule that catches components going stale.
   const playerRef = useRef<TracePlayer | null>(null);
+
+  /* ── The editor itself, so a run can point at the line that broke ── */
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const editorRef = useRef<any>(null);
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const monacoRef = useRef<any>(null);
+  /** Run from a keyboard shortcut, which fires with a stale closure otherwise. */
+  const playRef = useRef<() => void>(() => {});
+  const [showCommands, setShowCommands] = useState(true);
+  /** How much of the screen the board takes; the rest is the editor. */
+  const split = useSplitSize(`split:robot:${exerciseId}`);
 
   useEffect(() => {
     const player = new TracePlayer({
@@ -223,6 +240,55 @@ export default function Robot2DExercise({
     onSubmit({ source: currentSource(), mode });
   }, [currentSource, mode, onSubmit]);
 
+  // Ctrl/Cmd+Enter reads this, so the shortcut always runs the current code.
+  useEffect(() => {
+    playRef.current = handlePlay;
+  }, [handlePlay]);
+
+  /**
+   * Put the run's error where it is fixed: on its line, in the editor.
+   *
+   * The server names the line; until now it was named only in a strip under
+   * the board, and the pupil counted lines with a finger. Markers are cleared
+   * on every run, so a fixed program looks fixed.
+   */
+  useEffect(() => {
+    const editor = editorRef.current;
+    const monaco = monacoRef.current;
+    if (!editor || !monaco) return;
+    const model = editor.getModel();
+    if (!model) return;
+
+    const error = result?.error;
+    if (!error || error.line == null) {
+      monaco.editor.setModelMarkers(model, "robot", []);
+      return;
+    }
+    const line = Math.min(Math.max(error.line, 1), model.getLineCount());
+    monaco.editor.setModelMarkers(model, "robot", [
+      {
+        severity: monaco.MarkerSeverity.Error,
+        message: `${error.type}: ${error.message}`,
+        startLineNumber: line,
+        endLineNumber: line,
+        startColumn: 1,
+        endColumn: model.getLineMaxColumn(line),
+      },
+    ]);
+    editor.revealLineInCenter(line);
+  }, [result]);
+
+  /** Drop a command at the cursor — the reference list is clickable. */
+  const insertCommand = useCallback((command: string) => {
+    const editor = editorRef.current;
+    if (!editor) return;
+    const selection = editor.getSelection();
+    editor.executeEdits("commands", [
+      { range: selection, text: `${command}\n`, forceMoveMarkers: true },
+    ]);
+    editor.focus();
+  }, []);
+
   const task = describeGoal(config.win, t);
   const stars = result?.stars ?? 0;
   const finished = Boolean(result?.won);
@@ -237,16 +303,20 @@ export default function Robot2DExercise({
    */
   const refused = gridState.collision ? t(`game.refused.${gridState.collision}`) : null;
   const problem = failure ?? refused ?? describeStop(result, t);
-  const cellSize = useCellSize(gridState.width, gridState.height);
+  const cellSize = useCellSize(gridState.width, gridState.height, split.size);
 
   return (
     <div className="flex h-full flex-col">
       <div className="flex min-h-0 flex-1 flex-col lg:flex-row">
-        {/* The board */}
-        <div className="flex w-full shrink-0 flex-col bg-[#f2f0eb] lg:w-[480px]">
+        {/* The board. Its width is the pupil's to choose — see SplitHandle. */}
+        <div
+          className="flex w-full shrink-0 flex-col bg-[#f2f0eb] lg:w-[var(--board)]"
+          style={{ ["--board" as string]: `${split.size}px` }}
+        >
           <div className="flex items-center gap-3 border-b border-[#e5e0d5] bg-surface px-4 py-3">
-            <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-pill bg-[#4C97FF] text-lg text-white">
-              🤖
+            {/* An SVG, not an emoji: the same picture on every machine. */}
+            <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-pill bg-[#4C97FF] text-white">
+              <Bot className="h-5 w-5" />
             </div>
             <p className="text-sm font-semibold text-text">{task}</p>
           </div>
@@ -296,10 +366,20 @@ export default function Robot2DExercise({
               ) : (
                 <button
                   onClick={handlePlay}
+                  title={`${t("game.run")} — ${t("game.runShortcut")}`}
+                  // The shortcut is a hint for the eye and a fact for assistive
+                  // tech — but not part of the button's name, which stays "Run".
+                  aria-keyshortcuts="Control+Enter"
                   className="flex h-10 items-center gap-1.5 rounded-lg bg-[#FFA400] px-6 text-sm font-bold text-white shadow-md shadow-orange-200 transition hover:bg-[#e69400] active:scale-95"
                 >
                   <Play className="h-4 w-4" />
                   {t("game.run")}
+                  <span
+                    aria-hidden="true"
+                    className="hidden text-2xs font-medium opacity-80 sm:inline"
+                  >
+                    {t("game.runShortcut")}
+                  </span>
                 </button>
               )}
 
@@ -338,12 +418,12 @@ export default function Robot2DExercise({
                   <div className="flex items-center gap-3">
                     <div className="flex gap-0.5">
                       {[1, 2, 3].map((n) => (
-                        <span
+                        <Star
                           key={n}
-                          className={`text-xl transition ${n <= stars ? "scale-110 text-warning" : "text-text-subtle"}`}
-                        >
-                          ★
-                        </span>
+                          className={`h-5 w-5 transition ${
+                            n <= stars ? "scale-110 fill-warning text-warning" : "text-text-subtle"
+                          }`}
+                        />
                       ))}
                     </div>
                     <div>
@@ -388,8 +468,10 @@ export default function Robot2DExercise({
           )}
         </div>
 
+        <SplitHandle {...split} />
+
         {/* The program */}
-        <div className="flex min-h-[250px] min-w-0 flex-1 flex-col border-t border-[#e5e0d5] lg:border-l lg:border-t-0">
+        <div className="flex min-h-[250px] min-w-0 flex-1 flex-col border-t border-[#e5e0d5] lg:border-t-0">
           <div className="flex items-center gap-1 border-b border-border-strong/60 bg-surface px-4 py-2">
             <button
               onClick={() => setMode("blocks")}
@@ -421,7 +503,16 @@ export default function Robot2DExercise({
                 value={pythonCode}
                 onChange={(v) => setPythonCode(v || "")}
                 theme={isDark ? "vs-dark" : "vs-light"}
-                onMount={(_editor, monaco) => registerCommandCompletion(monaco, commands)}
+                onMount={(editor, monaco) => {
+                  editorRef.current = editor;
+                  monacoRef.current = monaco;
+                  registerCommandCompletion(monaco, commands);
+                  // Run without leaving the keyboard — what every code editor
+                  // a pupil has seen does.
+                  editor.addCommand(monaco.KeyMod.CtrlCmd | monaco.KeyCode.Enter, () =>
+                    playRef.current(),
+                  );
+                }}
                 options={{
                   minimap: { enabled: false },
                   fontSize: 14,
@@ -445,21 +536,65 @@ export default function Robot2DExercise({
             )}
           </div>
 
-          {/* What the pupil printed, apart from what the robot did. */}
+          {/* The commands this level offers, spelled out and clickable. They
+              used to exist only as comments in the starter file, so clearing
+              it took the reference with it. */}
+          {mode === "python" && commands.length > 0 && (
+            <div className="border-t border-border-strong bg-surface">
+              <button
+                onClick={() => setShowCommands((s) => !s)}
+                className="flex w-full items-center gap-1.5 px-4 py-1.5 text-2xs font-semibold uppercase tracking-wider text-text-subtle hover:text-text"
+              >
+                {showCommands ? (
+                  <ChevronDown className="h-3 w-3" />
+                ) : (
+                  <ChevronRight className="h-3 w-3" />
+                )}
+                {t("game.commandsTitle")}
+              </button>
+              {showCommands && (
+                <div className="flex flex-wrap gap-1 px-4 pb-2">
+                  {commands.map((c) => {
+                    const call =
+                      c === "paint" && paintColors.length ? `paint("${paintColors[0]}")` : `${c}()`;
+                    return (
+                      <button
+                        key={c}
+                        onClick={() => insertCommand(call)}
+                        title={t(`game.command.${c}`)}
+                        className="rounded-md bg-surface-2 px-2 py-1 font-mono text-2xs text-text-muted transition-colors hover:bg-primary-soft hover:text-success-fg"
+                      >
+                        {call}
+                      </button>
+                    );
+                  })}
+                </div>
+              )}
+            </div>
+          )}
+
+          {/* The console: what the program printed, and what broke — labelled
+              and told apart, not one unnamed strip holding both. */}
           {result && (result.output || result.error) && (
-            <div className="max-h-32 overflow-auto border-t border-border-strong bg-surface-2 px-4 py-2 font-mono text-2xs">
-              {result.error && (
-                <p className="font-semibold text-danger-fg">
-                  {result.error.line !== null ? `${t("game.line")} ${result.error.line}: ` : ""}
-                  {result.error.type}: {result.error.message}
-                </p>
-              )}
-              {result.output && (
-                <pre className="whitespace-pre-wrap text-text-muted">
-                  {result.output}
-                  {result.output_truncated ? `\n… ${t("game.outputTruncated")}` : ""}
-                </pre>
-              )}
+            <div className="max-h-32 overflow-auto border-t border-border-strong bg-surface-2">
+              <div className="flex items-center gap-1.5 px-4 pt-2 text-2xs font-semibold uppercase tracking-wider text-text-subtle">
+                <Terminal className="h-3 w-3" />
+                {t("game.console")}
+              </div>
+              <div className="px-4 pb-2 font-mono text-2xs">
+                {result.error && (
+                  <p className="font-semibold text-danger-fg">
+                    {result.error.line !== null ? `${t("game.line")} ${result.error.line}: ` : ""}
+                    {result.error.type}: {result.error.message}
+                  </p>
+                )}
+                {result.output && (
+                  <pre className="whitespace-pre-wrap text-text-muted">
+                    {result.output}
+                    {result.output_truncated ? `\n… ${t("game.outputTruncated")}` : ""}
+                  </pre>
+                )}
+              </div>
             </div>
           )}
         </div>
@@ -468,14 +603,16 @@ export default function Robot2DExercise({
   );
 }
 
-function useCellSize(width: number, height: number) {
+/** Cell size that fits the grid into the board column, whatever width the
+ *  pupil has dragged it to — `boardWidth` is why this re-measures. */
+function useCellSize(width: number, height: number, boardWidth: number) {
   const [size, setSize] = useState(60);
   useEffect(() => {
     const measure = () =>
       setSize(
         Math.floor(
           Math.min(
-            window.innerWidth < 1024 ? window.innerWidth - 40 : 460,
+            window.innerWidth < 1024 ? window.innerWidth - 40 : boardWidth - 20,
             window.innerWidth < 1024
               ? window.innerHeight * 0.4
               : window.innerHeight - 180,
@@ -485,7 +622,7 @@ function useCellSize(width: number, height: number) {
     measure();
     window.addEventListener("resize", measure);
     return () => window.removeEventListener("resize", measure);
-  }, [width, height]);
+  }, [width, height, boardWidth]);
   return size;
 }
 

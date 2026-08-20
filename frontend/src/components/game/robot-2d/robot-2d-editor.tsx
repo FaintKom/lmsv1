@@ -21,7 +21,17 @@
  */
 
 import { useCallback, useMemo, useState } from "react";
-import { Box, Eraser, Flag, Play as PlayIcon, Star, Undo2 } from "lucide-react";
+import {
+  Apple,
+  Box,
+  Eraser,
+  Flag,
+  Gem,
+  KeyRound,
+  Play as PlayIcon,
+  Star,
+  Undo2,
+} from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { useTranslation } from "@/lib/i18n/context";
@@ -105,13 +115,14 @@ const COLOR_SWATCH: Record<string, string> = {
   red: "#ef4444", green: "#22c55e", blue: "#3b82f6", yellow: "#eab308",
 };
 
-/** Mirrors ITEM_KINDS in robot_validate.py. Visual only. */
+/** Mirrors ITEM_KINDS in robot_validate.py. Visual only. The picker shows the
+ *  same drawings the grid does — icons we ship, not emoji the machine draws. */
 const ITEM_KINDS = [
-  { kind: null, sprite: "⭐" },
-  { kind: "gem", sprite: "💎" },
-  { kind: "key", sprite: "🗝️" },
-  { kind: "apple", sprite: "🍎" },
-  { kind: "flag", sprite: "🚩" },
+  { kind: null, Icon: Star },
+  { kind: "gem", Icon: Gem },
+  { kind: "key", Icon: KeyRound },
+  { kind: "apple", Icon: Apple },
+  { kind: "flag", Icon: Flag },
 ] as const;
 
 const UNDO_LIMIT = 50;
@@ -415,19 +426,19 @@ export default function Robot2DEditor({ config, onConfigChange }: Robot2DEditorP
                 {t("robot.itemKind")}
               </label>
               <div className="mt-1 flex gap-1">
-                {ITEM_KINDS.map(({ kind, sprite }) => (
+                {ITEM_KINDS.map(({ kind, Icon }) => (
                   <button
                     key={kind ?? "star"}
                     onClick={() => setItemKind(kind)}
                     title={t(`robot.kind.${kind ?? "star"}`)}
                     aria-pressed={itemKind === kind}
-                    className={`h-7 w-7 rounded-lg border text-sm ${
+                    className={`flex h-7 w-7 items-center justify-center rounded-lg border ${
                       itemKind === kind
-                        ? "border-text bg-primary-soft"
-                        : "border-border-strong bg-surface-2"
+                        ? "border-text bg-primary-soft text-primary"
+                        : "border-border-strong bg-surface-2 text-text-muted"
                     }`}
                   >
-                    {sprite}
+                    <Icon className="h-4 w-4" />
                   </button>
                 ))}
               </div>
