@@ -1416,6 +1416,7 @@ const es: TranslationMap = {
  "admin.lessonEditor.legacyLessonNotice": "Esta lección usa un tipo antiguo y se edita desde la página del curso, donde está su editor dedicado. Editarla aquí reemplazaría su contenido.",
  "admin.exercisePreview.title": "Vista previa y prueba",
  "admin.exercisePreview.banner": "Prueba — no se guarda nada: ni entregas, ni intentos, ni XP.",
+ "admin.exercisePreview.noAnswerKey": "No hay con qué corregir: «{key}» está vacío, así que cualquier alumno que pulse enviar saca la nota máxima. Complétalo antes de asignarlo.",
  "admin.exercisePreview.verdictsFollowSave": "El diseño sigue tus cambios sin guardar; los veredictos del servidor usan la última versión guardada.",
  "admin.exercisePreview.checkedNotSaved": "Comprobado — no se guardó nada",
  "admin.exercisePreview.verdictUnavailable": "Los veredictos no están disponibles en modo prueba para este tipo — no se guardó nada",

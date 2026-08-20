@@ -1478,6 +1478,7 @@ const en: TranslationMap = {
  "admin.lessonEditor.legacyLessonNotice": "This lesson uses a legacy type and is edited from the course page, where its dedicated editor lives. Editing it here would replace its content.",
  "admin.exercisePreview.title": "Preview & test run",
  "admin.exercisePreview.banner": "Test run — nothing is saved: no submissions, no attempts, no XP.",
+ "admin.exercisePreview.noAnswerKey": "Nothing to mark against: “{key}” is empty, so every student who presses submit scores full marks. Fill it in before you assign this.",
  "admin.exercisePreview.verdictsFollowSave": "The layout follows your unsaved edits; server verdicts use the last saved version.",
  "admin.exercisePreview.checkedNotSaved": "Checked — nothing was saved",
  "admin.exercisePreview.verdictUnavailable": "Verdicts are unavailable in test mode for this type — nothing was saved",

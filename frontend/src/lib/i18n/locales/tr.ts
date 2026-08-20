@@ -1419,6 +1419,7 @@ const tr: TranslationMap = {
  "admin.lessonEditor.legacyLessonNotice": "Bu ders eski bir tür kullanıyor ve kurs sayfasından düzenleniyor — özel editörü orada. Burada düzenlemek içeriğini değiştirirdi.",
  "admin.exercisePreview.title": "Önizleme ve deneme",
  "admin.exercisePreview.banner": "Deneme çalıştırması — hiçbir şey kaydedilmez: gönderim, deneme hakkı veya XP yok.",
+ "admin.exercisePreview.noAnswerKey": "Değerlendirilecek bir şey yok: «{key}» boş, bu yüzden gönder'e basan her öğrenci tam puan alır. Ödevi vermeden önce doldur.",
  "admin.exercisePreview.verdictsFollowSave": "Görünüm kaydedilmemiş düzenlemeleri izler; sunucu kararları son kaydedilen sürümü kullanır.",
  "admin.exercisePreview.checkedNotSaved": "Kontrol edildi — hiçbir şey kaydedilmedi",
  "admin.exercisePreview.verdictUnavailable": "Bu tür için deneme modunda karar alınamıyor — hiçbir şey kaydedilmedi",
