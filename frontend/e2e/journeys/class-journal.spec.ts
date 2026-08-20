@@ -90,8 +90,14 @@ test("the register shows the days that were held and who is in the class", async
 
   await expect(page.getByText(/QA Student/i).first()).toBeVisible({ timeout: 15_000 });
   // Both journal days reached the matrix, not only the one the roster hangs off.
+  //
+  // The generous timeout is the point, not decoration: the roster is fetched
+  // for today's date while the session list is still in flight, so the pupil's
+  // name can be on screen a moment before the day columns are. Asserting on
+  // the default five seconds failed on a slow runner and passed on a rerun,
+  // which is the worst kind of green.
   for (const day of [DAY_ONE, DAY_TWO]) {
-    await expect(page.getByText(day.slice(5)).first()).toBeVisible();
+    await expect(page.getByText(day.slice(5)).first()).toBeVisible({ timeout: 15_000 });
   }
 });
 
