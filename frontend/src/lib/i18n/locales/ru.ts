@@ -1178,6 +1178,12 @@ const ru: TranslationMap = {
 
  // Admin course edit
  "admin.courseEdit.backToCourses": "Назад к курсам",
+ "admin.livePreview.title": "Превью",
+ "admin.livePreview.empty": "Заполните форму — здесь появится то, что увидит ученик.",
+ "admin.livePreview.missing": "Показывать пока нечего — «{field}» ещё пусто.",
+ "admin.livePreview.show": "Показать превью",
+ "admin.livePreview.hide": "Скрыть превью",
+ "admin.livePreview.crashed": "Это превью не удалось нарисовать. Поля не пострадали.",
  "admin.courseEdit.summaryEmpty": "Пока пусто",
  "admin.courseEdit.summaryPages": "Страниц: {n}",
  "admin.courseEdit.kindText": "Текстов: {n}",

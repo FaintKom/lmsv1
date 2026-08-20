@@ -1230,6 +1230,12 @@ const de: TranslationMap = {
 
  // Admin course edit
  "admin.courseEdit.backToCourses": "Zurück zu Kursen",
+ "admin.livePreview.title": "Vorschau",
+ "admin.livePreview.empty": "Füllen Sie das Formular aus — hier erscheint, was Lernende sehen.",
+ "admin.livePreview.missing": "Noch nichts zu zeigen — „{field}“ ist leer.",
+ "admin.livePreview.show": "Vorschau zeigen",
+ "admin.livePreview.hide": "Vorschau ausblenden",
+ "admin.livePreview.crashed": "Diese Vorschau konnte nicht gezeichnet werden. Ihre Felder sind unberührt.",
  "admin.courseEdit.summaryEmpty": "Noch kein Inhalt",
  "admin.courseEdit.summaryPages": "Seiten: {n}",
  "admin.courseEdit.kindText": "Texte: {n}",
