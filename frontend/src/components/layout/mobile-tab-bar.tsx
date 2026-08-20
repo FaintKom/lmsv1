@@ -4,6 +4,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { cn } from "@/lib/utils";
 import { useAuthStore } from "@/stores/auth-store";
+import { useTranslation } from "@/lib/i18n/context";
 import {
  LayoutDashboard,
  BookOpen,
@@ -15,23 +16,24 @@ import {
 export function MobileTabBar() {
  const pathname = usePathname();
  const user = useAuthStore((s) => s.user);
+ const { t } = useTranslation();
  const isAdminOrTeacher =
  user?.role === "super_admin" || user?.role === "admin" || user?.role === "teacher";
 
  const tabs = isAdminOrTeacher
  ? [
- { href: "/admin", label: "Home", icon: LayoutDashboard },
- { href: "/admin/courses", label: "Courses", icon: BookOpen },
- { href: "/admin/assignments", label: "Tasks", icon: ClipboardList },
- { href: "/admin/review", label: "Review", icon: TrendingUp },
- { href: "/profile", label: "Profile", icon: User },
+ { href: "/admin", label: t("nav.dashboard"), icon: LayoutDashboard },
+ { href: "/admin/courses", label: t("nav.courses"), icon: BookOpen },
+ { href: "/admin/assignments", label: t("nav.assignments"), icon: ClipboardList },
+ { href: "/admin/review", label: t("nav.review"), icon: TrendingUp },
+ { href: "/profile", label: t("nav.profile"), icon: User },
  ]
  : [
- { href: "/dashboard", label: "Home", icon: LayoutDashboard },
- { href: "/courses", label: "Courses", icon: BookOpen },
- { href: "/assignments", label: "Tasks", icon: ClipboardList },
- { href: "/progress", label: "Progress", icon: TrendingUp },
- { href: "/profile", label: "Profile", icon: User },
+ { href: "/dashboard", label: t("nav.dashboard"), icon: LayoutDashboard },
+ { href: "/courses", label: t("nav.courses"), icon: BookOpen },
+ { href: "/assignments", label: t("nav.assignments"), icon: ClipboardList },
+ { href: "/progress", label: t("nav.progress"), icon: TrendingUp },
+ { href: "/profile", label: t("nav.profile"), icon: User },
  ];
 
  return (
