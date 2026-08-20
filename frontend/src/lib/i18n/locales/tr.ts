@@ -1473,6 +1473,7 @@ const tr: TranslationMap = {
  "admin.lessonEditor.deletePageMsg": "Bu sayfa ve üzerindeki her şey silinsin mi?",
  "admin.lessonEditor.slidesHint": "Yayımlanmış bir Google Slides bağlantısı ya da PDF adresi yapıştır.",
  "admin.lessonEditor.slidesEmpty": "Henüz slayt yok — yukarıya bağlantı yapıştır.",
+ "admin.lessonEditor.exerciseDeleted": "Bu bloğun işaret ettiği alıştırma silinmiş. Öğrenciler burada hiçbir şey görmüyor — boşluğu kapatmak için bloğu silin.",
  "admin.lessonEditor.dragToReorder": "Sıralamak için sürükle",
  "admin.lessonEditor.deleteBlockTitle": "Bloğu sil",
  "admin.lessonEditor.deleteBlockMsg": "Bu blok silinsin mi?",

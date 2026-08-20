@@ -1470,6 +1470,7 @@ const es: TranslationMap = {
  "admin.lessonEditor.deletePageMsg": "¿Eliminar esta página con todo lo que contiene?",
  "admin.lessonEditor.slidesHint": "Pega un enlace de Google Slides publicado o la dirección de un PDF.",
  "admin.lessonEditor.slidesEmpty": "Aún no hay diapositivas: pega un enlace arriba.",
+ "admin.lessonEditor.exerciseDeleted": "El ejercicio al que apuntaba este bloque se ha eliminado. Los estudiantes no ven nada aquí: elimina el bloque para cerrar el hueco.",
  "admin.lessonEditor.dragToReorder": "Arrastra para reordenar",
  "admin.lessonEditor.deleteBlockTitle": "Eliminar bloque",
  "admin.lessonEditor.deleteBlockMsg": "¿Eliminar este bloque?",

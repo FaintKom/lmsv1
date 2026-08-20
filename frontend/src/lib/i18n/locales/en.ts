@@ -1532,6 +1532,7 @@ const en: TranslationMap = {
  "admin.lessonEditor.deletePageMsg": "Delete this page and everything on it?",
  "admin.lessonEditor.slidesHint": "Paste a published Google Slides embed link or a PDF address.",
  "admin.lessonEditor.slidesEmpty": "No slides yet — paste a link above.",
+ "admin.lessonEditor.exerciseDeleted": "The exercise this block pointed to has been deleted. Students see nothing here — delete the block to close the gap.",
  "admin.lessonEditor.dragToReorder": "Drag to reorder",
  "admin.lessonEditor.deleteBlockTitle": "Delete block",
  "admin.lessonEditor.deleteBlockMsg": "Delete this block?",

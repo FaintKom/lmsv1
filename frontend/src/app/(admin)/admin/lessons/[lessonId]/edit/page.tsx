@@ -74,6 +74,7 @@ import {
   type ExerciseType,
 } from "@/lib/api/exercises";
 import { TEMPLATE_LIST } from "@/components/game/math/template-registry";
+import { exerciseBlockState } from "./exercise-block-state";
 import type { LessonBlock } from "@/types/api";
 import {
   buildPagesContent,
@@ -983,6 +984,23 @@ function ExerciseBlockBody({
   const { t } = useTranslation();
   const [mathExpanded, setMathExpanded] = useState(false);
   const exercise = block.exercise_id ? exercises.find((e) => e.id === block.exercise_id) : null;
+  const state = exerciseBlockState(
+    block.exercise_id,
+    exercises.map((e) => e.id),
+  );
+
+  // A block naming an exercise nobody can find. Said plainly in both modes,
+  // because the silence was worse than an error: in edit mode this used to
+  // fall through to the type chooser, so a lesson that had lost an exercise
+  // looked exactly like one still being written. The block's own delete
+  // control, in its header, is how the teacher clears it.
+  if (state === "orphan") {
+    return (
+      <div className="rounded-lg border-2 border-dashed border-warning bg-warning-soft p-4">
+        <p className="text-sm text-warning-fg">{t("admin.lessonEditor.exerciseDeleted")}</p>
+      </div>
+    );
+  }
 
   if (previewMode) {
     // The same component the exercise page previews with, so a matching

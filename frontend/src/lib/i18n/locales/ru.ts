@@ -1480,6 +1480,7 @@ const ru: TranslationMap = {
  "admin.lessonEditor.deletePageMsg": "Удалить эту страницу вместе со всем, что на ней?",
  "admin.lessonEditor.slidesHint": "Вставьте ссылку на опубликованную презентацию Google Slides или адрес PDF.",
  "admin.lessonEditor.slidesEmpty": "Презентации пока нет — вставьте ссылку выше.",
+ "admin.lessonEditor.exerciseDeleted": "Задание, на которое ссылался этот блок, удалено. Ученик здесь не видит ничего — удалите блок, чтобы страница сошлась.",
  "admin.lessonEditor.dragToReorder": "Перетащите, чтобы изменить порядок",
  "admin.lessonEditor.deleteBlockTitle": "Удалить блок",
  "admin.lessonEditor.deleteBlockMsg": "Удалить этот блок?",

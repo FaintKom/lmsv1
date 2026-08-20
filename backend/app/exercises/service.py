@@ -18,6 +18,7 @@ from app.common.file_validation import (
     validate_upload,
 )
 from app.config import settings
+from app.courses.lesson_blocks import remove_block_references
 from app.courses.models import Course, Lesson, Module
 from app.exercises.models import (
     EXERCISE_TYPE_PREFIX,
@@ -229,6 +230,12 @@ async def update_exercise(
 async def delete_exercise(db: AsyncSession, exercise_id: uuid.UUID, user: User) -> None:
     _check_permission(user)
     exercise = await _get_exercise_with_relations(db, exercise_id, user)
+    # Before the delete, not after: the school is read off the exercise, and
+    # after db.delete there is nothing to read it from. A lesson page holds
+    # only a reference to this exercise; left behind, that reference points at
+    # nothing and tells nobody — the pupil's player silently skips the block
+    # and the teacher's editor shows it as a type that was never picked.
+    await remove_block_references(db, exercise.org_id, "exercise", "exercise_id", exercise.id)
     await db.delete(exercise)
     await db.flush()
 

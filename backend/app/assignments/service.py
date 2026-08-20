@@ -17,6 +17,7 @@ from app.common.file_validation import (
 )
 from app.common.timing import normalize_elapsed
 from app.config import settings
+from app.courses.lesson_blocks import remove_block_references
 from app.courses.models import Course
 from app.notifications.service import create_notification
 from app.progress.models import Enrollment
@@ -199,6 +200,12 @@ async def update_assignment(
 
 async def delete_assignment(db: AsyncSession, assignment_id: uuid.UUID, user: User) -> None:
     assignment = await _get_assignment_with_ownership(db, assignment_id, user)
+    # Same reference, same hole as for exercises: a lesson page points at this
+    # assignment by id, and deleting the row alone leaves the page pointing at
+    # nothing. Before the delete, while org_id is still readable.
+    await remove_block_references(
+        db, assignment.org_id, "assignment", "assignment_id", assignment.id
+    )
     await db.delete(assignment)
     await db.flush()
 
