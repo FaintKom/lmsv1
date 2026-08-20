@@ -9,6 +9,10 @@ export interface OrgBranding {
  favicon_url?: string | null;
  support_email?: string | null;
  support_url?: string | null;
+ // Which sidebar items the school hides. Optional on purpose: during a
+ // rollout a new frontend talks to the old backend for a while, and a
+ // required field would crash the sidebar on undefined (specs/034).
+ menu_visibility?: Record<string, boolean>;
 }
 
 interface User {

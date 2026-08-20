@@ -511,6 +511,11 @@ async def me_endpoint(user: User = Depends(get_current_user)):
     The org_branding dict is used by the frontend to customise the
     sidebar logo/name and inject the org's primary colour into the
     CSS custom properties (P2-2 white-label).
+
+    menu_visibility rides along because every member of the school needs
+    it — hiding a menu item is aimed at teachers above all, and they cannot
+    read the admin-only settings endpoint (specs/034). The org comes from
+    the token, so there is no id to check and nothing to leak.
     """
     user_data = UserResponse.model_validate(user).model_dump()
     org_settings = {}
@@ -529,6 +534,9 @@ async def me_endpoint(user: User = Depends(get_current_user)):
             if hasattr(user, "organization") and user.organization
             else "GrassLMS"
         ),
+        # `or {}` and not a default: a legacy save can leave a null here,
+        # and the sidebar reads a missing key as "show this item".
+        "menu_visibility": org_settings.get("menu_visibility") or {},
     }
     return user_data
 

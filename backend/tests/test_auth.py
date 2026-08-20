@@ -5,7 +5,8 @@ import uuid
 import pytest
 from httpx import AsyncClient
 
-from tests.conftest import auth_header
+from app.auth.models import UserRole
+from tests.conftest import _make_user, auth_header
 
 # ─── Registration ────────────────────────────────────────────────────────
 
@@ -222,6 +223,56 @@ async def test_me_unauthenticated(client: AsyncClient):
     """Unauthenticated request to /me returns 401/403."""
     resp = await client.get("/api/v1/auth/me")
     assert resp.status_code in (401, 403)
+
+
+# ─── /me: org menu visibility ────────────────────────────────────────────
+#
+# Read as a pair. The first test is the positive control: without it the
+# isolation test below passes against an endpoint that returns nothing at all.
+
+
+@pytest.mark.asyncio
+async def test_me_returns_org_menu_visibility(client: AsyncClient, db, org, teacher):
+    """A teacher sees their own school's menu settings."""
+    org.settings = {"menu_visibility": {"gradebook": False}}
+    db.add(org)
+    await db.flush()
+
+    resp = await client.get("/api/v1/auth/me", headers=auth_header(teacher))
+
+    assert resp.status_code == 200
+    assert resp.json()["org_branding"]["menu_visibility"] == {"gradebook": False}
+
+
+@pytest.mark.asyncio
+async def test_me_menu_visibility_is_own_org_only(client: AsyncClient, db, org, org2):
+    """School A hiding a menu item leaves school B's teacher untouched."""
+    org.settings = {"menu_visibility": {"gradebook": False}}
+    db.add(org)
+    teacher2 = _make_user(db, org2, UserRole.teacher, suffix="2")
+    await db.flush()
+
+    resp = await client.get("/api/v1/auth/me", headers=auth_header(teacher2))
+
+    assert resp.status_code == 200
+    assert resp.json()["org_branding"]["menu_visibility"] == {}
+
+
+@pytest.mark.asyncio
+async def test_me_menu_visibility_defaults_to_empty(client: AsyncClient, db, org, teacher):
+    """No setting — and a legacy null — both read as an empty map, never null.
+
+    The sidebar treats a missing key as "show", so null would crash it.
+    """
+    resp = await client.get("/api/v1/auth/me", headers=auth_header(teacher))
+    assert resp.json()["org_branding"]["menu_visibility"] == {}
+
+    org.settings = {"menu_visibility": None}
+    db.add(org)
+    await db.flush()
+
+    resp = await client.get("/api/v1/auth/me", headers=auth_header(teacher))
+    assert resp.json()["org_branding"]["menu_visibility"] == {}
 
 
 @pytest.mark.asyncio
