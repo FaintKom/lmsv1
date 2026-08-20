@@ -35,6 +35,7 @@ import Editor from "@monaco-editor/react";
 import { Button } from "@/components/ui/button";
 import { useTranslation } from "@/lib/i18n/context";
 import { exercisesApi, type WorldRunResult } from "@/lib/api/exercises";
+import { SplitHandle, useSplitSize } from "@/components/game/split-handle";
 import { initialState, stateAt, type WorldState } from "./scene-engine";
 import { TracePlayer } from "@/components/game/engine/trace-player";
 import { buildWorldToolbox } from "@/components/game/blockly/toolbox-configs";
@@ -118,6 +119,8 @@ export default function World3DExercise({ exerciseId, config, onSubmit }: World3
   /** Run from a keyboard shortcut, which fires with a stale closure otherwise. */
   const playRef = useRef<() => void>(() => {});
   const [showCommands, setShowCommands] = useState(true);
+  /** How much of the screen the world takes; the rest is the editor. */
+  const split = useSplitSize(`split:world:${exerciseId}`, 520);
 
   useEffect(() => {
     const player = new TracePlayer<WorldRunResult["frames"][number]>({
@@ -280,7 +283,10 @@ export default function World3DExercise({ exerciseId, config, onSubmit }: World3
     <div className="flex h-full flex-col">
       <div className="flex min-h-0 flex-1 flex-col lg:flex-row">
         {/* The world */}
-        <div className="flex w-full shrink-0 flex-col lg:w-[520px]">
+        <div
+          className="flex w-full shrink-0 flex-col lg:w-[var(--board)]"
+          style={{ ["--board" as string]: `${split.size}px` }}
+        >
           <div className="flex items-center gap-3 border-b border-border-strong bg-surface px-4 py-3">
             {/* An SVG, not an emoji: the same picture on every machine. */}
             <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-pill bg-lagoon-400 text-white">
@@ -438,7 +444,9 @@ export default function World3DExercise({ exerciseId, config, onSubmit }: World3
         </div>
 
         {/* The program */}
-        <div className="flex min-h-[250px] min-w-0 flex-1 flex-col border-t border-border-strong lg:border-l lg:border-t-0">
+        <SplitHandle {...split} />
+
+        <div className="flex min-h-[250px] min-w-0 flex-1 flex-col border-t border-border-strong lg:border-t-0">
           <div className="flex items-center gap-1 border-b border-border-strong/60 bg-surface px-4 py-2">
             <button
               onClick={() => setMode("blocks")}

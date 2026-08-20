@@ -691,6 +691,7 @@ const uk: TranslationMap = {
  "game.runShortcut": "Ctrl+Enter",
  "game.commandsTitle": "Команди, які можна писати",
  "game.console": "Консоль",
+ "game.resizeEditor": "Потягни, щоб дати коду більше місця",
  "game.command.move_up": "Повернутися вгору й крокнути",
  "game.command.move_down": "Повернутися вниз й крокнути",
  "game.command.move_left": "Повернутися ліворуч й крокнути",

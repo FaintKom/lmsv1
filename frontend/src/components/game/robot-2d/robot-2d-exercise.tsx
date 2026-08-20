@@ -31,6 +31,7 @@ import Editor from "@monaco-editor/react";
 import { Button } from "@/components/ui/button";
 import { useTranslation } from "@/lib/i18n/context";
 import { exercisesApi, type RobotRunResult } from "@/lib/api/exercises";
+import { SplitHandle, useSplitSize } from "@/components/game/split-handle";
 import GridRenderer from "./grid-renderer";
 import { initialState, stateAt, type GridState } from "./grid-engine";
 import { TracePlayer } from "@/components/game/engine/trace-player";
@@ -128,6 +129,8 @@ export default function Robot2DExercise({
   /** Run from a keyboard shortcut, which fires with a stale closure otherwise. */
   const playRef = useRef<() => void>(() => {});
   const [showCommands, setShowCommands] = useState(true);
+  /** How much of the screen the board takes; the rest is the editor. */
+  const split = useSplitSize(`split:robot:${exerciseId}`);
 
   useEffect(() => {
     const player = new TracePlayer({
@@ -300,13 +303,16 @@ export default function Robot2DExercise({
    */
   const refused = gridState.collision ? t(`game.refused.${gridState.collision}`) : null;
   const problem = failure ?? refused ?? describeStop(result, t);
-  const cellSize = useCellSize(gridState.width, gridState.height);
+  const cellSize = useCellSize(gridState.width, gridState.height, split.size);
 
   return (
     <div className="flex h-full flex-col">
       <div className="flex min-h-0 flex-1 flex-col lg:flex-row">
-        {/* The board */}
-        <div className="flex w-full shrink-0 flex-col bg-[#f2f0eb] lg:w-[480px]">
+        {/* The board. Its width is the pupil's to choose — see SplitHandle. */}
+        <div
+          className="flex w-full shrink-0 flex-col bg-[#f2f0eb] lg:w-[var(--board)]"
+          style={{ ["--board" as string]: `${split.size}px` }}
+        >
           <div className="flex items-center gap-3 border-b border-[#e5e0d5] bg-surface px-4 py-3">
             {/* An SVG, not an emoji: the same picture on every machine. */}
             <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-pill bg-[#4C97FF] text-white">
@@ -462,8 +468,10 @@ export default function Robot2DExercise({
           )}
         </div>
 
+        <SplitHandle {...split} />
+
         {/* The program */}
-        <div className="flex min-h-[250px] min-w-0 flex-1 flex-col border-t border-[#e5e0d5] lg:border-l lg:border-t-0">
+        <div className="flex min-h-[250px] min-w-0 flex-1 flex-col border-t border-[#e5e0d5] lg:border-t-0">
           <div className="flex items-center gap-1 border-b border-border-strong/60 bg-surface px-4 py-2">
             <button
               onClick={() => setMode("blocks")}
@@ -595,14 +603,16 @@ export default function Robot2DExercise({
   );
 }
 
-function useCellSize(width: number, height: number) {
+/** Cell size that fits the grid into the board column, whatever width the
+ *  pupil has dragged it to — `boardWidth` is why this re-measures. */
+function useCellSize(width: number, height: number, boardWidth: number) {
   const [size, setSize] = useState(60);
   useEffect(() => {
     const measure = () =>
       setSize(
         Math.floor(
           Math.min(
-            window.innerWidth < 1024 ? window.innerWidth - 40 : 460,
+            window.innerWidth < 1024 ? window.innerWidth - 40 : boardWidth - 20,
             window.innerWidth < 1024
               ? window.innerHeight * 0.4
               : window.innerHeight - 180,
@@ -612,7 +622,7 @@ function useCellSize(width: number, height: number) {
     measure();
     window.addEventListener("resize", measure);
     return () => window.removeEventListener("resize", measure);
-  }, [width, height]);
+  }, [width, height, boardWidth]);
   return size;
 }
 

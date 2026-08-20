@@ -661,6 +661,7 @@ const es: TranslationMap = {
  "game.runShortcut": "Ctrl+Enter",
  "game.commandsTitle": "Comandos que puedes usar",
  "game.console": "Consola",
+ "game.resizeEditor": "Arrastra para dar más espacio al código",
  "game.command.move_up": "Mira arriba y avanza",
  "game.command.move_down": "Mira abajo y avanza",
  "game.command.move_left": "Mira a la izquierda y avanza",

@@ -654,6 +654,7 @@ const tr: TranslationMap = {
  "game.runShortcut": "Ctrl+Enter",
  "game.commandsTitle": "Kullanabileceğin komutlar",
  "game.console": "Konsol",
+ "game.resizeEditor": "Koda daha çok yer vermek için sürükle",
  "game.command.move_up": "Yukarı dön ve bir adım at",
  "game.command.move_down": "Aşağı dön ve bir adım at",
  "game.command.move_left": "Sola dön ve bir adım at",

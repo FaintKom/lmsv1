@@ -640,6 +640,7 @@ const ru: TranslationMap = {
  "game.runShortcut": "Ctrl+Enter",
  "game.commandsTitle": "Команды, которые можно писать",
  "game.console": "Консоль",
+ "game.resizeEditor": "Потяни, чтобы дать коду больше места",
  "game.command.move_up": "Повернуться вверх и шагнуть",
  "game.command.move_down": "Повернуться вниз и шагнуть",
  "game.command.move_left": "Повернуться влево и шагнуть",
