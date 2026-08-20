@@ -55,7 +55,14 @@ test.describe("Student role", () => {
 
   test("can access /dashboard", async ({ page }) => {
     await page.goto(`${BASE}/dashboard`);
-    await expect(page.locator("text=Dashboard")).toBeVisible({ timeout: 8000 });
+    // Name the landmark: the mobile tab bar carries the same labels as the
+    // sidebar, so a page-wide `text=Dashboard` matches twice and strict mode
+    // fails before it ever checks visibility.
+    await expect(
+      page
+        .getByRole("navigation", { name: "Main navigation" })
+        .getByRole("link", { name: "Dashboard" })
+    ).toBeVisible({ timeout: 8000 });
   });
 
   test("can access /courses", async ({ page }) => {
