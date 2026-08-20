@@ -17,7 +17,6 @@ import {
  AlertCircle,
  Minus,
  Type,
- Puzzle,
 } from "lucide-react";
 import type { Editor } from "@tiptap/core";
 
@@ -107,12 +106,6 @@ const COMMANDS: CommandItem[] = [
  description: "Horizontal separator line",
  icon: Minus,
  command: (editor) => editor.chain().focus().setHorizontalRule().run(),
- },
- {
- title: "V2 Exercise",
- description: "Drop an interactive exercise (quiz, whiteboard, …)",
- icon: Puzzle,
- command: (editor) => editor.commands.setV2Exercise(),
  },
 ];
 

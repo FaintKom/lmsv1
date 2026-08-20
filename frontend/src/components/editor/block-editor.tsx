@@ -29,7 +29,6 @@ import {
  AlertCircle,
  Sigma,
  Spline,
- Puzzle,
  BookOpen,
 } from "lucide-react";
 import { toast } from "sonner";
@@ -41,7 +40,6 @@ import { Callout } from "./extensions/callout";
 import { MathBlock } from "./extensions/math-block";
 import { MathPlot } from "./extensions/math-plot";
 import { Term } from "./extensions/term";
-import { V2Exercise } from "./extensions/v2-exercise";
 import { SlashCommands } from "./slash-commands";
 import { EditorBubbleMenu } from "./toolbar";
 
@@ -211,13 +209,6 @@ function EditorToolbar({
  <AlertCircle className="h-4 w-4" />
  </ToolbarButton>
  <ToolbarButton
- onClick={() => editor.commands.setV2Exercise()}
- active={editor.isActive("v2Exercise")}
- title="V2 Exercise"
- >
- <Puzzle className="h-4 w-4" />
- </ToolbarButton>
- <ToolbarButton
  onClick={() => editor.chain().focus().setHorizontalRule().run()}
  title="Divider"
  >
@@ -335,7 +326,6 @@ export function BlockEditor({
  MathBlock,
  MathPlot,
  Term,
- V2Exercise,
  ...(editable ? [SlashCommands] : []),
  ],
  content: content || { type: "doc", content: [{ type: "paragraph" }] },

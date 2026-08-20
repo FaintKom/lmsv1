@@ -1,4 +1,4 @@
-/**
+﻿/**
  * i18n ratchet — list of .tsx files that do NOT yet call useTranslation().
  *
  * Phases 1-4 of i18n rollout translated the high-priority pages and
@@ -72,20 +72,11 @@ export const I18N_ALLOWLIST: ReadonlySet<string> = new Set([
   "src/components/common/youtube-embed.tsx",
   "src/components/courses/course-card.tsx",
   "src/components/editor/block-editor.tsx",
-  "src/components/editor/extensions/v2-exercise.tsx",
   "src/components/editor/slash-commands.tsx",
   "src/components/editor/toolbar.tsx",
-  "src/components/exercises/bubble-sheet-exercise.tsx",
-  "src/components/exercises/conjugation-exercise.tsx",
-  "src/components/exercises/crossword-exercise.tsx",
-  "src/components/exercises/dialogue-exercise.tsx",
   "src/components/exercises/exercise-config-panel.tsx",
-  "src/components/exercises/map-pin-drop-exercise.tsx",
   "src/components/exercises/math-stepwise-exercise.tsx",
-  "src/components/exercises/reading-exercise.tsx",
   "src/components/exercises/scorm-package-exercise.tsx",
-  "src/components/exercises/sentence-builder-exercise.tsx",
-  "src/components/exercises/translation-exercise.tsx",
   "src/components/exercises/v2/_grid-axes.tsx",
   "src/components/exercises/web-editor-exercise.tsx",
   "src/components/exercises/word-search-exercise.tsx",
@@ -131,7 +122,6 @@ export const I18N_ALLOWLIST: ReadonlySet<string> = new Set([
   "src/components/layout/mobile-tab-bar.tsx",
   "src/components/layout/notification-bell.tsx",
   "src/components/layout/org-switcher.tsx",
-  "src/components/lesson/v2-runner.tsx",
   "src/components/math/problem-generator.tsx",
   "src/components/onboarding-tour.tsx",
   "src/components/onboarding/newcomer-checklist.tsx",

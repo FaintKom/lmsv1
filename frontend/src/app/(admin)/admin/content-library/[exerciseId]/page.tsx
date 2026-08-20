@@ -50,7 +50,7 @@ import { SCORMConfigEditor } from "@/components/exercises/scorm-package-exercise
 import { MathStepwiseConfigEditor } from "@/components/exercises/math-stepwise-exercise";
 import { useTranslation } from "@/lib/i18n/context";
 import { backTarget } from "./back-target";
-import { ExercisePreview } from "@/components/exercises/exercise-preview";
+import { ExercisePreview } from "@/components/exercises/exercise-view";
 
 const JsonConfigPanel = dynamic(() => import("./json-config-panel"), {
  ssr: false,

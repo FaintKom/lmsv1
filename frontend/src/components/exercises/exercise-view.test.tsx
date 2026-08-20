@@ -1,8 +1,9 @@
-import { render, screen } from "@testing-library/react";
+﻿import { render, screen } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
 
-import { ExercisePreview } from "./exercise-preview";
+import { ExercisePreview, ExerciseView } from "./exercise-view";
 import { V2_LIVE_TYPES } from "@/lib/exercises/v2-adapter";
+import { ALL_EXERCISE_TYPES } from "@/lib/api/exercises";
 
 // The two renderers are heavy (Monaco, Three.js, Blockly). The decision is
 // what this file guards, so both are stubbed down to a marker.
@@ -16,6 +17,20 @@ vi.mock("@/components/exercises/exercise-renderer", () => ({
     <div data-testid="legacy" data-preview={String(!!previewMode)} />
   ),
 }));
+
+describe("ExerciseView", () => {
+  it.each(ALL_EXERCISE_TYPES)("draws %s — every type reaches a renderer", (type) => {
+    const { unmount } = render(<ExerciseView exercise={{ exercise_type: type }} />);
+    const drawn = screen.queryByTestId("v2") ?? screen.queryByTestId("legacy");
+    expect(drawn).toBeTruthy();
+    unmount();
+  });
+
+  it("does not preview on the student path — the attempt counts", () => {
+    render(<ExerciseView exercise={{ exercise_type: "matching" }} />);
+    expect(screen.getByTestId("v2").dataset.preview).toBe("false");
+  });
+});
 
 describe("ExercisePreview", () => {
   it.each(V2_LIVE_TYPES)("gives %s its live widget, not the legacy renderer", (type) => {
