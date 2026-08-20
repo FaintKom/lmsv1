@@ -2337,6 +2337,8 @@ const uk: TranslationMap = {
  "exercise.ordering.movedToAria": "«{item}» переміщено на позицію {n} з {total}",
  "exercise.categorize.checkHint": "Спочатку розклади всі картки",
  "exercise.categorize.tapHint": "перетягни картку — або торкнись її, потім її групи",
+ "exercise.categorize.chipAria": "{item} — обери для неї групу",
+ "exercise.categorize.chipArmedAria": "{item} — тепер торкнись її групи",
  "exercise.categorize.bucketAria": "Група {bucket}, карток: {n}",
  "exercise.categorize.bucketPlaceAria": "Покласти «{item}» у {bucket}",
  "exercise.categorize.placedChipAria": "«{item}» у {bucket}. Торкнись, щоб повернути в лоток",

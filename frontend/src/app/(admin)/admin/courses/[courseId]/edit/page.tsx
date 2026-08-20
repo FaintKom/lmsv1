@@ -72,37 +72,6 @@ import {
  EXERCISE_TYPES_META,
 } from "@/lib/api/exercises";
 
-const BuilderLoading = () => (
- <div className="flex h-[200px] items-center justify-center rounded-lg border border-border-strong">
-   <p className="text-sm text-text-subtle">Loading...</p>
- </div>
-);
-
-const QuizBuilder = dynamic(
- () => import("@/components/assessments/quiz-builder"),
- { ssr: false, loading: BuilderLoading }
-);
-
-const ChallengeBuilder = dynamic(
- () => import("@/components/code-editor/challenge-builder"),
- { ssr: false, loading: BuilderLoading }
-);
-
-const FileUploadConfig = dynamic(
- () => import("@/components/submissions/file-upload-config"),
- { ssr: false, loading: BuilderLoading }
-);
-
-const InteractiveBuilder = dynamic(
- () => import("@/components/submissions/interactive-builder"),
- { ssr: false, loading: BuilderLoading }
-);
-
-const TheoryConfig = dynamic(
- () => import("@/components/submissions/theory-config"),
- { ssr: false, loading: BuilderLoading }
-);
-
 const BlockEditor = dynamic(
  () => import("@/components/editor/block-editor").then((m) => ({ default: m.BlockEditor })),
  { ssr: false, loading: () => <div className="flex h-[300px] items-center justify-center rounded-lg border border-border-strong "><p className="text-sm text-text-subtle">Loading editor...</p></div> }
@@ -146,36 +115,6 @@ function SortableLessonItem({
  );
 }
 
-const CONTENT_TYPE_OPTIONS = [
- { value: "text", label: "Text", icon: FileText },
- { value: "video", label: "Video", icon: PlayCircle },
- { value: "quiz", label: "Quiz", icon: CheckCircle },
- { value: "code_challenge", label: "Code", icon: Code },
- { value: "file_upload", label: "File Upload", icon: Upload },
- { value: "interactive", label: "Interactive", icon: Puzzle },
- { value: "theory", label: "Theory", icon: Presentation },
-];
-
-const TYPE_COLORS: Record<string, string> = {
- text: "bg-surface-2 text-text-muted border-border-strong ",
- video: "bg-danger-soft text-danger-fg border-danger ",
- quiz: "bg-success-soft text-primary border-primary-soft ",
- code_challenge: "bg-success-soft text-primary border-primary-soft ",
- file_upload: "bg-warning-soft text-warning-fg border-warning ",
- interactive: "bg-success-soft text-primary border-primary-soft ",
- theory: "bg-info-soft text-info-fg border-info ",
-};
-
-const TYPE_EXPANDED_BG: Record<string, string> = {
- text: "border-border-strong bg-surface-2/50 ",
- video: "border-danger bg-danger-soft/30 ",
- quiz: "border-primary-soft bg-success-soft/30 ",
- code_challenge: "border-primary-soft bg-success-soft/30 ",
- file_upload: "border-warning bg-warning-soft/30 ",
- interactive: "border-primary-soft bg-success-soft/30 ",
- theory: "border-info bg-info-soft/30 ",
-};
-
 export default function CourseEditorPage() {
  // eslint-disable-next-line @typescript-eslint/no-unused-vars
  const { t } = useTranslation();
@@ -212,17 +151,6 @@ export default function CourseEditorPage() {
  duration_minutes: "",
  });
 
- // Expanded lesson (single expanded lesson for editing)
- const [expandedLessonId, setExpandedLessonId] = useState<string | null>(null);
- const [editLessonForm, setEditLessonForm] = useState({
- title: "",
- content: {} as Record<string, unknown>,
- duration_minutes: "",
- });
-
-
- // Quiz management
- const [existingQuiz, setExistingQuiz] = useState<Record<string, unknown> | null>(null);
 
  // Students management
  const [students, setStudents] = useState<{ id: string; full_name: string; email: string; enrollment_id: string; progress_percent: number; enrolled_at: string }[]>([]);
@@ -253,9 +181,6 @@ export default function CourseEditorPage() {
  allow_late: false,
  });
  const [addingAssignment, setAddingAssignment] = useState(false);
-
- // Active tab for expanded lesson
- const [lessonTab, setLessonTab] = useState<"content" | "settings">("content");
 
  // Course picture (specs/016 US1)
  const [savingThumbnail, setSavingThumbnail] = useState(false);
@@ -309,32 +234,6 @@ export default function CourseEditorPage() {
  }, [showStudents, fetchAllUsers]);
 
  // When expanding a quiz lesson, load quiz data
- const loadQuizForLesson = useCallback((lessonId: string) => {
- apiClient
- .get(`/assessments/lessons/${lessonId}/quiz`)
- .then(({ data }) => setExistingQuiz(data))
- .catch(() => setExistingQuiz(null));
- }, []);
-
- // Expansion exists only for legacy typed lessons — their dedicated
- // builders live here; block lessons are authored in the lesson editor.
- const handleExpandLesson = (lesson: Lesson) => {
- if (expandedLessonId === lesson.id) {
- setExpandedLessonId(null);
- return;
- }
- setExpandedLessonId(lesson.id);
- setEditLessonForm({
- title: lesson.title,
- content: lesson.content || {},
- duration_minutes: lesson.duration_minutes?.toString() || "",
- });
- setLessonTab("content");
- if (lesson.content_type === "quiz") {
- loadQuizForLesson(lesson.id);
- }
- };
-
  const handleSaveMeta = async () => {
  setSaving(true);
  try {
@@ -542,27 +441,11 @@ export default function CourseEditorPage() {
  }
  };
 
- const handleUpdateLesson = async (moduleId: string, lessonId: string) => {
- if (!editLessonForm.title.trim()) return;
- try {
- await apiClient.put(`/courses/${courseId}/modules/${moduleId}/lessons/${lessonId}/`, {
- title: editLessonForm.title.trim(),
- content: editLessonForm.content,
- duration_minutes: editLessonForm.duration_minutes ? parseInt(editLessonForm.duration_minutes) : null,
- });
- toast.success("Lesson updated");
- fetchCourse();
- } catch {
- toast.error("Failed to update lesson");
- }
- };
-
  // ─── Block operations ──────────────────────────────────────────
  const handleDeleteLesson = async (moduleId: string, lessonId: string) => {
  if (!(await confirm({ message: "Delete this lesson?", variant: "danger", confirmLabel: "Delete" }))) return;
  try {
  await apiClient.delete(`/courses/${courseId}/modules/${moduleId}/lessons/${lessonId}/`);
- if (expandedLessonId === lessonId) setExpandedLessonId(null);
  toast.success("Lesson deleted");
  fetchCourse();
  } catch {
@@ -943,34 +826,22 @@ export default function CourseEditorPage() {
  >
  <ul className="space-y-2">
  {module.lessons?.map((lesson) => {
- const typeOption = CONTENT_TYPE_OPTIONS.find((o) => o.value === lesson.content_type);
- const Icon = typeOption?.icon || FileText;
- // Legacy typed lessons (quiz/code/file/interactive/theory, pre-blocks)
- // keep their dedicated builders here; everything else is authored in
- // the one lesson editor (specs/017 US2).
- const legacyTyped =
- !["text", "video"].includes(lesson.content_type) &&
- (lesson.content as Record<string, unknown> | undefined)?.version !== 2;
- const isExpanded = legacyTyped && expandedLessonId === lesson.id;
- const typeBadgeClass = TYPE_COLORS[lesson.content_type] || TYPE_COLORS.text;
+ // A lesson used to be one of seven types, and the ones that were not
+ // text or video opened in place, into a builder of their own. There is
+ // one way in now — the lesson's page editor — because a lesson is a
+ // container of blocks and every one of those types is a block.
  const editHref = `/admin/lessons/${lesson.id}/edit?courseId=${courseId}&moduleId=${module.id}`;
 
  return (
  <SortableLessonItem key={lesson.id} id={lesson.id}>
  {/* Lesson card */}
- <div
- className={`rounded-lg border transition ${
- isExpanded
- ? TYPE_EXPANDED_BG[lesson.content_type] || TYPE_EXPANDED_BG.text
- : "border-border-strong hover:border-border-strong hover:bg-surface-2 "
- }`}
- >
+ <div className="rounded-lg border border-border-strong transition hover:border-border-strong hover:bg-surface-2">
  {/* Lesson header — always visible */}
  <div
  className="flex cursor-pointer items-center gap-2.5 px-3 py-2.5"
- onClick={() => (legacyTyped ? handleExpandLesson(lesson) : router.push(editHref))}
+ onClick={() => router.push(editHref)}
  >
- <Icon className="h-4 w-4 shrink-0 text-text-subtle" />
+ <FileText className="h-4 w-4 shrink-0 text-text-subtle" />
  <div className="min-w-0 flex-1">
  <div className="flex items-center gap-2">
  <span className="text-sm font-medium text-text ">{lesson.title}</span>
@@ -978,22 +849,14 @@ export default function CourseEditorPage() {
  <span className="text-xs text-text-subtle">{lesson.duration_minutes} min</span>
  )}
  </div>
- {!isExpanded && (
  <p className="mt-0.5 truncate text-xs text-text-subtle">
  {getContentSummary(lesson)}
  </p>
- )}
  </div>
- <span className={`shrink-0 rounded-pill border px-2 py-0.5 text-3xs font-semibold ${typeBadgeClass}`}>
- {typeOption?.label || lesson.content_type}
- </span>
- {legacyTyped &&
- (isExpanded ? (
- <ChevronDown className="h-4 w-4 shrink-0 text-text-subtle" />
- ) : (
- <ChevronRight className="h-4 w-4 shrink-0 text-text-subtle" />
- ))}
- {!legacyTyped && (
+ {/* The type chip stood here and read lesson.content_type. Every lesson
+   in the product carries "text" in that column now, whatever is inside
+   it, so the chip said "Text" under a lesson of eight exercises. The
+   summary beside it says what is actually there. */}
  <a
  href={editHref}
  onClick={(e) => e.stopPropagation()}
@@ -1001,7 +864,6 @@ export default function CourseEditorPage() {
  >
  Edit
  </a>
- )}
  <button
  onClick={(e) => {
  e.stopPropagation();
@@ -1013,113 +875,6 @@ export default function CourseEditorPage() {
  </button>
  </div>
 
- {/* Expanded lesson editor */}
- {isExpanded && (
- <div className="border-t px-4 py-4" onClick={(e) => e.stopPropagation()}>
- {/* Tabs */}
- <div className="mb-4 flex gap-1 rounded-lg bg-surface/80 p-1">
- <button
- onClick={() => setLessonTab("content")}
- className={`flex items-center gap-1.5 rounded-md px-3 py-1.5 text-xs font-medium transition-colors ${
- lessonTab === "content"
- ? "bg-surface text-text shadow-sm"
- : "text-text-muted hover:text-text "
- }`}
- >
- <FileText className="h-3.5 w-3.5" />
- Content
- </button>
- <button
- onClick={() => setLessonTab("settings")}
- className={`flex items-center gap-1.5 rounded-md px-3 py-1.5 text-xs font-medium transition-colors ${
- lessonTab === "settings"
- ? "bg-surface text-text shadow-sm"
- : "text-text-muted hover:text-text "
- }`}
- >
- <Settings2 className="h-3.5 w-3.5" />
- Settings
- </button>
- </div>
-
- {lessonTab === "settings" && (
- <div className="space-y-3">
- <div>
- <label className="mb-1 block text-xs font-medium text-text-muted ">Lesson Title</label>
- <input
- type="text"
- value={editLessonForm.title}
- onChange={(e) => setEditLessonForm({ ...editLessonForm, title: e.target.value })}
- className="w-full rounded-lg border border-border-strong px-3 py-1.5 text-sm focus:border-primary focus:outline-none"
- />
- </div>
- <div>
- <label className="mb-1 block text-xs font-medium text-text-muted ">Duration (minutes)</label>
- <input
- type="number"
- value={editLessonForm.duration_minutes}
- onChange={(e) => setEditLessonForm({ ...editLessonForm, duration_minutes: e.target.value })}
- placeholder="Optional"
- className="w-32 rounded-lg border border-border-strong px-3 py-1.5 text-sm focus:border-primary focus:outline-none"
- />
- </div>
- <Button size="sm" onClick={() => handleUpdateLesson(module.id, lesson.id)}>
- <Save className="mr-1 h-3 w-3" /> Save Settings
- </Button>
- </div>
- )}
-
- {lessonTab === "content" && (
- <div className="space-y-3">
- {/* Legacy editors — only for v1 lessons without blocks */}
- {!(lesson.content?.version === 2) && (
- <>
- {lesson.content_type === "quiz" && (
- <QuizBuilder
- lessonId={lesson.id}
- existingQuiz={existingQuiz as never}
- onSaved={() => loadQuizForLesson(lesson.id)}
- />
- )}
- {lesson.content_type === "code_challenge" && (
- <ChallengeBuilder
- lessonId={lesson.id}
- onSaved={() => {}}
- />
- )}
- {lesson.content_type === "file_upload" && (
- <FileUploadConfig
- courseId={courseId}
- moduleId={module.id}
- lessonId={lesson.id}
- initialContent={lesson.content || {}}
- onSaved={() => fetchCourse()}
- />
- )}
- {lesson.content_type === "interactive" && (
- <InteractiveBuilder
- courseId={courseId}
- moduleId={module.id}
- lessonId={lesson.id}
- initialContent={lesson.content || {}}
- onSaved={() => fetchCourse()}
- />
- )}
- {lesson.content_type === "theory" && (
- <TheoryConfig
- courseId={courseId}
- moduleId={module.id}
- lessonId={lesson.id}
- initialContent={lesson.content || {}}
- onSaved={() => fetchCourse()}
- />
- )}
- </>
- )}
- </div>
- )}
- </div>
- )}
  </div>
  </SortableLessonItem>
  );

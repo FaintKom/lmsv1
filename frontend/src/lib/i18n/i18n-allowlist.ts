@@ -47,10 +47,7 @@ export const I18N_ALLOWLIST: ReadonlySet<string> = new Set([
   "src/app/privacy/page.tsx",
   "src/app/refund/page.tsx",
   "src/app/terms/page.tsx",
-  "src/components/assessments/quiz-builder.tsx",
-  "src/components/assessments/quiz-taker.tsx",
   "src/components/calendar/calendar-view.tsx",
-  "src/components/code-editor/challenge-builder.tsx",
   "src/components/code-editor/editor-layout.tsx",
   "src/components/common/auto-youtube.tsx",
   "src/components/common/content-renderer.tsx",
@@ -137,10 +134,6 @@ export const I18N_ALLOWLIST: ReadonlySet<string> = new Set([
   "src/components/submissions/exercises/ordering.tsx",
   "src/components/submissions/exercises/srs-flashcard.tsx",
   "src/components/submissions/exercises/true-false.tsx",
-  "src/components/submissions/file-upload-config.tsx",
-  "src/components/submissions/file-uploader.tsx",
-  "src/components/submissions/interactive-builder.tsx",
-  "src/components/submissions/interactive-taker.tsx",
   // Holds the call above the router and portals somebody else's interface into
   // place. It renders one container and no words of its own — every string the
   // participant reads comes from media-stage.tsx, which does translate.

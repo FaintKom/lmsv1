@@ -2278,6 +2278,8 @@ const tr: TranslationMap = {
  "exercise.ordering.movedToAria": "“{item}” {total} içinde {n}. konuma taşındı",
  "exercise.categorize.checkHint": "Önce tüm kartları ayır",
  "exercise.categorize.tapHint": "kartı sürükle — ya da dokun, sonra grubuna dokun",
+ "exercise.categorize.chipAria": "{item} — bunun için bir grup seç",
+ "exercise.categorize.chipArmedAria": "{item} — şimdi ait olduğu gruba dokun",
  "exercise.categorize.bucketAria": "{bucket} grubu, {n} kart",
  "exercise.categorize.bucketPlaceAria": "“{item}” öğesini {bucket} grubuna koy",
  "exercise.categorize.placedChipAria": "“{item}” {bucket} grubunda. Tepsiye geri almak için dokun",
