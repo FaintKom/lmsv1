@@ -1230,6 +1230,12 @@ const en: TranslationMap = {
 
  // Admin course edit
  "admin.courseEdit.backToCourses": "Back to Courses",
+ "admin.livePreview.title": "Preview",
+ "admin.livePreview.empty": "Fill the form in and this shows what the student gets.",
+ "admin.livePreview.missing": "Nothing to show yet — “{field}” is still empty.",
+ "admin.livePreview.show": "Show preview",
+ "admin.livePreview.hide": "Hide preview",
+ "admin.livePreview.crashed": "This preview could not be drawn. Your fields are untouched.",
  "admin.courseEdit.summaryEmpty": "No content yet",
  "admin.courseEdit.summaryPages": "Pages: {n}",
  "admin.courseEdit.kindText": "Text: {n}",

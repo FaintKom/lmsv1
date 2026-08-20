@@ -1168,6 +1168,12 @@ const es: TranslationMap = {
 
  // Admin course edit
  "admin.courseEdit.backToCourses": "Volver a Cursos",
+ "admin.livePreview.title": "Vista previa",
+ "admin.livePreview.empty": "Rellena el formulario y aquí verás lo que recibe el estudiante.",
+ "admin.livePreview.missing": "Aún no hay nada que mostrar: «{field}» está vacío.",
+ "admin.livePreview.show": "Mostrar vista previa",
+ "admin.livePreview.hide": "Ocultar vista previa",
+ "admin.livePreview.crashed": "No se pudo dibujar esta vista previa. Tus campos siguen intactos.",
  "admin.courseEdit.summaryEmpty": "Aún sin contenido",
  "admin.courseEdit.summaryPages": "Páginas: {n}",
  "admin.courseEdit.kindText": "Textos: {n}",

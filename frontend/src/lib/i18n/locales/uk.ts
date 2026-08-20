@@ -1230,6 +1230,12 @@ const uk: TranslationMap = {
 
  // Admin course edit
  "admin.courseEdit.backToCourses": "Назад до курсів",
+ "admin.livePreview.title": "Превʼю",
+ "admin.livePreview.empty": "Заповніть форму — тут зʼявиться те, що побачить учень.",
+ "admin.livePreview.missing": "Показувати поки нічого — «{field}» ще порожнє.",
+ "admin.livePreview.show": "Показати превʼю",
+ "admin.livePreview.hide": "Сховати превʼю",
+ "admin.livePreview.crashed": "Це превʼю не вдалося намалювати. Поля не постраждали.",
  "admin.courseEdit.summaryEmpty": "Поки порожньо",
  "admin.courseEdit.summaryPages": "Сторінок: {n}",
  "admin.courseEdit.kindText": "Текстів: {n}",

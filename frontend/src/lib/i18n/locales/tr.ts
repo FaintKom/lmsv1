@@ -1171,6 +1171,12 @@ const tr: TranslationMap = {
 
  // Admin course edit
  "admin.courseEdit.backToCourses": "Kurslara dön",
+ "admin.livePreview.title": "Önizleme",
+ "admin.livePreview.empty": "Formu doldurun; öğrencinin göreceği şey burada belirir.",
+ "admin.livePreview.missing": "Henüz gösterilecek bir şey yok — “{field}” boş.",
+ "admin.livePreview.show": "Önizlemeyi göster",
+ "admin.livePreview.hide": "Önizlemeyi gizle",
+ "admin.livePreview.crashed": "Bu önizleme çizilemedi. Alanlarınıza dokunulmadı.",
  "admin.courseEdit.summaryEmpty": "Henüz içerik yok",
  "admin.courseEdit.summaryPages": "Sayfa: {n}",
  "admin.courseEdit.kindText": "Metin: {n}",

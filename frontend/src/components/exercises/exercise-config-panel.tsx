@@ -57,6 +57,7 @@ import {
 } from "@/app/(admin)/admin/content-library/[exerciseId]/exercise-config-editors";
 import { SCORMConfigEditor } from "@/components/exercises/scorm-package-exercise";
 import { MathStepwiseConfigEditor } from "@/components/exercises/math-stepwise-exercise";
+import { LivePreview } from "@/components/exercises/live-preview";
 
 const Robot2DEditor = dynamic(
   () => import("@/components/game/robot-2d/robot-2d-editor"),
@@ -259,6 +260,18 @@ export function ExerciseConfigPanel({ exerciseId, hideTitle, onSaved }: Exercise
           onRefresh={fetchExercise}
         />
       )}
+
+      {/* What the student will get, built from the state the form above is
+        editing. Before this the only way to see it was to put the whole
+        lesson into preview mode — which takes the form off the screen, so a
+        setting and its result were never on it together. */}
+      <LivePreview
+        exerciseType={type}
+        config={config}
+        title={title}
+        questions={exercise.questions}
+        testCases={exercise.test_cases}
+      />
     </div>
   );
 }

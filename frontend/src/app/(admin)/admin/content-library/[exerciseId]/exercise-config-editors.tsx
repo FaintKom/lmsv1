@@ -398,7 +398,10 @@ export function SentenceBuilderConfigEditor({ config, onChange }: EditorProps) {
      </div>
      {correctOrder.length > 0 && (
        <div className="rounded-lg bg-surface-2 p-3">
-         <p className="text-xs font-medium text-text-muted mb-1">Preview (correct sentence):</p>
+         {/* Not a preview — the live preview below shows the shuffled parts a
+         student gets. This is the answer they are marked against, which the
+         widget withholds on purpose. */}
+       <p className="text-xs font-medium text-text-muted mb-1">Marks as correct:</p>
          <p className="text-sm text-text font-medium">{correctOrder.filter(Boolean).join(" ")}</p>
        </div>
      )}
@@ -951,10 +954,11 @@ export function CrosswordConfigEditor({ config, onChange }: EditorProps) {
        </p>
      </div>
 
-     {/* Visual grid preview */}
+     {/* The board the author places words on. The live preview below shows
+       what the student gets; this one exists to be acted on. */}
      <div>
        <div className="mb-1 flex items-center gap-3">
-         <label className={labelCls}>Grid preview</label>
+         <label className={labelCls}>Layout</label>
          <Button variant="default" size="sm" onClick={autoLayout}
            disabled={words.filter((w) => (w.word || "").trim()).length === 0}
            title="Cross the words automatically — no manual Row/Col needed">
@@ -1159,7 +1163,10 @@ export function WordSearchConfigEditor({ config, onChange }: EditorProps) {
      </div>
      <div>
        <div className="mb-1 flex items-center gap-3">
-         <label className={labelCls}>Grid preview — exactly what the student gets</label>
+         {/* The live preview below draws the student's grid now, so this one
+           stopped being a preview and became what it always did best: the
+           thing Regenerate acts on while the words are being placed. */}
+         <label className={labelCls}>Layout</label>
          <Button variant="outline" size="sm"
            onClick={() => onChange({ ...config, seed: ((seed * 1103515245 + 12345) >>> 0) })}>
            Regenerate layout
