@@ -1417,6 +1417,7 @@ const ru: TranslationMap = {
 
  // Admin lesson editor
  "admin.lessonEditor.missingIds": "В URL отсутствует courseId или moduleId.",
+ "admin.lessonEditor.textSourceNote": "Исходный текст — обычный редактор потерял бы таблицы и рамки этого блока. Собранный вид покажет предпросмотр.",
  "admin.lessonEditor.failedLoad": "Не удалось загрузить урок",
  "admin.lessonEditor.failedCreateExercise": "Не удалось создать упражнение",
  "admin.lessonEditor.deleteAssignmentBlockMsg": "Удалить это задание? Сдачи учеников удалятся вместе с ним.",

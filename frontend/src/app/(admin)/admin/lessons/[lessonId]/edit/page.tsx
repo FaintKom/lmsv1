@@ -75,6 +75,7 @@ import {
 } from "@/lib/api/exercises";
 import { TEMPLATE_LIST } from "@/components/game/math/template-registry";
 import { exerciseBlockState } from "./exercise-block-state";
+import { textBlockEditor } from "./text-block-editor";
 import type { LessonBlock } from "@/types/api";
 import {
   buildPagesContent,
@@ -868,6 +869,8 @@ function TextBlockBody({
   previewMode: boolean;
   onUpdate: (patch: Partial<LessonBlock>) => void;
 }) {
+  const { t } = useTranslation();
+
   if (previewMode) {
     if (!block.body) return <div className="text-sm italic text-text-subtle">Empty text block</div>;
     return (
@@ -876,10 +879,29 @@ function TextBlockBody({
       </div>
     );
   }
+
+  const editor = textBlockEditor(block.body);
+
+  // A body that arrived as a string stays one. The patch carries no `format`
+  // on purpose: whatever this block was saved as, it keeps.
+  if (editor.kind === "source") {
+    return (
+      <div className="rounded-lg border border-transparent transition-colors hover:border-border-strong">
+        <p className="px-1 pb-1.5 text-xs text-text-subtle">{t("admin.lessonEditor.textSourceNote")}</p>
+        <textarea
+          value={editor.text}
+          onChange={(e) => onUpdate({ body: e.target.value })}
+          rows={18}
+          className="w-full rounded-lg border border-border-strong bg-surface-2 p-3 font-mono text-xs focus:border-primary focus:outline-none"
+        />
+      </div>
+    );
+  }
+
   return (
     <div className="rounded-lg border border-transparent transition-colors hover:border-border-strong">
       <BlockEditor
-        content={typeof block.body === "object" ? (block.body as never) : null}
+        content={editor.content as never}
         onChange={(json) => onUpdate({ body: json as never, format: "tiptap" })}
       />
     </div>
