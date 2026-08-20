@@ -53,7 +53,7 @@ export function AskWidget({ lessonId }: { lessonId: string }) {
       <button
         type="button"
         onClick={() => setOpen(true)}
-        className="mt-8 rounded-xl border border-ink-200 bg-sun-300 px-4 py-2.5 text-sm font-medium text-ink-900 transition hover:bg-sun-400"
+        className="mt-8 rounded-xl border border-ink-200 bg-sun-300 px-4 py-2.5 text-sm font-medium text-ink-900 transition hover:bg-sun-400 pointer-coarse:min-h-11"
       >
         {t("tutor.ask")}
       </button>
@@ -69,7 +69,7 @@ export function AskWidget({ lessonId }: { lessonId: string }) {
         <button
           type="button"
           onClick={() => setOpen(false)}
-          className="text-sm text-ink-700 underline underline-offset-2"
+          className="inline-flex items-center text-sm text-ink-700 underline underline-offset-2 pointer-coarse:min-h-11 pointer-coarse:px-2"
         >
           {t("tutor.close")}
         </button>
@@ -106,12 +106,12 @@ export function AskWidget({ lessonId }: { lessonId: string }) {
           maxLength={500}
           onChange={(e) => setQuestion(e.target.value)}
           placeholder={t("tutor.placeholder")}
-          className="min-w-0 flex-1 rounded-lg border border-ink-200 bg-white px-3 py-2 text-sm text-ink-900 placeholder:text-ink-400"
+          className="min-w-0 flex-1 rounded-lg border border-ink-200 bg-white px-3 py-2 text-sm text-ink-900 placeholder:text-ink-400 focus:border-border-focus focus:outline-none focus:ring-4 focus:ring-primary-soft pointer-coarse:h-11"
         />
         <button
           type="submit"
           disabled={ask.isPending || question.trim().length === 0}
-          className="rounded-lg bg-ink-900 px-4 py-2 text-sm font-medium text-white disabled:opacity-50"
+          className="rounded-lg bg-ink-900 px-4 py-2 text-sm font-medium text-white disabled:opacity-50 pointer-coarse:min-h-11"
         >
           {ask.isPending ? t("tutor.thinking") : t("tutor.send")}
         </button>
