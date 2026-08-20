@@ -2071,6 +2071,7 @@ const tr: TranslationMap = {
  "exercise.stereometry.title": "Cisimler",
  "exercise.stereometry.ask": "Bu cismin {quantity} bulun: {solid}.",
  "exercise.stereometry.unset": "Bu görevde henüz cisim seçilmedi.",
+ "exercise.stereometry.unsized": "Bu cismin ölçüleri henüz girilmedi.",
  "exercise.stereometry.right": "Doğru.",
  "exercise.stereometry.ariaAnswer": "Cevabın",
  "exercise.stereometry.viewAlt": "Fareyle döndürebileceğin bir {solid}",

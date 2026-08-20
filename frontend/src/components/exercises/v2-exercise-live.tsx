@@ -21,7 +21,12 @@ import { CheckCircle, XCircle } from "lucide-react";
 import apiClient from "@/lib/api-client";
 import { startExerciseTimer, type ExerciseTimer } from "@/lib/api/exercises";
 import { useTranslation } from "@/lib/i18n/context";
-import type { V2GradeFn, V2GradeResult, V2LiveType } from "@/lib/exercises/v2-adapter";
+import {
+  toBubbleQuestions,
+  type V2GradeFn,
+  type V2GradeResult,
+  type V2LiveType,
+} from "@/lib/exercises/v2-adapter";
 import { TrueFalseV2 } from "@/components/exercises/v2/true-false-v2";
 import { FillBlanksV2 } from "@/components/exercises/v2/fill-blanks-v2";
 import { OrderingV2 } from "@/components/exercises/v2/ordering-v2";
@@ -315,27 +320,9 @@ export function V2ExerciseLive({
         />
       );
     case "bubble_sheet": {
-      // backend shape: questions[{number?, question?, options?, correct?: letter}]
-      const raw = (cfg.questions as {
-        number?: number;
-        question?: string;
-        options?: string[];
-        correct?: string;
-      }[]) ?? [];
-      const numOptions = (cfg.num_options as number) ?? 4;
-      const questions: BubbleSheetQuestion[] = raw.map((q, i) => {
-        const opts =
-          q.options && q.options.length > 0
-            ? q.options
-            : Array.from({ length: numOptions }, (_, j) => String.fromCharCode(65 + j));
-        const letter = (q.correct ?? "").trim().toUpperCase();
-        return {
-          n: q.number ?? i + 1,
-          q: q.question ?? "",
-          opts,
-          correct: letter ? letter.charCodeAt(0) - 65 : undefined,
-        };
-      });
+      // Разбор живёт в переходнике: имена полей конфига там же, где их
+      // проверяет тест (v2-adapter.test.ts).
+      const questions: BubbleSheetQuestion[] = toBubbleQuestions(cfg);
       return <BubbleSheetV2 questions={questions} {...shared} />;
     }
     case "matching":

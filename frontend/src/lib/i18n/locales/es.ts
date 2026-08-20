@@ -2068,6 +2068,7 @@ const es: TranslationMap = {
  "exercise.stereometry.title": "Cuerpos",
  "exercise.stereometry.ask": "Halla {quantity} de este cuerpo: {solid}.",
  "exercise.stereometry.unset": "Esta tarea aún no tiene cuerpo elegido.",
+ "exercise.stereometry.unsized": "Este cuerpo aún no tiene medidas.",
  "exercise.stereometry.right": "Correcto.",
  "exercise.stereometry.ariaAnswer": "Tu respuesta",
  "exercise.stereometry.viewAlt": "Un {solid} que puedes girar con el ratón",

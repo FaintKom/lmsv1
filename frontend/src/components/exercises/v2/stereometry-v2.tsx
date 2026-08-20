@@ -290,6 +290,10 @@ export function StereometryV2({
               t("exercise.stereometry.ask")
                 .replace("{quantity}", quantityLabel.toLowerCase())
                 .replace("{solid}", solidLabel.toLowerCase())
+            ) : solid ? (
+              // Тело выбрано, не хватает размеров — так и сказать. Раньше
+              // здесь стояло «тело не выбрано» на все случаи сразу.
+              t("exercise.stereometry.unsized")
             ) : (
               t("exercise.stereometry.unset")
             )}

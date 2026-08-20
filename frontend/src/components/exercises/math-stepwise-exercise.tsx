@@ -21,6 +21,7 @@ import { useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
 import { Check, X, Plus, Loader2, Trash2, Sparkles } from "lucide-react";
 import apiClient from "@/lib/api-client";
+import { equationOf } from "@/lib/exercises/math-problem";
 import { Button } from "@/components/ui/button";
 
 interface MathStepwiseConfig {
@@ -95,14 +96,18 @@ export function MathStepwiseConfigEditor({
  setGenerating(true);
  try {
  const { data } = await apiClient.post("/math-validation/steps", {
- equation: cfg.problem,
+ // Поле одно на две работы: ученик читает условие, генератор разбирает
+ // уравнение. Вступление «Solve for x:» до SymPy не доходит.
+ equation: equationOf(cfg.problem),
  variable: cfg.variable || "x",
  });
  const steps = (data.steps as Array<{ expression: string }>).map((s) => s.expression);
  onChange({ ...config, expected_steps: steps });
  toast.success(`Generated ${steps.length} step${steps.length === 1 ? "" : "s"}`);
  } catch {
- toast.error("Step generation failed (check expression syntax)");
+ toast.error(
+ `Could not read “${equationOf(cfg.problem)}” as an equation. Try it as plain algebra, e.g. x^2 - 5x + 6 = 0.`,
+ );
  } finally {
  setGenerating(false);
  }
@@ -121,7 +126,9 @@ export function MathStepwiseConfigEditor({
  />
  <p className={`mt-1 text-xs text-text-muted`}>
  Caret <code>^</code> = power. Implicit multiplication OK (<code>5x</code>).
- LaTeX preview shows under the field for students.
+ LaTeX preview shows under the field for students. Write the wording
+ first if you like — <code>Solve for x:</code> is dropped before the
+ equation reaches the step generator.
  </p>
  </div>
 

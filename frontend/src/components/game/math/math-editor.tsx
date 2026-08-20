@@ -1,7 +1,7 @@
 "use client";
 
-import { useState, useCallback, useEffect, useRef, Suspense } from "react";
-import { Check, ChevronDown, Loader2, Eye } from "lucide-react";
+import { useState, useCallback, useEffect, useRef } from "react";
+import { Check, ChevronDown } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { MATH_TEMPLATES, TEMPLATE_LIST } from "./template-registry";
 import { CommaListInput } from "@/components/exercises/comma-list-input";
@@ -101,7 +101,6 @@ export default function MathEditor({ config, onConfigChange }: MathEditorProps) 
  const instructions = (config.instructions as string) || "";
  const templateConfig = (config.template_config as Record<string, unknown>) || {};
 
- const [showPreview, setShowPreview] = useState(false);
 
  const updateConfig = useCallback(
  (updates: Partial<Record<string, unknown>>) => {
@@ -180,23 +179,9 @@ export default function MathEditor({ config, onConfigChange }: MathEditorProps) 
  <VennConfig config={templateConfig} onChange={(c) => updateConfig({ template_config: c })} />
  ) : null}
 
- {/* Preview */}
- <div className="flex gap-2">
- <Button
- variant="outline"
- size="sm"
- onClick={() => setShowPreview(!showPreview)}
- >
- <Eye className="mr-1.5 h-3.5 w-3.5" />
- {showPreview ? "Hide Preview" : "Preview"}
- </Button>
- </div>
-
- {showPreview && (
- <div className="rounded-lg border border-border-strong bg-surface-2 p-4 ">
- <TemplatePreview templateType={templateType} config={templateConfig} customHtml={customHtml} />
- </div>
- )}
+ {/* Превью здесь больше нет: страница задания показывает общее, одно на
+     все типы (specs/031). Два способа посмотреть одно и то же, один под
+     другим, — ровно то, ради чего оно и заводилось. */}
  </div>
  );
 }
@@ -2112,38 +2097,6 @@ function CustomHtmlEditor({ html, onChange }: { html: string; onChange: (h: stri
  );
 }
 
-// ─── Template Preview ───────────────────────────────────────────────
-
-function TemplatePreview({
- templateType,
- config,
- customHtml,
-}: {
- templateType: string;
- config: Record<string, unknown>;
- customHtml: string;
-}) {
- if (templateType === "custom_html") {
- const bridgeScript = `<script>
- window.LMS = { reportResult: function(r) { window.parent.postMessage({ type: 'lms-exercise-result', payload: r }, '*'); } };
- </script>`;
- const srcdoc = `<!DOCTYPE html><html><head><meta charset="utf-8"><style>body{font-family:system-ui;margin:16px;}</style>${bridgeScript}</head><body>${customHtml}</body></html>`;
- return (
- <iframe srcDoc={srcdoc} sandbox="allow-scripts"
- className="h-[300px] w-full rounded-lg border border-border-strong " title="Preview" />
- );
- }
-
- const template = MATH_TEMPLATES[templateType];
- if (!template?.component) return <p className="text-sm text-text-subtle">No preview available</p>;
-
- const TemplateComponent = template.component;
- return (
- <Suspense fallback={<div className="flex items-center justify-center py-8"><Loader2 className="h-4 w-4 animate-spin text-text-subtle" /></div>}>
- {/* Templates copy config into useState at mount and never re-sync —
-     remount on every config change so the preview can't go stale
-     (specs/018 FR-003). */}
- <TemplateComponent key={JSON.stringify(config)} config={config} onComplete={() => {}} />
- </Suspense>
- );
-}
+/* Здесь стоял TemplatePreview — вторая отрисовка того же задания рядом с
+   общим превью страницы. Ученику её никогда не показывали: он приходит
+   через MathExercise, который умеет и шаблоны, и custom_html. */
