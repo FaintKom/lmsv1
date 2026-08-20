@@ -17,6 +17,7 @@ import {
   Mail,
   MessagesSquare,
   Plug,
+  Radio,
   Route,
   Settings,
   Table2,
@@ -90,9 +91,9 @@ export function buildNavTree({
   }
 
   if (!isAdminOrTeacher) {
-    // Ten entries and no role gates. Categories solve length, and a pupil does
-    // not have the problem — nor would "People" or "School" mean anything to
-    // one. Flat it stays.
+    // Eleven entries and no role gates. Categories solve length, and a pupil
+    // does not have the problem — nor would "People" or "School" mean anything
+    // to one. Flat it stays.
     return {
       top: [
         { href: "/dashboard", label: t("nav.dashboard"), icon: LayoutDashboard },
@@ -102,6 +103,7 @@ export function buildNavTree({
         { href: "/achievements", label: t("nav.achievements"), icon: Trophy },
         { href: "/calendar", label: t("nav.calendar"), icon: Calendar },
         { href: "/meetings", label: t("nav.meetings"), icon: Video },
+        { href: "/live", label: t("nav.liveLessons"), icon: Radio },
         { href: "/peer-review", label: t("nav.peerReview"), icon: MessagesSquare },
         { href: "/team-projects", label: t("nav.teamProjects"), icon: FolderKanban },
         { href: "/attendance", label: t("nav.attendance"), icon: CalendarCheck },
@@ -166,6 +168,9 @@ export function buildNavTree({
         // Schedule + Attendance are folded into the unified Journal module
         // (Today / Register / Rooms / Setup tabs); their standalone nav links
         // were removed.
+        ...(visible("live")
+          ? [{ href: "/admin/live", label: t("nav.liveLessons"), icon: Radio }]
+          : []),
         ...(visible("journal")
           ? [{ href: "/admin/journal", label: t("nav.journal"), icon: BookOpenCheck }]
           : []),

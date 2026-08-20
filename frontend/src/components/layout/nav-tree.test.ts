@@ -99,17 +99,30 @@ const BEFORE: Record<string, string[]> = {
   parent: ["/parent", "/parent/children"],
 };
 
+/**
+ * Entries this feature adds on purpose. Kept separate from BEFORE so the
+ * guarantee stays sharp: everything in BEFORE must still be reachable, and any
+ * addition has to be written down here to pass — it cannot slip in unnoticed.
+ */
+const ADDED: Record<string, string[]> = {
+  super_admin: ["/admin/live"],
+  admin: ["/admin/live"],
+  teacher: ["/admin/live"],
+  student: ["/live"],
+  parent: [],
+};
+
 describe("buildNavTree — nobody loses a page", () => {
   for (const [role, expected] of Object.entries(BEFORE)) {
-    it(`gives ${role} exactly what the flat menu gave`, () => {
-      expect(hrefsOf(role).sort()).toEqual([...expected].sort());
+    it(`gives ${role} what the flat menu gave, plus only what we meant to add`, () => {
+      expect(hrefsOf(role).sort()).toEqual([...expected, ...ADDED[role]].sort());
     });
   }
 
-  it("counts 22 entries for a super admin, 20 for an admin, 15 for a teacher", () => {
-    expect(hrefsOf("super_admin")).toHaveLength(22);
-    expect(hrefsOf("admin")).toHaveLength(20);
-    expect(hrefsOf("teacher")).toHaveLength(15);
+  it("counts 23 entries for a super admin, 21 for an admin, 16 for a teacher", () => {
+    expect(hrefsOf("super_admin")).toHaveLength(23);
+    expect(hrefsOf("admin")).toHaveLength(21);
+    expect(hrefsOf("teacher")).toHaveLength(16);
   });
 
   it("never lists the same page twice", () => {
@@ -146,7 +159,7 @@ describe("buildNavTree — shape", () => {
       t,
     });
     expect(tree.groups).toEqual([]);
-    expect(tree.top).toHaveLength(10);
+    expect(tree.top).toHaveLength(11);
   });
 
   it("keeps the biggest category readable", () => {
