@@ -1168,6 +1168,10 @@ const es: TranslationMap = {
 
  // Admin course edit
  "admin.courseEdit.backToCourses": "Volver a Cursos",
+ "admin.commaList.variables": "x, y",
+ "admin.commaList.accepted": "También se aceptan (variantes separadas por comas)",
+ "admin.commaList.fileTypes": ".pdf, .png, .jpg",
+ "admin.commaList.distractors": "Opciones incorrectas para este paso, separadas por comas (vacío = genéricas)",
  "admin.livePreview.title": "Vista previa",
  "admin.livePreview.empty": "Rellena el formulario y aquí verás lo que recibe el estudiante.",
  "admin.livePreview.missing": "Aún no hay nada que mostrar: «{field}» está vacío.",

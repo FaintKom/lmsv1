@@ -4,6 +4,7 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { Plus, Trash2, Upload, MapPin as MapPinIcon } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { buildCrosswordLayout } from "@/components/exercises/crossword-layout";
+import { CommaListInput } from "@/components/exercises/comma-list-input";
 import {
  generateWordSearchGrid,
  seedFromWords,
@@ -762,11 +763,10 @@ export function ReadingConfigEditor({ config, onChange }: EditorProps) {
                <div className="pl-9 space-y-2">
                  <input type="text" value={q.correct_answer || ""} onChange={(e) => updateQuestion(qi, "correct_answer", e.target.value)} placeholder="Correct answer" className={inputCls} />
                  {/* specs/019: the same visible rules as quiz text questions */}
-                 <input
-                   type="text"
-                   value={Array.isArray(q.accepted) ? q.accepted.join(", ") : ""}
-                   onChange={(e) => updateQuestion(qi, "accepted", e.target.value.split(",").map((s) => s.trim()).filter(Boolean))}
-                   placeholder="Also accepted (comma-separated variants)"
+                 <CommaListInput
+                   value={Array.isArray(q.accepted) ? q.accepted : []}
+                   onChange={(next) => updateQuestion(qi, "accepted", next)}
+                   placeholderKey="admin.commaList.accepted"
                    className={inputCls}
                  />
                  <div className="flex gap-4">
@@ -1625,16 +1625,10 @@ export function MathSystemConfigEditor({ config, onChange }: EditorProps) {
    <div className="space-y-4">
      <div>
        <label className={labelCls}>Variables</label>
-       <input
-         type="text"
-         value={variables.join(", ")}
-         onChange={(e) =>
-           onChange({
-             ...config,
-             variables: e.target.value.split(",").map((s) => s.trim()).filter(Boolean),
-           })
-         }
-         placeholder="x, y"
+       <CommaListInput
+         value={variables}
+         onChange={(next) => onChange({ ...config, variables: next })}
+         placeholderKey="admin.commaList.variables"
          className={inputCls}
        />
        <p className={hintCls}>The order here is the order of the answer boxes the student sees.</p>

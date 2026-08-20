@@ -51,6 +51,7 @@ import { MathStepwiseConfigEditor } from "@/components/exercises/math-stepwise-e
 import { useTranslation } from "@/lib/i18n/context";
 import { backTarget } from "./back-target";
 import { LivePreview } from "@/components/exercises/live-preview";
+import { CommaListInput } from "@/components/exercises/comma-list-input";
 
 const JsonConfigPanel = dynamic(() => import("./json-config-panel"), {
  ssr: false,
@@ -538,13 +539,10 @@ function FileUploadConfigEditor({
  <div className="grid grid-cols-2 gap-4">
  <div>
  <label className="mb-1 block text-sm font-medium text-text ">Allowed File Types</label>
- <input
- type="text"
- value={allowedTypes.join(", ")}
- onChange={(e) =>
- onChange({ ...config, allowed_types: e.target.value.split(",").map((s) => s.trim()).filter(Boolean) })
- }
- placeholder=".pdf, .png, .jpg"
+ <CommaListInput
+ value={allowedTypes}
+ onChange={(next) => onChange({ ...config, allowed_types: next })}
+ placeholderKey="admin.commaList.fileTypes"
  className="w-full rounded-lg border border-border-strong bg-surface px-3 py-2 text-sm "
  />
  </div>

@@ -1178,6 +1178,10 @@ const ru: TranslationMap = {
 
  // Admin course edit
  "admin.courseEdit.backToCourses": "Назад к курсам",
+ "admin.commaList.variables": "x, y",
+ "admin.commaList.accepted": "Ещё принимаются (варианты через запятую)",
+ "admin.commaList.fileTypes": ".pdf, .png, .jpg",
+ "admin.commaList.distractors": "Неверные варианты для этого шага, через запятую (пусто — возьмутся типовые)",
  "admin.livePreview.title": "Превью",
  "admin.livePreview.empty": "Заполните форму — здесь появится то, что увидит ученик.",
  "admin.livePreview.missing": "Показывать пока нечего — «{field}» ещё пусто.",

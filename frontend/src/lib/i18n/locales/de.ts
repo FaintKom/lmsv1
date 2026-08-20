@@ -1230,6 +1230,10 @@ const de: TranslationMap = {
 
  // Admin course edit
  "admin.courseEdit.backToCourses": "Zurück zu Kursen",
+ "admin.commaList.variables": "x, y",
+ "admin.commaList.accepted": "Ebenfalls akzeptiert (Varianten durch Komma getrennt)",
+ "admin.commaList.fileTypes": ".pdf, .png, .jpg",
+ "admin.commaList.distractors": "Falsche Optionen für diesen Schritt, durch Komma getrennt (leer = allgemeine)",
  "admin.livePreview.title": "Vorschau",
  "admin.livePreview.empty": "Füllen Sie das Formular aus — hier erscheint, was Lernende sehen.",
  "admin.livePreview.missing": "Noch nichts zu zeigen — „{field}“ ist leer.",

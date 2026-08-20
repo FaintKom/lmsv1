@@ -1230,6 +1230,10 @@ const uk: TranslationMap = {
 
  // Admin course edit
  "admin.courseEdit.backToCourses": "Назад до курсів",
+ "admin.commaList.variables": "x, y",
+ "admin.commaList.accepted": "Також приймаються (варіанти через кому)",
+ "admin.commaList.fileTypes": ".pdf, .png, .jpg",
+ "admin.commaList.distractors": "Неправильні варіанти для цього кроку, через кому (порожньо — типові)",
  "admin.livePreview.title": "Превʼю",
  "admin.livePreview.empty": "Заповніть форму — тут зʼявиться те, що побачить учень.",
  "admin.livePreview.missing": "Показувати поки нічого — «{field}» ще порожнє.",
