@@ -60,7 +60,6 @@ export function Sidebar({ open, onClose, onCollapse }: SidebarProps) {
  const isSuperAdmin = user?.role === "super_admin";
  const isParent = user?.role === "parent";
  const [reviewCount, setReviewCount] = useState(0);
- const [menuVisibility, setMenuVisibility] = useState<Record<string, boolean>>({});
 
  useEffect(() => {
  if (!isAdminOrTeacher) return;
@@ -71,17 +70,10 @@ export function Sidebar({ open, onClose, onCollapse }: SidebarProps) {
  return () => clearInterval(interval);
  }, [isAdminOrTeacher]);
 
- useEffect(() => {
- if (!isAdminOnly || !user?.org_id) return;
- apiClient
- .get(`/admin/organizations/${user.org_id}`)
- .then(({ data }) => {
- setMenuVisibility(data.settings?.menu_visibility || {});
- })
- .catch(() => {});
- }, [isAdminOnly, user?.org_id]);
-
- const isMenuVisible = (key: string) => menuVisibility[key] !== false;
+ // Comes with the session, next to the logo and the school name. The
+ // settings endpoint it used to be fetched from is admin-only, so a teacher
+ // got an empty map and saw every item the school had hidden (specs/034).
+ const isMenuVisible = (key: string) => branding.menu_visibility?.[key] !== false;
 
  const studentNav: { href: string; label: string; icon: typeof LayoutDashboard; badge?: number }[] = [
  { href: "/dashboard", label: t("nav.dashboard"), icon: LayoutDashboard },
