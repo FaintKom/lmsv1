@@ -6,14 +6,13 @@
  * typed things (text, video, presentation, HTML, exercise, assignment)
  * live inside it, mixed freely.
  *
- * Three shapes are read, one is written:
+ * One shape, read and written: {version:3, pages:[{id, title?, blocks:[…]}]}.
  *
- *   v3  {version:3, pages:[{id, title?, blocks:[…]}]}   ← written
- *   v2  {version:2, blocks:[…]}                          one page
- *   v1  {body}/{url} + content_type                      one page
- *
- * Old lessons are never rewritten on read, so a lesson nobody has edited
- * looks to the student exactly as it did before pages existed.
+ * The flat v2 block list and the v1 body/url pair were rewritten in the
+ * table by the p4g3sv3rs10n migration, so nothing here reads them any more.
+ * Content that is neither — the type-specific config of a legacy quiz or
+ * theory lesson, which pages cannot express — yields a single empty page
+ * here and is drawn by its own viewer.
  */
 
 import type { LessonBlock } from "@/types/api";
@@ -38,15 +37,12 @@ function singlePage(blocks: LessonBlock[]): LessonPage[] {
 }
 
 /**
- * The lesson's pages, whatever shape it was saved in.
+ * The lesson's pages.
  *
  * Always returns at least one page: an empty lesson is a blank page the
  * teacher can fill, not an absence the callers have to special-case.
  */
-export function extractPages(
-  content: Record<string, unknown> | undefined,
-  contentType?: string,
-): LessonPage[] {
+export function extractPages(content: Record<string, unknown> | undefined): LessonPage[] {
   if (content && content.version === 3 && Array.isArray(content.pages)) {
     const pages = (content.pages as LessonPage[])
       .filter((p) => p && typeof p === "object")
@@ -57,29 +53,7 @@ export function extractPages(
       }));
     return pages.length > 0 ? pages : singlePage([]);
   }
-
-  if (content && content.version === 2 && Array.isArray(content.blocks)) {
-    return singlePage(sorted(content.blocks as LessonBlock[]));
-  }
-
-  // v1: the body/url pair the lesson was authored with before blocks.
-  const body = content?.body;
-  const url = content?.url;
-  const blocks: LessonBlock[] = [];
-  if (typeof body === "string" && body.trim()) {
-    blocks.push({
-      id: "b0",
-      type: "text",
-      sort_order: 0,
-      page: 1,
-      body,
-      format: (content?.format as string) || "html",
-    });
-  }
-  if (contentType === "video" && typeof url === "string" && url) {
-    blocks.push({ id: `b${blocks.length}`, type: "video", sort_order: blocks.length, page: 1, url });
-  }
-  return singlePage(blocks);
+  return singlePage([]);
 }
 
 /**

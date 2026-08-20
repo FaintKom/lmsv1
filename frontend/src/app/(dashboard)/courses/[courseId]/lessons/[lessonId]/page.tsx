@@ -105,10 +105,11 @@ export default function LessonViewerPage() {
  // Which page of the lesson the student is on. It lives in the address so
  // a reload — or a link a teacher pastes — lands on the same screen.
  const searchParams = useSearchParams();
- const [currentPage, setCurrentPageState] = useState(() => {
+ const pageFromUrl = useCallback(() => {
   const n = parseInt(searchParams.get("page") || "1", 10);
   return Number.isFinite(n) && n > 0 ? n : 1;
- });
+ }, [searchParams]);
+ const [currentPage, setCurrentPageState] = useState(pageFromUrl);
  const [challenge, setChallenge] = useState<{
   id: string;
   title: string;
@@ -137,8 +138,8 @@ export default function LessonViewerPage() {
  // The lesson as pages, whatever shape it was saved in: a lesson from
  // before pages existed comes back as one page and looks unchanged.
  const lessonPages: LessonPage[] = useMemo(
-  () => extractPages(lesson?.content, lesson?.content_type),
-  [lesson?.content, lesson?.content_type]
+  () => extractPages(lesson?.content),
+  [lesson?.content]
  );
 
  /** Turn the page, put the reader at the top of it, and remember where. */
@@ -216,9 +217,12 @@ export default function LessonViewerPage() {
 
  useEffect(() => {
   setLoading(true);
-  setCurrentPage(1);
+  // Opening another lesson starts at its first page; a reload or a pasted
+  // link keeps the page the address names — which is why this reads the URL
+  // instead of writing 1 over it.
+  setCurrentPageState(pageFromUrl());
   fetchData();
- }, [fetchData]);
+ }, [fetchData, pageFromUrl]);
 
  const handleComplete = async () => {
   setCompleting(true);

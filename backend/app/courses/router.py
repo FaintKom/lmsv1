@@ -48,7 +48,6 @@ from app.courses.service import (
     get_lesson,
     list_courses,
     list_template_courses,
-    normalize_lesson_content,
     publish_course,
     reorder_lessons,
     reorder_modules,
@@ -415,13 +414,13 @@ async def get_lesson_endpoint(
     user: User = Depends(get_current_user),
     db: AsyncSession = Depends(get_db),
 ):
-    from app.exercises.service import get_exercises_by_lesson
-
     lesson = await get_lesson(db, lesson_id, user)
-    exercises = await get_exercises_by_lesson(db, lesson_id, user)
-    lesson_dict = _lesson_to_dict(lesson)
-    normalized = normalize_lesson_content(lesson_dict, exercises)
-    return LessonResponse(**normalized)
+    # Returned exactly as stored. The read used to run a converter that rebuilt
+    # older content shapes on the way out; the p4g3sv3rs10n migration rewrote
+    # every row into pages, so there is nothing left to convert — and the
+    # converter's exercise loop was itself capable of replacing a page-based
+    # lesson with a flat list of its own exercises.
+    return LessonResponse(**_lesson_to_dict(lesson))
 
 
 @router.put("/{course_id}/modules/{module_id}/lessons/{lesson_id}", response_model=LessonResponse)
