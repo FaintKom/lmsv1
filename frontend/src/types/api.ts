@@ -36,7 +36,7 @@ export interface Module {
 
 export interface LessonBlock {
  id: string;
- type: "text" | "html" | "video" | "exercise" | "assignment";
+ type: "text" | "html" | "video" | "presentation" | "exercise" | "assignment";
  sort_order: number;
  page: number;
  body?: string | Record<string, unknown>;

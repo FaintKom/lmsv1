@@ -238,6 +238,46 @@ def test_live_refusal_names_the_gap_instead_of_guessing():
 def test_lesson_text_strips_html_from_blocks():
     text = _lesson_text(_FakeLesson(LESSON_BLOCKS))
     assert "Floor division" in text
+
+
+def test_lesson_text_reads_a_lesson_split_into_pages():
+    """Pages (specs/023) group blocks into screens. The widget must still see
+    the prose — a lesson the teacher paginated is not a lesson without text."""
+    paged = {
+        "version": 3,
+        "pages": [
+            {
+                "id": "p1",
+                "blocks": [
+                    {
+                        "id": "b1",
+                        "type": "text",
+                        "sort_order": 0,
+                        "page": 1,
+                        "body": "<p>Floor division rounds down.</p>",
+                        "format": "html",
+                    }
+                ],
+            },
+            {
+                "id": "p2",
+                "blocks": [
+                    {
+                        "id": "b2",
+                        "type": "text",
+                        "sort_order": 0,
+                        "page": 2,
+                        "body": "<p>Modulo returns the remainder.</p>",
+                        "format": "html",
+                    },
+                    {"id": "b3", "type": "exercise", "sort_order": 1, "page": 2},
+                ],
+            },
+        ],
+    }
+    text = _lesson_text(_FakeLesson(paged))
+    assert "Floor division rounds down." in text
+    assert "Modulo returns the remainder." in text
     assert "<h2>" not in text
     assert "  " not in text  # whitespace collapsed
 

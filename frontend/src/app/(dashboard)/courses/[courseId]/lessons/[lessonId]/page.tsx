@@ -1,7 +1,7 @@
 "use client";
 
-import { useEffect, useState, useCallback, useRef } from "react";
-import { useParams, useRouter } from "next/navigation";
+import { useEffect, useMemo, useState, useCallback, useRef } from "react";
+import { useParams, useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import apiClient from "@/lib/api-client";
 import { toast } from "sonner";
@@ -28,12 +28,14 @@ import {
  type LucideIcon,
 } from "lucide-react";
 import type { Course, Module, Lesson, LessonBlock } from "@/types/api";
+import { extractPages, flattenPages, type LessonPage } from "@/lib/lessons/lesson-pages";
 import QuizTaker from "@/components/assessments/quiz-taker";
 import { EditorLayout } from "@/components/code-editor/editor-layout";
 import FileUploader from "@/components/submissions/file-uploader";
 import InteractiveTaker from "@/components/submissions/interactive-taker";
 import { ContentRenderer } from "@/components/common/content-renderer";
 import { HighlightableContent } from "@/components/lesson/highlightable-content";
+import { PresentationEmbed } from "@/components/lesson/presentation-embed";
 import { AskWidget } from "@/components/lesson/ask-widget";
 import ExerciseRenderer from "@/components/exercises/exercise-renderer";
 import { V2ExerciseLive } from "@/components/exercises/v2-exercise-live";
@@ -102,7 +104,13 @@ export default function LessonViewerPage() {
    test_cases?: unknown[];
   }[]
  >([]);
- const [currentPage, setCurrentPage] = useState(1);
+ // Which page of the lesson the student is on. It lives in the address so
+ // a reload — or a link a teacher pastes — lands on the same screen.
+ const searchParams = useSearchParams();
+ const [currentPage, setCurrentPageState] = useState(() => {
+  const n = parseInt(searchParams.get("page") || "1", 10);
+  return Number.isFinite(n) && n > 0 ? n : 1;
+ });
  const [challenge, setChallenge] = useState<{
   id: string;
   title: string;
@@ -127,6 +135,26 @@ export default function LessonViewerPage() {
   obs.observe(el);
   return () => obs.disconnect();
  }, [loading]);
+
+ // The lesson as pages, whatever shape it was saved in: a lesson from
+ // before pages existed comes back as one page and looks unchanged.
+ const lessonPages: LessonPage[] = useMemo(
+  () => extractPages(lesson?.content, lesson?.content_type),
+  [lesson?.content, lesson?.content_type]
+ );
+
+ /** Turn the page, put the reader at the top of it, and remember where. */
+ const setCurrentPage = useCallback(
+  (p: number) => {
+   setCurrentPageState(p);
+   const url = new URL(window.location.href);
+   if (p > 1) url.searchParams.set("page", String(p));
+   else url.searchParams.delete("page");
+   window.history.replaceState(null, "", url.toString());
+   window.scrollTo({ top: 0, behavior: "smooth" });
+  },
+  []
+ );
 
  // Build flat lesson list for prev/next navigation
  const allLessons: { lesson: Lesson; moduleId: string }[] = [];
@@ -538,10 +566,10 @@ export default function LessonViewerPage() {
        {lesson.title}
       </h1>
 
-      {/* Content rendering — v2 block-based or legacy fallback */}
-      {lesson.content?.version === 2 ? (
+      {/* Content rendering — page-based (v2/v3) or legacy fallback */}
+      {lesson.content?.version === 2 || lesson.content?.version === 3 ? (
        <BlockContent
-        blocks={lesson.content.blocks || []}
+        pages={lessonPages}
         exercises={exercises}
         courseId={courseId}
         lessonId={lessonId}
@@ -564,10 +592,10 @@ export default function LessonViewerPage() {
        (video-only, file upload, empty draft), since there is nothing to
        ground an answer in. The backend enforces the same rule with 422. */}
      {(() => {
-      const blocks = lesson.content?.blocks || [];
+      const blocks = flattenPages(lessonPages);
       const hasText =
        blocks.some(
-        (b: any) => b.type === "text" && (b.body || "").trim().length > 50
+        (b) => b.type === "text" && String(b.body ?? "").trim().length > 50
        ) || String(lesson.content?.body ?? "").trim().length > 50;
       if (!hasText) return null;
       return (
@@ -582,11 +610,13 @@ export default function LessonViewerPage() {
      {/* Exercises — show exercises not already embedded in v2 blocks */}
      {(() => {
       const blockExIds = new Set(
-       (lesson.content?.blocks || [])
-        .filter((b: any) => b.type === "exercise" && b.exercise_id)
-        .map((b: any) => b.exercise_id)
+       flattenPages(lessonPages)
+        .filter((b) => b.type === "exercise" && b.exercise_id)
+        .map((b) => b.exercise_id)
       );
-      const orphaned = lesson.content?.version === 2
+      const pageBased =
+       lesson.content?.version === 2 || lesson.content?.version === 3;
+      const orphaned = pageBased
        ? exercises.filter((ex) => !blockExIds.has(ex.id))
        : exercises;
       if (orphaned.length === 0) return null;
@@ -694,7 +724,7 @@ export default function LessonViewerPage() {
 /* ─── Block-based content (v2) ────────────────────────────────────────── */
 
 function BlockContent({
- blocks,
+ pages,
  exercises,
  courseId,
  lessonId,
@@ -703,7 +733,7 @@ function BlockContent({
  prevLesson,
  nextLesson,
 }: {
- blocks: LessonBlock[];
+ pages: LessonPage[];
  exercises: { id: string; exercise_type: string; title: string; config: Record<string, unknown>; questions?: unknown[]; test_cases?: unknown[] }[];
  courseId: string;
  lessonId: string;
@@ -713,17 +743,18 @@ function BlockContent({
  nextLesson: { lesson: Lesson; moduleId: string } | null;
 }) {
  const { t } = useTranslation();
- const pages = [...new Set(blocks.map((b) => b.page || 1))].sort((a, b) => a - b);
- const currentBlocks = blocks
-  .filter((b) => (b.page || 1) === currentPage)
-  .sort((a, b) => a.sort_order - b.sort_order);
+ // Pages are numbered 1..N; a deep link past the end lands on the last one.
+ const pageNumbers = pages.map((_, i) => i + 1);
+ const safePage = Math.min(Math.max(currentPage, 1), pages.length || 1);
+ const page = pages[safePage - 1];
+ const currentBlocks = page?.blocks ?? [];
 
  const hasMultiplePages = pages.length > 1;
 
  return (
   <>
-   {hasMultiplePages && (
-    <PageNav pages={pages} currentPage={currentPage} setCurrentPage={setCurrentPage} />
+   {hasMultiplePages && page?.title && (
+    <h2 className="mb-4 text-lg font-bold tracking-tight text-text">{page.title}</h2>
    )}
 
    {currentBlocks.map((block) => (
@@ -743,8 +774,9 @@ function BlockContent({
     <div className="text-sm text-text-muted">{t("lesson.noContentOnPage")}</div>
    )}
 
+   {/* Bottom of the page: where the student is, and the way onward. */}
    {hasMultiplePages && (
-    <PageNav pages={pages} currentPage={currentPage} setCurrentPage={setCurrentPage} />
+    <PageNav pages={pageNumbers} currentPage={safePage} setCurrentPage={setCurrentPage} />
    )}
   </>
  );
@@ -792,6 +824,9 @@ function BlockRenderer({
 
   case "video":
    return block.url ? <VideoPlayer url={block.url} lessonId={lessonId} /> : null;
+
+  case "presentation":
+   return block.url ? <PresentationEmbed url={block.url} /> : null;
 
   case "exercise": {
    const exercise = exercises.find((ex) => ex.id === block.exercise_id);

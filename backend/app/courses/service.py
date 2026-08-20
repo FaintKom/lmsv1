@@ -22,13 +22,16 @@ from app.progress.models import Enrollment
 def normalize_lesson_content(lesson_dict: dict, exercises: list = None) -> dict:
     """Convert v1 lesson content to v2 blocks format.
 
-    Called before returning lesson data from API. If the content already
-    has ``version: 2``, the dict is returned unchanged.
+    Called before returning lesson data from API. Content that already
+    carries a version — v2 blocks or v3 pages — is returned unchanged.
     """
     content = lesson_dict.get("content", {}) or {}
 
-    # Already v2 — return as-is
-    if content.get("version") == 2:
+    # Anything the editors already write — v2 blocks, v3 pages — is left
+    # alone. This check used to name v2 only, and the exercise loop below
+    # then rebuilt a v3 lesson out of its own attached exercises: pages,
+    # text and assignments gone, the student reading an empty lesson.
+    if content.get("version") in (2, 3):
         return lesson_dict
 
     blocks = []
