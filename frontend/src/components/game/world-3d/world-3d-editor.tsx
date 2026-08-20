@@ -17,7 +17,7 @@
  * nothing to say why.
  */
 
-import { useCallback, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import dynamic from "next/dynamic";
 import { Box, DoorClosed, Eraser, Flag, Layers, Play as PlayIcon, Star, Undo2 } from "lucide-react";
 
@@ -30,6 +30,7 @@ import {
   type WorldSolveAnswer,
 } from "@/lib/api/exercises";
 import { initialState, type CellType3D, type Direction3D, type GridCell3D } from "./scene-engine";
+import { withWorldDefaults, worldDefaultsApplied } from "./world-defaults";
 
 const WorldScene = dynamic(() => import("./scene/world-scene"), {
   ssr: false,
@@ -127,6 +128,12 @@ function clamp(value: number, min: number, max: number) {
 
 export default function World3DEditor({ config, onConfigChange }: World3DEditorProps) {
   const { t } = useTranslation();
+
+  // Как и у двумерного близнеца: умолчания записываются, а не только
+  // рисуются. Уровень без `win` не может пройти никто.
+  useEffect(() => {
+    if (!worldDefaultsApplied(config)) onConfigChange(withWorldDefaults);
+  }, [config, onConfigChange]);
 
   const gridWidth = (config.grid_width as number) || 6;
   const gridDepth = (config.grid_depth as number) || 6;
