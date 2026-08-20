@@ -1230,6 +1230,14 @@ const en: TranslationMap = {
 
  // Admin course edit
  "admin.courseEdit.backToCourses": "Back to Courses",
+ "admin.courseEdit.summaryEmpty": "No content yet",
+ "admin.courseEdit.summaryPages": "Pages: {n}",
+ "admin.courseEdit.kindText": "Text: {n}",
+ "admin.courseEdit.kindHtml": "HTML: {n}",
+ "admin.courseEdit.kindVideo": "Video: {n}",
+ "admin.courseEdit.kindPresentation": "Slides: {n}",
+ "admin.courseEdit.kindExercise": "Exercises: {n}",
+ "admin.courseEdit.kindAssignment": "Assignments: {n}",
  "admin.courseEdit.notFound": "Course not found",
  "admin.courseEdit.exportJson": "Export JSON",
  "admin.courseEdit.exportPdf": "Export PDF",

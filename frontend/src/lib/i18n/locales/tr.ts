@@ -1171,6 +1171,14 @@ const tr: TranslationMap = {
 
  // Admin course edit
  "admin.courseEdit.backToCourses": "Kurslara dön",
+ "admin.courseEdit.summaryEmpty": "Henüz içerik yok",
+ "admin.courseEdit.summaryPages": "Sayfa: {n}",
+ "admin.courseEdit.kindText": "Metin: {n}",
+ "admin.courseEdit.kindHtml": "HTML: {n}",
+ "admin.courseEdit.kindVideo": "Video: {n}",
+ "admin.courseEdit.kindPresentation": "Slayt: {n}",
+ "admin.courseEdit.kindExercise": "Alıştırma: {n}",
+ "admin.courseEdit.kindAssignment": "Ödev: {n}",
  "admin.courseEdit.notFound": "Kurs bulunamadı",
  "admin.courseEdit.exportJson": "JSON dışa aktar",
  "admin.courseEdit.exportPdf": "PDF dışa aktar",

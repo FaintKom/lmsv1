@@ -1230,6 +1230,14 @@ const uk: TranslationMap = {
 
  // Admin course edit
  "admin.courseEdit.backToCourses": "Назад до курсів",
+ "admin.courseEdit.summaryEmpty": "Поки порожньо",
+ "admin.courseEdit.summaryPages": "Сторінок: {n}",
+ "admin.courseEdit.kindText": "Текстів: {n}",
+ "admin.courseEdit.kindHtml": "HTML: {n}",
+ "admin.courseEdit.kindVideo": "Відео: {n}",
+ "admin.courseEdit.kindPresentation": "Презентацій: {n}",
+ "admin.courseEdit.kindExercise": "Завдань: {n}",
+ "admin.courseEdit.kindAssignment": "Домашніх: {n}",
  "admin.courseEdit.notFound": "Курс не знайдено",
  "admin.courseEdit.exportJson": "Експорт JSON",
  "admin.courseEdit.exportPdf": "Експорт PDF",

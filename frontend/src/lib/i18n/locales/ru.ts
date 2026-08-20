@@ -1178,6 +1178,14 @@ const ru: TranslationMap = {
 
  // Admin course edit
  "admin.courseEdit.backToCourses": "Назад к курсам",
+ "admin.courseEdit.summaryEmpty": "Пока пусто",
+ "admin.courseEdit.summaryPages": "Страниц: {n}",
+ "admin.courseEdit.kindText": "Текстов: {n}",
+ "admin.courseEdit.kindHtml": "HTML: {n}",
+ "admin.courseEdit.kindVideo": "Видео: {n}",
+ "admin.courseEdit.kindPresentation": "Презентаций: {n}",
+ "admin.courseEdit.kindExercise": "Заданий: {n}",
+ "admin.courseEdit.kindAssignment": "Домашних: {n}",
  "admin.courseEdit.notFound": "Курс не найден",
  "admin.courseEdit.exportJson": "Экспорт JSON",
  "admin.courseEdit.exportPdf": "Экспорт PDF",
