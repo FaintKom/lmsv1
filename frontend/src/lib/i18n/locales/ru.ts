@@ -132,6 +132,8 @@ const ru: TranslationMap = {
  "nav.billing": "Оплата",
  "nav.signOut": "Выйти",
  "nav.menu": "Меню",
+ "nav.collapseMenu": "Свернуть меню",
+ "nav.expandMenu": "Развернуть меню",
  "nav.myRoom": "Моя комната",
  "nav.myAvatar": "Мой персонаж",
 

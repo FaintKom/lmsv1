@@ -14,7 +14,9 @@ export function Tooltip({ content, children, position = "top" }: TooltipProps) {
  {children}
  <div
  role="tooltip"
- className={`pointer-events-none absolute z-50 max-w-xs rounded-lg bg-ink-900 px-2.5 py-1.5 text-xs text-white opacity-0 transition-opacity duration-200 delay-150 group-hover/tooltip:opacity-100 ${positionClasses[position]}`}
+ // focus-within, not only hover: on the collapsed rail this label is the
+ // only thing naming an icon, and a keyboard never produces hover.
+ className={`pointer-events-none absolute z-50 max-w-xs rounded-lg bg-ink-900 px-2.5 py-1.5 text-xs text-white opacity-0 transition-opacity duration-200 delay-150 group-hover/tooltip:opacity-100 group-focus-within/tooltip:opacity-100 ${positionClasses[position]}`}
  >
  {content}
  <div className={`absolute h-2 w-2 rotate-45 bg-ink-900 ${arrowClasses[position]}`} />

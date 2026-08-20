@@ -1,0 +1,91 @@
+import { expect, test, type Page } from "@playwright/test";
+
+import { ADMIN, authenticate, BASE_URL } from "../poms/ContentTypeHarness";
+
+/**
+ * The sidebar as a school actually meets it: collapsed to a rail, and still
+ * collapsed tomorrow.
+ *
+ * Unit tests cover the markup. What they cannot cover is the part that was
+ * broken: the preference has to survive a real page load, and it has to
+ * survive the crossing between the (admin) and (dashboard) route groups — two
+ * different layouts, each mounting its own Sidebar. Local state looks fine in
+ * a component test and loses the preference on both.
+ */
+
+test.describe.configure({ mode: "serial" });
+
+const RAIL_WIDTH = 88;
+const FULL_WIDTH = 240;
+
+async function silenceTheTour(page: Page) {
+  // The admin dashboard opens a driver.js tour whose backdrop swallows the
+  // first click on anything. Nothing to do with navigation; mark it seen.
+  await page.addInitScript(() => {
+    window.localStorage.setItem("lms.tour.admin.v1", "done");
+  });
+}
+
+test.beforeEach(async ({ context, page }) => {
+  await authenticate(context, ADMIN);
+  await silenceTheTour(page);
+});
+
+test("collapsing survives a reload and follows the user between route groups", async ({
+  page,
+}) => {
+  await page.goto(`${BASE_URL}/admin`);
+
+  await expect(page.locator("aside").first()).toHaveJSProperty(
+    "offsetWidth",
+    FULL_WIDTH,
+  );
+
+  await page.getByRole("button", { name: /collapse menu/i }).click();
+  await expect(page.locator("aside").first()).toHaveJSProperty(
+    "offsetWidth",
+    RAIL_WIDTH,
+  );
+
+  // A full load, not a client-side transition: the preference lives in
+  // localStorage and has to be read back on boot, which is the step that did
+  // not exist before.
+  await page.reload();
+  await expect(page.locator("aside").first()).toHaveJSProperty(
+    "offsetWidth",
+    RAIL_WIDTH,
+  );
+
+  // /profile is served by the (dashboard) layout — a different layout mounting
+  // a different Sidebar. This is the crossing that used to lose the choice.
+  await page.goto(`${BASE_URL}/profile`);
+  await expect(page.locator("aside").first()).toHaveJSProperty(
+    "offsetWidth",
+    RAIL_WIDTH,
+  );
+
+  await page.getByRole("button", { name: /expand menu/i }).click();
+  await expect(page.locator("aside").first()).toHaveJSProperty(
+    "offsetWidth",
+    FULL_WIDTH,
+  );
+});
+
+test("the rail keeps the school's name and names every icon", async ({ page }) => {
+  await page.goto(`${BASE_URL}/admin`);
+  await page.getByRole("button", { name: /collapse menu/i }).click();
+
+  const rail = page.locator("aside").first();
+  await expect(rail).toHaveJSProperty("offsetWidth", RAIL_WIDTH);
+
+  // Whatever the school calls itself is still on screen. The seeded QA org has
+  // no logo, so this is the fallback badge plus the name — exactly what a
+  // school that never uploaded a logo sees.
+  await expect(rail.getByText("QA Organization")).toBeVisible();
+
+  // The entry is down to its icon, and its name moved into the accessible
+  // name rather than disappearing with the label.
+  const courses = rail.getByRole("link", { name: /^courses$/i });
+  await expect(courses).toHaveAttribute("aria-label", /courses/i);
+  await expect(courses).toHaveText("");
+});

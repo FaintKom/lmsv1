@@ -11,11 +11,17 @@
 ## Подготовка
 
 ```bash
-cd frontend && npm install --legacy-peer-deps
+cd frontend && npm install
 ```
 
-`--legacy-peer-deps` обязателен, а не по вкусу: Sentry 9 не сходится с React 19
-без него.
+**Нужна нода 22.** `.npmrc` включает `engine-strict`, и на другой мажорной
+версии установка откажется работать с `EBADENGINE` — это охранник, а не
+поломка: npm 11 пишет lock-файл, который npm 10 в CI не принимает. Лечится
+`nvm use`, читающим `.nvmrc`. На `npm test` и `npm run dev` ограничение не
+распространяется.
+
+Флаг `--legacy-peer-deps` больше не нужен: он требовался Sentry 9, а после
+перехода на `@sentry/nextjs@10` конфликта с React 19 нет.
 
 `.env.local` по умолчанию смотрит на **прод** (`https://grasslms.online`). Для
 проверки против локального бэкенда его надо перенаправить — и вернуть обратно,

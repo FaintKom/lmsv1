@@ -133,6 +133,8 @@ const en: TranslationMap = {
  "nav.children": "My Children",
  "nav.signOut": "Sign Out",
  "nav.menu": "Menu",
+ "nav.collapseMenu": "Collapse menu",
+ "nav.expandMenu": "Expand menu",
  "nav.myRoom": "My room",
  "nav.myAvatar": "My avatar",
 

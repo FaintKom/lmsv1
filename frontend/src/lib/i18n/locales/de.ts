@@ -133,6 +133,8 @@ const de: TranslationMap = {
  "nav.billing": "Abrechnung",
  "nav.signOut": "Abmelden",
  "nav.menu": "Menü",
+ "nav.collapseMenu": "Menü einklappen",
+ "nav.expandMenu": "Menü ausklappen",
  "nav.myRoom": "Mein Zimmer",
  "nav.myAvatar": "Mein Avatar",
 

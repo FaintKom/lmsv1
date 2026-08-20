@@ -35,25 +35,46 @@ import {
   Film,
  Mail,
  Contact,
+ PanelLeftClose,
+ PanelLeftOpen,
 } from "lucide-react";
 import { NotificationBell } from "./notification-bell";
 import { OrgSwitcher } from "./org-switcher";
 import { SearchBar } from "./search-bar";
 import LocaleSwitcher from "./locale-switcher";
+import { Tooltip } from "@/components/ui/tooltip";
+import { useUIStore } from "@/stores/ui-store";
 
 interface SidebarProps {
  open?: boolean;
  onClose?: () => void;
- onCollapse?: () => void;
 }
 
-export function Sidebar({ open, onClose, onCollapse }: SidebarProps) {
+export function Sidebar({ open, onClose }: SidebarProps) {
  const pathname = usePathname();
  const router = useRouter();
  const user = useAuthStore((s) => s.user);
  const branding = useAuthStore((s) => s.branding);
  const logout = useAuthStore((s) => s.logout);
  const { t } = useTranslation();
+ const collapsed = useUIStore((s) => s.collapsed);
+ const toggleCollapsed = useUIStore((s) => s.toggleCollapsed);
+ const [hydrated, setHydrated] = useState(false);
+
+ // The store skips automatic hydration so the server's markup and the
+ // client's first render agree; reading storage back is therefore our job.
+ // Until that has happened the rail must not animate — otherwise everyone who
+ // prefers it collapsed watches it slide shut on every single page load.
+ useEffect(() => {
+ Promise.resolve(useUIStore.persist.rehydrate()).then(() => setHydrated(true));
+ }, []);
+
+ // The rail is a desktop idea. On a phone the sidebar is already a drawer you
+ // summon and dismiss, and icons-only there would give one screen two ways to
+ // hide the same menu. `open` is only ever true on mobile — the hamburger that
+ // sets it is md:hidden — so it doubles as "we are in drawer mode", with no
+ // media query and no second source of truth to keep in step.
+ const railMode = collapsed && !open;
 
  const isAdminOrTeacher = user?.role === "super_admin" || user?.role === "admin" || user?.role === "teacher";
  const isAdminOnly = user?.role === "super_admin" || user?.role === "admin";
@@ -159,47 +180,99 @@ export function Sidebar({ open, onClose, onCollapse }: SidebarProps) {
  // layers the tab bar won on DOM order and swallowed taps aimed at the
  // footer — which is where the account link and Sign Out live, so the
  // drawer opened and logging out still did nothing.
- "rail-dark fixed inset-y-0 left-0 z-[60] flex h-dvh w-[240px] flex-col bg-ink-900 transition-transform duration-200 ease-in-out md:static md:h-screen md:translate-x-0",
+ // transition-[width] as well as transform: collapsing is a width change on
+ // desktop and a slide on mobile, and both want the same 200ms. The global
+ // prefers-reduced-motion rule in globals.css flattens either one to 0.01ms,
+ // so there is nothing to repeat per-component here.
+ "rail-dark fixed inset-y-0 left-0 z-[60] flex h-dvh flex-col bg-ink-900 md:static md:h-screen md:translate-x-0",
+ // Not before the saved preference is back: the first correction after
+ // hydration is not a gesture the user made, and animating it turns
+ // "it remembered" into "it is closing on me again".
+ hydrated && "transition-[width,transform] duration-200 ease-in-out",
+ railMode ? "w-[240px] md:w-[88px]" : "w-[240px]",
  open ? "translate-x-0" : "-translate-x-full"
  )}
  >
  {/* Logo */}
- <div className="flex items-center gap-2.5 border-b border-white/[0.08] px-4 pb-[18px] pt-[18px]">
+ <div
+ className={cn(
+ "flex border-b border-white/[0.08] pb-[18px] pt-[18px]",
+ railMode ? "flex-col items-center gap-2 px-2" : "items-center gap-2.5 px-4"
+ )}
+ >
  {branding.logo_url ? (
  <img
  src={branding.logo_url}
  alt={branding.display_name}
- className="h-8 w-8 rounded-sm object-cover"
+ className="h-8 w-8 shrink-0 rounded-sm object-cover"
  />
  ) : (
- <div className="relative flex h-8 w-8 items-center justify-center rounded-sm bg-green-500 text-lg font-extrabold text-white">
+ <div className="relative flex h-8 w-8 shrink-0 items-center justify-center rounded-sm bg-green-500 text-lg font-extrabold text-white">
  g
  <span className="absolute bottom-[4px] right-[5px] h-[5px] w-[5px] rounded-full bg-sun-400" />
  </div>
  )}
- <div>
- <span className="text-base font-extrabold tracking-tight text-white">
+ {railMode ? (
+ // The school keeps its name on the rail — that is the point of leaving
+ // one. 88px fits about two short lines, so long names clamp; `title`
+ // rather than <Tooltip> carries the rest, because a span takes no focus
+ // and the styled tooltip would only ever fire on hover here while
+ // duplicating the same string into the accessibility tree.
+ <span
+ title={branding.display_name}
+ className="line-clamp-2 text-center text-3xs font-bold leading-tight text-white"
+ >
+ {branding.display_name}
+ </span>
+ ) : (
+ <div className="min-w-0">
+ <span className="block truncate text-base font-extrabold tracking-tight text-white">
  {branding.display_name}
  </span>
  <span className="block font-mono text-3xs font-medium uppercase tracking-widest text-white/50">
  Learning Platform
  </span>
  </div>
+ )}
+ <button
+ type="button"
+ onClick={toggleCollapsed}
+ aria-label={collapsed ? t("nav.expandMenu") : t("nav.collapseMenu")}
+ className={cn(
+ // Desktop only: on mobile the hamburger already does this job.
+ "hidden shrink-0 cursor-pointer rounded-sm p-1.5 text-white/50 transition-colors hover:bg-white/[0.05] hover:text-white md:inline-flex",
+ !railMode && "ml-auto"
+ )}
+ >
+ {collapsed ? (
+ <PanelLeftOpen className="h-[18px] w-[18px]" aria-hidden="true" />
+ ) : (
+ <PanelLeftClose className="h-[18px] w-[18px]" aria-hidden="true" />
+ )}
+ </button>
  </div>
 
  {/* Search — admin only */}
- {isAdminOnly && (
+ {isAdminOnly && !railMode && (
  <div className="border-b border-white/[0.08] px-3 py-3">
  <SearchBar />
  </div>
  )}
 
  {/* Navigation */}
- <nav aria-label="Main navigation" className="flex-1 overflow-y-auto px-4 py-3">
+ <nav
+ aria-label="Main navigation"
+ className={cn("flex-1 overflow-y-auto py-3", railMode ? "px-2" : "px-4")}
+ >
+ {!railMode && (
  <p className="mb-1.5 px-2.5 font-mono text-3xs font-medium uppercase tracking-widest text-white/50">
  {t("nav.menu")}
  </p>
- <ul className="space-y-[2px]" role="list">
+ )}
+ <ul
+ className={cn("space-y-[2px]", railMode && "flex flex-col items-center")}
+ role="list"
+ >
  {nav.map((item) => {
  // Exact match for items that have nested specialised siblings
  // (e.g. /admin/analytics + /admin/analytics/v2). Otherwise a parent
@@ -224,15 +297,22 @@ export function Sidebar({ open, onClose, onCollapse }: SidebarProps) {
  "/admin/billing": "sidebar-billing",
  "/support": "sidebar-support",
  } as Record<string, string>)[item.href];
- return (
- <li key={item.href}>
+ const link = (
  <Link
  href={item.href}
  onClick={onClose}
+ // On the rail the icon is all there is, so the label has to move
+ // into the accessible name or the link says nothing to a screen
+ // reader. Expanded, the visible text already names it and a
+ // duplicate aria-label would only override what people read.
+ aria-label={railMode ? item.label : undefined}
  aria-current={isActive ? "page" : undefined}
  data-tour={tourAnchor}
  className={cn(
- "flex items-center gap-[11px] rounded-sm px-[10px] py-[9px] text-sm font-semibold transition-colors duration-150",
+ "relative flex items-center rounded-sm text-sm font-semibold transition-colors duration-150",
+ railMode
+ ? "h-10 w-10 justify-center"
+ : "gap-[11px] px-[10px] py-[9px]",
  // v2 rail rule: active = reward on a sun tint — green disappears
  // on the dark rail
  isActive
@@ -240,16 +320,33 @@ export function Sidebar({ open, onClose, onCollapse }: SidebarProps) {
  : "text-white/65 hover:bg-white/[0.05] hover:text-white"
  )}
  >
- <item.icon className="h-[18px] w-[18px]" aria-hidden="true" />
- {item.label}
+ <item.icon className="h-[18px] w-[18px] shrink-0" aria-hidden="true" />
+ {!railMode && item.label}
  {/* clay-600, not clay-500: white on clay-500 is 3.77:1 and fails AA in
      both themes. clay-600 reads the same and clears it at 5.23:1. */}
  {item.badge ? (
- <span className="ml-auto rounded-pill bg-clay-600 px-1.5 py-0.5 font-mono text-3xs font-extrabold leading-none text-white">
+ <span
+ className={cn(
+ "rounded-pill bg-clay-600 px-1.5 py-0.5 font-mono text-3xs font-extrabold leading-none text-white",
+ // No row to sit at the end of once the label is gone, so the
+ // count rides the icon's corner instead.
+ railMode ? "absolute -right-1 -top-1" : "ml-auto"
+ )}
+ >
  {item.badge > 99 ? "99+" : item.badge}
  </span>
  ) : null}
  </Link>
+ );
+ return (
+ <li key={item.href}>
+ {railMode ? (
+ <Tooltip content={item.label} position="right">
+ {link}
+ </Tooltip>
+ ) : (
+ link
+ )}
  </li>
  );
  })}
@@ -257,19 +354,38 @@ export function Sidebar({ open, onClose, onCollapse }: SidebarProps) {
  </nav>
 
  {/* Footer */}
- <div className="border-t border-white/[0.08] p-3">
- <OrgSwitcher />
- <div className="mb-1 flex items-center justify-between px-1">
- <LocaleSwitcher />
+ <div
+ className={cn(
+ "border-t border-white/[0.08]",
+ railMode ? "flex flex-col items-center gap-1 p-2" : "p-3"
+ )}
+ >
+ {/* The org switcher and the locale picker are both label-and-menu
+     controls; there is no honest 88px version of either, so on the rail
+     they wait until the menu is opened again. The notification bell is an
+     icon to begin with, so it stays. */}
+ {!railMode && <OrgSwitcher />}
+ <div
+ className={cn(
+ "mb-1 flex items-center",
+ railMode ? "justify-center" : "justify-between px-1"
+ )}
+ >
+ {!railMode && <LocaleSwitcher />}
  <NotificationBell />
  </div>
  <Link
  href="/profile"
- className="mb-1 flex items-center gap-[10px] rounded-sm px-2.5 py-2 transition-colors hover:bg-white/[0.05]"
+ aria-label={railMode ? user?.full_name || undefined : undefined}
+ className={cn(
+ "mb-1 flex items-center rounded-sm transition-colors hover:bg-white/[0.05]",
+ railMode ? "justify-center p-1" : "gap-[10px] px-2.5 py-2"
+ )}
  >
- <div className="flex h-[30px] w-[30px] items-center justify-center rounded-full bg-green-400 text-sm font-extrabold text-ink-900">
+ <div className="flex h-[30px] w-[30px] shrink-0 items-center justify-center rounded-full bg-green-400 text-sm font-extrabold text-ink-900">
  {user?.full_name?.charAt(0)?.toUpperCase() || "?"}
  </div>
+ {!railMode && (
  <div className="min-w-0 flex-1">
  <p className="truncate text-sm font-bold text-white">
  {user?.full_name}
@@ -278,13 +394,20 @@ export function Sidebar({ open, onClose, onCollapse }: SidebarProps) {
  {user?.email}
  </p>
  </div>
+ )}
  </Link>
  <button
  onClick={handleLogout}
- className="flex w-full cursor-pointer items-center gap-[11px] rounded-sm px-[10px] py-[9px] text-sm font-semibold text-white/50 transition-colors hover:bg-white/[0.05] hover:text-white/80"
+ aria-label={railMode ? t("nav.signOut") : undefined}
+ className={cn(
+ "flex cursor-pointer items-center rounded-sm text-sm font-semibold text-white/50 transition-colors hover:bg-white/[0.05] hover:text-white/80",
+ railMode
+ ? "h-10 w-10 justify-center"
+ : "w-full gap-[11px] px-[10px] py-[9px]"
+ )}
  >
- <LogOut className="h-[18px] w-[18px]" />
- {t("nav.signOut")}
+ <LogOut className="h-[18px] w-[18px] shrink-0" />
+ {!railMode && t("nav.signOut")}
  </button>
  </div>
  </aside>

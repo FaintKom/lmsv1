@@ -132,6 +132,8 @@ const tr: TranslationMap = {
  "nav.billing": "Faturalama",
  "nav.signOut": "Çıkış Yap",
  "nav.menu": "Menü",
+ "nav.collapseMenu": "Menüyü daralt",
+ "nav.expandMenu": "Menüyü genişlet",
  "nav.myRoom": "Odam",
  "nav.myAvatar": "Avatarım",
 

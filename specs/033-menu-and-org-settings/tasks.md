@@ -30,8 +30,8 @@ Jitsi в `backend/`. Пути ниже — от корня репозитори�
 
 ## Phase 1: Setup
 
-- [ ] T001 Проверить, что ветка `feat/menu-and-org-settings` отведена от `origin/main` и `git log origin/main..main` пуст — иначе чужой коммит уедет в этот PR
-- [ ] T002 Поставить зависимости: `cd frontend && npm install --legacy-peer-deps` (без флага Sentry 9 не сходится с React 19)
+- [x] T001 Проверить, что ветка `feat/menu-and-org-settings` отведена от `origin/main` и `git log origin/main..main` пуст — иначе чужой коммит уедет в этот PR
+- [x] T002 Поставить зависимости: `cd frontend && npm install`. **Поправка:** `--legacy-peer-deps` больше не нужен — `frontend/CLAUDE.md` фиксирует, что после перехода на `@sentry/nextjs@10` (2026-07-18) конфликта с React 19 нет. Зато `.npmrc` включает `engine-strict`: установка откажется работать на любой ноде, кроме 22.x. На `npm test` и `npm run dev` это не влияет
 
 ---
 
@@ -41,9 +41,9 @@ Jitsi в `backend/`. Пути ниже — от корня репозитори�
 
 **⚠️ Ни US1, ни US2 не начинаются, пока эта фаза не закрыта.**
 
-- [ ] T003 Написать красный юнит-тест стора в `frontend/src/stores/ui-store.test.ts`: `collapsed` переключается, `openGroups` помнит ключ, значения переживают пересоздание стора. Тест обязан упасть — файла стора ещё нет
-- [ ] T004 Создать `frontend/src/stores/ui-store.ts`: Zustand + `persist` из `zustand/middleware`, имя хранилища ровно `sidebar-collapsed`, поля `collapsed: boolean` (умолчание `false`) и `openGroups: Record<string, boolean>` (умолчание `{}`). Образец обёртки — `frontend/src/stores/sat-history-store.ts`
-- [ ] T005 Убедиться, что T003 позеленел и что в local storage появился ключ `sidebar-collapsed`, а не какой-либо другой — имя обещано читателю на `frontend/src/app/cookies/page.tsx`
+- [x] T003 Написать красный юнит-тест стора в `frontend/src/stores/ui-store.test.ts`: `collapsed` переключается, `openGroups` помнит ключ, значения переживают пересоздание стора. Тест обязан упасть — файла стора ещё нет
+- [x] T004 Создать `frontend/src/stores/ui-store.ts`: Zustand + `persist` из `zustand/middleware`, имя хранилища ровно `sidebar-collapsed`, поля `collapsed: boolean` (умолчание `false`) и `openGroups: Record<string, boolean>` (умолчание `{}`). Образец обёртки — `frontend/src/stores/sat-history-store.ts`
+- [x] T005 Убедиться, что T003 позеленел и что в local storage появился ключ `sidebar-collapsed`, а не какой-либо другой — имя обещано читателю на `frontend/src/app/cookies/page.tsx`
 
 **Checkpoint**: состояние есть и сохраняется.
 
@@ -61,22 +61,22 @@ Jitsi в `backend/`. Пути ниже — от корня репозитори�
 
 > Пишутся первыми и обязаны упасть: кнопки сворачивания сегодня не существует.
 
-- [ ] T006 [P] [US1] Красный тест в `frontend/src/components/layout/sidebar.test.tsx`: у меню есть кнопка сворачивания с доступным именем, нажатие переводит его в рельс
-- [ ] T007 [P] [US1] Красный тест там же: в свёрнутом виде отрисованы `branding.display_name` и `branding.logo_url`, а не зашитые «g» и «GrassLMS»
-- [ ] T008 [P] [US1] Красный тест там же: у каждой иконки свёрнутого рельса есть `aria-label` с названием пункта
-- [ ] T009 [P] [US1] Красный сквозной тест в `frontend/e2e/journeys/navigation.spec.ts`: свернуть в `/admin`, перезагрузить, перейти на `/profile` — меню свёрнуто на всех трёх шагах
+- [x] T006 [P] [US1] Красный тест в `frontend/src/components/layout/sidebar.test.tsx`: у меню есть кнопка сворачивания с доступным именем, нажатие переводит его в рельс
+- [x] T007 [P] [US1] Красный тест там же: в свёрнутом виде отрисованы `branding.display_name` и `branding.logo_url`, а не зашитые «g» и «GrassLMS»
+- [x] T008 [P] [US1] Красный тест там же: у каждой иконки свёрнутого рельса есть `aria-label` с названием пункта
+- [x] T009 [P] [US1] Красный сквозной тест в `frontend/e2e/journeys/navigation.spec.ts`: свернуть в `/admin`, перезагрузить, перейти на `/profile` — меню свёрнуто на всех трёх шагах
 
 ### Implementation for User Story 1
 
-- [ ] T010 [US1] Добавить показ по фокусу в `frontend/src/components/ui/tooltip.tsx` — утилита `group-focus-within/tooltip:opacity-100` рядом с существующей `group-hover/tooltip`
-- [ ] T011 [US1] В `frontend/src/components/layout/sidebar.tsx`: кнопка сворачивания (видна от 768 px), чтение `collapsed` из стора, разметка рельса — логотип и название школы сверху, пункты иконками с `aria-label` и `Tooltip`
-- [ ] T012 [US1] Убрать мёртвый проп `onCollapse` из сигнатуры `sidebar.tsx` — сегодня он объявлен и ни к чему не подключён
-- [ ] T013 [US1] `frontend/src/app/(admin)/layout.tsx`: брать состояние из стора вместо ничего — сегодня этот лэйаут о сворачивании не знает вовсе
-- [ ] T014 [US1] `frontend/src/app/(dashboard)/layout.tsx`: заменить локальный `useState` `sidebarCollapsed` на стор, сохранив авто-сворачивание на страницах урока
-- [ ] T015 [US1] В верхней полосе `(dashboard)/layout.tsx` заменить зашитые «g» и «GrassLMS» на `branding.logo_url` и `branding.display_name` (FR-003)
-- [ ] T016 [US1] Добавить ключи кнопки сворачивания и разворачивания **во все шесть** локалей `frontend/src/lib/i18n/locales/{en,es,ru,tr,de,uk}.ts` — ключ в пяти из шести валит `translations.test.ts`
-- [ ] T017 [US1] Подчинить переход `prefers-reduced-motion` (FR-029): 150–300 мс на `transform`/`opacity`, при `reduce` — без перехода
-- [ ] T018 [US1] Убрать мигание рельса при гидратации: `persist` читает хранилище после первой отрисовки, поэтому первый кадр всегда «развёрнуто». **Проверяется в браузере на настоящей загрузке — юнит-тест этого не ловит**, поэтому задача отдельная и закрывается наблюдением, а не зелёным тестом
+- [x] T010 [US1] Добавить показ по фокусу в `frontend/src/components/ui/tooltip.tsx` — утилита `group-focus-within/tooltip:opacity-100` рядом с существующей `group-hover/tooltip`
+- [x] T011 [US1] В `frontend/src/components/layout/sidebar.tsx`: кнопка сворачивания (видна от 768 px), чтение `collapsed` из стора, разметка рельса — логотип и название школы сверху, пункты иконками с `aria-label` и `Tooltip`
+- [x] T012 [US1] Убрать мёртвый проп `onCollapse` из сигнатуры `sidebar.tsx` — сегодня он объявлен и ни к чему не подключён
+- [x] T013 [US1] ~~`(admin)/layout.tsx`: брать состояние из стора~~ — **оказалось не нужно.** `<aside>` сжимается сам, а сосед с `flex-1` подстраивается; лэйауту знать о сворачивании незачем. Вместо этого там нашлась та же зашитая надпись «g / GrassLMS», что и в (dashboard), и она заменена на бренд школы — иначе моя же правка развела бы разделы: свой бренд в одном, чужой в другом
+- [x] T014 [US1] `frontend/src/app/(dashboard)/layout.tsx`: заменить локальный `useState` `sidebarCollapsed` на стор, сохранив авто-сворачивание на страницах урока
+- [x] T015 [US1] В верхней полосе `(dashboard)/layout.tsx` заменить зашитые «g» и «GrassLMS» на `branding.logo_url` и `branding.display_name` (FR-003)
+- [x] T016 [US1] Добавить ключи кнопки сворачивания и разворачивания **во все шесть** локалей `frontend/src/lib/i18n/locales/{en,es,ru,tr,de,uk}.ts` — ключ в пяти из шести валит `translations.test.ts`
+- [x] T017 [US1] ~~Подчинить переход `prefers-reduced-motion`~~ — **уже сделано глобально.** `src/app/globals.css:515` гасит все анимации и переходы до 0.01ms под `prefers-reduced-motion: reduce`. Повторять правило в компоненте нечего (принцип V); переход задан на 200 мс, как и требует FR-029
+- [x] T018 [US1] Убрать мигание рельса при гидратации: `persist` читает хранилище после первой отрисовки, поэтому первый кадр всегда «развёрнуто». **Проверяется в браузере на настоящей загрузке — юнит-тест этого не ловит**, поэтому задача отдельная и закрывается наблюдением, а не зелёным тестом
 
 **Checkpoint**: US1 работает и проверяется сама по себе. Это MVP.
 

@@ -132,6 +132,8 @@ const es: TranslationMap = {
  "nav.billing": "Facturación",
  "nav.signOut": "Cerrar sesión",
  "nav.menu": "Menú",
+ "nav.collapseMenu": "Contraer menú",
+ "nav.expandMenu": "Expandir menú",
  "nav.myRoom": "Mi habitación",
  "nav.myAvatar": "Mi avatar",
 

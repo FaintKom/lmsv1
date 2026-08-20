@@ -133,6 +133,8 @@ const uk: TranslationMap = {
  "nav.billing": "Оплата",
  "nav.signOut": "Вийти",
  "nav.menu": "Меню",
+ "nav.collapseMenu": "Згорнути меню",
+ "nav.expandMenu": "Розгорнути меню",
  "nav.myRoom": "Моя кімната",
  "nav.myAvatar": "Мій персонаж",
 
