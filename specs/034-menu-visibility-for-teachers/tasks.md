@@ -99,7 +99,7 @@ description: "Task list for 034-menu-visibility-for-teachers"
 - [x] T014 [P] Написать тест `test_me_menu_visibility_defaults_to_empty` в `backend/tests/test_auth.py`: школа ничего не настраивала — карта `{}`, не `null`
 - [x] T015 Гейты бэкенда: `cd backend && ruff check . && python -m pytest`
 - [x] T016 Гейты фронтенда: `cd frontend && npm run lint && npx tsc --noEmit && npm test`
-- [ ] T017 Открыть PR с описанием, где сказано: тест T002 показан красным до правки (принцип II), лишних запросов не добавилось, права записи не менялись
+- [x] T017 Открыть PR с описанием, где сказано: тест T002 показан красным до правки (принцип II), лишних запросов не добавилось, права записи не менялись
 
 ---
 
