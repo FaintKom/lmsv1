@@ -1532,6 +1532,7 @@ const de: TranslationMap = {
  "admin.lessonEditor.deletePageMsg": "Diese Seite mit allem darauf löschen?",
  "admin.lessonEditor.slidesHint": "Füge einen veröffentlichten Google-Slides-Link oder eine PDF-Adresse ein.",
  "admin.lessonEditor.slidesEmpty": "Noch keine Folien — Link oben einfügen.",
+ "admin.lessonEditor.exerciseDeleted": "Die Aufgabe, auf die dieser Block verwies, wurde gelöscht. Lernende sehen hier nichts — löschen Sie den Block, um die Lücke zu schließen.",
  "admin.lessonEditor.dragToReorder": "Zum Neuordnen ziehen",
  "admin.lessonEditor.deleteBlockTitle": "Block löschen",
  "admin.lessonEditor.deleteBlockMsg": "Diesen Block löschen?",

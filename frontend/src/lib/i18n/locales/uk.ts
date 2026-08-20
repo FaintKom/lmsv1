@@ -1532,6 +1532,7 @@ const uk: TranslationMap = {
  "admin.lessonEditor.deletePageMsg": "Видалити цю сторінку разом з усім, що на ній?",
  "admin.lessonEditor.slidesHint": "Встав посилання на опубліковану презентацію Google Slides або адресу PDF.",
  "admin.lessonEditor.slidesEmpty": "Презентації ще немає — встав посилання вище.",
+ "admin.lessonEditor.exerciseDeleted": "Завдання, на яке посилався цей блок, видалено. Учень тут не бачить нічого — видали блок, щоб сторінка зійшлася.",
  "admin.lessonEditor.dragToReorder": "Перетягніть, щоб змінити порядок",
  "admin.lessonEditor.deleteBlockTitle": "Видалити блок",
  "admin.lessonEditor.deleteBlockMsg": "Видалити цей блок?",
