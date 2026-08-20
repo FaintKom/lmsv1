@@ -135,6 +135,11 @@ const de: TranslationMap = {
  "nav.menu": "Menü",
  "nav.collapseMenu": "Menü einklappen",
  "nav.expandMenu": "Menü ausklappen",
+ "nav.group.learning": "Lernen",
+ "nav.group.people": "Personen",
+ "nav.group.sessions": "Unterricht",
+ "nav.group.progress": "Fortschritt",
+ "nav.group.school": "Schule",
  "nav.myRoom": "Mein Zimmer",
  "nav.myAvatar": "Mein Avatar",
 

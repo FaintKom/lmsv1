@@ -91,19 +91,19 @@ Jitsi в `backend/`. Пути ниже — от корня репозитори�
 
 ### Tests for User Story 2 ⚠️
 
-- [ ] T019 [P] [US2] Красный тест в `frontend/src/components/layout/nav-tree.test.ts`: **набор пунктов для каждой роли совпадает с прежним плоским списком**. Главный тест FR-011 — он ловит съехавшие права раньше, чем их увидит школа
-- [ ] T020 [P] [US2] Красный тест там же: категория без единого доступного пункта не попадает в результат (FR-010)
-- [ ] T021 [P] [US2] Красный тест в `frontend/src/components/layout/sidebar.test.tsx`: у заголовка категории есть `aria-expanded` и `aria-controls`, указывающий на `id` её списка
-- [ ] T022 [P] [US2] Красный сквозной тест в `frontend/e2e/journeys/navigation.spec.ts`: на `/admin/courses` категория «Обучение» раскрыта, свёрнутая «Люди» остаётся свёрнутой после перезагрузки
+- [x] T019 [P] [US2] Красный тест в `frontend/src/components/layout/nav-tree.test.ts`: **набор пунктов для каждой роли совпадает с прежним плоским списком**. Главный тест FR-011 — он ловит съехавшие права раньше, чем их увидит школа
+- [x] T020 [P] [US2] Красный тест там же: категория без единого доступного пункта не попадает в результат (FR-010)
+- [x] T021 [P] [US2] Красный тест в `frontend/src/components/layout/sidebar.test.tsx`: у заголовка категории есть `aria-expanded` и `aria-controls`, указывающий на `id` её списка
+- [x] T022 [P] [US2] Красный сквозной тест в `frontend/e2e/journeys/navigation.spec.ts`: на `/admin/courses` категория «Обучение» раскрыта, свёрнутая «Люди» остаётся свёрнутой после перезагрузки
 
 ### Implementation for User Story 2
 
-- [ ] T023 [US2] Создать `frontend/src/components/layout/nav-tree.ts`: группы `{ key, labelKey, items }` с ключами `learning`, `people`, `sessions`, `progress`, `school`; раскладка — таблица в [research.md](./research.md), раздел R4
-- [ ] T024 [US2] Собирать `items` теми же условиями `isAdminOnly` / `isSuperAdmin` / `isMenuVisible`, что и сегодня в `sidebar.tsx` — права остаются там, где были
-- [ ] T025 [US2] В `frontend/src/components/layout/sidebar.tsx` отрисовать группы: `<button aria-expanded aria-controls>` + `<ul id>`; «Дашборд» отдельной строкой над категориями; группа с пустым `items` не рисуется
-- [ ] T026 [US2] Читать и писать `openGroups` в сторе; отсутствие ключа — «раскрыта»; категория с активной страницей раскрыта всегда, но сохранённое значение не перезаписывается (FR-009)
-- [ ] T027 [US2] Оставить меню ученика плоским — категории получает только меню сотрудников (FR-007, research R4)
-- [ ] T028 [US2] Добавить названия пяти категорий во все шесть локалей `frontend/src/lib/i18n/locales/{en,es,ru,tr,de,uk}.ts`
+- [x] T023 [US2] Создать `frontend/src/components/layout/nav-tree.ts`: группы `{ key, labelKey, items }` с ключами `learning`, `people`, `sessions`, `progress`, `school`; раскладка — таблица в [research.md](./research.md), раздел R4
+- [x] T024 [US2] Собирать `items` теми же условиями `isAdminOnly` / `isSuperAdmin` / `isMenuVisible`, что и сегодня в `sidebar.tsx` — права остаются там, где были
+- [x] T025 [US2] В `frontend/src/components/layout/sidebar.tsx` отрисовать группы: `<button aria-expanded aria-controls>` + `<ul id>`; «Дашборд» отдельной строкой над категориями; группа с пустым `items` не рисуется. **Уточнение по ходу:** список скрывается атрибутом `hidden`, а не классом `hidden` — атрибут убирает его из обхода и из дерева доступности без единой строки CSS. Классом Tailwind это в jsdom не работало вовсе, и тест это поймал. Заодно ушёл заголовок «МЕНЮ»: над пятью названными категориями он ничего не добавлял
+- [x] T026 [US2] Читать и писать `openGroups` в сторе; отсутствие ключа — «раскрыта»; категория с активной страницей раскрыта всегда, но сохранённое значение не перезаписывается (FR-009)
+- [x] T027 [US2] Оставить меню ученика плоским — категории получает только меню сотрудников (FR-007, research R4)
+- [x] T028 [US2] Добавить названия пяти категорий во все шесть локалей `frontend/src/lib/i18n/locales/{en,es,ru,tr,de,uk}.ts`
 
 **Checkpoint**: US1 и US2 работают вместе и по отдельности.
 

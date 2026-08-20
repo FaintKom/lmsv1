@@ -134,6 +134,11 @@ const ru: TranslationMap = {
  "nav.menu": "Меню",
  "nav.collapseMenu": "Свернуть меню",
  "nav.expandMenu": "Развернуть меню",
+ "nav.group.learning": "Обучение",
+ "nav.group.people": "Люди",
+ "nav.group.sessions": "Занятия",
+ "nav.group.progress": "Успеваемость",
+ "nav.group.school": "Школа",
  "nav.myRoom": "Моя комната",
  "nav.myAvatar": "Мой персонаж",
 

@@ -134,6 +134,11 @@ const tr: TranslationMap = {
  "nav.menu": "Menü",
  "nav.collapseMenu": "Menüyü daralt",
  "nav.expandMenu": "Menüyü genişlet",
+ "nav.group.learning": "Öğrenme",
+ "nav.group.people": "Kişiler",
+ "nav.group.sessions": "Dersler",
+ "nav.group.progress": "İlerleme",
+ "nav.group.school": "Okul",
  "nav.myRoom": "Odam",
  "nav.myAvatar": "Avatarım",
 

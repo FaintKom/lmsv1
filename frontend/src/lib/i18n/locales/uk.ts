@@ -135,6 +135,11 @@ const uk: TranslationMap = {
  "nav.menu": "Меню",
  "nav.collapseMenu": "Згорнути меню",
  "nav.expandMenu": "Розгорнути меню",
+ "nav.group.learning": "Навчання",
+ "nav.group.people": "Люди",
+ "nav.group.sessions": "Заняття",
+ "nav.group.progress": "Успішність",
+ "nav.group.school": "Школа",
  "nav.myRoom": "Моя кімната",
  "nav.myAvatar": "Мій персонаж",
 

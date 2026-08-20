@@ -89,3 +89,42 @@ test("the rail keeps the school's name and names every icon", async ({ page }) =
   await expect(courses).toHaveAttribute("aria-label", /courses/i);
   await expect(courses).toHaveText("");
 });
+
+test("a closed category stays closed, unless it holds the page you are on", async ({
+  page,
+}) => {
+  await page.goto(`${BASE_URL}/admin`);
+
+  const people = page.getByRole("button", { name: /^people$/i });
+  await expect(people).toHaveAttribute("aria-expanded", "true");
+
+  await people.click();
+  await expect(people).toHaveAttribute("aria-expanded", "false");
+  // Hidden, not merely unstyled: the entries leave the tab order with it.
+  await expect(page.getByRole("link", { name: /^groups$/i })).toBeHidden();
+
+  await page.reload();
+  await expect(page.getByRole("button", { name: /^people$/i })).toHaveAttribute(
+    "aria-expanded",
+    "false",
+  );
+
+  // Walking into a page inside a closed category opens it. A menu insisting
+  // that the page you are reading is tucked away is simply wrong.
+  await page.goto(`${BASE_URL}/admin/groups`);
+  await expect(page.getByRole("button", { name: /^people$/i })).toHaveAttribute(
+    "aria-expanded",
+    "true",
+  );
+
+  // And that does not overwrite the choice: leave, and it is closed again.
+  await page.goto(`${BASE_URL}/admin/courses`);
+  await expect(page.getByRole("button", { name: /^people$/i })).toHaveAttribute(
+    "aria-expanded",
+    "false",
+  );
+  await expect(page.getByRole("button", { name: /^learning$/i })).toHaveAttribute(
+    "aria-expanded",
+    "true",
+  );
+});

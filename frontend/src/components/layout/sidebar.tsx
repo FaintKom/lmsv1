@@ -8,42 +8,18 @@ import { useAuthStore } from "@/stores/auth-store";
 import { useTranslation } from "@/lib/i18n/context";
 import apiClient from "@/lib/api-client";
 import {
- BookOpen,
- ClipboardList,
- BarChart3,
- Users,
- UsersRound,
- CreditCard,
  LogOut,
- LayoutDashboard,
- Trophy,
- Table2,
- Inbox,
- Route,
- Calendar,
- Video,
- Building2,
- Settings,
- Library,
- Plug,
- Heart,
- MessagesSquare,
- FolderKanban,
- CalendarCheck,
- CalendarClock,
- BookOpenCheck,
-  Film,
- Mail,
- Contact,
  PanelLeftClose,
  PanelLeftOpen,
+ ChevronRight,
 } from "lucide-react";
 import { NotificationBell } from "./notification-bell";
 import { OrgSwitcher } from "./org-switcher";
 import { SearchBar } from "./search-bar";
 import LocaleSwitcher from "./locale-switcher";
 import { Tooltip } from "@/components/ui/tooltip";
-import { useUIStore } from "@/stores/ui-store";
+import { useUIStore, isGroupOpen } from "@/stores/ui-store";
+import { buildNavTree, type NavItem } from "./nav-tree";
 
 interface SidebarProps {
  open?: boolean;
@@ -59,6 +35,8 @@ export function Sidebar({ open, onClose }: SidebarProps) {
  const { t } = useTranslation();
  const collapsed = useUIStore((s) => s.collapsed);
  const toggleCollapsed = useUIStore((s) => s.toggleCollapsed);
+ const openGroups = useUIStore((s) => s.openGroups);
+ const setGroupOpen = useUIStore((s) => s.setGroupOpen);
  const [hydrated, setHydrated] = useState(false);
 
  // The store skips automatic hydration so the server's markup and the
@@ -76,10 +54,10 @@ export function Sidebar({ open, onClose }: SidebarProps) {
  // media query and no second source of truth to keep in step.
  const railMode = collapsed && !open;
 
+ // Only the two the fetches below gate on. Which entries each role may see is
+ // decided in nav-tree.ts now, not here.
  const isAdminOrTeacher = user?.role === "super_admin" || user?.role === "admin" || user?.role === "teacher";
  const isAdminOnly = user?.role === "super_admin" || user?.role === "admin";
- const isSuperAdmin = user?.role === "super_admin";
- const isParent = user?.role === "parent";
  const [reviewCount, setReviewCount] = useState(0);
  const [menuVisibility, setMenuVisibility] = useState<Record<string, boolean>>({});
 
@@ -102,57 +80,98 @@ export function Sidebar({ open, onClose }: SidebarProps) {
  .catch(() => {});
  }, [isAdminOnly, user?.org_id]);
 
- const isMenuVisible = (key: string) => menuVisibility[key] !== false;
+ const tree = buildNavTree({
+ role: user?.role,
+ menuVisibility,
+ reviewCount,
+ t,
+ });
 
- const studentNav: { href: string; label: string; icon: typeof LayoutDashboard; badge?: number }[] = [
- { href: "/dashboard", label: t("nav.dashboard"), icon: LayoutDashboard },
- { href: "/courses", label: t("nav.courses"), icon: BookOpen },
- { href: "/assignments", label: t("nav.assignments"), icon: ClipboardList },
- // My room + My avatar live as tabs inside /achievements now.
- { href: "/achievements", label: t("nav.achievements"), icon: Trophy },
- { href: "/calendar", label: t("nav.calendar"), icon: Calendar },
- { href: "/meetings", label: t("nav.meetings"), icon: Video },
- { href: "/peer-review", label: t("nav.peerReview"), icon: MessagesSquare },
- { href: "/team-projects", label: t("nav.teamProjects"), icon: FolderKanban },
- { href: "/attendance", label: t("nav.attendance"), icon: CalendarCheck },
- { href: "/schedule", label: t("nav.schedule"), icon: CalendarClock },
- ];
+ // A rail has no room for headings, so it shows every icon and skips the
+ // grouping entirely. Honouring a closed category there would hide entries
+ // behind a control that is not on screen to reopen them.
+ const railItems = [...tree.top, ...tree.groups.flatMap((g) => g.items)];
 
- const adminNav: { href: string; label: string; icon: typeof LayoutDashboard; badge?: number }[] = [
- { href: "/admin", label: t("nav.dashboard"), icon: LayoutDashboard },
- ...(isAdminOnly && isMenuVisible("users") ? [{ href: "/admin/users", label: t("nav.users"), icon: Users }] : []),
- // Admin-only: the enquiry pipeline is the office's business, and the
- // endpoints refuse teachers anyway.
- ...(isAdminOnly && isMenuVisible("crm") ? [{ href: "/admin/crm", label: t("nav.crm"), icon: Contact }] : []),
- ...(isMenuVisible("groups") ? [{ href: "/admin/groups", label: t("nav.groups"), icon: UsersRound }] : []),
- ...(isMenuVisible("courses") ? [{ href: "/admin/courses", label: t("nav.courses"), icon: BookOpen }] : []),
- ...(isMenuVisible("content_library") ? [{ href: "/admin/content-library", label: t("nav.contentLibrary"), icon: Library }] : []),
- ...(isMenuVisible("assignments") ? [{ href: "/admin/assignments", label: t("nav.assignments"), icon: ClipboardList }] : []),
- ...(isMenuVisible("gradebook") ? [{ href: "/admin/gradebook", label: t("nav.gradebook"), icon: Table2 }] : []),
- ...(isMenuVisible("review") ? [{ href: "/admin/review", label: t("nav.review"), icon: Inbox, badge: reviewCount }] : []),
- ...(isMenuVisible("peer_review") ? [{ href: "/admin/peer-review", label: t("nav.peerReview"), icon: MessagesSquare }] : []),
- ...(isMenuVisible("team_projects") ? [{ href: "/admin/team-projects", label: t("nav.teamProjects"), icon: FolderKanban }] : []),
- // Schedule + Attendance are folded into the unified Journal module (Today /
- // Register / Rooms / Setup tabs); their standalone nav links were removed.
- ...(isMenuVisible("journal") ? [{ href: "/admin/journal", label: t("nav.journal"), icon: BookOpenCheck }] : []),
- ...(isMenuVisible("recordings") ? [{ href: "/admin/recordings", label: t("nav.recordings"), icon: Film }] : []),
- ...(isAdminOnly && isMenuVisible("paths") ? [{ href: "/admin/paths", label: t("nav.paths"), icon: Route }] : []),
- ...(isMenuVisible("calendar") ? [{ href: "/admin/calendar", label: t("nav.calendar") || "Calendar", icon: Calendar }] : []),
- ...(isMenuVisible("meetings") ? [{ href: "/admin/meetings", label: t("nav.meetings") || "Meetings", icon: Video }] : []),
- ...(isMenuVisible("analytics") ? [{ href: "/admin/analytics", label: t("nav.analytics"), icon: BarChart3 }] : []),
- ...(isSuperAdmin ? [{ href: "/admin/organizations", label: t("nav.organizations"), icon: Building2 }] : []),
- ...(isSuperAdmin ? [{ href: "/admin/waitlist", label: t("nav.waitlist"), icon: Mail }] : []),
- ...(isAdminOnly ? [{ href: "/admin/integrations", label: t("nav.integrations"), icon: Plug }] : []),
- ...(isMenuVisible("support") ? [{ href: "/support", label: t("nav.support"), icon: Heart }] : []),
- ...(isAdminOnly ? [{ href: "/admin/settings", label: t("nav.settings"), icon: Settings }] : []),
- ];
+ // Exact match for entries that have nested specialised siblings (e.g.
+ // /admin/analytics + /admin/analytics/v2). Otherwise a parent entry
+ // highlights when the user is actually on a child route.
+ const isItemActive = (item: NavItem) => {
+ const hasSpecialisedChild = railItems.some(
+ (other) => other.href !== item.href && other.href.startsWith(item.href + "/"),
+ );
+ return (
+ pathname === item.href ||
+ (!hasSpecialisedChild &&
+ item.href !== "/admin" &&
+ item.href !== "/dashboard" &&
+ pathname.startsWith(item.href))
+ );
+ };
 
- const parentNav: { href: string; label: string; icon: typeof LayoutDashboard; badge?: number }[] = [
- { href: "/parent", label: t("nav.dashboard") || "Dashboard", icon: LayoutDashboard },
- { href: "/parent/children", label: t("nav.children") || "My Children", icon: Users },
- ];
-
- const nav = isParent ? parentNav : isAdminOrTeacher ? adminNav : studentNav;
+ const renderItem = (item: NavItem) => {
+ const isActive = isItemActive(item);
+ const tourAnchor = ({
+ "/admin": "sidebar-dashboard",
+ "/dashboard": "sidebar-dashboard",
+ "/admin/courses": "sidebar-courses",
+ "/admin/content-library": "sidebar-content-library",
+ "/admin/gradebook": "sidebar-gradebook",
+ "/admin/users": "sidebar-users",
+ "/admin/groups": "sidebar-groups",
+ "/admin/billing": "sidebar-billing",
+ "/support": "sidebar-support",
+ } as Record<string, string>)[item.href];
+ const link = (
+ <Link
+ href={item.href}
+ onClick={onClose}
+ // On the rail the icon is all there is, so the label has to move into
+ // the accessible name or the link says nothing to a screen reader.
+ // Expanded, the visible text already names it and a duplicate
+ // aria-label would only override what people read.
+ aria-label={railMode ? item.label : undefined}
+ aria-current={isActive ? "page" : undefined}
+ data-tour={tourAnchor}
+ className={cn(
+ "relative flex items-center rounded-sm text-sm font-semibold transition-colors duration-150",
+ railMode ? "h-10 w-10 justify-center" : "gap-[11px] px-[10px] py-[9px]",
+ // v2 rail rule: active = reward on a sun tint — green disappears on
+ // the dark rail
+ isActive
+ ? "bg-reward/16 text-reward"
+ : "text-white/65 hover:bg-white/[0.05] hover:text-white"
+ )}
+ >
+ <item.icon className="h-[18px] w-[18px] shrink-0" aria-hidden="true" />
+ {!railMode && item.label}
+ {/* clay-600, not clay-500: white on clay-500 is 3.77:1 and fails AA in
+     both themes. clay-600 reads the same and clears it at 5.23:1. */}
+ {item.badge ? (
+ <span
+ className={cn(
+ "rounded-pill bg-clay-600 px-1.5 py-0.5 font-mono text-3xs font-extrabold leading-none text-white",
+ // No row to sit at the end of once the label is gone, so the count
+ // rides the icon's corner instead.
+ railMode ? "absolute -right-1 -top-1" : "ml-auto"
+ )}
+ >
+ {item.badge > 99 ? "99+" : item.badge}
+ </span>
+ ) : null}
+ </Link>
+ );
+ return (
+ <li key={item.href}>
+ {railMode ? (
+ <Tooltip content={item.label} position="right">
+ {link}
+ </Tooltip>
+ ) : (
+ link
+ )}
+ </li>
+ );
+ };
 
  const handleLogout = () => {
  logout();
@@ -264,93 +283,55 @@ export function Sidebar({ open, onClose }: SidebarProps) {
  aria-label="Main navigation"
  className={cn("flex-1 overflow-y-auto py-3", railMode ? "px-2" : "px-4")}
  >
- {!railMode && (
- <p className="mb-1.5 px-2.5 font-mono text-3xs font-medium uppercase tracking-widest text-white/50">
- {t("nav.menu")}
- </p>
- )}
- <ul
- className={cn("space-y-[2px]", railMode && "flex flex-col items-center")}
- role="list"
- >
- {nav.map((item) => {
- // Exact match for items that have nested specialised siblings
- // (e.g. /admin/analytics + /admin/analytics/v2). Otherwise a parent
- // entry highlights when the user is actually on a child route.
- const hasSpecialisedChild = nav.some(
- (other) => other.href !== item.href && other.href.startsWith(item.href + "/"),
- );
- const isActive =
- pathname === item.href ||
- (!hasSpecialisedChild &&
- item.href !== "/admin" &&
- item.href !== "/dashboard" &&
- pathname.startsWith(item.href));
- const tourAnchor = ({
- "/admin": "sidebar-dashboard",
- "/dashboard": "sidebar-dashboard",
- "/admin/courses": "sidebar-courses",
- "/admin/content-library": "sidebar-content-library",
- "/admin/gradebook": "sidebar-gradebook",
- "/admin/users": "sidebar-users",
- "/admin/groups": "sidebar-groups",
- "/admin/billing": "sidebar-billing",
- "/support": "sidebar-support",
- } as Record<string, string>)[item.href];
- const link = (
- <Link
- href={item.href}
- onClick={onClose}
- // On the rail the icon is all there is, so the label has to move
- // into the accessible name or the link says nothing to a screen
- // reader. Expanded, the visible text already names it and a
- // duplicate aria-label would only override what people read.
- aria-label={railMode ? item.label : undefined}
- aria-current={isActive ? "page" : undefined}
- data-tour={tourAnchor}
- className={cn(
- "relative flex items-center rounded-sm text-sm font-semibold transition-colors duration-150",
- railMode
- ? "h-10 w-10 justify-center"
- : "gap-[11px] px-[10px] py-[9px]",
- // v2 rail rule: active = reward on a sun tint — green disappears
- // on the dark rail
- isActive
- ? "bg-reward/16 text-reward"
- : "text-white/65 hover:bg-white/[0.05] hover:text-white"
- )}
- >
- <item.icon className="h-[18px] w-[18px] shrink-0" aria-hidden="true" />
- {!railMode && item.label}
- {/* clay-600, not clay-500: white on clay-500 is 3.77:1 and fails AA in
-     both themes. clay-600 reads the same and clears it at 5.23:1. */}
- {item.badge ? (
- <span
- className={cn(
- "rounded-pill bg-clay-600 px-1.5 py-0.5 font-mono text-3xs font-extrabold leading-none text-white",
- // No row to sit at the end of once the label is gone, so the
- // count rides the icon's corner instead.
- railMode ? "absolute -right-1 -top-1" : "ml-auto"
- )}
- >
- {item.badge > 99 ? "99+" : item.badge}
- </span>
- ) : null}
- </Link>
- );
- return (
- <li key={item.href}>
  {railMode ? (
- <Tooltip content={item.label} position="right">
- {link}
- </Tooltip>
+ <ul className="flex flex-col items-center space-y-[2px]" role="list">
+ {railItems.map(renderItem)}
+ </ul>
  ) : (
- link
+ <>
+ <ul className="space-y-[2px]" role="list">
+ {tree.top.map(renderItem)}
+ </ul>
+ {tree.groups.map((group) => {
+ const listId = `nav-group-${group.key}`;
+ // A saved "closed" never wins over the page you are actually on:
+ // the menu cannot claim the current page is tucked away.
+ const holdsCurrentPage = group.items.some((i) => isItemActive(i));
+ const open = holdsCurrentPage || isGroupOpen(openGroups, group.key);
+ return (
+ <div key={group.key} className="mt-3 first:mt-1.5">
+ <button
+ type="button"
+ aria-expanded={open}
+ aria-controls={listId}
+ onClick={() => setGroupOpen(group.key, !open)}
+ className="flex w-full cursor-pointer items-center gap-1 rounded-sm px-2.5 py-1 font-mono text-3xs font-medium uppercase tracking-widest text-white/50 transition-colors hover:text-white/80"
+ >
+ <ChevronRight
+ className={cn(
+ "h-3 w-3 shrink-0 transition-transform duration-150",
+ open && "rotate-90"
  )}
- </li>
+ aria-hidden="true"
+ />
+ {group.label}
+ </button>
+ {/* The `hidden` attribute, not a `hidden` class: it takes the list out
+     of the page with no stylesheet involved, so tab order and screen
+     readers agree with the heading even before CSS lands. */}
+ <ul
+ id={listId}
+ role="list"
+ hidden={!open}
+ className="mt-0.5 space-y-[2px]"
+ >
+ {group.items.map(renderItem)}
+ </ul>
+ </div>
  );
  })}
- </ul>
+ </>
+ )}
  </nav>
 
  {/* Footer */}

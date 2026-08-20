@@ -134,6 +134,11 @@ const es: TranslationMap = {
  "nav.menu": "Menú",
  "nav.collapseMenu": "Contraer menú",
  "nav.expandMenu": "Expandir menú",
+ "nav.group.learning": "Aprendizaje",
+ "nav.group.people": "Personas",
+ "nav.group.sessions": "Clases",
+ "nav.group.progress": "Progreso",
+ "nav.group.school": "Centro",
  "nav.myRoom": "Mi habitación",
  "nav.myAvatar": "Mi avatar",
 

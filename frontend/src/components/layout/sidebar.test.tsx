@@ -30,8 +30,10 @@ vi.mock("@/lib/i18n/context", () => ({
   useTranslation: () => ({ t: (k: string) => k, locale: "en" }),
 }));
 
+let mockPathname = "/admin";
+
 vi.mock("next/navigation", () => ({
-  usePathname: () => "/admin",
+  usePathname: () => mockPathname,
   useRouter: () => ({ push: vi.fn() }),
 }));
 
@@ -49,6 +51,8 @@ vi.mock("./locale-switcher", () => ({ default: () => null }));
 beforeEach(() => {
   localStorage.clear();
   useUIStore.setState({ collapsed: false, openGroups: {} });
+  mockPathname = "/admin";
+  authState.user.role = "admin";
 });
 
 describe("Sidebar", () => {
@@ -107,5 +111,70 @@ describe("Sidebar", () => {
     render(<Sidebar />);
 
     await waitFor(() => expect(useUIStore.getState().collapsed).toBe(true));
+  });
+});
+
+describe("Sidebar categories", () => {
+  it("puts the entries under headings that say whether they are open", () => {
+    render(<Sidebar />);
+
+    const learning = screen.getByRole("button", { name: "nav.group.learning" });
+    expect(learning).toHaveAttribute("aria-expanded", "true");
+
+    // The heading must point at the list it controls, or the state it reports
+    // belongs to nothing as far as a screen reader is concerned.
+    const controls = learning.getAttribute("aria-controls");
+    expect(controls).toBeTruthy();
+    expect(document.getElementById(controls as string)).toBeInTheDocument();
+  });
+
+  it("opens the category holding the page you are on", () => {
+    mockPathname = "/admin/courses";
+    // Even against a saved preference: you cannot be looking at a page that
+    // the menu insists is tucked away.
+    useUIStore.setState({ collapsed: false, openGroups: { learning: false } });
+    render(<Sidebar />);
+
+    expect(
+      screen.getByRole("button", { name: "nav.group.learning" }),
+    ).toHaveAttribute("aria-expanded", "true");
+    expect(screen.getByRole("link", { name: "nav.courses" })).toBeInTheDocument();
+  });
+
+  it("remembers a category the user closed", () => {
+    render(<Sidebar />);
+    fireEvent.click(screen.getByRole("button", { name: "nav.group.people" }));
+
+    expect(useUIStore.getState().openGroups.people).toBe(false);
+    expect(screen.queryByRole("link", { name: "nav.groups" })).not.toBeInTheDocument();
+  });
+
+  it("leaves the dashboard outside the categories", () => {
+    render(<Sidebar />);
+    // Reachable without opening anything, because it is where you start.
+    expect(screen.getByRole("link", { name: "nav.dashboard" })).toBeInTheDocument();
+  });
+
+  it("gives a pupil a flat menu with no headings at all", () => {
+    authState.user.role = "student";
+    mockPathname = "/dashboard";
+    render(<Sidebar />);
+
+    expect(
+      screen.queryByRole("button", { name: "nav.group.learning" }),
+    ).not.toBeInTheDocument();
+    expect(screen.getByRole("link", { name: "nav.achievements" })).toBeInTheDocument();
+  });
+
+  it("keeps every entry reachable on the rail, closed categories or not", () => {
+    useUIStore.setState({ collapsed: false, openGroups: { people: false } });
+    render(<Sidebar />);
+    expect(screen.queryByRole("link", { name: "nav.groups" })).not.toBeInTheDocument();
+
+    // A rail has no room for headings, so it shows the icons and nothing else.
+    // Hiding entries there would leave the user with no way to reach them.
+    useUIStore.setState({ collapsed: true, openGroups: { people: false } });
+    render(<Sidebar />);
+    expect(screen.getAllByRole("link", { name: "nav.groups" }).length).toBeGreaterThan(0);
   });
 });
