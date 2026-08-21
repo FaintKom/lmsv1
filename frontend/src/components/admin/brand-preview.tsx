@@ -39,14 +39,26 @@ function mix(hex: string, toward: string, amount: number) {
 
 export function BrandPreview({ primary, secondary }: { primary: string; secondary: string }) {
   const { t } = useTranslation();
-  const [dark, setDark] = useState(false);
+  // Opens in whichever theme the admin is already sitting in. Showing them the
+  // light samples while their own interface is dark answers a question they did
+  // not ask; the toggle is there for when they do want the other one.
+  const [dark, setDark] = useState(
+    () => typeof document !== "undefined" && document.documentElement.classList.contains("dark"),
+  );
 
   const skin = dark ? SURFACE.dark : SURFACE.light;
   const onFill = readableOn(primary);
   const fillRatio = contrastRatio(primary, onFill);
   const linkColor = readableAs(primary, skin.page);
-  const secondaryText = readableAs(secondary, skin.page);
   const merged = tooClose(primary, secondary);
+
+  // Against the tint they actually sit on, not against the page. Computing
+  // these against the page was off by exactly the tint: 4.02:1 where 4.5 was
+  // needed, which the dark-theme audit caught and no unit test would have.
+  const primaryTint = mix(primary, skin.page, 0.86);
+  const secondaryTint = mix(secondary, skin.page, 0.86);
+  const onPrimaryTint = readableAs(primary, primaryTint);
+  const onSecondaryTint = readableAs(secondary, secondaryTint);
 
   return (
     <div>
@@ -80,14 +92,14 @@ export function BrandPreview({ primary, secondary }: { primary: string; secondar
           </span>
           <span
             className="rounded-lg px-2.5 py-1 text-xs font-semibold"
-            style={{ background: mix(primary, skin.page, 0.86), color: linkColor }}
+            style={{ background: primaryTint, color: onPrimaryTint }}
           >
             {t("admin.settings.previewBadge")}
           </span>
           <span
             data-testid="preview-streak"
             className="inline-flex items-center gap-1.5 rounded-pill px-2.5 py-1 text-xs font-semibold"
-            style={{ background: mix(secondary, skin.page, 0.86), color: secondaryText }}
+            style={{ background: secondaryTint, color: onSecondaryTint }}
           >
             <Flame className="h-3.5 w-3.5" />
             {t("admin.settings.previewStreak")}

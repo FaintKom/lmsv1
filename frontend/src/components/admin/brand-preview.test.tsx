@@ -3,6 +3,13 @@ import { describe, expect, it, vi } from "vitest";
 
 import { contrastRatio, readableOn } from "@/lib/brand/contrast";
 
+/** jsdom hands back "rgb(r, g, b)"; the maths wants #rrggbb. */
+function toHex(rgb: string): string {
+  if (rgb.startsWith("#")) return rgb;
+  const [r, g, b] = (rgb.match(/\d+/g) || ["0", "0", "0"]).slice(0, 3);
+  return `#${[r, g, b].map((v) => Number(v).toString(16).padStart(2, "0")).join("")}`;
+}
+
 import { BrandPreview } from "./brand-preview";
 
 vi.mock("@/lib/i18n/context", () => ({
@@ -59,6 +66,28 @@ describe("BrandPreview", () => {
   it("does not warn about a pair anyone can tell apart", () => {
     render(<BrandPreview primary="#22c55e" secondary="#1e3a8a" />);
     expect(screen.queryByTestId("preview-merge-warning")).not.toBeInTheDocument();
+  });
+
+  it("keeps the tinted labels readable on their own tint, not on the page", () => {
+    // Caught by the dark-theme audit, not by any unit test: the text colour was
+    // computed against the page while being painted on an 86% tint of the brand
+    // colour, landing at 4.02:1 where 4.5 was needed.
+    render(<BrandPreview primary="#22c55e" secondary="#3b82f6" />);
+
+    for (const testid of ["preview-streak"]) {
+      const el = screen.getByTestId(testid);
+      const { backgroundColor, color } = el.style;
+      expect(contrastRatio(toHex(backgroundColor), toHex(color))).toBeGreaterThanOrEqual(4.5);
+    }
+  });
+
+  it("opens in the theme the admin is already in", () => {
+    document.documentElement.classList.add("dark");
+    render(<BrandPreview primary="#22c55e" secondary="#3b82f6" />);
+    // Not the light page: showing light samples inside a dark interface answers
+    // a question nobody asked, and trips the dark-theme audit besides.
+    expect(stage().style.background).not.toBe("rgb(255, 255, 255)");
+    document.documentElement.classList.remove("dark");
   });
 
   it("switches its own theme without touching the page's", () => {
