@@ -5,7 +5,7 @@ from fractions import Fraction
 from pathlib import Path
 
 from fastapi import UploadFile
-from sqlalchemy import func, select
+from sqlalchemy import func, select, text
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import selectinload
 
@@ -113,17 +113,28 @@ async def _get_exercise_with_relations(
 async def create_exercise(db: AsyncSession, user: User, data: dict) -> Exercise:
     _check_permission(user)
 
-    lesson_id = data["lesson_id"]
-    # Resolve org_id from lesson → module → course
-    result = await db.execute(
-        select(Course.org_id)
-        .join(Module, Module.course_id == Course.id)
-        .join(Lesson, Lesson.module_id == Module.id)
-        .where(Lesson.id == lesson_id)
-    )
-    org_id = result.scalar_one_or_none()
-    if not org_id:
-        raise NotFoundError("Lesson not found")
+    # Школа берётся у того, кто создаёт. Раньше её вычисляли из урока, но
+    # задание может завестись в библиотеке, где урока нет вовсе (specs/030), —
+    # и другого источника, кроме вызывающего, там не существует. Это же ровно
+    # граница арендатора: номер школы не приходит из запроса.
+    lesson_id = data.get("lesson_id")
+    org_id = user.org_id
+
+    if lesson_id:
+        result = await db.execute(
+            select(Course.org_id)
+            .join(Module, Module.course_id == Course.id)
+            .join(Lesson, Lesson.module_id == Module.id)
+            .where(Lesson.id == lesson_id)
+        )
+        lesson_org_id = result.scalar_one_or_none()
+        # Чужой урок и несуществующий урок отвечают одинаково: чужого для
+        # вызывающего не существует.
+        if not lesson_org_id or (
+            user.role != UserRole.super_admin and lesson_org_id != user.org_id
+        ):
+            raise NotFoundError("Lesson not found")
+        org_id = lesson_org_id
 
     exercise_type = data["exercise_type"]
     if isinstance(exercise_type, str):
@@ -191,6 +202,44 @@ async def list_exercises(
     exercises = list(result.scalars().unique().all())
 
     return exercises, total
+
+
+async def placed_exercise_ids(db: AsyncSession, org_id: uuid.UUID) -> set[uuid.UUID]:
+    """Задания школы, на которые ссылается хоть один блок урока.
+
+    Считается по блокам, а не по `lesson_id`: поле говорит, где задание
+    завели, а блок — где его показывают. После specs/030 это разные вещи, и
+    библиотеку интересует вторая.
+
+    Один запрос на страницу списка: содержимое урока — JSONB со страницами и
+    блоками, и Postgres разворачивает его сам.
+    """
+    rows = await db.execute(
+        text(
+            """
+            SELECT DISTINCT block ->> 'exercise_id' AS exercise_id
+            FROM lessons l
+            JOIN modules m ON m.id = l.module_id
+            JOIN courses c ON c.id = m.course_id,
+                 LATERAL jsonb_array_elements(COALESCE(l.content -> 'pages', '[]'::jsonb)) page,
+                 LATERAL jsonb_array_elements(COALESCE(page -> 'blocks', '[]'::jsonb)) block
+            WHERE c.org_id = :org_id
+              AND block ? 'exercise_id'
+              AND block ->> 'exercise_id' <> ''
+            """
+        ),
+        {"org_id": str(org_id)},
+    )
+
+    placed: set[uuid.UUID] = set()
+    for (value,) in rows:
+        try:
+            placed.add(uuid.UUID(value))
+        except (ValueError, TypeError):
+            # Блок мог унести с собой мусор вместо номера — это не повод
+            # ронять список библиотеки.
+            continue
+    return placed
 
 
 async def get_exercises_by_lesson(

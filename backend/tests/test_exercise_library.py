@@ -84,6 +84,10 @@ async def test_listing_tells_placed_from_unplaced(client, db, org, teacher):
 
     Без этого признака библиотека не отвечает на свой главный вопрос — «что
     у меня есть и что из этого никуда не поставлено».
+
+    Поставленным задание делает **блок урока**, а не поле `lesson_id`: поле
+    говорит, где задание завели, блок — где его показывают, и после specs/030
+    это разные вещи.
     """
     course = await make_course(db, org, teacher)
     module = await make_module(db, course.id)
@@ -100,6 +104,25 @@ async def test_listing_tells_placed_from_unplaced(client, db, org, teacher):
         headers=auth_header(teacher),
     )
     assert placed.status_code == 200, placed.text
+
+    lesson.content = {
+        "version": 3,
+        "pages": [
+            {
+                "id": "page_1",
+                "blocks": [
+                    {
+                        "id": "block_1",
+                        "type": "exercise",
+                        "sort_order": 0,
+                        "page": 1,
+                        "exercise_id": placed.json()["id"],
+                    }
+                ],
+            }
+        ],
+    }
+    await db.flush()
 
     spare = await client.post(
         "/api/v1/exercises",

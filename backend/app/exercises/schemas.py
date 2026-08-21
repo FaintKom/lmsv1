@@ -280,7 +280,10 @@ class ScormPackageConfig(BaseModel):
 
 
 class ExerciseCreate(BaseModel):
-    lesson_id: uuid.UUID
+    # Урок необязателен: задание заводится в библиотеке и ставится потом
+    # (specs/030). Если урок указан, он проверяется на принадлежность школе
+    # вызывающего — школа задания всё равно берётся у вызывающего.
+    lesson_id: uuid.UUID | None = None
     exercise_type: ExerciseType
     title: str
     config: dict = {}
@@ -323,8 +326,11 @@ class TestCaseInExercise(BaseModel):
 
 class ExerciseResponse(BaseModel):
     id: uuid.UUID
-    lesson_id: uuid.UUID
+    lesson_id: uuid.UUID | None = None
     org_id: uuid.UUID
+    #: Стоит ли задание хоть в одном уроке. Библиотеку открывают ровно с этим
+    #: вопросом — что есть и что из этого никуда не поставлено.
+    is_placed: bool | None = None
     display_id: str
     exercise_type: ExerciseType
     title: str

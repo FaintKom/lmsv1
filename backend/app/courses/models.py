@@ -49,7 +49,9 @@ class Course(Base, IDMixin, TimestampMixin):
     template_version: Mapped[int] = mapped_column(Integer, default=1)
 
     modules: Mapped[list["Module"]] = relationship(
-        back_populates="course", cascade="all, delete-orphan", order_by="Module.sort_order",
+        back_populates="course",
+        cascade="all, delete-orphan",
+        order_by="Module.sort_order",
         foreign_keys="[Module.course_id]",
     )
 
@@ -82,7 +84,11 @@ class Lesson(Base, IDMixin, TimestampMixin):
     duration_minutes: Mapped[int | None] = mapped_column(Integer)
 
     module: Mapped["Module"] = relationship(back_populates="lessons")
+    # Без каскада намеренно (specs/030). С ним удаление урока уносило задания
+    # вместе с решениями учеников, а отвязка задания от урока уничтожала его
+    # же: `delete-orphan` считает сиротой всё, что вышло из коллекции.
     exercises: Mapped[list["Exercise"]] = relationship(  # noqa: F821
-        back_populates="lesson", cascade="all, delete-orphan", order_by="Exercise.sort_order",
+        back_populates="lesson",
+        order_by="Exercise.sort_order",
         foreign_keys="[Exercise.lesson_id]",
     )

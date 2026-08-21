@@ -81,8 +81,11 @@ EXERCISE_TYPE_PREFIX = {
 class Exercise(Base, IDMixin, TimestampMixin):
     __tablename__ = "exercises"
 
-    lesson_id: Mapped[uuid.UUID] = mapped_column(
-        UUID(as_uuid=True), ForeignKey("lessons.id", ondelete="CASCADE"), nullable=False
+    # Задание принадлежит школе, а не уроку (specs/030): в библиотеке оно
+    # существует до постановки и остаётся после того, как урок удалили —
+    # отсюда SET NULL вместо CASCADE, который уносил задания с решениями.
+    lesson_id: Mapped[uuid.UUID | None] = mapped_column(
+        UUID(as_uuid=True), ForeignKey("lessons.id", ondelete="SET NULL"), nullable=True
     )
     org_id: Mapped[uuid.UUID] = mapped_column(
         UUID(as_uuid=True), ForeignKey("organizations.id", ondelete="CASCADE"), nullable=False
