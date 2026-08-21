@@ -127,17 +127,41 @@ describe("Sidebar categories", () => {
     expect(document.getElementById(controls as string)).toBeInTheDocument();
   });
 
-  it("opens the category holding the page you are on", () => {
+  it("shows the category holding the page you are on, until you say otherwise", () => {
     mockPathname = "/admin/courses";
-    // Even against a saved preference: you cannot be looking at a page that
-    // the menu insists is tucked away.
+    render(<Sidebar />);
+
+    // Nobody has closed it, so it is open and the current page is in sight.
+    expect(
+      screen.getByRole("button", { name: "nav.group.learning" }),
+    ).toHaveAttribute("aria-expanded", "true");
+    expect(screen.getByRole("link", { name: "nav.courses" })).toBeInTheDocument();
+  });
+
+  // Shipped broken: the category holding the current page was forced open, so
+  // its heading did nothing when clicked — while still writing "closed" to
+  // storage, which then took effect on some later page. A control that ignores
+  // you and changes something out of sight is worse than one that does nothing.
+  it("lets you close the category you are standing in", () => {
+    mockPathname = "/admin/courses";
+    render(<Sidebar />);
+
+    fireEvent.click(screen.getByRole("button", { name: "nav.group.learning" }));
+
+    expect(
+      screen.getByRole("button", { name: "nav.group.learning" }),
+    ).toHaveAttribute("aria-expanded", "false");
+    expect(screen.queryByRole("link", { name: "nav.courses" })).not.toBeInTheDocument();
+  });
+
+  it("keeps that choice when you come back to the same page", () => {
+    mockPathname = "/admin/courses";
     useUIStore.setState({ collapsed: false, openGroups: { learning: false } });
     render(<Sidebar />);
 
     expect(
       screen.getByRole("button", { name: "nav.group.learning" }),
-    ).toHaveAttribute("aria-expanded", "true");
-    expect(screen.getByRole("link", { name: "nav.courses" })).toBeInTheDocument();
+    ).toHaveAttribute("aria-expanded", "false");
   });
 
   it("remembers a category the user closed", () => {
