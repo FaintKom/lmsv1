@@ -112,4 +112,20 @@ describe("tooClose", () => {
   it("passes a pair anyone can tell apart", () => {
     expect(tooClose("#22c55e", "#1e3a8a")).toBe(false);
   });
+
+  it("does not flag the pairs we suggest ourselves", () => {
+    // Found by looking rather than by testing: the first version measured
+    // contrast alone, so a suggestion sitting at the same lightness as the
+    // primary — which all of them do — tripped our own warning the moment it
+    // was offered.
+    for (const primary of ["#22c55e", "#facc15", "#7c3aed", "#0891b2"]) {
+      for (const secondary of suggestSecondary(primary)) {
+        expect(tooClose(primary, secondary), `${primary} vs ${secondary}`).toBe(false);
+      }
+    }
+  });
+
+  it("still flags a colour beside a slightly different shade of itself", () => {
+    expect(tooClose("#facc15", "#f7c91a")).toBe(true);
+  });
 });

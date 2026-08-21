@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { useRouter, useSearchParams } from "next/navigation";
+import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { useAuthStore } from "@/stores/auth-store";
 import { Button } from "@/components/ui/button";
@@ -20,22 +20,28 @@ export default function LoginPage() {
  const [password, setPassword] = useState("");
  const [error, setError] = useState("");
  const [loading, setLoading] = useState(false);
- const params = useSearchParams();
  const [brand, setBrand] = useState<SchoolBranding | null>(null);
- const slug = schoolSlugFor(params.get("s"));
+ const [slug, setSlug] = useState<string | null>(null);
 
+ // The slug is read here rather than through useSearchParams, which would
+ // demand a <Suspense> boundary at prerender and fail the build. It is a
+ // client-only value anyway: half of it comes from localStorage.
+ //
  // A slug nobody owns, a school that stopped paying, storage that is switched
- // off — all end here, with no branding and nothing said about which it was.
+ // off — all end the same way, with no branding and nothing said about which
+ // it was.
  useEffect(() => {
- if (!slug) return;
+ const found = schoolSlugFor(new URLSearchParams(window.location.search).get("s"));
+ setSlug(found);
+ if (!found) return;
  let cancelled = false;
- fetchPublicSchool(slug)
+ fetchPublicSchool(found)
  .then((school) => !cancelled && setBrand(school.branding))
  .catch(() => {});
  return () => {
  cancelled = true;
  };
- }, [slug]);
+ }, []);
 
  const handleSubmit = async (e: React.FormEvent) => {
  e.preventDefault();

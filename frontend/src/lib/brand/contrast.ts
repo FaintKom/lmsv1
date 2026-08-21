@@ -15,8 +15,11 @@
 /** WCAG AA for normal text. The same bar the rest of the project uses. */
 const AA = 4.5;
 
-/** Below this, two colours stop being tellable apart on a chart. */
+/** Below this, two colours of the same hue stop being tellable apart. */
 const MERGE = 1.3;
+
+/** Degrees of hue within which two colours read as the same colour. */
+const SAME_HUE = 25;
 
 const LIGHT_TEXT = "#ffffff";
 const DARK_TEXT = "#0b0b0b";
@@ -151,7 +154,17 @@ export function suggestSecondary(primary: string): string[] {
   return [40, 180, 120, 210].map((shift) => fromHsl([(h + shift) % 360, sat, light]));
 }
 
-/** Two colours near enough that adjacent chart series would read as one. */
+/**
+ * Two colours near enough that adjacent chart series would read as one.
+ *
+ * Both tests have to fail, not either. Contrast alone is a luminance measure,
+ * and any two colours of the same lightness score badly on it however different
+ * their hues — which made the first version warn about nearly every pair we
+ * suggested ourselves. A yellow line and a blue line of equal lightness are
+ * told apart at a glance; a yellow line and a slightly different yellow are not.
+ */
 export function tooClose(a: string, b: string): boolean {
-  return contrastRatio(a, b) < MERGE;
+  const apart = Math.abs(toHsl(a)[0] - toHsl(b)[0]);
+  const hueGap = Math.min(apart, 360 - apart);
+  return hueGap < SAME_HUE && contrastRatio(a, b) < MERGE;
 }
