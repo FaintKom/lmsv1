@@ -7,7 +7,7 @@
 типов заданий руками в проде, аккаунтом учителя, 2026-08-20 и 2026-08-21.
 
 Оформление флешкарт (находка 6) вынесено в отдельную
-[`specs/033-flashcards-have-styles`](../033-flashcards-have-styles/spec.md) и
+[`specs/038-flashcards-have-styles`](../038-flashcards-have-styles/spec.md) и
 здесь не повторяется. Находка 1 (в библиотеке нет кнопки создания) относится к
 `specs/030-exercise-library`.
 
