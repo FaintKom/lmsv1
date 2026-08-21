@@ -55,6 +55,7 @@ import {
 } from "lucide-react";
 import type { Course, Module, Lesson } from "@/types/api";
 import { lessonSummary, type BlockKind } from "./lesson-summary";
+import { LessonElementsPanel } from "./lesson-elements-panel";
 
 /** One translation key per kind of thing a page can hold. */
 const KIND_KEYS: Record<BlockKind, string> = {
@@ -137,6 +138,17 @@ export default function CourseEditorPage() {
  const [newModuleTitle, setNewModuleTitle] = useState("");
  const [addingModule, setAddingModule] = useState(false);
  const [expandedModules, setExpandedModules] = useState<Set<string>>(new Set());
+ // Раскрытые уроки хранятся множеством, а не одним значением: раскрыть
+ // соседний урок, не свернув этот, — обычное дело при сборке курса.
+ const [openLessons, setOpenLessons] = useState<Set<string>>(new Set());
+ const toggleLesson = useCallback((lessonId: string) => {
+ setOpenLessons((current) => {
+ const next = new Set(current);
+ if (next.has(lessonId)) next.delete(lessonId);
+ else next.add(lessonId);
+ return next;
+ });
+ }, []);
 
  // Inline editing
  const [editingModuleId, setEditingModuleId] = useState<string | null>(null);
@@ -841,6 +853,25 @@ export default function CourseEditorPage() {
  className="flex cursor-pointer items-center gap-2.5 px-3 py-2.5"
  onClick={() => router.push(editHref)}
  >
+ {/* Раскрытие и переход — разные действия, поэтому кнопка своя и
+   останавливает всплытие: иначе попытка заглянуть внутрь уводила
+   бы со страницы курса. */}
+ <button
+ type="button"
+ id={`lesson-toggle-${lesson.id}`}
+ aria-expanded={openLessons.has(lesson.id)}
+ aria-controls={`lesson-elements-${lesson.id}`}
+ aria-label={t("admin.courseEdit.elementsToggle")}
+ onClick={(e) => {
+ e.stopPropagation();
+ toggleLesson(lesson.id);
+ }}
+ className="shrink-0 rounded p-1 text-text-subtle hover:bg-surface-2 hover:text-text focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
+ >
+ <ChevronDown
+ className={`h-3.5 w-3.5 transition-transform ${openLessons.has(lesson.id) ? "rotate-180" : ""}`}
+ />
+ </button>
  <FileText className="h-4 w-4 shrink-0 text-text-subtle" />
  <div className="min-w-0 flex-1">
  <div className="flex items-center gap-2">
@@ -875,6 +906,19 @@ export default function CourseEditorPage() {
  </button>
  </div>
 
+ <div id={`lesson-elements-${lesson.id}`}>
+ <LessonElementsPanel
+ open={openLessons.has(lesson.id)}
+ lessonId={lesson.id}
+ courseId={courseId}
+ moduleId={module.id}
+ content={lesson.content as Record<string, unknown> | undefined}
+ onClose={() => {
+ toggleLesson(lesson.id);
+ document.getElementById(`lesson-toggle-${lesson.id}`)?.focus();
+ }}
+ />
+ </div>
  </div>
  </SortableLessonItem>
  );
