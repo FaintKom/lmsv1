@@ -132,7 +132,8 @@ export default function CookiePolicyPage() {
  <tr>
  <td className="py-2 pr-4 font-mono text-xs">sidebar-collapsed</td>
  <td className="py-2 pr-4">
- Remembers whether you prefer the sidebar open or collapsed
+ Remembers whether you prefer the sidebar open or collapsed, and
+ which of its categories you keep closed
  </td>
  <td className="py-2">Local storage</td>
  </tr>

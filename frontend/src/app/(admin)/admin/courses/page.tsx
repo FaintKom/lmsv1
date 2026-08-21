@@ -7,7 +7,7 @@ import { useConfirm } from "@/components/ui/confirm-dialog";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { useRouter } from "next/navigation";
-import { BookOpen, Plus, Pencil, Trash2, Copy, FileStack, Loader2 } from "lucide-react";
+import { BookOpen, Plus, Pencil, Trash2, Copy, FileStack, Loader2, Search } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useAuthStore } from "@/stores/auth-store";
 import type { Course } from "@/types/api";
@@ -43,6 +43,7 @@ export default function AdminCoursesPage() {
  const isTeacher = currentUser?.role === "teacher";
  const isMethodist = isTeacher && currentUser?.is_methodist;
  const [courses, setCourses] = useState<AdminCourse[]>([]);
+ const [filter, setFilter] = useState("");
  const [templates, setTemplates] = useState<Course[]>([]);
  const [orgs, setOrgs] = useState<OrgOption[]>([]);
  const [loading, setLoading] = useState(true);
@@ -364,10 +365,26 @@ export default function AdminCoursesPage() {
  <p className="mt-1 text-sm text-text-muted ">{courses.length} {t("admin.courses.countAcross")}</p>
  )}
  </div>
+ <div className="flex items-center gap-3">
+ {/* The search that used to sit in the sidebar, moved to where the list
+     is. Filters what is already loaded — this page fetches every course
+     at once, so asking the server again would only be slower. */}
+ <div className="relative">
+ <Search className="pointer-events-none absolute left-2.5 top-1/2 h-4 w-4 -translate-y-1/2 text-text-subtle" aria-hidden="true" />
+ <input
+ type="search"
+ value={filter}
+ onChange={(e) => setFilter(e.target.value)}
+ placeholder={t("admin.courses.filterPlaceholder")}
+ aria-label={t("admin.courses.filterPlaceholder")}
+ className="w-56 rounded-lg border border-border-strong bg-surface py-2 pl-8 pr-3 text-sm text-text focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary-soft"
+ />
+ </div>
  <Button onClick={() => setShowForm(!showForm)}>
  <Plus className="mr-2 h-4 w-4" />
  {t("admin.courses.newCourse")}
  </Button>
+ </div>
  </div>
 
  {showForm && (
@@ -466,11 +483,26 @@ export default function AdminCoursesPage() {
  </CardContent>
  </Card>
  ) : (
- <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
- {courses
+ (() => {
+ const needle = filter.trim().toLowerCase();
+ const shown = courses
  .filter((c) => !c.is_template)
- .map((course) => renderCourseCard(course))}
+ .filter((c) => !needle || c.title.toLowerCase().includes(needle));
+ // A filter that matches nothing says so. An empty grid reads as "this
+ // school has no courses", which is a different and alarming claim.
+ if (shown.length === 0) {
+ return (
+ <p className="py-10 text-center text-sm text-text-muted">
+ {t("admin.courses.filterNoMatch")}
+ </p>
+ );
+ }
+ return (
+ <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+ {shown.map((course) => renderCourseCard(course))}
  </div>
+ );
+ })()
  )}
  </div>
  );

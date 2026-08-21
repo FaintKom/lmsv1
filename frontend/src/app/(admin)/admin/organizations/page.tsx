@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import Link from "next/link";
 import { useAuthStore } from "@/stores/auth-store";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -184,7 +185,15 @@ export default function OrganizationsPage() {
  </div>
  ) : (
  <>
- <p className="font-semibold text-text ">{org.name}</p>
+ {/* The card is the door to this school's settings — until now the
+     list could only rename, and everything else about a school was
+     reachable from /admin/settings, which edits your own and no other. */}
+ <Link
+ href={`/admin/organizations/${org.id}`}
+ className="font-semibold text-text hover:text-primary hover:underline"
+ >
+ {org.name}
+ </Link>
  <p className="text-xs text-text-subtle ">
  {org.slug} • {org.is_active ? t("common.active") : t("common.inactive")}
  {org.created_at && ` • ${t("admin.organizations.createdLabel")} ${new Date(org.created_at).toLocaleDateString()}`}

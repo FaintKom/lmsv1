@@ -94,12 +94,22 @@ export default function AdminLayout({
  >
  <Menu className="h-5 w-5" />
  </button>
+ {/* The school's badge, not ours — same rule as the sidebar and the
+     dashboard's top bar. */}
  <div className="ml-3 flex items-center gap-2">
+ {branding.logo_url ? (
+ <img
+ src={branding.logo_url}
+ alt={branding.display_name}
+ className="h-7 w-7 rounded-xs object-cover"
+ />
+ ) : (
  <div className="relative flex h-7 w-7 items-center justify-center rounded-xs bg-green-500 text-sm font-extrabold text-white">
  g
  <span className="absolute bottom-[3px] right-[3px] h-[4px] w-[4px] rounded-full bg-sun-400" />
  </div>
- <span className="text-sm font-bold text-text ">GrassLMS</span>
+ )}
+ <span className="text-sm font-bold text-text ">{branding.display_name}</span>
  </div>
  </div>
  <main id="main-content" className={isLiveRoute ? "flex-1 overflow-hidden" : "flex-1 overflow-auto p-6 pb-20 md:p-10 md:pb-10 lg:p-12 lg:pb-12"}>{!isLiveRoute && <LiveLessonBanner />}{children}</main>

@@ -153,6 +153,39 @@ async def test_a_plain_admin_cannot_deactivate_their_own_org(client: AsyncClient
 
 
 @pytest.mark.asyncio
+async def test_super_admin_can_read_another_orgs_settings(client: AsyncClient, super_admin, org2):
+    """The positive half of the rule, which nothing asserted before.
+
+    Every other test here proves an admin is turned away. None proved a super
+    admin gets through, so the endpoint could have started refusing everybody
+    and this suite would have stayed green — while the screen that edits
+    another school's settings rests entirely on it.
+    """
+    resp = await client.get(
+        f"/api/v1/admin/organizations/{org2.id}",
+        headers=auth_header(super_admin),
+    )
+    assert resp.status_code == 200
+    assert resp.json()["id"] == str(org2.id)
+
+
+@pytest.mark.asyncio
+async def test_super_admin_can_edit_another_orgs_settings(
+    client: AsyncClient, super_admin, org2, db
+):
+    resp = await client.put(
+        f"/api/v1/admin/organizations/{org2.id}",
+        json={"settings": {"display_name": "Second School", "primary_color": "#123456"}},
+        headers=auth_header(super_admin),
+    )
+    assert resp.status_code == 200
+    assert resp.json()["settings"]["display_name"] == "Second School"
+
+    await db.refresh(org2)
+    assert org2.settings["primary_color"] == "#123456"
+
+
+@pytest.mark.asyncio
 async def test_delete_org_requires_super_admin(client: AsyncClient, admin, org2):
     """Regular admin cannot delete an org."""
     resp = await client.delete(

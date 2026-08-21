@@ -62,7 +62,6 @@ import app.courses.models  # noqa: F401
 import app.exercises.models  # noqa: F401
 import app.gamification.models  # noqa: F401
 import app.learning_paths.models  # noqa: F401
-import app.meetings.models  # noqa: F401
 import app.metered_billing.models  # noqa: F401
 import app.notifications.models  # noqa: F401
 import app.peer_review.models  # noqa: F401

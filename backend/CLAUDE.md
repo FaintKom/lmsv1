@@ -25,7 +25,7 @@ billing, calendar, certificates, common, courses, crm (школьная воро
 заявок — не путать с `waitlist`, это наша), curriculum, db, donations,
 email, exercises, export, feedback, gamification, integrations, journal,
 knowledge (dormant — роутер не смонтирован), learning_paths, math_problems,
-math_validation, meetings, metered_billing, notifications, orgs, parent,
+math_validation, metered_billing, notifications, orgs, parent,
 peer_review, progress, recommendations, recording, rooms, sandbox, schedule,
 scorm, scorm_import, sites, skills, submissions, team_projects, tutor, waitlist,
 webhooks.

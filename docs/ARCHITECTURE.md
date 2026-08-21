@@ -72,7 +72,6 @@ Feature-модульная организация. Каждый модуль о�
 | **billing** | Stripe checkout/portal/webhook + Lemon Squeezy |
 | **metered_billing** | Usage-based pricing (P2-9) |
 | **calendar** | События, RRULE, iCal export |
-| **meetings** | Отдельные встречи и слоты расписания — Jitsi-ссылки |
 | **live_lessons** | Живой урок: комната, роль, доска, опросы, сигналы, SSE |
 | **live_media** | Видео и звук урока: подпись LiveKit-токена, модерация, брейкауты. Единственное место, где собираются права |
 | **recording** | Audio/video submissions и записи уроков (MediaRecorder в браузере), хранение и срок жизни |

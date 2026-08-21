@@ -30,11 +30,17 @@ export default function DashboardLayout({
  const { isAuthenticated, isLoading, fetchUser } = useAuthStore();
  const [sidebarOpen, setSidebarOpen] = useState(false);
  const isLessonPage = /\/courses\/[^/]+\/lessons\//.test(pathname) || /^\/lesson\//.test(pathname);
- const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
+ // Not the user's collapse preference — that lives in ui-store and follows
+ // them between route groups. This is "the lesson page borrows the whole
+ // window", and it must not overwrite what they chose for themselves.
+ const [hiddenForLesson, setHiddenForLesson] = useState(false);
 
- // Auto-collapse main sidebar on lesson pages — lesson has its own sidebar
+ // A lesson brings its own sidebar, so the main one steps aside.
+ // setHiddenForLesson(isLessonPage), not `if (isLessonPage) set(true)`: the
+ // old form never restored the sidebar on the way out, so one visit to a
+ // lesson left the menu gone for the rest of the session.
  useEffect(() => {
-  if (isLessonPage) setSidebarCollapsed(true);
+  setHiddenForLesson(isLessonPage);
  }, [isLessonPage]);
 
  useEffect(() => {
@@ -116,13 +122,13 @@ export default function DashboardLayout({
  >
  Skip to content
  </a>
- {!sidebarCollapsed && <Sidebar open={sidebarOpen} onClose={() => setSidebarOpen(false)} onCollapse={() => setSidebarCollapsed(true)} />}
+ {!hiddenForLesson && <Sidebar open={sidebarOpen} onClose={() => setSidebarOpen(false)} />}
  <div className="flex flex-1 flex-col overflow-hidden">
  {/* Top bar */}
- <div className={`flex h-14 items-center border-b border-border-strong/60 bg-surface px-4 ${sidebarCollapsed ? '' : 'md:hidden'}`}>
+ <div className={`flex h-14 items-center border-b border-border-strong/60 bg-surface px-4 ${hiddenForLesson ? '' : 'md:hidden'}`}>
  <button
  onClick={() => {
- if (sidebarCollapsed) { setSidebarCollapsed(false); }
+ if (hiddenForLesson) { setHiddenForLesson(false); }
  else { setSidebarOpen(true); }
  }}
  className="rounded-lg p-2 text-text-muted hover:bg-surface-2 "
@@ -130,12 +136,23 @@ export default function DashboardLayout({
  >
  <Menu className="h-5 w-5" />
  </button>
+ {/* The school's badge, not ours. This bar is the only chrome left on a
+     lesson page, so a hard-coded "g / GrassLMS" here showed every school
+     somebody else's brand at exactly the moment they had nothing else. */}
  <div className="ml-3 flex items-center gap-2">
+ {branding.logo_url ? (
+ <img
+ src={branding.logo_url}
+ alt={branding.display_name}
+ className="h-7 w-7 rounded-xs object-cover"
+ />
+ ) : (
  <div className="relative flex h-7 w-7 items-center justify-center rounded-xs bg-green-500 text-sm font-extrabold text-white">
  g
  <span className="absolute bottom-[3px] right-[3px] h-[4px] w-[4px] rounded-full bg-sun-400" />
  </div>
- <span className="text-sm font-bold text-text ">GrassLMS</span>
+ )}
+ <span className="text-sm font-bold text-text ">{branding.display_name}</span>
  </div>
  </div>
  {/* A live lesson owns its window: the dashboard's generous padding and the

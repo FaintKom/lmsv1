@@ -9,6 +9,11 @@ const nextConfig: NextConfig = {
       // the routes and nav entries are gone.
       { source: "/sat-practice", destination: "/dashboard", permanent: false },
       { source: "/sat-practice/:path*", destination: "/dashboard", permanent: false },
+      // Jitsi left the product (specs/033). Live lessons and their recordings
+      // now share one page, so all three retired addresses land there.
+      { source: "/admin/meetings", destination: "/admin/live", permanent: false },
+      { source: "/admin/recordings", destination: "/admin/live", permanent: false },
+      { source: "/meetings", destination: "/live", permanent: false },
     ];
   },
   async rewrites() {
