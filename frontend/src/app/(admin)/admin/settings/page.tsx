@@ -18,7 +18,7 @@ const MENU_ITEM_KEYS = [
  { key: "review", labelKey: "admin.settings.menuReview", adminOnly: false },
  { key: "paths", labelKey: "admin.settings.menuPaths", adminOnly: false },
  { key: "calendar", labelKey: "admin.settings.menuCalendar", adminOnly: false },
- { key: "meetings", labelKey: "admin.settings.menuMeetings", adminOnly: false },
+ { key: "live", labelKey: "admin.settings.menuLiveLessons", adminOnly: false },
  { key: "analytics", labelKey: "admin.settings.menuAnalytics", adminOnly: false },
 ];
 

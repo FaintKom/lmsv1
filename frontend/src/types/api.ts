@@ -181,20 +181,6 @@ export interface CalendarEvent {
  source?: "event" | "assignment";
 }
 
-export interface Meeting {
- id: string;
- title: string;
- description: string | null;
- room_url: string;
- course_id: string | null;
- created_by: string;
- scheduled_at: string | null;
- duration_minutes: number;
- is_active: boolean;
- ended_at: string | null;
- recording_url: string | null;
- created_at: string;
-}
 
 export interface PaginatedResponse<T> {
  items: T[];

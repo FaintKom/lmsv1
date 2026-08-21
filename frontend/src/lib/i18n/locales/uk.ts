@@ -127,7 +127,6 @@ const uk: TranslationMap = {
  "nav.review": "Перевірка",
  "nav.paths": "Навчальні шляхи",
  "nav.calendar": "Календар",
- "nav.meetings": "Онлайн-уроки",
  "nav.skills": "Навички",
  "nav.children": "Мої діти",
  "nav.billing": "Оплата",
@@ -568,25 +567,6 @@ const uk: TranslationMap = {
  "cal.custom": "Інше",
 
  // Meetings
- "meet.title": "Онлайн-уроки",
- "meet.subtitle": "Приєднуйтесь до відеоконференцій",
- "meet.adminTitle": "Відеоконференції",
- "meet.adminSubtitle": "Починайте та керуйте уроками через Jitsi Meet",
- "meet.startLesson": "Почати онлайн-урок",
- "meet.joinLesson": "Приєднатися до уроку",
- "meet.noLive": "Зараз немає онлайн-уроків",
- "meet.noLiveHint": "Поверніться, коли викладач розпочне конференцію",
- "meet.pastMeetings": "Минулі зустрічі",
- "meet.noMeetings": "Зустрічей поки що немає",
- "meet.liveNow": "Зараз в ефірі",
- "meet.newMeeting": "Нова зустріч",
- "meet.startMeeting": "Почати зустріч",
- "meet.ended": "Завершено",
- "meet.live": "В ефірі",
- "meet.join": "Приєднатися",
- "meet.end": "Завершити",
- "meet.startAsHost": "Почати як ведучий",
- "meet.hostHint": "Відкрийте кімнату першим, щоб стати ведучим/модератором зустрічі.",
 
  // Parent
  "parent.welcome": "Ласкаво просимо,",
@@ -1852,7 +1832,7 @@ const uk: TranslationMap = {
  "admin.settings.menuReview": "Черга перевірки",
  "admin.settings.menuPaths": "Навчальні траєкторії",
  "admin.settings.menuCalendar": "Календар",
- "admin.settings.menuMeetings": "Зустрічі",
+ "admin.settings.menuLiveLessons": "Живі уроки",
  "admin.settings.menuAnalytics": "Аналітика",
 
  // Admin groups
@@ -3315,7 +3295,6 @@ const uk: TranslationMap = {
  "live.media.recordOpen": "Відкрити",
  "live.media.recordFailed": "Не вдалося записати",
  "live.media.join": "Приєднатися до відео",
- "nav.recordings": "Записи",
  "recordings.title": "Записи",
  "recordings.subtitle": "Записи уроків вашої школи, нові згори",
  "recordings.empty": "Записів поки немає",

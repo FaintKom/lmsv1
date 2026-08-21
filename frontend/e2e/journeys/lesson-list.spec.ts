@@ -78,12 +78,20 @@ test.beforeAll(async ({ playwright }) => {
 });
 
 test.afterAll(async ({ playwright }) => {
-  // The group is created fresh every run; left behind they pile up in the QA
-  // stack and slowly turn the groups page into a landfill.
-  if (!otherGroupId) return;
   const request = await playwright.request.newContext();
   const admin = await apiLogin(request, ADMIN);
-  await new Api(request, admin.access_token).del(`/admin/groups/${otherGroupId}`);
+  const api = new Api(request, admin.access_token);
+
+  // End the lessons. A live lesson left running puts the "join" banner on every
+  // page of both sections for everyone in the school — which is how this
+  // spec once made the dark-theme audit fail on sixteen unrelated routes.
+  for (const id of [ownLessonId, otherLessonId]) {
+    if (id) await api.post(`/live-lessons/${id}/end`).catch(() => {});
+  }
+
+  // The group is created fresh every run; left behind they pile up in the QA
+  // stack and slowly turn the groups page into a landfill.
+  if (otherGroupId) await api.del(`/admin/groups/${otherGroupId}`);
 });
 
 test("a pupil finds their group's lesson in the menu", async ({ context, page }) => {

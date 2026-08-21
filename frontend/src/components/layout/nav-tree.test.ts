@@ -20,6 +20,8 @@ function hrefsOf(role: string, menuVisibility: Record<string, boolean> = {}) {
  * access. If a rewrite quietly drops or adds an entry for some role, this is
  * what says so — long before a school notices a page it used to have.
  */
+const REMOVED_WITH_JITSI = ["/admin/meetings", "/meetings", "/admin/recordings"];
+
 const BEFORE: Record<string, string[]> = {
   super_admin: [
     "/admin",
@@ -115,14 +117,19 @@ const ADDED: Record<string, string[]> = {
 describe("buildNavTree — nobody loses a page", () => {
   for (const [role, expected] of Object.entries(BEFORE)) {
     it(`gives ${role} what the flat menu gave, plus only what we meant to add`, () => {
-      expect(hrefsOf(role).sort()).toEqual([...expected, ...ADDED[role]].sort());
+      const want = [...expected, ...ADDED[role]].filter(
+        (href) => !REMOVED_WITH_JITSI.includes(href),
+      );
+      expect(hrefsOf(role).sort()).toEqual(want.sort());
     });
   }
 
-  it("counts 23 entries for a super admin, 21 for an admin, 16 for a teacher", () => {
-    expect(hrefsOf("super_admin")).toHaveLength(23);
-    expect(hrefsOf("admin")).toHaveLength(21);
-    expect(hrefsOf("teacher")).toHaveLength(16);
+  it("counts 21 entries for a super admin, 19 for an admin, 14 for a teacher", () => {
+    // Two Jitsi entries and the standalone recordings page left; one live
+    // lessons entry arrived. Net: one fewer than the 22 we started with.
+    expect(hrefsOf("super_admin")).toHaveLength(21);
+    expect(hrefsOf("admin")).toHaveLength(19);
+    expect(hrefsOf("teacher")).toHaveLength(14);
   });
 
   it("never lists the same page twice", () => {
@@ -159,7 +166,7 @@ describe("buildNavTree — shape", () => {
       t,
     });
     expect(tree.groups).toEqual([]);
-    expect(tree.top).toHaveLength(11);
+    expect(tree.top).toHaveLength(10);
   });
 
   it("keeps the biggest category readable", () => {

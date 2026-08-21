@@ -64,7 +64,6 @@ from app.live_lessons.router import router as live_lessons_router
 from app.live_media.router import router as live_media_router
 from app.math_problems.router import router as math_problems_router
 from app.math_validation.router import router as math_validation_router
-from app.meetings.router import router as meetings_router
 from app.metered_billing.router import router as metered_billing_router
 from app.notifications.router import router as notifications_router
 from app.orgs.router import router as orgs_router
@@ -319,7 +318,6 @@ async def lifespan(app: FastAPI):
     import app.calendar.models  # noqa
     import app.live_lessons.models  # noqa
     import app.live_media.models  # noqa
-    import app.meetings.models  # noqa
     import app.skills.models  # noqa
     import app.exercises.models  # noqa
     import app.waitlist.models  # noqa
@@ -495,7 +493,6 @@ def create_app() -> FastAPI:
         learning_paths_router, prefix="/api/v1/learning-paths", tags=["Learning Paths"]
     )
     app.include_router(calendar_router, prefix="/api/v1/calendar", tags=["Calendar"])
-    app.include_router(meetings_router, prefix="/api/v1/meetings", tags=["Meetings"])
     app.include_router(live_lessons_router, prefix="/api/v1/live-lessons", tags=["Live Lessons"])
     # Same prefix as the lesson itself: the media belongs to a lesson and is
     # reached through it, so there is no second resource to authorise.

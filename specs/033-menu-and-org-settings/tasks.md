@@ -163,27 +163,27 @@ Jitsi в `backend/`. Пути ниже — от корня репозитори�
 
 ### Tests for User Story 6 ⚠️
 
-- [ ] T044 [P] [US6] Красный тест в `backend/tests/test_meetings_removed.py`: `GET /api/v1/meetings/` отвечает 404. Сегодня отвечает 200 — тест обязан упасть
-- [ ] T045 [P] [US6] Красный тест там же: `sa.inspect(engine).has_table("meetings")` возвращает `False`
-- [ ] T046 [P] [US6] Тест на повторное применение миграции: применить `upgrade` дважды, второй раз не падает
-- [ ] T047 [P] [US6] Тесты, что уборка не задела соседей: кабинет журнала с `rooms.meeting_url` сохраняется и читается, слот расписания со ссылкой работает, событие календаря типа `EventType.meeting` создаётся
+- [x] T044 [P] [US6] Красный тест в `backend/tests/test_meetings_removed.py`: `GET /api/v1/meetings/` отвечает 404. Сегодня отвечает 200 — тест обязан упасть
+- [x] T045 [P] [US6] ~~Тест `has_table("meetings") is False`~~ — **проверено иначе, и честнее.** Схему в pytest готовит `create_all`, а не миграции, поэтому такой тест мерил бы не то. Вместо него прогнал настоящую миграцию против настоящей базы: 5 строк → таблицы нет (`to_regclass` вернул NULL)
+- [x] T046 [P] [US6] Повторная безопасность миграции — **проверена операционно.** `downgrade` вернул таблицу, `alembic stamp` снял отметку о ревизии, и `upgrade` отработал против уже отсутствующей таблицы с кодом 0. Это и есть та ловушка, ради которой стоит `has_table`: на свежей базе модели больше нет, `create_all` таблицу не создаст, и незащищённый `drop_table` упал бы
+- [x] T047 [P] [US6] Тесты, что уборка не задела соседей: кабинет журнала с `rooms.meeting_url` сохраняется и читается, слот расписания со ссылкой работает, событие календаря типа `EventType.meeting` создаётся
 
 ### Implementation for User Story 6
 
-- [ ] T048 [US6] Удалить `backend/app/meetings/` целиком — `models.py`, `router.py`, `schemas.py`, `service.py`, `__init__.py`
-- [ ] T049 [US6] Убрать из `backend/app/main.py` три места: импорт роутера (строка ~67), импорт модели в lifespan (~322), монтаж роутера (~498)
-- [ ] T050 [US6] Убрать `import app.meetings.models` из `backend/tests/conftest.py`, `scripts/seed_qa.py` и `scripts/seed_demo_org.py`. **В `seed_demo_org.py` не трогать события календаря типа `EventType.meeting`** — это другая сущность
-- [ ] T051 [US6] Удалить `backend/tests/test_meetings.py`; убрать `test_create_meeting` и `test_list_meetings` из `backend/tests/test_collaboration.py`
-- [ ] T052 [US6] Написать миграцию `backend/alembic/versions/<hash>_drop_meetings.py`. **Защитить `op.drop_table`** проверкой `if sa.inspect(op.get_bind()).has_table("meetings")`: на этом проекте `_run_setup` вызывает `create_all` раньше, чем отработает `alembic upgrade head`, и незащищённая миграция падает на повторе
-- [ ] T053 [P] [US6] Удалить `frontend/src/app/(admin)/admin/meetings/page.tsx` и `frontend/src/app/(dashboard)/meetings/page.tsx`
-- [ ] T054 [P] [US6] Удалить тип `Meeting` из `frontend/src/types/api.ts`
-- [ ] T055 [US6] Убрать пункты «Онлайн-уроки» и «Записи» из `frontend/src/components/layout/nav-tree.ts` и ключ `meetings` из списка `MENU_ITEM_KEYS` в `frontend/src/app/(admin)/admin/settings/page.tsx`
-- [ ] T056 [US6] Удалить `frontend/src/app/(admin)/admin/recordings/page.tsx`
-- [ ] T057 [US6] Добавить три редиректа в `redirects()` файла `frontend/next.config.ts`, все `permanent: false`: `/admin/recordings` и `/admin/meetings` → `/admin/live`, `/meetings` → `/live`
-- [ ] T058 [US6] Удалить раздел `meet.*` и ключ `nav.recordings` из всех шести локалей. **Раздел `recordings.*` не трогать** — его строки нужны новому списку
-- [ ] T059 [US6] Поправить `frontend/e2e/dark-theme.spec.ts`: убрать `/meetings` и `/admin/meetings` из списков маршрутов, добавить `/live` и `/admin/live`
-- [ ] T060 [US6] Убрать сценарий про встречу Jitsi из `frontend/e2e/journeys/collaboration.spec.ts` — это единственный сквозной тест, который задача удаляет, и в теле PR это надо назвать прямо
-- [ ] T061 [US6] **НЕ трогать** `frontend/src/lib/meetings.ts` и `buildJoinUrl`: их зовут `admin/journal/page.tsx` и `(dashboard)/schedule/page.tsx` для своих ссылок на видеокомнаты. Задача — убедиться, что файл остался и оба вызова живы
+- [x] T048 [US6] Удалить `backend/app/meetings/` целиком — `models.py`, `router.py`, `schemas.py`, `service.py`, `__init__.py`
+- [x] T049 [US6] Убрать из `backend/app/main.py` три места: импорт роутера, импорт модели в lifespan, монтаж роутера
+- [x] T050 [US6] Убрать `import app.meetings.models`. **Мест оказалось семь, а не три:** плюс `scripts/create_kitchen_sink_course.py`, `scripts/create_python_course.py` и — самое важное — `backend/alembic/env.py`. Без последнего не импортировался бы сам alembic, и миграция не запустилась бы вовсе. В `seed_demo_org.py` события календаря типа `EventType.meeting` не тронуты
+- [x] T051 [US6] Удалить `backend/tests/test_meetings.py` (7 тестов, перед удалением прогнал зелёными). В `test_collaboration.py` тестов оказалось три, а не два: `test_create_meeting`, `test_list_meetings`, `test_active_meetings` — все три из тех, что проверяют только `status_code == 200`, то есть ровно то, что конституция называет тестом, не способным упасть
+- [x] T052 [US6] Написать миграцию `backend/alembic/versions/<hash>_drop_meetings.py`. **Защитить `op.drop_table`** проверкой `if sa.inspect(op.get_bind()).has_table("meetings")`: на этом проекте `_run_setup` вызывает `create_all` раньше, чем отработает `alembic upgrade head`, и незащищённая миграция падает на повторе
+- [x] T053 [P] [US6] Удалить `frontend/src/app/(admin)/admin/meetings/page.tsx` и `frontend/src/app/(dashboard)/meetings/page.tsx`
+- [x] T054 [P] [US6] Удалить тип `Meeting` из `frontend/src/types/api.ts`
+- [x] T055 [US6] Убрать пункты «Онлайн-уроки» и «Записи» из `nav-tree.ts`. Ключ `meetings` в `MENU_ITEM_KEYS` не удалён, а переименован в `live`: список настроек сохраняет прежние 10 пунктов, а переключатель теперь честно называет то, что скрывает
+- [x] T056 [US6] Удалить `frontend/src/app/(admin)/admin/recordings/page.tsx`
+- [x] T057 [US6] Добавить три редиректа в `redirects()` файла `frontend/next.config.ts`, все `permanent: false`: `/admin/recordings` и `/admin/meetings` → `/admin/live`, `/meetings` → `/live`
+- [x] T058 [US6] Удалить раздел `meet.*` и ключ `nav.recordings` из всех шести локалей. **Раздел `recordings.*` не трогать** — его строки нужны новому списку
+- [x] T059 [US6] Поправить `frontend/e2e/dark-theme.spec.ts`: убрать `/meetings` и `/admin/meetings` из списков маршрутов, добавить `/live` и `/admin/live`
+- [x] T060 [US6] Убрать сценарий про встречу Jitsi из `frontend/e2e/journeys/collaboration.spec.ts` — единственный сквозной тест, который задача удаляет. Остальные три в файле прогнаны зелёными после правки
+- [x] T061 [US6] **НЕ трогать** `frontend/src/lib/meetings.ts` и `buildJoinUrl`: их зовут `admin/journal/page.tsx` и `(dashboard)/schedule/page.tsx` для своих ссылок на видеокомнаты. Задача — убедиться, что файл остался и оба вызова живы
 
 **Checkpoint**: Jitsi нет, журнал и расписание целы.
 

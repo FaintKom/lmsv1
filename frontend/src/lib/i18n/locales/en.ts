@@ -128,7 +128,6 @@ const en: TranslationMap = {
  "nav.paths": "Learning Paths",
  "nav.billing": "Billing",
  "nav.calendar": "Calendar",
- "nav.meetings": "Live Lessons",
  "nav.skills": "Skills",
  "nav.children": "My Children",
  "nav.signOut": "Sign Out",
@@ -568,25 +567,6 @@ const en: TranslationMap = {
  "cal.custom": "Custom",
 
  // Meetings
- "meet.title": "Live Lessons",
- "meet.subtitle": "Join ongoing video conferences",
- "meet.adminTitle": "Video Conferences",
- "meet.adminSubtitle": "Start and manage live lessons via Jitsi Meet",
- "meet.startLesson": "Start Live Lesson",
- "meet.joinLesson": "Join Live Lesson",
- "meet.noLive": "No live lessons right now",
- "meet.noLiveHint": "Check back when your teacher starts a conference",
- "meet.pastMeetings": "Past Meetings",
- "meet.noMeetings": "No meetings yet",
- "meet.liveNow": "Live Now",
- "meet.newMeeting": "New Meeting",
- "meet.startMeeting": "Start Meeting",
- "meet.ended": "Ended",
- "meet.live": "Live",
- "meet.join": "Join",
- "meet.end": "End",
- "meet.startAsHost": "Start as host",
- "meet.hostHint": "Open the room first to become the meeting host/moderator.",
 
  // Parent
  "parent.welcome": "Welcome,",
@@ -1852,7 +1832,7 @@ const en: TranslationMap = {
  "admin.settings.menuReview": "Review Queue",
  "admin.settings.menuPaths": "Learning Paths",
  "admin.settings.menuCalendar": "Calendar",
- "admin.settings.menuMeetings": "Meetings",
+ "admin.settings.menuLiveLessons": "Live lessons",
  "admin.settings.menuAnalytics": "Analytics",
 
  // Admin groups
@@ -3315,7 +3295,6 @@ const en: TranslationMap = {
  "live.media.recordOpen": "Open",
  "live.media.recordFailed": "Could not record",
  "live.media.join": "Join video",
- "nav.recordings": "Recordings",
  "recordings.title": "Recordings",
  "recordings.subtitle": "Lesson recordings your school keeps, newest first",
  "recordings.empty": "No recordings yet",

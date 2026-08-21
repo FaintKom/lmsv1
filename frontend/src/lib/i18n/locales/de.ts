@@ -127,7 +127,6 @@ const de: TranslationMap = {
  "nav.review": "Bewertung",
  "nav.paths": "Lernpfade",
  "nav.calendar": "Kalender",
- "nav.meetings": "Live-Unterricht",
  "nav.skills": "Kompetenzen",
  "nav.children": "Meine Kinder",
  "nav.billing": "Abrechnung",
@@ -568,25 +567,6 @@ const de: TranslationMap = {
  "cal.custom": "Benutzerdefiniert",
 
  // Meetings
- "meet.title": "Live-Unterricht",
- "meet.subtitle": "An laufenden Videokonferenzen teilnehmen",
- "meet.adminTitle": "Videokonferenzen",
- "meet.adminSubtitle": "Live-Unterricht über Jitsi Meet starten und verwalten",
- "meet.startLesson": "Live-Unterricht starten",
- "meet.joinLesson": "Am Live-Unterricht teilnehmen",
- "meet.noLive": "Derzeit kein Live-Unterricht",
- "meet.noLiveHint": "Schauen Sie später vorbei, wenn Ihr Lehrer eine Konferenz startet",
- "meet.pastMeetings": "Vergangene Besprechungen",
- "meet.noMeetings": "Noch keine Besprechungen",
- "meet.liveNow": "Jetzt live",
- "meet.newMeeting": "Neue Besprechung",
- "meet.startMeeting": "Besprechung starten",
- "meet.ended": "Beendet",
- "meet.live": "Live",
- "meet.join": "Beitreten",
- "meet.end": "Beenden",
- "meet.startAsHost": "Als Gastgeber starten",
- "meet.hostHint": "Öffnen Sie den Raum zuerst, um Gastgeber/Moderator der Besprechung zu werden.",
 
  // Parent
  "parent.welcome": "Willkommen,",
@@ -1852,7 +1832,7 @@ const de: TranslationMap = {
  "admin.settings.menuReview": "Prüfwarteschlange",
  "admin.settings.menuPaths": "Lernpfade",
  "admin.settings.menuCalendar": "Kalender",
- "admin.settings.menuMeetings": "Meetings",
+ "admin.settings.menuLiveLessons": "Live-Unterricht",
  "admin.settings.menuAnalytics": "Analytik",
 
  // Admin groups
@@ -3315,7 +3295,6 @@ const de: TranslationMap = {
  "live.media.recordOpen": "Öffnen",
  "live.media.recordFailed": "Aufnahme fehlgeschlagen",
  "live.media.join": "Video beitreten",
- "nav.recordings": "Aufnahmen",
  "recordings.title": "Aufnahmen",
  "recordings.subtitle": "Die Unterrichtsaufnahmen deiner Schule, neueste zuerst",
  "recordings.empty": "Noch keine Aufnahmen",

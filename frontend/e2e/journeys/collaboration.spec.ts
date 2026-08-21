@@ -10,7 +10,7 @@ import {
 } from "../poms/ContentTypeHarness";
 
 /**
- * The remaining surfaces a class touches: meetings, team projects, peer
+ * The remaining surfaces a class touches: team projects, peer
  * review, and the student's own profile.
  *
  * The thread through all of them is cross-role visibility again — something a
@@ -27,7 +27,6 @@ test.describe.configure({ mode: "serial" });
 let teacherApi: Api;
 let studentApi: Api;
 let courseId = "";
-let meetingTitle = "";
 let projectTitle = "";
 let reviewTitle = "";
 let originalName = "";
@@ -40,7 +39,6 @@ test.beforeAll(async ({ playwright }) => {
   studentApi = new Api(request, student.access_token);
 
   const stamp = new Date().toISOString().replace(/[:.]/g, "-");
-  meetingTitle = `Standup ${stamp}`;
   projectTitle = `Group project ${stamp}`;
   reviewTitle = `Peer round ${stamp}`;
 
@@ -76,20 +74,6 @@ test.afterAll(async () => {
       console.warn(`teardown deleteCourse failed: ${(e as Error).message}`);
     }
   }
-});
-
-test("a meeting the teacher schedules reaches the student", async ({ page }) => {
-  await teacherApi.post("/meetings", {
-    title: meetingTitle,
-    description: "Daily sync.",
-    course_id: courseId,
-    scheduled_at: "2027-01-01T12:00:00Z",
-    duration_minutes: 30,
-  });
-
-  await authenticate(page.context(), STUDENT);
-  await page.goto(`${BASE_URL}/meetings`);
-  await expect(page.getByText(meetingTitle).first()).toBeVisible({ timeout: 15_000 });
 });
 
 test("a team project the teacher creates is listed", async ({ page }) => {

@@ -225,7 +225,7 @@ for (const route of PUBLIC_ROUTES) {
 const ROLE_ROUTES: Record<QaRole, string[]> = {
   student: [
     "/dashboard", "/courses", "/assignments", "/achievements", "/calendar",
-    "/meetings", "/peer-review", "/team-projects", "/attendance", "/schedule",
+    "/live", "/peer-review", "/team-projects", "/attendance", "/schedule",
     "/profile", "/progress", "/skills", "/leaderboard", "/certificates",
     "/paths", "/support",
   ],
@@ -233,7 +233,7 @@ const ROLE_ROUTES: Record<QaRole, string[]> = {
     "/admin", "/admin/groups", "/admin/courses", "/admin/content-library",
     "/admin/assignments", "/admin/gradebook", "/admin/review",
     "/admin/peer-review", "/admin/team-projects", "/admin/journal",
-    "/admin/calendar", "/admin/meetings", "/admin/analytics",
+    "/admin/calendar", "/admin/live", "/admin/analytics",
   ],
   // Same screens as teacher; is_methodist widens data reach, not the nav.
   // Kept short on purpose — it re-walks the four that change with the flag.
@@ -242,7 +242,7 @@ const ROLE_ROUTES: Record<QaRole, string[]> = {
     "/admin", "/admin/users", "/admin/groups", "/admin/courses",
     "/admin/content-library", "/admin/assignments", "/admin/gradebook",
     "/admin/review", "/admin/journal", "/admin/paths", "/admin/calendar",
-    "/admin/meetings", "/admin/analytics", "/admin/integrations",
+    "/admin/live", "/admin/analytics", "/admin/integrations",
     "/admin/settings", "/admin/billing", "/admin/bulk-enroll",
   ],
 };

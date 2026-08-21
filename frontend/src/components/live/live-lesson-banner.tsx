@@ -37,7 +37,12 @@ export function LiveLessonBanner() {
       </span>
       <button
         onClick={() => router.push(target)}
-        className="rounded-pill bg-surface px-3.5 py-1 text-xs font-bold text-green-800 transition-transform hover:translate-y-px"
+        // text-text, not text-green-800: the pill's background follows the
+        // theme and that fixed green did not, so in dark mode this was dark
+        // green on near-black — 1.82:1, on the banner's only action. Surfaced
+        // by the dark-theme audit once live lessons became reachable enough to
+        // leave one running.
+        className="rounded-pill bg-surface px-3.5 py-1 text-xs font-bold text-text transition-transform hover:translate-y-px"
       >
         {t("live.join")}
       </button>

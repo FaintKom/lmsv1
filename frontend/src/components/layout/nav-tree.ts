@@ -8,7 +8,6 @@ import {
   CalendarClock,
   ClipboardList,
   Contact,
-  Film,
   FolderKanban,
   Heart,
   Inbox,
@@ -24,7 +23,6 @@ import {
   Trophy,
   Users,
   UsersRound,
-  Video,
 } from "lucide-react";
 
 /**
@@ -91,7 +89,7 @@ export function buildNavTree({
   }
 
   if (!isAdminOrTeacher) {
-    // Eleven entries and no role gates. Categories solve length, and a pupil
+    // Ten entries and no role gates. Categories solve length, and a pupil
     // does not have the problem — nor would "People" or "School" mean anything
     // to one. Flat it stays.
     return {
@@ -102,7 +100,6 @@ export function buildNavTree({
         // My room + My avatar live as tabs inside /achievements now.
         { href: "/achievements", label: t("nav.achievements"), icon: Trophy },
         { href: "/calendar", label: t("nav.calendar"), icon: Calendar },
-        { href: "/meetings", label: t("nav.meetings"), icon: Video },
         { href: "/live", label: t("nav.liveLessons"), icon: Radio },
         { href: "/peer-review", label: t("nav.peerReview"), icon: MessagesSquare },
         { href: "/team-projects", label: t("nav.teamProjects"), icon: FolderKanban },
@@ -174,14 +171,8 @@ export function buildNavTree({
         ...(visible("journal")
           ? [{ href: "/admin/journal", label: t("nav.journal"), icon: BookOpenCheck }]
           : []),
-        ...(visible("recordings")
-          ? [{ href: "/admin/recordings", label: t("nav.recordings"), icon: Film }]
-          : []),
         ...(visible("calendar")
           ? [{ href: "/admin/calendar", label: t("nav.calendar"), icon: Calendar }]
-          : []),
-        ...(visible("meetings")
-          ? [{ href: "/admin/meetings", label: t("nav.meetings"), icon: Video }]
           : []),
       ],
     },
