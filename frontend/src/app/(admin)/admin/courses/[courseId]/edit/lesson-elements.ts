@@ -83,6 +83,44 @@ export function resolveName(element: LessonElement, names: ElementNames | null):
     : { kind: "missing", key: "admin.courseEdit.elementMissing" };
 }
 
+/**
+ * Дорисовать задания, привязанные к уроку, но не показанные ни одним блоком.
+ *
+ * Такие задания — не редкость и не поломка: пока `exercises.lesson_id` жив,
+ * задание попадает в урок и без блока, а плеер показывает их ученику в конце.
+ * Список, читающий одни блоки, назвал бы такой урок пустым — на QA-стенде
+ * ровно так и вышло: 26 привязанных заданий и ни одного блока.
+ *
+ * Правило то же, что у редактора урока (`adoptDetachedExercises`): в конец
+ * последней страницы, в порядке ответа сервера — то есть в том, в котором их
+ * видит ученик.
+ */
+export function withDetached(pages: ElementsPage[], exerciseIds: string[]): ElementsPage[] {
+  const shown = new Set(
+    pages.flatMap((page) => page.elements.map((e) => e.exerciseId).filter(Boolean)),
+  );
+  const detached = exerciseIds.filter((id) => !shown.has(id));
+  if (detached.length === 0) return pages;
+
+  const last = pages.length - 1;
+  return pages.map((page, index) =>
+    index !== last
+      ? page
+      : {
+          ...page,
+          elements: [
+            ...page.elements,
+            ...detached.map((id) => ({
+              blockId: `adopted_${id}`,
+              type: "exercise" as BlockKind,
+              name: { kind: "pending" } as ElementName,
+              exerciseId: id,
+            })),
+          ],
+        },
+  );
+}
+
 /** Где живёт урок — из этого собирается ссылка на блок без своей страницы. */
 export interface ElementWhere {
   lessonId: string;

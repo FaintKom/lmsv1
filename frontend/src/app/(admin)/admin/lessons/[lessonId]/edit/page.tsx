@@ -144,7 +144,12 @@ export default function LessonEditorPage() {
   const courseId = search.get("courseId") || "";
   const moduleId = search.get("moduleId") || "";
   // Блок, названный в ссылке из списка урока на странице курса.
-  const [anchored, setAnchored] = useState<string | null>(() => anchoredBlockId(search));
+  //
+  // Читается на каждом рендере, а не один раз при монтировании: на первом
+  // рендере параметров ещё нет, и запомненное значение осталось бы пустым —
+  // подсветка не появлялась, проверено в браузере. Гасит её отдельный флаг.
+  const [anchorSpent, setAnchorSpent] = useState(false);
+  const anchored = anchorSpent ? null : anchoredBlockId(search);
 
   const [loading, setLoading] = useState(true);
   const [title, setTitle] = useState("");
@@ -212,13 +217,14 @@ export default function LessonEditorPage() {
         // элемента, к которому ведёт ссылка, на странице ещё нет. Подсветка
         // снимается сама — «прокрутили куда-то» иначе неотличимо от «не
         // сработало», а вечная рамка мешает работать.
-        if (anchored) {
+        const target = anchoredBlockId(search);
+        if (target) {
           requestAnimationFrame(() => {
             document
-              .getElementById(`block-${anchored}`)
+              .getElementById(`block-${target}`)
               ?.scrollIntoView({ block: "center", behavior: "smooth" });
           });
-          setTimeout(() => setAnchored(null), 2500);
+          setTimeout(() => setAnchorSpent(true), 2500);
         }
         setCourseTitle(courseRes.data?.title || "");
       } catch (err) {

@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import { elementHref, lessonElements, resolveName } from "./lesson-elements";
+import { elementHref, lessonElements, resolveName, withDetached } from "./lesson-elements";
 
 /**
  * Состав урока для строки на странице курса.
@@ -99,6 +99,46 @@ describe("имя элемента", () => {
     expect(
       nameOf({ id: "b2", type: "assignment", sort_order: 0, page: 1, assignment_id: "a1" }),
     ).toEqual({ kind: "pending" });
+  });
+});
+
+/**
+ * Задание может быть привязано к уроку полем `lesson_id` и не быть показано
+ * ни одним блоком. Ученик его всё равно видит — плеер дорисовывает такие в
+ * конце урока, — а список по одним блокам показывал бы пустой урок.
+ *
+ * Найдено проверкой в браузере на QA-стенде: у урока 26 привязанных заданий
+ * и ни одного блока.
+ */
+describe("задания, привязанные к уроку помимо блоков", () => {
+  it("дорисовываются в конец последней страницы", () => {
+    const pages = lessonElements(v3([{ blocks: [text("b1", "Первый")] }]));
+    const full = withDetached(pages, ["e1", "e2"]);
+
+    expect(full[0].elements.map((e) => e.blockId)).toEqual(["b1", "adopted_e1", "adopted_e2"]);
+    expect(full[0].elements[1]).toMatchObject({ type: "exercise", exerciseId: "e1" });
+  });
+
+  it("то, что уже показано блоком, не задваивается", () => {
+    const pages = lessonElements(
+      v3([{ blocks: [{ id: "b1", type: "exercise", sort_order: 0, page: 1, exercise_id: "e1" }] }]),
+    );
+    expect(withDetached(pages, ["e1"])[0].elements).toHaveLength(1);
+  });
+
+  it("у урока из двух страниц дорисовка идёт в последнюю", () => {
+    const pages = lessonElements(
+      v3([{ blocks: [text("b1", "Первый")] }, { blocks: [text("b2", "Второй")] }]),
+    );
+    const full = withDetached(pages, ["e1"]);
+
+    expect(full[0].elements).toHaveLength(1);
+    expect(full[1].elements.map((e) => e.blockId)).toEqual(["b2", "adopted_e1"]);
+  });
+
+  it("без привязанных заданий список не меняется", () => {
+    const pages = lessonElements(v3([{ blocks: [text("b1", "Первый")] }]));
+    expect(withDetached(pages, [])).toEqual(pages);
   });
 });
 
