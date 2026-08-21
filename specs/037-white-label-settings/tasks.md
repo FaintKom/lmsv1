@@ -106,9 +106,9 @@ description: "Task list for white-label settings in one place"
 **Independent Test**: задать название и значок, прочитать `document.title`; перезагрузить и убедиться, что «GrassLMS» не мелькает
 
 - [ ] T022 [US4] Написать падающий сквозной тест в `frontend/e2e/journeys/brand-tab.spec.ts`: `document.title` начинается с названия школы, значок вкладки — заданный. Красный: сегодня заголовок статический для всех.
-- [ ] T023 [US4] Добавить встроенный сценарий в `<head>` в `frontend/src/app/layout.tsx` по образцу уже работающего переключателя темы — чтение до первого кадра
-- [ ] T024 [US4] Обновлять заголовок и значок после `/me` в `frontend/src/components/layout/brand-vars.tsx`, если значения разошлись
-- [ ] T025 [US4] Создать `frontend/src/components/admin/school-contacts-section.tsx` с полем значка вкладки. Ключи в шесть локалей.
+- [x] T023 [US4] Добавить встроенный сценарий в `<head>` в `frontend/src/app/layout.tsx` по образцу уже работающего переключателя темы — чтение до первого кадра
+- [x] T024 [US4] Обновлять заголовок и значок после `/me` в `frontend/src/components/layout/brand-vars.tsx`, если значения разошлись
+- [x] T025 [US4] Создать `frontend/src/components/admin/school-contacts-section.tsx` с полем значка вкладки. Ключи в шесть локалей.
 
 ---
 
@@ -119,9 +119,9 @@ description: "Task list for white-label settings in one place"
 **Independent Test**: открыть вход по ссылке школы — виден логотип; войти, выйти, открыть без параметра — бренд остался
 
 - [ ] T026 [P] [US5] Написать падающий сквозной тест в `frontend/e2e/journeys/branded-login.spec.ts`: три случая — со слагом, после входа без слага, с несуществующим слагом (нейтральный экран, ничего не сообщающий о существовании школы)
-- [ ] T027 [P] [US5] Показывать бренд на `frontend/src/app/(auth)/login/page.tsx` по слагу из адреса или из `localStorage["school-slug"]`. Ключи в шесть локалей.
-- [ ] T028 [P] [US5] Записывать `localStorage["school-slug"]` после успешного входа
-- [ ] T029 [US5] **Дописать строку `school-slug` в таблицу на** `frontend/src/app/cookies/page.tsx`. Принцип IV: запись на устройстве без строки в таблице — расхождение продукта и его документов, то есть дефект. Ключи в шесть локалей.
+- [x] T027 [P] [US5] Показывать бренд на `frontend/src/app/(auth)/login/page.tsx` по слагу из адреса или из `localStorage["school-slug"]`. Ключи в шесть локалей.
+- [x] T028 [P] [US5] Записывать `localStorage["school-slug"]` после успешного входа
+- [x] T029 [US5] **Дописать строку `school-slug` в таблицу на** `frontend/src/app/cookies/page.tsx`. Принцип IV: запись на устройстве без строки в таблице — расхождение продукта и его документов, то есть дефект. Ключи в шесть локалей.
 
 ---
 
@@ -131,7 +131,7 @@ description: "Task list for white-label settings in one place"
 - [x] T031 [P] Добавить `branding` в ответ `backend/app/crm/public_router.py:38`
 - [x] T032 [P] Добавить ограничение частоты на `GET /crm/public/{slug}` в `backend/app/crm/public_router.py` — сегодня оно стоит только на POST заявки, а страница входа делает этот адрес горячим
 - [x] T033 [P] Добавить проверки новых полей при сохранении организации: цвета `#rrggbb`, адреса только `https:`, почта обычной проверкой; всё остальное — 422
-- [ ] T034 [P] Расширить `PublicSchool` полем `branding` в `frontend/src/lib/api/crm.ts`
+- [x] T034 [P] Расширить `PublicSchool` полем `branding` в `frontend/src/lib/api/crm.ts`
 
 ---
 
@@ -140,7 +140,7 @@ description: "Task list for white-label settings in one place"
 **Independent Test**: открыть страницу заявки школы с логотипом и цветами, не входя
 
 - [ ] T035 [P] [US6] Написать падающий сквозной тест в `frontend/e2e/journeys/public-enquiry-brand.spec.ts`: логотип и цвета школы видны без входа; отправка заявки работает как прежде
-- [ ] T036 [P] [US6] Показывать бренд на `frontend/src/app/s/[slug]/enquire/page.tsx`
+- [x] T036 [P] [US6] Показывать бренд на `frontend/src/app/s/[slug]/enquire/page.tsx`
 
 ---
 
@@ -148,11 +148,11 @@ description: "Task list for white-label settings in one place"
 
 **Independent Test**: задать почту — пункт ведёт на `mailto:`; очистить — ведёт на `/support`
 
-- [ ] T037 [US7] Написать падающие тесты в `frontend/src/components/layout/nav-tree.test.ts`: `supportHref` пуст — `/support`; `mailto:`/`https:` — внешний адрес; любая другая схема — считается незаданным
-- [ ] T038 [US7] Добавить `supportHref` в `frontend/src/components/layout/nav-tree.ts` по контракту `contracts/ui.md` §4
-- [ ] T039 [US7] Передавать контакт школы в `buildNavTree` из `frontend/src/components/layout/sidebar.tsx`
-- [ ] T040 [US7] Добавить поля контакта поддержки в `frontend/src/components/admin/school-contacts-section.tsx` с проверкой схемы. Ключи в шесть локалей.
-- [ ] T041 [US7] Встроить `school-contacts-section` в `frontend/src/components/admin/org-settings-form.tsx`
+- [x] T037 [US7] Написать падающие тесты в `frontend/src/components/layout/nav-tree.test.ts`: `supportHref` пуст — `/support`; `mailto:`/`https:` — внешний адрес; любая другая схема — считается незаданным
+- [x] T038 [US7] Добавить `supportHref` в `frontend/src/components/layout/nav-tree.ts` по контракту `contracts/ui.md` §4
+- [x] T039 [US7] Передавать контакт школы в `buildNavTree` из `frontend/src/components/layout/sidebar.tsx`
+- [x] T040 [US7] Добавить поля контакта поддержки в `frontend/src/components/admin/school-contacts-section.tsx` с проверкой схемы. Ключи в шесть локалей.
+- [x] T041 [US7] Встроить `school-contacts-section` в `frontend/src/components/admin/org-settings-form.tsx`
 
 ---
 

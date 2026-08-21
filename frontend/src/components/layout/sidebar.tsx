@@ -83,6 +83,9 @@ export function Sidebar({ open, onClose }: SidebarProps) {
  role: user?.role,
  menuVisibility,
  reviewCount,
+ supportHref: branding?.support_url || branding?.support_email
+ ? branding.support_url || `mailto:${branding.support_email}`
+ : null,
  t,
  });
 
@@ -120,9 +123,11 @@ export function Sidebar({ open, onClose }: SidebarProps) {
  "/admin/billing": "sidebar-billing",
  "/support": "sidebar-support",
  } as Record<string, string>)[item.href];
+ const Anchor = item.external ? "a" : Link;
  const link = (
- <Link
+ <Anchor
  href={item.href}
+ {...(item.external ? { rel: "noopener noreferrer" } : {})}
  onClick={onClose}
  // On the rail the icon is all there is, so the label has to move into
  // the accessible name or the link says nothing to a screen reader.
@@ -157,7 +162,7 @@ export function Sidebar({ open, onClose }: SidebarProps) {
  {item.badge > 99 ? "99+" : item.badge}
  </span>
  ) : null}
- </Link>
+ </Anchor>
  );
  return (
  <li key={item.href}>

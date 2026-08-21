@@ -5,6 +5,7 @@ import { Save } from "lucide-react";
 import { toast } from "sonner";
 
 import { BrandSection } from "@/components/admin/brand-section";
+import { SchoolContactsSection } from "@/components/admin/school-contacts-section";
 import { Button } from "@/components/ui/button";
 import { getOrganization, updateOrganization } from "@/lib/api/organizations";
 import { useTranslation } from "@/lib/i18n/context";
@@ -46,6 +47,9 @@ export function OrgSettingsForm({ orgId }: { orgId: string }) {
   // Stored, not inferred: a school may deliberately pick the very colour we
   // suggested, and that is still a choice we must stop overwriting.
   const [secondaryIsCustom, setSecondaryIsCustom] = useState(false);
+  const [faviconUrl, setFaviconUrl] = useState("");
+  const [supportEmail, setSupportEmail] = useState("");
+  const [supportUrl, setSupportUrl] = useState("");
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [notFound, setNotFound] = useState(false);
@@ -68,6 +72,9 @@ export function OrgSettingsForm({ orgId }: { orgId: string }) {
         setPrimaryColor(settings.primary_color || "#22c55e");
         setSecondaryColor(settings.secondary_color || "#3b82f6");
         setSecondaryIsCustom(settings.secondary_is_custom === true);
+        setFaviconUrl(settings.favicon_url || "");
+        setSupportEmail(settings.support_email || "");
+        setSupportUrl(settings.support_url || "");
       })
       // A school that is not yours reads as 404, and so does one that does not
       // exist. Both say the same thing here, on purpose.
@@ -91,6 +98,9 @@ export function OrgSettingsForm({ orgId }: { orgId: string }) {
           primary_color: primaryColor || undefined,
           secondary_color: secondaryColor || undefined,
           secondary_is_custom: secondaryIsCustom,
+          favicon_url: faviconUrl.trim() || undefined,
+          support_email: supportEmail.trim() || undefined,
+          support_url: supportUrl.trim() || undefined,
         },
       });
       // Only when it is your own school: the auth store holds the branding the
@@ -136,6 +146,15 @@ export function OrgSettingsForm({ orgId }: { orgId: string }) {
           setSecondaryColor(secondary);
           setSecondaryIsCustom(custom);
         }}
+      />
+
+      <SchoolContactsSection
+        faviconUrl={faviconUrl}
+        onFaviconUrl={setFaviconUrl}
+        supportEmail={supportEmail}
+        onSupportEmail={setSupportEmail}
+        supportUrl={supportUrl}
+        onSupportUrl={setSupportUrl}
       />
 
       <div className="rounded-lg border border-border-strong bg-surface">

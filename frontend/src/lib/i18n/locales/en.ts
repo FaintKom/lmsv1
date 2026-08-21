@@ -288,6 +288,7 @@ const en: TranslationMap = {
 
  // Auth
  "auth.welcome": "Welcome back",
+ "auth.schoolLogo": "School logo",
  "auth.signIn": "Sign in to your account",
  "auth.signInToContinue": "Sign in to your account to continue",
  "auth.signingIn": "Signing in...",
@@ -1827,6 +1828,14 @@ const en: TranslationMap = {
  "admin.settings.secondaryColorHint": "Complementary accent: badges, highlights, secondary buttons, category tags.",
  "admin.settings.previewHint": "How your colours look on the things people actually use.",
  "admin.settings.previewTitle": "Preview",
+ "admin.settings.contactsTitle": "Tab and support",
+ "admin.settings.contactsSubtitle": "What people see in the browser, and who they write to when something breaks.",
+ "admin.settings.faviconUrl": "Tab icon",
+ "admin.settings.faviconPreview": "Tab icon preview",
+ "admin.settings.faviconUrlHint": "Shown in the browser tab. Leave empty to use ours.",
+ "admin.settings.supportEmail": "Support email",
+ "admin.settings.supportUrl": "Support page",
+ "admin.settings.supportHint": "Fill either one and Support in the menu goes to your school instead of us.",
  "admin.settings.secondarySuggested": "Suggested",
  "admin.settings.secondaryFollows": "Following your main colour. Pick one and it stops.",
  "admin.settings.previewDark": "Dark theme",

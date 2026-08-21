@@ -24,6 +24,10 @@ export interface OrgSettings {
    * next time they changed the main colour.
    */
   secondary_is_custom?: boolean;
+  favicon_url?: string;
+  /** Where 'Support' should send pupils. Empty means our own page. */
+  support_email?: string;
+  support_url?: string;
   menu_visibility?: Record<string, boolean>;
 }
 

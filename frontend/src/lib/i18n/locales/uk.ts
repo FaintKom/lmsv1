@@ -288,6 +288,7 @@ const uk: TranslationMap = {
 
  // Auth
  "auth.welcome": "З поверненням",
+ "auth.schoolLogo": "Логотип школи",
  "auth.signIn": "Увійдіть у свій обліковий запис",
  "auth.signInToContinue": "Увійдіть у свій обліковий запис, щоб продовжити",
  "auth.signingIn": "Вхід...",
@@ -1827,6 +1828,14 @@ const uk: TranslationMap = {
  "admin.settings.secondaryColorHint": "Додатковий акцент: значки, виділення, другорядні кнопки, теги категорій.",
  "admin.settings.previewHint": "Як ваші кольори виглядають на тому, чим люди справді користуються.",
  "admin.settings.previewTitle": "Попередній перегляд",
+ "admin.settings.contactsTitle": "Вкладка й підтримка",
+ "admin.settings.contactsSubtitle": "Що видно в браузері і кому писати, коли щось зламалося.",
+ "admin.settings.faviconUrl": "Значок вкладки",
+ "admin.settings.faviconPreview": "Перегляд значка вкладки",
+ "admin.settings.faviconUrlHint": "Показується у вкладці браузера. Порожньо — береться наш.",
+ "admin.settings.supportEmail": "Пошта підтримки",
+ "admin.settings.supportUrl": "Сторінка підтримки",
+ "admin.settings.supportHint": "Заповніть будь-яке, і «Підтримка» в меню поведе до вашої школи, а не до нас.",
  "admin.settings.secondarySuggested": "Запропоновані",
  "admin.settings.secondaryFollows": "Слідує за основним кольором. Оберіть свій — перестане.",
  "admin.settings.previewDark": "Темна тема",

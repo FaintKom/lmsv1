@@ -3,11 +3,14 @@
 import { useEffect } from "react";
 
 import { readableAs, readableOn } from "@/lib/brand/contrast";
+import { useAuthStore } from "@/stores/auth-store";
 
 /** The page behind ordinary text, per theme. Matches --color-bg in globals.css. */
 const PAGE_LIGHT = "#ffffff";
 const PAGE_DARK = "#0b100c";
-import { useAuthStore } from "@/stores/auth-store";
+
+/** The default display_name the auth store hands out when a school set none. */
+const PRODUCT_NAME = "GrassLMS";
 
 /**
  * Paints the school's colours onto the page.
@@ -24,8 +27,9 @@ import { useAuthStore } from "@/stores/auth-store";
  * Renders nothing.
  */
 export function BrandVars() {
-  const primary = useAuthStore((s) => s.branding?.primary_color);
-  const secondary = useAuthStore((s) => s.branding?.secondary_color);
+  const branding = useAuthStore((s) => s.branding);
+  const primary = branding?.primary_color;
+  const secondary = branding?.secondary_color;
 
   useEffect(() => {
     const root = document.documentElement;
@@ -62,5 +66,48 @@ export function BrandVars() {
     return () => applied.forEach((name) => root.style.removeProperty(name));
   }, [primary, secondary]);
 
+  // The tab. Applied now for this page, and written down so the inline script
+  // in <head> can apply it before the first frame of the next load — which is
+  // the only way to keep "GrassLMS" from flashing at a pupil whose school is
+  // called something else.
+  useEffect(() => {
+    const name = branding?.display_name;
+    const favicon = branding?.favicon_url;
+
+    if (name && name !== PRODUCT_NAME) {
+      document.title = name;
+      remember("school-name", name);
+    } else {
+      forget("school-name");
+    }
+
+    if (favicon) {
+      const link =
+        document.querySelector<HTMLLinkElement>("link[rel='icon']") ??
+        document.head.appendChild(Object.assign(document.createElement("link"), { rel: "icon" }));
+      link.href = favicon;
+      remember("school-favicon", favicon);
+    } else {
+      forget("school-favicon");
+    }
+  }, [branding?.display_name, branding?.favicon_url]);
+
   return null;
+}
+
+/** Storage is a convenience here, never a requirement. */
+function remember(key: string, value: string) {
+  try {
+    window.localStorage.setItem(key, value);
+  } catch {
+    /* private browsing, quota, disabled — the page still looks right */
+  }
+}
+
+function forget(key: string) {
+  try {
+    window.localStorage.removeItem(key);
+  } catch {
+    /* as above */
+  }
 }

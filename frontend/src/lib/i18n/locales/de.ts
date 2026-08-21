@@ -288,6 +288,7 @@ const de: TranslationMap = {
 
  // Auth
  "auth.welcome": "Willkommen zurück",
+ "auth.schoolLogo": "Schullogo",
  "auth.signIn": "In Ihr Konto einloggen",
  "auth.signInToContinue": "Melden Sie sich in Ihrem Konto an, um fortzufahren",
  "auth.signingIn": "Anmeldung läuft...",
@@ -1827,6 +1828,14 @@ const de: TranslationMap = {
  "admin.settings.secondaryColorHint": "Ergänzender Akzent: Badges, Highlights, sekundäre Buttons, Kategorie-Tags.",
  "admin.settings.previewHint": "Wie Ihre Farben auf dem aussehen, was Menschen tatsächlich benutzen.",
  "admin.settings.previewTitle": "Vorschau",
+ "admin.settings.contactsTitle": "Tab und Support",
+ "admin.settings.contactsSubtitle": "Was im Browser zu sehen ist und an wen man schreibt, wenn etwas kaputt ist.",
+ "admin.settings.faviconUrl": "Tab-Symbol",
+ "admin.settings.faviconPreview": "Vorschau des Tab-Symbols",
+ "admin.settings.faviconUrlHint": "Erscheint im Browser-Tab. Leer heißt: unseres.",
+ "admin.settings.supportEmail": "Support-E-Mail",
+ "admin.settings.supportUrl": "Support-Seite",
+ "admin.settings.supportHint": "Eines davon genügt, dann führt Support im Menü zu Ihrer Schule statt zu uns.",
  "admin.settings.secondarySuggested": "Vorschläge",
  "admin.settings.secondaryFollows": "Folgt Ihrer Hauptfarbe. Wählen Sie eine, dann hört das auf.",
  "admin.settings.previewDark": "Dunkles Design",

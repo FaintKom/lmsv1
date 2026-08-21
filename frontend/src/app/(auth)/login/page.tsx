@@ -1,11 +1,14 @@
 "use client";
 
-import { useState } from "react";
-import { useRouter } from "next/navigation";
+import { useEffect, useState } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { useAuthStore } from "@/stores/auth-store";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { SchoolMark } from "@/components/layout/school-mark";
+import { fetchPublicSchool, type SchoolBranding } from "@/lib/api/crm";
+import { rememberSchool, schoolSlugFor } from "@/lib/brand/school";
 import { useTranslation } from "@/lib/i18n/context";
 import { LogIn } from "lucide-react";
 
@@ -17,6 +20,22 @@ export default function LoginPage() {
  const [password, setPassword] = useState("");
  const [error, setError] = useState("");
  const [loading, setLoading] = useState(false);
+ const params = useSearchParams();
+ const [brand, setBrand] = useState<SchoolBranding | null>(null);
+ const slug = schoolSlugFor(params.get("s"));
+
+ // A slug nobody owns, a school that stopped paying, storage that is switched
+ // off — all end here, with no branding and nothing said about which it was.
+ useEffect(() => {
+ if (!slug) return;
+ let cancelled = false;
+ fetchPublicSchool(slug)
+ .then((school) => !cancelled && setBrand(school.branding))
+ .catch(() => {});
+ return () => {
+ cancelled = true;
+ };
+ }, [slug]);
 
  const handleSubmit = async (e: React.FormEvent) => {
  e.preventDefault();
@@ -25,6 +44,10 @@ export default function LoginPage() {
 
  try {
  await login(email, password);
+ // Remembered only now, so the next visit to a bare /login already knows
+ // whose logo to show. Not a credential and not a session — losing it
+ // costs a neutral screen, nothing more.
+ rememberSchool(slug);
  const role = useAuthStore.getState().user?.role;
  const isAdminOrTeacher = role === "super_admin" || role === "admin" || role === "teacher";
  router.push(isAdminOrTeacher ? "/admin" : "/dashboard");
@@ -39,6 +62,7 @@ export default function LoginPage() {
 
  return (
  <div>
+ <SchoolMark branding={brand} />
  <h1 className="mb-2 text-center text-2xl font-bold text-text ">
  {t("auth.welcome")}
  </h1>

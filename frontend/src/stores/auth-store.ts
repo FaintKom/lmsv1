@@ -6,6 +6,9 @@ export interface OrgBranding {
  primary_color: string | null;
  secondary_color: string | null;
  display_name: string;
+ favicon_url?: string | null;
+ support_email?: string | null;
+ support_url?: string | null;
 }
 
 interface User {

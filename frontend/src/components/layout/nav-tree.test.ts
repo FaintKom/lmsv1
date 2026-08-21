@@ -210,3 +210,28 @@ describe("buildNavTree — shape", () => {
     expect(review?.badge).toBe(3);
   });
 });
+
+describe("the support entry", () => {
+  const support = (supportHref?: string | null) =>
+    buildNavTree({ role: "admin", menuVisibility: {}, reviewCount: 0, supportHref, t })
+      .groups.flatMap((g) => g.items)
+      .find((i) => i.label === "nav.support");
+
+  it("goes to our own page when the school gave no address", () => {
+    expect(support()?.href).toBe("/support");
+    expect(support()?.external).toBe(false);
+  });
+
+  it("goes to the school when it did", () => {
+    expect(support("mailto:help@example.school")?.href).toBe("mailto:help@example.school");
+    expect(support("https://example.school/help")?.external).toBe(true);
+  });
+
+  it("ignores a scheme that is not a way to reach anybody", () => {
+    // Checked here as well as on save: this value comes back out of the
+    // database, and a row could predate the validation.
+    for (const hostile of ["javascript:alert(1)", "example.school/help", "http://example.school"]) {
+      expect(support(hostile)?.href).toBe("/support");
+    }
+  });
+});
