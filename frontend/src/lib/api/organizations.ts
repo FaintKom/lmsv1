@@ -15,6 +15,15 @@ export interface OrgSettings {
   logo_url?: string;
   primary_color?: string;
   secondary_color?: string;
+  /**
+   * Whether the school chose the second colour rather than accepting ours.
+   *
+   * Stored rather than inferred: a school may deliberately pick the exact
+   * colour we suggested, and comparing values could not tell that apart from
+   * never having touched the field — so their choice would silently move the
+   * next time they changed the main colour.
+   */
+  secondary_is_custom?: boolean;
   menu_visibility?: Record<string, boolean>;
 }
 

@@ -64,7 +64,7 @@ description: "Task list for white-label settings in one place"
 
 - [ ] T008 [US1] Написать падающий сквозной тест в `frontend/e2e/journeys/brand-colors.spec.ts`: администратор задаёт светлый фирменный цвет, и `getComputedStyle` кнопки основного действия даёт тёмный текст с контрастом ≥ 4.5:1. Красный: сегодня цвет текста от фирменного цвета не зависит вообще.
 - [x] T009 [US1] Сделать `--color-primary-fg` переопределяемым в `frontend/design/tokens.css` так, чтобы при незаданном бренде значение осталось прежним
-- [ ] T010 [US1] Применить расчётный `--primary-fg` и оттенок для текста на подложке в `frontend/src/components/layout/brand-vars.tsx`, отдельно для светлой и тёмной темы
+- [x] T010 [US1] Применить расчётный `--primary-fg` и оттенок для текста на подложке в `frontend/src/components/layout/brand-vars.tsx`, отдельно для светлой и тёмной темы
 
 **Checkpoint**: US1 работает и проверяется сама по себе
 
@@ -76,9 +76,9 @@ description: "Task list for white-label settings in one place"
 
 **Independent Test**: изменить цвет — образцы перерисовались; уйти не сохранив — школа на прежних цветах
 
-- [ ] T011 [US2] Написать падающие тесты в `frontend/src/components/admin/brand-preview.test.tsx`: перерисовка на смену пропса; предупреждение при контрасте ниже 4.5:1 с указанием значения; предупреждение при `tooClose`; переключатель темы меняет фон образцов, не трогая тему приложения
-- [ ] T012 [US2] Реализовать `frontend/src/components/admin/brand-preview.tsx` по контракту `contracts/ui.md` §3 — вход только два цвета, ни `orgId`, ни сети, ни сохранения. Ключи в шесть локалей.
-- [ ] T013 [US2] Выделить `frontend/src/components/admin/brand-section.tsx` из `org-settings-form.tsx` и встроить в неё превью. Ключи в шесть локалей.
+- [x] T011 [US2] Написать падающие тесты в `frontend/src/components/admin/brand-preview.test.tsx`: перерисовка на смену пропса; предупреждение при контрасте ниже 4.5:1 с указанием значения; предупреждение при `tooClose`; переключатель темы меняет фон образцов, не трогая тему приложения
+- [x] T012 [US2] Реализовать `frontend/src/components/admin/brand-preview.tsx` по контракту `contracts/ui.md` §3 — вход только два цвета, ни `orgId`, ни сети, ни сохранения. Ключи в шесть локалей.
+- [x] T013 [US2] Выделить `frontend/src/components/admin/brand-section.tsx` из `org-settings-form.tsx` и встроить в неё превью. Ключи в шесть локалей.
 - [ ] T014 [US2] Написать падающий сквозной тест в `frontend/e2e/journeys/brand-settings.spec.ts`: изменение цвета без сохранения не меняет сохранённое значение после перезагрузки
 
 ---
@@ -89,9 +89,9 @@ description: "Task list for white-label settings in one place"
 
 **Independent Test**: сменить основной — второй следует; выбрать второй вручную; снова сменить основной — второй остался
 
-- [ ] T015 [US3] Написать падающий тест на `secondary_is_custom` в `frontend/src/components/admin/brand-section.test.tsx`: пока флаг не поднят, смена основного двигает второй; после ручного выбора — не двигает
-- [ ] T016 [US3] Добавить в `frontend/src/components/admin/brand-section.tsx` четыре образца второго цвета и произвольный выбор; поднимать `secondary_is_custom` при первом ручном выборе. Ключи в шесть локалей.
-- [ ] T017 [P] [US3] Добавить `secondary_is_custom` в `OrgSettings` в `frontend/src/lib/api/organizations.ts`
+- [x] T015 [US3] Написать падающий тест на `secondary_is_custom` в `frontend/src/components/admin/brand-section.test.tsx`: пока флаг не поднят, смена основного двигает второй; после ручного выбора — не двигает
+- [x] T016 [US3] Добавить в `frontend/src/components/admin/brand-section.tsx` четыре образца второго цвета и произвольный выбор; поднимать `secondary_is_custom` при первом ручном выборе. Ключи в шесть локалей.
+- [x] T017 [P] [US3] Добавить `secondary_is_custom` в `OrgSettings` в `frontend/src/lib/api/organizations.ts`
 - [ ] T018 [US3] Написать падающий тест в `frontend/src/components/analytics/widgets/activity-timeline-widget.test.tsx`: серии берут `var(--primary)` и `var(--secondary)`. Красный: сегодня там литеральные `#3b82f6` и `#10b981`.
 - [ ] T019 [US3] Заменить два литеральных hex на переменные в `frontend/src/components/analytics/widgets/activity-timeline-widget.tsx:67,74`
 - [ ] T020 [P] [US3] Перевести `frontend/src/components/ui/chip.tsx` и `frontend/src/components/ui/streak-pill.tsx` на `var(--secondary)`, не трогая цвета успеха, ошибки и предупреждения
