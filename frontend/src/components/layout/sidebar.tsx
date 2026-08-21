@@ -15,7 +15,6 @@ import {
 } from "lucide-react";
 import { NotificationBell } from "./notification-bell";
 import { OrgSwitcher } from "./org-switcher";
-import { SearchBar } from "./search-bar";
 import LocaleSwitcher from "./locale-switcher";
 import { Tooltip } from "@/components/ui/tooltip";
 import { useUIStore, isGroupOpen } from "@/stores/ui-store";
@@ -270,13 +269,6 @@ export function Sidebar({ open, onClose }: SidebarProps) {
  )}
  </button>
  </div>
-
- {/* Search — admin only */}
- {isAdminOnly && !railMode && (
- <div className="border-b border-white/[0.08] px-3 py-3">
- <SearchBar />
- </div>
- )}
 
  {/* Navigation */}
  <nav

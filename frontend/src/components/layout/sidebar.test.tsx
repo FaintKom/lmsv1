@@ -45,7 +45,6 @@ vi.mock("@/lib/api-client", () => ({
 // what these tests are about.
 vi.mock("./notification-bell", () => ({ NotificationBell: () => null }));
 vi.mock("./org-switcher", () => ({ OrgSwitcher: () => null }));
-vi.mock("./search-bar", () => ({ SearchBar: () => null }));
 vi.mock("./locale-switcher", () => ({ default: () => null }));
 
 beforeEach(() => {

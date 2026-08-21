@@ -550,10 +550,6 @@ const en: TranslationMap = {
  "analytics.export": "Export CSV",
 
  // Search
- "search.placeholder": "Search courses and lessons...",
- "search.noResults": "No results found",
- "search.courses": "Courses",
- "search.lessons": "Lessons",
 
  // Calendar
  "cal.title": "Calendar",
@@ -1197,6 +1193,8 @@ const en: TranslationMap = {
  "admin.courses.title": "Courses",
  "admin.courses.countAcross": "courses across all organizations",
  "admin.courses.newCourse": "New Course",
+ "admin.courses.filterPlaceholder": "Filter courses",
+ "admin.courses.filterNoMatch": "No course matches that",
  "admin.courses.createCourse": "Create Course",
  "admin.courses.courseTitle": "Course Title",
  "admin.courses.categoryPlaceholder": "Category (e.g., programming, math)",
@@ -1833,6 +1831,11 @@ const en: TranslationMap = {
  "admin.settings.menuPaths": "Learning Paths",
  "admin.settings.menuCalendar": "Calendar",
  "admin.settings.menuLiveLessons": "Live lessons",
+ "admin.organizations.notFound": "Not found",
+ "admin.organizations.backToList": "All organizations",
+ "admin.organizations.settingsTitle": "School settings",
+ "admin.organizations.settingsSubtitle": "Name, logo, colours and which menu entries this school hides",
+ "admin.settings.logoPreview": "Logo preview",
  "admin.settings.menuAnalytics": "Analytics",
 
  // Admin groups

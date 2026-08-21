@@ -42,7 +42,6 @@
 | `/math-problems` | `app/math_problems/router.py` | Generate / check математические задачи |
 | `/live-lessons` | `app/live_lessons/router.py` | Живой урок: комната, роль, доска, опросы, сигналы, SSE-поток |
 | `/live-lessons/{id}/media/*` | `app/live_media/router.py` | Видео и звук урока на своём LiveKit: выдача токена, модерация (mute, remove, слово), демонстрация экрана, брейкауты, запись |
-| `/meetings` | `app/meetings/router.py` | Отдельные встречи и слоты расписания — по-прежнему ссылки на Jitsi. Видео **внутри урока** сюда не ходит, у него свой сервер (строка выше) |
 | `/notifications` | `app/notifications/router.py` | List, mark read, preferences |
 | `/parent` | `app/parent/router.py` | Read-only родительский dashboard |
 | `/peer-review` | `app/peer_review/router.py` | Distribution, rubrics, submit review |

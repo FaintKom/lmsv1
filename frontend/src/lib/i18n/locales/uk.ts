@@ -550,10 +550,6 @@ const uk: TranslationMap = {
  "analytics.export": "Експорт CSV",
 
  // Search
- "search.placeholder": "Пошук курсів та уроків...",
- "search.noResults": "Нічого не знайдено",
- "search.courses": "Курси",
- "search.lessons": "Уроки",
 
  // Calendar
  "cal.title": "Календар",
@@ -1197,6 +1193,8 @@ const uk: TranslationMap = {
  "admin.courses.title": "Курси",
  "admin.courses.countAcross": "курсів у всіх організаціях",
  "admin.courses.newCourse": "Новий курс",
+ "admin.courses.filterPlaceholder": "Фільтр курсів",
+ "admin.courses.filterNoMatch": "Жоден курс не підходить",
  "admin.courses.createCourse": "Створити курс",
  "admin.courses.courseTitle": "Назва курсу",
  "admin.courses.categoryPlaceholder": "Категорія (напр. програмування, математика)",
@@ -1833,6 +1831,11 @@ const uk: TranslationMap = {
  "admin.settings.menuPaths": "Навчальні траєкторії",
  "admin.settings.menuCalendar": "Календар",
  "admin.settings.menuLiveLessons": "Живі уроки",
+ "admin.organizations.notFound": "Не знайдено",
+ "admin.organizations.backToList": "Усі організації",
+ "admin.organizations.settingsTitle": "Налаштування школи",
+ "admin.organizations.settingsSubtitle": "Назва, логотип, кольори та те, які пункти меню школа приховує",
+ "admin.settings.logoPreview": "Перегляд логотипа",
  "admin.settings.menuAnalytics": "Аналітика",
 
  // Admin groups

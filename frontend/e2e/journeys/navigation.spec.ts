@@ -90,6 +90,30 @@ test("the rail keeps the school's name and names every icon", async ({ page }) =
   await expect(courses).toHaveText("");
 });
 
+test("the search left the menu and turned up where the courses are", async ({ page }) => {
+  await page.goto(`${BASE_URL}/admin`);
+
+  const rail = page.locator("aside").first();
+  await expect(rail.getByPlaceholder(/search/i)).toHaveCount(0);
+  await expect(rail.getByRole("button", { name: /search/i })).toHaveCount(0);
+
+  // Ctrl+K opened the old one from anywhere; it should now do nothing at all.
+  await page.keyboard.press("Control+k");
+  await expect(page.getByRole("listbox", { name: /search results/i })).toHaveCount(0);
+
+  await page.goto(`${BASE_URL}/admin/courses`);
+  const filter = page.getByRole("searchbox", { name: /filter courses/i });
+  await expect(filter).toBeVisible();
+
+  const before = await page.locator('a[href^="/admin/courses/"]').count();
+  await filter.fill("zzz-no-such-course");
+  await expect(page.getByText(/no course matches that/i)).toBeVisible();
+
+  // And back again, so the filter is proved to narrow rather than to break.
+  await filter.fill("");
+  await expect(page.locator('a[href^="/admin/courses/"]')).toHaveCount(before);
+});
+
 test("a closed category stays closed, unless it holds the page you are on", async ({
   page,
 }) => {
