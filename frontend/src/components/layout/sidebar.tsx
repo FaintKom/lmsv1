@@ -286,10 +286,14 @@ export function Sidebar({ open, onClose }: SidebarProps) {
  </ul>
  {tree.groups.map((group) => {
  const listId = `nav-group-${group.key}`;
- // A saved "closed" never wins over the page you are actually on:
- // the menu cannot claim the current page is tucked away.
- const holdsCurrentPage = group.items.some((i) => isItemActive(i));
- const open = holdsCurrentPage || isGroupOpen(openGroups, group.key);
+ // Nothing overrides this. An earlier version forced open whichever
+ // category held the current page, reasoning that the menu should not
+ // hide where you are — but that left the heading dead under your
+ // finger while still recording "closed" for some later page to
+ // honour. A category nobody has touched is open anyway, so arriving
+ // at a page already shows it; closing one is a decision, and
+ // decisions stick.
+ const open = isGroupOpen(openGroups, group.key);
  return (
  <div key={group.key} className="mt-3 first:mt-1.5">
  <button

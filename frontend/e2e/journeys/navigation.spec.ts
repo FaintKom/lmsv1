@@ -90,6 +90,48 @@ test("the rail keeps the school's name and names every icon", async ({ page }) =
   await expect(courses).toHaveText("");
 });
 
+test("the rail scrolls up and down and not sideways", async ({ page }) => {
+  await page.goto(`${BASE_URL}/admin`);
+  await page.getByRole("button", { name: /collapse menu/i }).click();
+  await expect(page.locator("aside").first()).toHaveJSProperty("offsetWidth", RAIL_WIDTH);
+
+  // Shipped broken. The nav is overflow-y-auto, which under CSS rules raises
+  // overflow-x from visible to auto as well; the hover labels were absolutely
+  // positioned inside it and stuck 88px past an 88px rail, so the menu carried
+  // a horizontal scrollbar all the time. Measuring the overflow is the check
+  // that would have caught it — the labels themselves look fine in a
+  // screenshot.
+  const sideways = await page
+    .locator("aside nav")
+    .first()
+    .evaluate((el) => el.scrollWidth - el.clientWidth);
+  expect(sideways).toBeLessThanOrEqual(1);
+
+  // And the label still appears, which is the reason the element exists.
+  await page.getByRole("link", { name: /^courses$/i }).hover();
+  await expect(page.getByRole("tooltip")).toHaveText(/courses/i);
+});
+
+test("a category you close stays closed, even on a page inside it", async ({ page }) => {
+  // Shipped broken. The category holding the current page was forced open, so
+  // its heading did nothing when clicked — while still writing "closed" to
+  // storage for some later page to honour.
+  await page.goto(`${BASE_URL}/admin/courses`);
+
+  const learning = page.getByRole("button", { name: /^learning$/i });
+  await expect(learning).toHaveAttribute("aria-expanded", "true");
+
+  await learning.click();
+  await expect(learning).toHaveAttribute("aria-expanded", "false");
+  await expect(page.getByRole("link", { name: /^courses$/i })).toBeHidden();
+
+  await page.reload();
+  await expect(page.getByRole("button", { name: /^learning$/i })).toHaveAttribute(
+    "aria-expanded",
+    "false",
+  );
+});
+
 test("the search left the menu and turned up where the courses are", async ({ page }) => {
   await page.goto(`${BASE_URL}/admin`);
 
@@ -114,9 +156,7 @@ test("the search left the menu and turned up where the courses are", async ({ pa
   await expect(page.locator('a[href^="/admin/courses/"]')).toHaveCount(before);
 });
 
-test("a closed category stays closed, unless it holds the page you are on", async ({
-  page,
-}) => {
+test("a closed category stays closed, wherever you go", async ({ page }) => {
   await page.goto(`${BASE_URL}/admin`);
 
   const people = page.getByRole("button", { name: /^people$/i });
@@ -133,20 +173,19 @@ test("a closed category stays closed, unless it holds the page you are on", asyn
     "false",
   );
 
-  // Walking into a page inside a closed category opens it. A menu insisting
-  // that the page you are reading is tucked away is simply wrong.
+  // Including on a page that lives inside it. An earlier version forced the
+  // category open here, on the reasoning that the menu should not hide where
+  // you are — but that made its heading dead under the finger. Arriving still
+  // shows the category to anyone who never closed it, because untouched means
+  // open; someone who closed it meant it.
   await page.goto(`${BASE_URL}/admin/groups`);
-  await expect(page.getByRole("button", { name: /^people$/i })).toHaveAttribute(
-    "aria-expanded",
-    "true",
-  );
-
-  // And that does not overwrite the choice: leave, and it is closed again.
-  await page.goto(`${BASE_URL}/admin/courses`);
   await expect(page.getByRole("button", { name: /^people$/i })).toHaveAttribute(
     "aria-expanded",
     "false",
   );
+
+  // A category nobody touched is open, so the default is still "you can see
+  // where you are".
   await expect(page.getByRole("button", { name: /^learning$/i })).toHaveAttribute(
     "aria-expanded",
     "true",
