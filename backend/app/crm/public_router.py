@@ -34,19 +34,39 @@ class PublicEnquiryRequest(BaseModel):
     interest_note: str | None = Field(default=None, max_length=500)
 
 
-@router.get("/{org_slug}")
-async def public_school_page(org_slug: str, db: AsyncSession = Depends(get_db)):
-    """Enough to render the school's enquiry page, and nothing else.
+#: What a stranger may learn about how a school looks. Deliberately short:
+#: everything outside this list — support contact, menu layout, tab icon —
+#: belongs to somebody who has logged in, and every extra field here is one
+#: more thing that could be collected across every slug in turn.
+BRANDING_FIELDS = ("display_name", "logo_url", "primary_color", "secondary_color")
 
-    A name and some course titles. Nothing about pupils, staff or who else has
-    written in — this URL is as public as the school's front door.
+
+@router.get("/{org_slug}")
+@limiter.limit(lambda: settings.crm_public_school_rate_limit)
+async def public_school_page(
+    request: Request,  # slowapi reads it positionally; also where the IP comes from
+    response: Response,  # and this one carries the rate-limit headers
+    org_slug: str,
+    db: AsyncSession = Depends(get_db),
+):
+    """Enough to render the school's enquiry page and its sign-in screen.
+
+    A name, some course titles, and how the school looks. Nothing about pupils,
+    staff or who else has written in — this URL is as public as the school's
+    front door.
+
+    Rate-limited since 2026-08-21. It used to be quiet, read once by the enquiry
+    page; the branded sign-in screen asks for it every time somebody opens the
+    login form, which makes an unauthenticated database query worth bounding.
     """
     org = await service.public_school(db, org_slug)
     courses = await service.public_courses(db, org)
+    org_settings = org.settings or {}
     return {
         "name": org.name,
         "slug": org.slug,
         "courses": [{"id": str(c.id), "title": c.title} for c in courses],
+        "branding": {field: org_settings.get(field) for field in BRANDING_FIELDS},
     }
 
 

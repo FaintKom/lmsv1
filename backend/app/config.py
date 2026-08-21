@@ -160,6 +160,10 @@ class Settings(BaseSettings):
     # sitting on one home connection may well send two — and stingy enough that
     # nobody fills an office's board overnight.
     crm_public_enquiry_rate_limit: str = "10/hour"
+    # Reading how a school looks, not writing anything. Generous next to the
+    # enquiry limit because the branded sign-in screen asks once per visit, and
+    # a family with three children on three devices is ordinary, not suspicious.
+    crm_public_school_rate_limit: str = "60/minute"
 
     # Demo mode — exposes POST /auth/demo-login that returns a session
     # for a pre-configured demo account without any credentials. Off by

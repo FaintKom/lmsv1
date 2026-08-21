@@ -92,9 +92,9 @@ description: "Task list for white-label settings in one place"
 - [x] T015 [US3] Написать падающий тест на `secondary_is_custom` в `frontend/src/components/admin/brand-section.test.tsx`: пока флаг не поднят, смена основного двигает второй; после ручного выбора — не двигает
 - [x] T016 [US3] Добавить в `frontend/src/components/admin/brand-section.tsx` четыре образца второго цвета и произвольный выбор; поднимать `secondary_is_custom` при первом ручном выборе. Ключи в шесть локалей.
 - [x] T017 [P] [US3] Добавить `secondary_is_custom` в `OrgSettings` в `frontend/src/lib/api/organizations.ts`
-- [ ] T018 [US3] Написать падающий тест в `frontend/src/components/analytics/widgets/activity-timeline-widget.test.tsx`: серии берут `var(--primary)` и `var(--secondary)`. Красный: сегодня там литеральные `#3b82f6` и `#10b981`.
-- [ ] T019 [US3] Заменить два литеральных hex на переменные в `frontend/src/components/analytics/widgets/activity-timeline-widget.tsx:67,74`
-- [ ] T020 [P] [US3] Перевести `frontend/src/components/ui/chip.tsx` и `frontend/src/components/ui/streak-pill.tsx` на `var(--secondary)`, не трогая цвета успеха, ошибки и предупреждения
+- [x] T018 [US3] ~~Юнит-тест на серии графика~~ — Recharts в jsdom без размеров контейнера не рисует ничего измеримого, поэтому осмысленная проверка здесь сквозная, а не юнит. Перенесено в T021.
+- [x] T019 [US3] Заменить два литеральных hex на переменные в `frontend/src/components/analytics/widgets/activity-timeline-widget.tsx:67,74`
+- [x] T020 [P] [US3] ~~chip.tsx и streak-pill.tsx на `var(--secondary)`~~ — **отменено фактом**: у `StreakPill` и `XpPill` ноль вызывающих, `Chip` рисуется в одном файле. Правка была бы невидимой школе. Спека и research исправлены.
 - [ ] T021 [US3] Расширить сквозной тест в `frontend/e2e/journeys/brand-settings.spec.ts`: после сохранения пары цветов второй виден на `/admin/analytics`
 
 ---
@@ -127,10 +127,10 @@ description: "Task list for white-label settings in one place"
 
 ## Phase 8: Бэкенд — публичное описание школы (обслуживает US5 и US6)
 
-- [ ] T030 [P] Написать падающий тест в `backend/tests/test_crm_public.py`: ответ по слагу содержит `branding` ровно с четырьмя ключами; контакта поддержки, состава меню и значка вкладки в нём нет; неактивная и несуществующая школа дают одинаковый 404
-- [ ] T031 [P] Добавить `branding` в ответ `backend/app/crm/public_router.py:38`
-- [ ] T032 [P] Добавить ограничение частоты на `GET /crm/public/{slug}` в `backend/app/crm/public_router.py` — сегодня оно стоит только на POST заявки, а страница входа делает этот адрес горячим
-- [ ] T033 [P] Добавить проверки новых полей при сохранении организации: цвета `#rrggbb`, адреса только `https:`, почта обычной проверкой; всё остальное — 422
+- [x] T030 [P] Написать падающий тест в `backend/tests/test_crm_public.py`: ответ по слагу содержит `branding` ровно с четырьмя ключами; контакта поддержки, состава меню и значка вкладки в нём нет; неактивная и несуществующая школа дают одинаковый 404
+- [x] T031 [P] Добавить `branding` в ответ `backend/app/crm/public_router.py:38`
+- [x] T032 [P] Добавить ограничение частоты на `GET /crm/public/{slug}` в `backend/app/crm/public_router.py` — сегодня оно стоит только на POST заявки, а страница входа делает этот адрес горячим
+- [x] T033 [P] Добавить проверки новых полей при сохранении организации: цвета `#rrggbb`, адреса только `https:`, почта обычной проверкой; всё остальное — 422
 - [ ] T034 [P] Расширить `PublicSchool` полем `branding` в `frontend/src/lib/api/crm.ts`
 
 ---
