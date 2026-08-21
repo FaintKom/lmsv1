@@ -2,7 +2,11 @@
 
 import { useEffect } from "react";
 
-import { readableOn } from "@/lib/brand/contrast";
+import { readableAs, readableOn } from "@/lib/brand/contrast";
+
+/** The page behind ordinary text, per theme. Matches --color-bg in globals.css. */
+const PAGE_LIGHT = "#ffffff";
+const PAGE_DARK = "#0b100c";
 import { useAuthStore } from "@/stores/auth-store";
 
 /**
@@ -39,6 +43,12 @@ export function BrandVars() {
       // Derived, not chosen. A light brand gets dark text and a dark brand gets
       // light text; the school's own colour is never substituted.
       set("--primary-fg", readableOn(primary));
+
+      // The other direction: the brand colour used AS text, on the page. Both
+      // themes are computed here and the stylesheet picks — so switching theme
+      // needs no JavaScript and cannot lag a frame behind.
+      set("--primary-text-light", readableAs(primary, PAGE_LIGHT));
+      set("--primary-text-dark", readableAs(primary, PAGE_DARK));
     }
 
     if (secondary) {

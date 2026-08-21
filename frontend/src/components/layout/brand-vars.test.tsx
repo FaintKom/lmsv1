@@ -55,12 +55,22 @@ describe("BrandVars", () => {
     expect(readVar("--secondary")).toBe("#3b82f6");
   });
 
+  it("moves the brand colour to a readable shade for text on the page", () => {
+    // Yellow as a link on white is unreadable; the fill stays yellow, the text
+    // shade does not. Both themes are computed so the stylesheet can pick.
+    setBranding({ primary_color: "#facc15" });
+    render(<BrandVars />);
+    expect(readVar("--primary-text-light")).not.toBe("#facc15");
+    expect(readVar("--primary-text-dark")).toBeTruthy();
+  });
+
   it("touches nothing for a school that set no colour", () => {
     render(<BrandVars />);
     // Not "equals the default" — genuinely unset, so the stylesheet's own
     // fallback is what applies and the product looks exactly as it does today.
     expect(readVar("--primary")).toBe("");
     expect(readVar("--primary-fg")).toBe("");
+    expect(readVar("--primary-text-light")).toBe("");
     expect(readVar("--secondary")).toBe("");
   });
 
@@ -75,6 +85,8 @@ describe("BrandVars", () => {
       "--primary-light",
       "--primary-dark",
       "--primary-fg",
+      "--primary-text-light",
+      "--primary-text-dark",
       "--secondary",
       "--secondary-light",
       "--secondary-dark",
