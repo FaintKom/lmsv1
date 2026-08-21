@@ -86,6 +86,7 @@ import {
 } from "@/lib/lessons/lesson-pages";
 import { useTranslation } from "@/lib/i18n/context";
 import { adoptDetachedExercises } from "./adopt-exercises";
+import { anchoredBlockId } from "./block-anchor";
 
 function EditorLoading() {
   const { t } = useTranslation();
@@ -142,6 +143,8 @@ export default function LessonEditorPage() {
   const lessonId = params.lessonId as string;
   const courseId = search.get("courseId") || "";
   const moduleId = search.get("moduleId") || "";
+  // Блок, названный в ссылке из списка урока на странице курса.
+  const [anchored, setAnchored] = useState<string | null>(() => anchoredBlockId(search));
 
   const [loading, setLoading] = useState(true);
   const [title, setTitle] = useState("");
@@ -205,6 +208,18 @@ export default function LessonEditorPage() {
         }
         setPages(loaded);
         setExercises(exercisesRes.data || []);
+        // Прокрутка идёт после того, как блоки отрисованы: до этого момента
+        // элемента, к которому ведёт ссылка, на странице ещё нет. Подсветка
+        // снимается сама — «прокрутили куда-то» иначе неотличимо от «не
+        // сработало», а вечная рамка мешает работать.
+        if (anchored) {
+          requestAnimationFrame(() => {
+            document
+              .getElementById(`block-${anchored}`)
+              ?.scrollIntoView({ block: "center", behavior: "smooth" });
+          });
+          setTimeout(() => setAnchored(null), 2500);
+        }
         setCourseTitle(courseRes.data?.title || "");
       } catch (err) {
         if (!cancelled) toast.error(t("admin.lessonEditor.failedLoad"));
@@ -579,7 +594,15 @@ export default function LessonEditorPage() {
                         <AddZone onAdd={(kind) => addBlock(kind, pageIndex, 0)} />
                       )}
                       {page.blocks.map((block, i) => (
-                        <div key={block.id}>
+                        <div
+                          key={block.id}
+                          id={`block-${block.id}`}
+                          className={
+                            block.id === anchored
+                              ? "rounded-lg outline outline-2 outline-offset-2 outline-primary"
+                              : undefined
+                          }
+                        >
                           <SortableBlock
                             block={block}
                             exercises={exercises}

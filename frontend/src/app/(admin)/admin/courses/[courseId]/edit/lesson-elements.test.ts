@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import { lessonElements, resolveName } from "./lesson-elements";
+import { elementHref, lessonElements, resolveName } from "./lesson-elements";
 
 /**
  * Состав урока для строки на странице курса.
@@ -99,6 +99,42 @@ describe("имя элемента", () => {
     expect(
       nameOf({ id: "b2", type: "assignment", sort_order: 0, page: 1, assignment_id: "a1" }),
     ).toEqual({ kind: "pending" });
+  });
+});
+
+describe("куда ведёт элемент", () => {
+  const where = { lessonId: "l1", courseId: "c1", moduleId: "m1" };
+  const first = (block: Record<string, unknown>) =>
+    lessonElements(v3([{ blocks: [block] }]))[0].elements[0];
+
+  it("задание открывается на своей странице", () => {
+    const element = first({ id: "b1", type: "exercise", sort_order: 0, page: 1, exercise_id: "e1" });
+    expect(elementHref(element, where)).toBe("/admin/content-library/e1");
+  });
+
+  it("работа открывается на своей", () => {
+    const element = first({
+      id: "b1",
+      type: "assignment",
+      sort_order: 0,
+      page: 1,
+      assignment_id: "a1",
+    });
+    expect(elementHref(element, where)).toBe("/admin/assignments/a1");
+  });
+
+  it("у текста своей страницы нет — ведём в редактор урока к этому блоку", () => {
+    const element = first(text("b7", "Цикл"));
+    expect(elementHref(element, where)).toBe(
+      "/admin/lessons/l1/edit?courseId=c1&moduleId=m1&block=b7",
+    );
+  });
+
+  it("блок-задание без ссылки на задание ведёт туда же, а не в никуда", () => {
+    const element = first({ id: "b9", type: "exercise", sort_order: 0, page: 1 });
+    expect(elementHref(element, where)).toBe(
+      "/admin/lessons/l1/edit?courseId=c1&moduleId=m1&block=b9",
+    );
   });
 });
 

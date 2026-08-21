@@ -151,6 +151,22 @@ describe("что видно в списке", () => {
     await waitFor(() => expect(screen.getByText("Reading a range")).toBeTruthy());
   });
 
+  it("каждый элемент — ссылка, открывающаяся отдельной вкладкой", async () => {
+    draw({ open: true });
+    await waitFor(() => expect(screen.getByText("Reading a range")).toBeTruthy());
+
+    const links = screen.getAllByRole("link");
+    expect(links).toHaveLength(3);
+    for (const link of links) {
+      expect(link.getAttribute("target")).toBe("_blank");
+      expect(link.getAttribute("rel")).toContain("noopener");
+    }
+    expect(links[1].getAttribute("href")).toBe("/admin/content-library/e1");
+    expect(links[0].getAttribute("href")).toBe(
+      "/admin/lessons/l1/edit?courseId=c1&moduleId=m1&block=b1",
+    );
+  });
+
   it("ответ пришёл без задания — это потерянная ссылка, а не пустое имя", async () => {
     get.mockResolvedValue({ data: [{ id: "e1", title: "Reading a range" }] });
     draw({ open: true });

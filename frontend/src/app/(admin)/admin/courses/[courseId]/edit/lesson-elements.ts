@@ -83,6 +83,33 @@ export function resolveName(element: LessonElement, names: ElementNames | null):
     : { kind: "missing", key: "admin.courseEdit.elementMissing" };
 }
 
+/** Где живёт урок — из этого собирается ссылка на блок без своей страницы. */
+export interface ElementWhere {
+  lessonId: string;
+  courseId: string;
+  moduleId: string;
+}
+
+/**
+ * Куда ведёт элемент.
+ *
+ * Своя страница правки есть у задания и у работы. У текста, разметки, видео и
+ * презентации её нет и не заводится этой работой, поэтому они ведут в редактор
+ * урока — но не в его начало, а к своему блоку: на длинной странице «куда-то
+ * туда» неотличимо от «не сработало».
+ *
+ * Блок-задание без идентификатора — не тупик, а незаполненный блок: его чинят
+ * там же, в редакторе урока.
+ */
+export function elementHref(element: LessonElement, where: ElementWhere): string {
+  if (element.exerciseId) return `/admin/content-library/${element.exerciseId}`;
+  if (element.assignmentId) return `/admin/assignments/${element.assignmentId}`;
+  return (
+    `/admin/lessons/${where.lessonId}/edit` +
+    `?courseId=${where.courseId}&moduleId=${where.moduleId}&block=${element.blockId}`
+  );
+}
+
 function elementOf(block: LessonBlock): LessonElement {
   return {
     blockId: block.id,

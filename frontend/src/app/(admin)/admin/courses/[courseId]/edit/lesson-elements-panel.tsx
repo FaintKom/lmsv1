@@ -19,6 +19,7 @@ import apiClient from "@/lib/api-client";
 import { useTranslation } from "@/lib/i18n/context";
 
 import {
+  elementHref,
   lessonElements,
   resolveName,
   type ElementName,
@@ -44,7 +45,13 @@ const ICONS: Record<BlockKind, typeof FileText> = {
   assignment: ClipboardList,
 };
 
-export function LessonElementsPanel({ open, lessonId, content }: LessonElementsPanelProps) {
+export function LessonElementsPanel({
+  open,
+  lessonId,
+  courseId,
+  moduleId,
+  content,
+}: LessonElementsPanelProps) {
   const { t } = useTranslation();
   const pages = lessonElements(content);
 
@@ -110,7 +117,11 @@ export function LessonElementsPanel({ open, lessonId, content }: LessonElementsP
             <ul className="space-y-0.5">
               {page.elements.map((element) => (
                 <li key={element.blockId}>
-                  <ElementRow element={element} name={resolveName(element, names)} />
+                  <ElementRow
+                    element={element}
+                    name={resolveName(element, names)}
+                    href={elementHref(element, { lessonId, courseId, moduleId })}
+                  />
                 </li>
               ))}
             </ul>
@@ -121,15 +132,36 @@ export function LessonElementsPanel({ open, lessonId, content }: LessonElementsP
   );
 }
 
-function ElementRow({ element, name }: { element: LessonElement; name: ElementName }) {
+/**
+ * Строка элемента — ссылка на его правку.
+ *
+ * Новая вкладка нарочно: страница курса остаётся раскрытой там, где её
+ * оставили, и следующий элемент открывается оттуда же, а не после двух
+ * возвратов назад.
+ */
+function ElementRow({
+  element,
+  name,
+  href,
+}: {
+  element: LessonElement;
+  name: ElementName;
+  href: string;
+}) {
   const { t } = useTranslation();
   const Icon = ICONS[element.type] ?? FileText;
 
   return (
-    <span className="flex items-center gap-2 py-1 text-sm">
+    <a
+      href={href}
+      target="_blank"
+      rel="noopener"
+      onClick={(e) => e.stopPropagation()}
+      className="flex items-center gap-2 rounded px-1 py-1 text-sm hover:bg-surface focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
+    >
       <Icon className="h-3.5 w-3.5 shrink-0 text-text-subtle" aria-hidden />
       <ElementLabel name={name} type={element.type} t={t} />
-    </span>
+    </a>
   );
 }
 
