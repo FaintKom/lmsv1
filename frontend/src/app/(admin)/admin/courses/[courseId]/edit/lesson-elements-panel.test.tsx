@@ -1,5 +1,5 @@
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { render, screen, waitFor } from "@testing-library/react";
+import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import { LessonElementsPanel } from "./lesson-elements-panel";
@@ -23,6 +23,16 @@ vi.mock("@/lib/api-client", () => ({
 
 vi.mock("@/lib/i18n/context", () => ({
   useTranslation: () => ({ t: (k: string) => k, locale: "en" }),
+}));
+
+vi.mock("next/navigation", () => ({
+  useRouter: () => ({ refresh: vi.fn(), push: vi.fn() }),
+}));
+
+const addExerciseToPage = vi.fn();
+
+vi.mock("@/lib/lessons/add-exercise", () => ({
+  addExerciseToPage: (...args: unknown[]) => addExerciseToPage(...args),
 }));
 
 const lesson = {
@@ -60,6 +70,8 @@ function draw(props: { open: boolean; content?: Record<string, unknown> }) {
 }
 
 beforeEach(() => {
+  addExerciseToPage.mockReset();
+  addExerciseToPage.mockResolvedValue({ exerciseId: "e9" });
   get.mockReset();
   get.mockResolvedValue({
     data: [
@@ -171,5 +183,97 @@ describe("что видно в списке", () => {
     get.mockResolvedValue({ data: [{ id: "e1", title: "Reading a range" }] });
     draw({ open: true });
     await waitFor(() => expect(screen.getByText("admin.courseEdit.elementMissing")).toBeTruthy());
+  });
+});
+
+describe("клавиатура и переходы", () => {
+  it("Escape сворачивает список", async () => {
+    const onClose = vi.fn();
+    const client = new QueryClient({ defaultOptions: { queries: { retry: false } } });
+    render(
+      <QueryClientProvider client={client}>
+        <LessonElementsPanel
+          open
+          lessonId="l1"
+          courseId="c1"
+          moduleId="m1"
+          content={lesson}
+          onClose={onClose}
+        />
+      </QueryClientProvider>,
+    );
+    await waitFor(() => expect(screen.getByText("Reading a range")).toBeTruthy());
+
+    fireEvent.keyDown(screen.getByText("Reading a range"), { key: "Escape" });
+    expect(onClose).toHaveBeenCalledTimes(1);
+  });
+
+  it("клик внутри списка не всплывает до строки урока", async () => {
+    const onRowClick = vi.fn();
+    const client = new QueryClient({ defaultOptions: { queries: { retry: false } } });
+    render(
+      <QueryClientProvider client={client}>
+        <div onClick={onRowClick}>
+          <LessonElementsPanel open lessonId="l1" courseId="c1" moduleId="m1" content={lesson} />
+        </div>
+      </QueryClientProvider>,
+    );
+    await waitFor(() => expect(screen.getByText("Reading a range")).toBeTruthy());
+
+    fireEvent.click(screen.getAllByText("admin.courseEdit.elementsAdd")[0]);
+    expect(onRowClick).not.toHaveBeenCalled();
+  });
+});
+
+describe("добавление задания", () => {
+  const openMenu = async (pageIndex = 0) => {
+    draw({ open: true });
+    await waitFor(() => expect(screen.getByText("Reading a range")).toBeTruthy());
+    fireEvent.click(screen.getAllByText("admin.courseEdit.elementsAdd")[pageIndex]);
+  };
+
+  it("кнопка добавления стоит у каждой страницы урока", async () => {
+    draw({ open: true });
+    await waitFor(() => expect(screen.getByText("Reading a range")).toBeTruthy());
+    expect(screen.getAllByText("admin.courseEdit.elementsAdd")).toHaveLength(2);
+  });
+
+  it("типы разложены по группам", async () => {
+    await openMenu();
+    for (const group of ["basic", "math", "languages", "programming", "scorm"]) {
+      expect(screen.getByText(`exerciseGroups.${group}`)).toBeTruthy();
+    }
+    expect(screen.getByText("Fill Blanks")).toBeTruthy();
+  });
+
+  it("поиск сужает список до нужного типа", async () => {
+    await openMenu();
+    fireEvent.change(screen.getByPlaceholderText("admin.courseEdit.elementsSearch"), {
+      target: { value: "cross" },
+    });
+    expect(screen.getByText("Crossword")).toBeTruthy();
+    expect(screen.queryByText("Fill Blanks")).toBeNull();
+    expect(screen.queryByText("exerciseGroups.math")).toBeNull();
+  });
+
+  it("выбор типа заводит задание на своей странице", async () => {
+    await openMenu(1);
+    fireEvent.click(screen.getByText("Quiz"));
+
+    await waitFor(() => expect(addExerciseToPage).toHaveBeenCalledTimes(1));
+    expect(addExerciseToPage.mock.calls[0][0]).toMatchObject({
+      pageIndex: 1,
+      exerciseType: "quiz",
+      where: { lessonId: "l1", courseId: "c1", moduleId: "m1" },
+    });
+  });
+
+  it("отказ виден, и список остаётся прежним", async () => {
+    addExerciseToPage.mockRejectedValue(new Error("no"));
+    await openMenu();
+    fireEvent.click(screen.getByText("Quiz"));
+
+    await waitFor(() => expect(screen.getByText("admin.courseEdit.elementsAddFailed")).toBeTruthy());
+    expect(screen.getByText("Reading a range")).toBeTruthy();
   });
 });

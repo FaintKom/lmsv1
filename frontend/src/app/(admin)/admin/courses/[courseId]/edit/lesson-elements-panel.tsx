@@ -12,11 +12,15 @@
  * записано отдельным требованием и проверяется тестом, считающим вызовы.
  */
 
-import { useQueries, useQuery } from "@tanstack/react-query";
-import { ClipboardList, Code2, FileText, Presentation, Puzzle, Video } from "lucide-react";
+import { useQueries, useQuery, useQueryClient } from "@tanstack/react-query";
+import { ClipboardList, Code2, FileText, Plus, Presentation, Puzzle, Video } from "lucide-react";
+import { useRouter } from "next/navigation";
+import { useState } from "react";
 
 import apiClient from "@/lib/api-client";
+import { EXERCISE_TYPES_META, type ExerciseGroupKey } from "@/lib/api/exercises";
 import { useTranslation } from "@/lib/i18n/context";
+import { addExerciseToPage } from "@/lib/lessons/add-exercise";
 
 import {
   elementHref,
@@ -34,7 +38,12 @@ interface LessonElementsPanelProps {
   courseId: string;
   moduleId: string;
   content: Record<string, unknown> | undefined;
+  /** Свернуть по Escape — фокус при этом возвращает вызывающая сторона. */
+  onClose?: () => void;
 }
+
+/** Порядок групп в меню — от того, что заводят чаще, к узкому. */
+const GROUP_ORDER: ExerciseGroupKey[] = ["basic", "math", "languages", "programming", "scorm"];
 
 const ICONS: Record<BlockKind, typeof FileText> = {
   text: FileText,
@@ -51,8 +60,13 @@ export function LessonElementsPanel({
   courseId,
   moduleId,
   content,
+  onClose,
 }: LessonElementsPanelProps) {
   const { t } = useTranslation();
+  const router = useRouter();
+  const queryClient = useQueryClient();
+  const [busy, setBusy] = useState(false);
+  const [failed, setFailed] = useState(false);
   const pages = lessonElements(content);
 
   const assignmentIds = [
@@ -85,6 +99,28 @@ export function LessonElementsPanel({
     })),
   });
 
+  const add = async (pageIndex: number, exerciseType: string) => {
+    setBusy(true);
+    setFailed(false);
+    try {
+      await addExerciseToPage({
+        client: apiClient,
+        where: { lessonId, courseId, moduleId },
+        content,
+        pageIndex,
+        exerciseType,
+      });
+      // Название нового задания приходит тем же запросом, что и остальные, —
+      // список обновляется целиком, а не дописывается по месту.
+      await queryClient.invalidateQueries({ queryKey: ["lesson-exercise-names", lessonId] });
+      router.refresh();
+    } catch {
+      setFailed(true);
+    } finally {
+      setBusy(false);
+    }
+  };
+
   if (!open) return null;
 
   const names: ElementNames | null = exercises.isSuccess
@@ -103,7 +139,14 @@ export function LessonElementsPanel({
   const showPageTitles = pages.length > 1;
 
   return (
-    <div className="mt-2 rounded-lg border border-border bg-surface-2 px-3 py-2">
+    <div
+      className="mt-2 rounded-lg border border-border bg-surface-2 px-3 py-2"
+      onKeyDown={(e) => {
+        if (e.key !== "Escape" || !onClose) return;
+        e.stopPropagation();
+        onClose();
+      }}
+    >
       {empty ? (
         <p className="py-1 text-xs text-text-muted">{t("admin.courseEdit.elementsEmpty")}</p>
       ) : (
@@ -125,8 +168,107 @@ export function LessonElementsPanel({
                 </li>
               ))}
             </ul>
+            <AddExercise
+              pageIndex={page.index}
+              busy={busy}
+              onPick={(type) => add(page.index, type)}
+            />
           </div>
         ))
+      )}
+      {empty && <AddExercise pageIndex={0} busy={busy} onPick={(type) => add(0, type)} />}
+      {failed && <p className="pt-1 text-xs text-danger-fg">{t("admin.courseEdit.elementsAddFailed")}</p>}
+    </div>
+  );
+}
+
+/**
+ * Выбор типа задания.
+ *
+ * Двадцать шесть типов — это список, в котором ищут, а не разглядывают, поэтому
+ * поиск и группы. Второй пункт — «вставить существующее задание» — встанет
+ * сюда же, когда появится библиотека (specs/030): меню для этого и разделено
+ * на заголовок и содержимое.
+ */
+function AddExercise({
+  pageIndex,
+  busy,
+  onPick,
+}: {
+  pageIndex: number;
+  busy: boolean;
+  onPick: (type: string) => void;
+}) {
+  const { t } = useTranslation();
+  const [open, setOpen] = useState(false);
+  const [query, setQuery] = useState("");
+
+  const needle = query.trim().toLowerCase();
+  const matching = EXERCISE_TYPES_META.filter(
+    (type) => !needle || type.label.toLowerCase().includes(needle),
+  );
+
+  return (
+    <div className="pt-1">
+      <button
+        type="button"
+        disabled={busy}
+        onClick={(e) => {
+          e.stopPropagation();
+          setOpen((v) => !v);
+        }}
+        className="flex items-center gap-1 rounded px-1 py-1 text-xs font-medium text-primary hover:bg-primary-soft/40 disabled:opacity-50 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
+      >
+        <Plus className="h-3 w-3" />
+        {t("admin.courseEdit.elementsAdd")}
+      </button>
+
+      {open && (
+        <div
+          className="mt-1 rounded-lg border border-border-strong bg-surface p-2"
+          onClick={(e) => e.stopPropagation()}
+        >
+          <input
+            type="text"
+            value={query}
+            autoFocus
+            onChange={(e) => setQuery(e.target.value)}
+            placeholder={t("admin.courseEdit.elementsSearch")}
+            className="mb-2 w-full rounded border border-border-strong bg-surface px-2 py-1 text-xs text-text outline-none focus:border-primary"
+          />
+          <div className="max-h-64 overflow-y-auto">
+            {GROUP_ORDER.map((group) => {
+              const types = matching.filter((type) => type.group === group);
+              if (types.length === 0) return null;
+              return (
+                <div key={group} className="mb-1.5">
+                  <p className="mb-0.5 text-2xs font-medium uppercase tracking-wide text-text-subtle">
+                    {t(`exerciseGroups.${group}`)}
+                  </p>
+                  <ul>
+                    {types.map((type) => (
+                      <li key={type.value}>
+                        <button
+                          type="button"
+                          data-page={pageIndex}
+                          onClick={() => {
+                            setOpen(false);
+                            setQuery("");
+                            onPick(type.value);
+                          }}
+                          className="flex w-full items-center gap-2 rounded px-1.5 py-1 text-left text-xs text-text hover:bg-surface-2"
+                        >
+                          <type.Icon className="h-3 w-3 shrink-0 text-text-subtle" aria-hidden />
+                          {type.label}
+                        </button>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              );
+            })}
+          </div>
+        </div>
       )}
     </div>
   );

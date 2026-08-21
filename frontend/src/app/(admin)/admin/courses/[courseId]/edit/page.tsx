@@ -858,6 +858,7 @@ export default function CourseEditorPage() {
    бы со страницы курса. */}
  <button
  type="button"
+ id={`lesson-toggle-${lesson.id}`}
  aria-expanded={openLessons.has(lesson.id)}
  aria-controls={`lesson-elements-${lesson.id}`}
  aria-label={t("admin.courseEdit.elementsToggle")}
@@ -912,6 +913,10 @@ export default function CourseEditorPage() {
  courseId={courseId}
  moduleId={module.id}
  content={lesson.content as Record<string, unknown> | undefined}
+ onClose={() => {
+ toggleLesson(lesson.id);
+ document.getElementById(`lesson-toggle-${lesson.id}`)?.focus();
+ }}
  />
  </div>
  </div>
