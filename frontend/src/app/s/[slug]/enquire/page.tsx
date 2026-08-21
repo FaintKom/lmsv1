@@ -42,7 +42,15 @@ export default function EnquirePage() {
   useEffect(() => {
     if (!slug) return;
     fetchPublicSchool(slug)
-      .then(setSchool)
+      .then((found) => {
+        setSchool(found);
+        // Next writes document.title from the route's static metadata during
+        // hydration, so the inline <head> script alone loses this page — and
+        // BrandVars, which fixes it inside the app, needs a session this page
+        // does not have. The school is right here; use it.
+        const named = found.branding?.display_name || found.name;
+        if (named) document.title = named;
+      })
       .catch(() => setSchool(null))
       .finally(() => setLoading(false));
   }, [slug]);
