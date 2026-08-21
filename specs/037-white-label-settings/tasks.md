@@ -35,8 +35,8 @@ description: "Task list for white-label settings in one place"
 
 **Purpose**: убедиться, что стенд поднят и исходное поведение зафиксировано
 
-- [ ] T001 Поднять QA-стек: `docker compose -f docker-compose.qa.yml up -d --build --wait`
-- [ ] T002 Зафиксировать исходное: подтвердить, что `var(--secondary)` не читает ни одна строка в `frontend/src` и `frontend/design`, и что `--color-primary-fg` в `frontend/design/tokens.css` — константа. Это состояние, против которого будут краснеть тесты.
+- [x] T001 Поднять QA-стек: `docker compose -f docker-compose.qa.yml up -d --build --wait`
+- [x] T002 Зафиксировать исходное: подтвердить, что `var(--secondary)` не читает ни одна строка в `frontend/src` и `frontend/design`, и что `--color-primary-fg` в `frontend/design/tokens.css` — константа. Это состояние, против которого будут краснеть тесты.
 
 ---
 
@@ -46,11 +46,11 @@ description: "Task list for white-label settings in one place"
 
 **⚠️ Ни одна история не начинается, пока эта фаза не закрыта.**
 
-- [ ] T003 Написать падающие юнит-тесты расчёта в `frontend/src/lib/brand/contrast.test.ts`: `contrastRatio` симметрична и даёт 21 для чёрного на белом; `readableOn("#facc15")` — тёмный, `readableOn("#0f172a")` — светлый; `readableAs` не меняет тон и достигает 4.5:1; `suggestSecondary` возвращает четыре цвета в устойчивом порядке; `tooClose` срабатывает ниже 1.3:1. Красные: файла ещё нет.
-- [ ] T004 Реализовать `frontend/src/lib/brand/contrast.ts` — чистые функции без React и DOM по контракту в `contracts/ui.md` §1
-- [ ] T005 Написать падающий тест в `frontend/src/components/layout/brand-vars.test.tsx`: при заданном `primary_color` переменная `--primary-fg` переопределена расчётным значением; при незаданном — не тронута; при размонтировании все выставленные переменные сняты
-- [ ] T006 Реализовать `frontend/src/components/layout/brand-vars.tsx` по контракту `contracts/ui.md` §2
-- [ ] T007 **Удалить** дублированный эффект применения цветов из `frontend/src/app/(admin)/layout.tsx` и `frontend/src/app/(dashboard)/layout.tsx`, заменив его на `<BrandVars />`. Это удаление: после задачи в проекте должна остаться **одна** реализация, а не три.
+- [x] T003 Написать падающие юнит-тесты расчёта в `frontend/src/lib/brand/contrast.test.ts`: `contrastRatio` симметрична и даёт 21 для чёрного на белом; `readableOn("#facc15")` — тёмный, `readableOn("#0f172a")` — светлый; `readableAs` не меняет тон и достигает 4.5:1; `suggestSecondary` возвращает четыре цвета в устойчивом порядке; `tooClose` срабатывает ниже 1.3:1. Красные: файла ещё нет.
+- [x] T004 Реализовать `frontend/src/lib/brand/contrast.ts` — чистые функции без React и DOM по контракту в `contracts/ui.md` §1
+- [x] T005 Написать падающий тест в `frontend/src/components/layout/brand-vars.test.tsx`: при заданном `primary_color` переменная `--primary-fg` переопределена расчётным значением; при незаданном — не тронута; при размонтировании все выставленные переменные сняты
+- [x] T006 Реализовать `frontend/src/components/layout/brand-vars.tsx` по контракту `contracts/ui.md` §2
+- [x] T007 **Удалить** дублированный эффект применения цветов из `frontend/src/app/(admin)/layout.tsx` и `frontend/src/app/(dashboard)/layout.tsx`, заменив его на `<BrandVars />`. Это удаление: после задачи в проекте должна остаться **одна** реализация, а не три.
 
 **Checkpoint**: расчёт есть, применяется из одного места, дублей нет
 
@@ -63,7 +63,7 @@ description: "Task list for white-label settings in one place"
 **Independent Test**: задать `#facc15` — надпись на кнопке тёмная, контраст ≥ 4.5:1; задать `#0f172a` — светлая
 
 - [ ] T008 [US1] Написать падающий сквозной тест в `frontend/e2e/journeys/brand-colors.spec.ts`: администратор задаёт светлый фирменный цвет, и `getComputedStyle` кнопки основного действия даёт тёмный текст с контрастом ≥ 4.5:1. Красный: сегодня цвет текста от фирменного цвета не зависит вообще.
-- [ ] T009 [US1] Сделать `--color-primary-fg` переопределяемым в `frontend/design/tokens.css` так, чтобы при незаданном бренде значение осталось прежним
+- [x] T009 [US1] Сделать `--color-primary-fg` переопределяемым в `frontend/design/tokens.css` так, чтобы при незаданном бренде значение осталось прежним
 - [ ] T010 [US1] Применить расчётный `--primary-fg` и оттенок для текста на подложке в `frontend/src/components/layout/brand-vars.tsx`, отдельно для светлой и тёмной темы
 
 **Checkpoint**: US1 работает и проверяется сама по себе

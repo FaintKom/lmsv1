@@ -145,7 +145,10 @@
  --color-primary: var(--primary, var(--green-600));
  --color-primary-hover: var(--primary-dark, var(--green-700));
  --color-primary-soft: var(--primary-light, var(--green-100));
- --color-primary-fg: #ffffff;
+  /* The odd one out until 2026-08-21: every sibling above already deferred
+     to the school's colour, this one was a constant. A school with a light
+     brand therefore got white text on a light fill, and nothing said so. */
+  --color-primary-fg: var(--primary-fg, #ffffff);
 
  --color-reward: var(--sun-400);
  --color-reward-soft: var(--sun-100);
@@ -295,7 +298,7 @@
  --color-primary: var(--primary, #35d07f);
  --color-primary-hover: var(--primary-dark, #5ade97);
  --color-primary-soft: var(--primary-light, rgba(53, 208, 127, 0.14));
- --color-primary-fg: #04160c;
+  --color-primary-fg: var(--primary-fg, #04160c);
 
  --color-reward: #ffd84d;
  --color-reward-soft: rgba(255, 216, 77, 0.16);
