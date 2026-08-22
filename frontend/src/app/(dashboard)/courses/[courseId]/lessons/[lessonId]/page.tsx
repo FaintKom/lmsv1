@@ -584,36 +584,10 @@ export default function LessonViewerPage() {
       );
      })()}
 
-     {/* Exercises — show exercises not already embedded in v2 blocks */}
-     {(() => {
-      const blockExIds = new Set(
-       flattenPages(lessonPages)
-        .filter((b) => b.type === "exercise" && b.exercise_id)
-        .map((b) => b.exercise_id)
-      );
-      const pageBased =
-       lesson.content?.version === 2 || lesson.content?.version === 3;
-      const orphaned = pageBased
-       ? exercises.filter((ex) => !blockExIds.has(ex.id))
-       : exercises;
-      if (orphaned.length === 0) return null;
-      return (
-       <div className="mb-8 space-y-6 px-2 sm:px-6">
-        <h2 className="mx-auto max-w-[720px] text-lg font-bold tracking-tight text-text">
-         {t("lesson.exercises")}
-        </h2>
-        {orphaned.map((ex) => (
-         <ExerciseView
-          key={ex.id}
-          exercise={ex as never}
-          courseId={courseId}
-          prevLesson={prevLesson ? { id: prevLesson.lesson.id, title: prevLesson.lesson.title } : null}
-          nextLesson={nextLesson ? { id: nextLesson.lesson.id, title: nextLesson.lesson.title } : null}
-         />
-        ))}
-       </div>
-      );
-     })()}
+     {/* Хвостовой секции «задания урока» больше нет (specs/030). Она
+       дорисовывала задания, привязанные к уроку полем, но не показанные
+       ни одним блоком. Миграция поставила каждому такому блок, а
+       загрузка читает только блоки — показывать сверх них нечего. */}
 
      {/* Complete button — only when no exercises */}
      <div className="mx-auto max-w-[720px]">

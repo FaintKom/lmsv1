@@ -57,7 +57,9 @@ export type ExerciseType =
 
 export interface Exercise {
  id: string;
- lesson_id: string;
+ /** Где задание завели. После specs/030 урок необязателен: задание
+  живёт в библиотеке, а где его показывают — говорят блоки уроков. */
+ lesson_id: string | null;
  org_id: string;
  display_id: string;
  exercise_type: ExerciseType;
@@ -68,6 +70,8 @@ export interface Exercise {
  updated_at: string;
  questions?: ExerciseQuestion[];
  test_cases?: ExerciseTestCase[];
+ /** Стоит ли в каком-нибудь уроке. Приходит только в списке библиотеки. */
+ is_placed?: boolean;
 }
 
 export interface ExerciseQuestion {
@@ -407,7 +411,7 @@ export const exercisesApi = {
  apiClient.get<Exercise[]>(`/exercises/by-lesson/${lessonId}`),
 
  create: (data: {
- lesson_id: string;
+ lesson_id?: string;
  exercise_type: ExerciseType;
  title: string;
  config?: Record<string, unknown>;

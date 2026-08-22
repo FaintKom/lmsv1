@@ -10,9 +10,9 @@
  * пишет автосохранением, а страница курса обязана сохранить сразу — она к
  * уроку не возвращается.
  *
- * Сюда же придёт `specs/030`: когда задание перестанет рождаться внутри блока,
- * «создать» и «поставить в урок» разъедутся, и менять это надо будет здесь, а
- * не в двух редакторах.
+ * Здесь «создать» и «поставить в урок» — два шага (specs/030): сначала задание
+ * появляется в библиотеке школы, потом блок в конце нужной страницы называет
+ * его. Удаление блока задание не трогает.
  */
 
 import { EXERCISE_TYPE_LABELS } from "@/lib/api/exercises";
@@ -33,16 +33,20 @@ interface ApiLike {
 }
 
 export interface NewExercisePayload {
-  lesson_id: string;
   exercise_type: string;
   title: string;
   config: Record<string, unknown>;
 }
 
-/** Тело создания — ровно то, что шлёт редактор урока. */
-export function newExercisePayload(exerciseType: string, lessonId: string): NewExercisePayload {
+/**
+ * Тело создания.
+ *
+ * Без `lesson_id` нарочно (specs/030): задание заводится в библиотеке школы,
+ * а в урок попадает блоком — следующим шагом. Записывать урок в само задание
+ * значило бы снова смешать «где завели» с «где показывают».
+ */
+export function newExercisePayload(exerciseType: string): NewExercisePayload {
   return {
-    lesson_id: lessonId,
     exercise_type: exerciseType,
     // Незнакомый тип называет себя сам: список подписей закрытый, а тип сюда
     // приходит строкой — пустое название хуже неизвестного.
@@ -74,10 +78,7 @@ export async function addExerciseToPage({
   pageIndex,
   exerciseType,
 }: AddExerciseArgs): Promise<{ exerciseId: string }> {
-  const { data } = await client.post(
-    "/exercises",
-    newExercisePayload(exerciseType, where.lessonId),
-  );
+  const { data } = await client.post("/exercises", newExercisePayload(exerciseType));
 
   const pages = extractPages(content);
   const target = pages[pageIndex] ?? pages[pages.length - 1];

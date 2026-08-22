@@ -26,7 +26,6 @@ import {
   elementHref,
   lessonElements,
   resolveName,
-  withDetached,
   type ElementName,
   type ElementNames,
   type LessonElement,
@@ -68,11 +67,11 @@ export function LessonElementsPanel({
   const queryClient = useQueryClient();
   const [busy, setBusy] = useState(false);
   const [failed, setFailed] = useState(false);
-  const fromBlocks = lessonElements(content);
+  const pages = lessonElements(content);
 
   const assignmentIds = [
     ...new Set(
-      fromBlocks.flatMap((p) => p.elements.map((e) => e.assignmentId).filter(Boolean) as string[]),
+      pages.flatMap((p) => p.elements.map((e) => e.assignmentId).filter(Boolean) as string[]),
     ),
   ];
 
@@ -136,13 +135,6 @@ export function LessonElementsPanel({
       }
     : null;
 
-  // Задание, привязанное к уроку без блока, ученик всё равно видит — значит
-  // видит и автор. Дорисовывается, когда ответ с названиями пришёл: до этого
-  // о таких заданиях ничего не известно.
-  const pages = withDetached(
-    fromBlocks,
-    (exercises.data ?? []).map((e) => e.id),
-  );
   const empty = pages.every((p) => p.elements.length === 0);
   const showPageTitles = pages.length > 1;
 

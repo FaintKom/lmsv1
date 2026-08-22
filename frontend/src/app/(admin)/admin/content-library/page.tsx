@@ -49,8 +49,10 @@ import {
  MapPin,
  CircleDot,
 } from "lucide-react";
+import { newExercisePayload } from "@/lib/lessons/add-exercise";
 import {
  exercisesApi,
+ EXERCISE_TYPES_META,
  EXERCISE_TYPE_LABELS,
  EXERCISE_TYPE_COLORS,
  EXERCISE_GROUPS,
@@ -494,6 +496,23 @@ function ExercisesTab() {
  const [activeType, setActiveType] = useState<ExerciseType | "all">("all");
  const [page, setPage] = useState(1);
  const perPage = 50;
+ const [creating, setCreating] = useState(false);
+ const [pickerOpen, setPickerOpen] = useState(false);
+
+ // Задание заводится в библиотеке и только потом ставится в урок (specs/030).
+ // Тело — то же, что шлёт страница курса: иначе под одной кнопкой в двух
+ // местах заводятся разные задания.
+ const handleCreate = async (exerciseType: ExerciseType) => {
+ setPickerOpen(false);
+ setCreating(true);
+ try {
+ const { data } = await exercisesApi.create(newExercisePayload(exerciseType) as Parameters<typeof exercisesApi.create>[0]);
+ router.push(`/admin/content-library/${data.id}`);
+ } catch {
+ toast.error(t("admin.contentLibrary.createExerciseFailed"));
+ setCreating(false);
+ }
+ };
 
  const fetchExercises = () => {
  setLoading(true);
@@ -559,6 +578,42 @@ function ExercisesTab() {
  onChange={(e) => setSearch(e.target.value)}
  className="w-full rounded-lg border border-border-strong bg-surface py-2 pl-10 pr-4 text-sm text-text placeholder-ink-300 outline-none hover:border-primary focus:ring-2 focus:ring-primary-soft "
  />
+ </div>
+ </div>
+
+ <div className="mt-3 flex flex-wrap items-start justify-between gap-2">
+ <div className="relative">
+ <Button onClick={() => setPickerOpen((v) => !v)} disabled={creating} aria-expanded={pickerOpen}>
+ <Plus className="h-4 w-4" />
+ {t("admin.contentLibrary.createExercise")}
+ </Button>
+ {pickerOpen && (
+ <div className="absolute left-0 z-20 mt-1 max-h-80 w-72 overflow-y-auto rounded-lg border border-border-strong bg-surface p-2 shadow-lg">
+ {EXERCISE_GROUPS.map((group) => {
+ const types = EXERCISE_TYPES_META.filter((meta) => meta.group === group.key);
+ if (types.length === 0) return null;
+ return (
+ <div key={group.key} className="mb-1.5">
+ <p className="mb-0.5 text-2xs font-semibold uppercase tracking-wider text-text-subtle">{t(group.labelKey)}</p>
+ <ul>
+ {types.map((meta) => (
+ <li key={meta.value}>
+ <button
+ type="button"
+ onClick={() => handleCreate(meta.value)}
+ className="flex w-full items-center gap-2 rounded px-1.5 py-1 text-left text-xs text-text hover:bg-surface-2"
+ >
+ <meta.Icon className="h-3 w-3 shrink-0 text-text-subtle" aria-hidden />
+ {meta.label}
+ </button>
+ </li>
+ ))}
+ </ul>
+ </div>
+ );
+ })}
+ </div>
+ )}
  </div>
  </div>
 
@@ -645,6 +700,11 @@ function ExercisesTab() {
  </td>
  <td className="px-2.5 py-0 font-medium text-text ">
  {ex.title}
+ {ex.is_placed === false && (
+ <span className="ml-2 rounded-pill bg-surface-2 px-2 py-0.5 text-2xs font-medium text-text-muted">
+ {t("admin.contentLibrary.unplaced")}
+ </span>
+ )}
  </td>
  <td className="px-2.5 py-0">
  <span className={`inline-flex items-center gap-1.5 rounded-pill px-2.5 py-0.5 text-xs font-medium ${EXERCISE_TYPE_COLORS[ex.exercise_type]}`}>

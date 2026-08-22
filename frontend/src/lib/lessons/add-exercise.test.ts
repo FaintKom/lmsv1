@@ -29,9 +29,12 @@ const lesson = {
 };
 
 describe("тело нового задания", () => {
-  it("повторяет то, что шлёт редактор урока", () => {
-    expect(newExercisePayload("fill_blanks", "l1")).toEqual({
-      lesson_id: "l1",
+  it("задание заводится в библиотеке — без урока", () => {
+    // После specs/030 «где завели» и «где показывают» — разные вещи: урок
+    // получает задание блоком, а не полем. Поле `lesson_id` не шлётся вовсе,
+    // иначе задание, поставленное потом в другой курс, останется «чужим»
+    // по записи о происхождении.
+    expect(newExercisePayload("fill_blanks")).toEqual({
       exercise_type: "fill_blanks",
       title: "New Fill Blanks",
       config: {},
@@ -39,7 +42,7 @@ describe("тело нового задания", () => {
   });
 
   it("у незнакомого типа названием становится он сам, а не пустота", () => {
-    expect(newExercisePayload("brand_new_type", "l1").title).toBe("New brand_new_type");
+    expect(newExercisePayload("brand_new_type").title).toBe("New brand_new_type");
   });
 });
 
@@ -113,6 +116,7 @@ describe("куда встаёт новый блок", () => {
 
     expect(created.exerciseId).toBe("e9");
     expect(client.post.mock.calls[0][0]).toBe("/exercises");
+    expect(client.post.mock.calls[0][1]).not.toHaveProperty("lesson_id");
   });
 
   it("если урок не сохранился, отказ виден вызвавшему", async () => {
