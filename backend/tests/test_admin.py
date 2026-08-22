@@ -121,6 +121,44 @@ async def test_update_org_settings(client: AsyncClient, admin, org):
 
 
 @pytest.mark.asyncio
+async def test_saving_settings_replaces_the_whole_menu_map(client: AsyncClient, admin, org, db):
+    """A menu key the settings form no longer knows must not survive a save.
+
+    This is the half of removing a menu item that happens by itself: the form
+    rebuilds the visibility map from its own list of items and the server puts
+    that map in place of the old one, so a deleted item's key goes with it.
+
+    Read the assertions as a pair. If somebody ever "improves" the merge into a
+    per-key one, a removed item's key would sit in the database for good —
+    `dr0pm33t1ng5` left exactly such a key behind and a migration had to come
+    and take it out. This test is what fails first next time.
+    """
+    org.settings = {
+        "display_name": "Before",
+        "menu_visibility": {"nonexistent_item": True, "gradebook": False},
+    }
+    db.add(org)
+    await db.flush()
+
+    resp = await client.put(
+        f"/api/v1/admin/organizations/{org.id}",
+        json={"settings": {"menu_visibility": {"gradebook": False}}},
+        headers=auth_header(admin),
+    )
+
+    assert resp.status_code == 200
+    menu = resp.json()["settings"]["menu_visibility"]
+    assert "nonexistent_item" not in menu
+    # The positive control. Without it the line above is green against an
+    # endpoint that returns an empty map, or none at all.
+    assert menu["gradebook"] is False
+    # Sibling settings are merged, not replaced: only menu_visibility is
+    # rewritten wholesale, and a save from the menu screen must not wipe the
+    # school's name or its colours.
+    assert resp.json()["settings"]["display_name"] == "Before"
+
+
+@pytest.mark.asyncio
 async def test_admin_cannot_edit_another_org(client: AsyncClient, admin, org2, db):
     """Reading another school's settings was covered; writing was not."""
     before = org2.name
