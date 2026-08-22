@@ -395,3 +395,134 @@ async def test_unknown_lesson_is_refused(client, teacher):
     )
 
     assert response.status_code == 404, response.text
+
+
+# ─── Phase 4: задание переживает всё, кроме своего удаления ──────────────
+#
+# Эти четыре держатся на схеме — ключ SET NULL, каскад снят, — и до PR 2 не
+# были доказаны. Каждый падает, если вернуть CASCADE или delete-orphan.
+
+
+async def _create_in(client, teacher, lesson_id, title):
+    r = await client.post(
+        "/api/v1/exercises",
+        json={
+            "lesson_id": str(lesson_id),
+            "exercise_type": "true_false",
+            "title": title,
+            "config": {},
+        },
+        headers=auth_header(teacher),
+    )
+    assert r.status_code == 200, r.text
+    return r.json()["id"]
+
+
+@pytest.mark.asyncio
+async def test_removing_the_block_keeps_the_exercise(client, db, org, teacher):
+    """Блок убрали — задание осталось в библиотеке, даже без других мест."""
+    course = await make_course(db, org, teacher)
+    module = await make_module(db, course.id)
+    lesson = await make_lesson(db, module.id)
+    exercise_id = await _create_in(client, teacher, lesson.id, "Снять блок")
+
+    emptied = await client.put(
+        f"/api/v1/courses/{course.id}/modules/{module.id}/lessons/{lesson.id}/",
+        json={"content": {"version": 3, "pages": [{"id": "page_1", "blocks": []}]}},
+        headers=auth_header(teacher),
+    )
+    assert emptied.status_code == 200, emptied.text
+
+    still = await client.get(f"/api/v1/exercises/{exercise_id}", headers=auth_header(teacher))
+    assert still.status_code == 200
+    listing = await client.get("/api/v1/exercises/", headers=auth_header(teacher))
+    assert {i["id"]: i for i in listing.json()["items"]}[exercise_id]["is_placed"] is False
+
+
+@pytest.mark.asyncio
+async def test_deleting_the_lesson_keeps_its_exercises(client, db, org, teacher):
+    """Урок с тремя заданиями удалён — три задания остались."""
+    course = await make_course(db, org, teacher)
+    module = await make_module(db, course.id)
+    lesson = await make_lesson(db, module.id)
+    ids = [await _create_in(client, teacher, lesson.id, f"Урок уйдёт {n}") for n in range(3)]
+
+    gone = await client.delete(
+        f"/api/v1/courses/{course.id}/modules/{module.id}/lessons/{lesson.id}",
+        headers=auth_header(teacher),
+    )
+    assert gone.status_code in (200, 204), gone.text
+
+    for exercise_id in ids:
+        r = await client.get(f"/api/v1/exercises/{exercise_id}", headers=auth_header(teacher))
+        assert r.status_code == 200, f"{exercise_id}: {r.status_code}"
+        assert r.json()["lesson_id"] is None
+
+
+@pytest.mark.asyncio
+async def test_an_exercise_in_two_courses_survives_deleting_one(client, db, org, teacher):
+    """Задание стоит в уроках двух курсов; один курс удалён — во втором видно."""
+    first = await make_course(db, org, teacher, title="Первый")
+    second = await make_course(db, org, teacher, title="Второй")
+    m1 = await make_module(db, first.id)
+    m2 = await make_module(db, second.id)
+    l1 = await make_lesson(db, m1.id)
+    l2 = await make_lesson(db, m2.id)
+    exercise_id = await _create_in(client, teacher, l1.id, "В двух курсах")
+
+    borrowed = await client.put(
+        f"/api/v1/courses/{second.id}/modules/{m2.id}/lessons/{l2.id}/",
+        json={"content": _block(exercise_id)},
+        headers=auth_header(teacher),
+    )
+    assert borrowed.status_code == 200, borrowed.text
+
+    gone = await client.delete(f"/api/v1/courses/{first.id}", headers=auth_header(teacher))
+    assert gone.status_code in (200, 204), gone.text
+
+    shown = await client.get(f"/api/v1/exercises/by-lesson/{l2.id}", headers=auth_header(teacher))
+    assert [i["id"] for i in shown.json()] == [exercise_id]
+
+
+@pytest.mark.asyncio
+async def test_deleting_the_exercise_removes_its_block_from_both_lessons(client, db, org, teacher):
+    """Удаление задания убирает блок из обоих уроков — ссылок в никуда не остаётся."""
+    course = await make_course(db, org, teacher)
+    module = await make_module(db, course.id)
+    l1 = await make_lesson(db, module.id)
+    l2 = await make_lesson(db, module.id)
+    exercise_id = await _create_in(client, teacher, l1.id, "Удалить")
+    await client.put(
+        f"/api/v1/courses/{course.id}/modules/{module.id}/lessons/{l2.id}/",
+        json={"content": _block(exercise_id)},
+        headers=auth_header(teacher),
+    )
+
+    gone = await client.delete(f"/api/v1/exercises/{exercise_id}", headers=auth_header(teacher))
+    assert gone.status_code in (200, 204), gone.text
+
+    for lesson in (l1, l2):
+        await db.refresh(lesson)
+        refs = [b.get("exercise_id") for p in lesson.content["pages"] for b in p["blocks"]]
+        assert exercise_id not in refs, lesson.content
+
+
+@pytest.mark.asyncio
+async def test_search_returns_mine_and_not_theirs(client, db, org, org2, teacher, admin2):
+    """Поиск по библиотеке отдаёт своё и не отдаёт чужое — по одному слову."""
+    mine = await client.post(
+        "/api/v1/exercises",
+        json={"exercise_type": "true_false", "title": "Фотосинтез у растений", "config": {}},
+        headers=auth_header(teacher),
+    )
+    theirs = await client.post(
+        "/api/v1/exercises",
+        json={"exercise_type": "true_false", "title": "Фотосинтез у водорослей", "config": {}},
+        headers=auth_header(admin2),
+    )
+    assert mine.status_code == 200 and theirs.status_code == 200
+
+    found = await client.get("/api/v1/exercises/?search=Фотосинтез", headers=auth_header(teacher))
+    ids = [i["id"] for i in found.json()["items"]]
+    assert mine.json()["id"] in ids
+    assert theirs.json()["id"] not in ids
