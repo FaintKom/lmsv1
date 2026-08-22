@@ -171,8 +171,12 @@ npm run dev                        # http://localhost:3000
 
 Минимум для `.env.local`:
 ```
-NEXT_PUBLIC_API_URL=http://localhost:8000
+BACKEND_URL=http://localhost:8000
 ```
+`BACKEND_URL` читает `next.config.ts` на старте dev-сервера — это адрес, куда
+проксируется `/api/*`. Без неё прокси нет, и каждый запрос ловит 404 от самого
+Next. `NEXT_PUBLIC_API_URL` запросы к API не маршрутизирует: она запекается в
+бандл при сборке QA- и прод-образов.
 
 Для Sentry — `NEXT_PUBLIC_SENTRY_DSN`. Без него — no-op, ничего не падает.
 

@@ -38,7 +38,7 @@ uvicorn app.main:app --reload
 # 5. Frontend (в новом терминале)
 cd frontend
 npm install
-echo "NEXT_PUBLIC_API_URL=http://localhost:8000" > .env.local
+cp .env.local.example .env.local   # BACKEND_URL — куда dev-сервер шлёт /api/*
 npm run dev
 # → фронт на http://localhost:3000
 ```
@@ -203,8 +203,13 @@ CI бежит на PR. Подробности — `docs/TESTING.md`.
 в multi-worker дев-режиме счётчики не делятся между воркерами.
 
 ### `frontend` не может достучаться до backend
-- Проверь, что `NEXT_PUBLIC_API_URL` в `frontend/.env.local` указывает
-  на http://localhost:8000 (для dev) или на прод-URL.
+Симптом — 404 на каждый запрос к `/api/v1/*`. Отвечает не бэкенд, а сам Next:
+без `BACKEND_URL` он не поднимает прокси и при старте об этом не предупреждает.
+
+- Проверь, что `BACKEND_URL` в `frontend/.env.local` указывает на бэкенд
+  (`http://localhost:8000`), и перезапусти dev-сервер — переменная читается
+  при старте. `NEXT_PUBLIC_API_URL` здесь ни при чём: она запекается в бандл
+  при сборке и запросы к API не маршрутизирует.
 - CORS: `CORS_ORIGINS` в backend `.env` должен содержать origin фронта
   (`http://localhost:3000`).
 
