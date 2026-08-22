@@ -26,6 +26,13 @@ import { livePreviewState, type RelatedCounts } from "./live-preview-state";
 const SETTLE_MS = 300;
 
 interface LivePreviewProps {
+  /** Какое задание проверяем.
+   *
+   *  Обязателен, и не для порядка: вердикт выносит сервер по номеру, и без
+   *  него проверка уходила на `/exercises/undefined/check`. Оба места вызова
+   *  номер держат — редактор задания берёт его из адреса, панель настроек
+   *  урока получает пропом (specs/041). */
+  exerciseId: string;
   exerciseType: string;
   config: Record<string, unknown> | undefined;
   title?: string;
@@ -34,6 +41,7 @@ interface LivePreviewProps {
 }
 
 export function LivePreview({
+  exerciseId,
   exerciseType,
   config,
   title,
@@ -92,6 +100,7 @@ export function LivePreview({
           <ExercisePreview
             exercise={
               {
+                id: exerciseId,
                 exercise_type: exerciseType,
                 config: settled,
                 title,

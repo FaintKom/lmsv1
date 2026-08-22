@@ -234,6 +234,13 @@ def grade_interactive_detail(
         return _grade_map_pin_drop_detail(content, answers)
     if exercise_type == "sentence_builder":
         return _grade_sentence_builder_detail(content, answers)
+    # Два типа, у которых ответа в настройках нет вовсе: сервер решает задачу
+    # сам. Правило жило только на пути сдачи, поэтому проверка — а с ней и
+    # превью учителя — отвечала «неверно» на верный ответ (specs/041).
+    if exercise_type == "math_system":
+        return _grade_math_system(content, answers)
+    if exercise_type == "stereometry":
+        return _grade_stereometry(content, answers)
     score, passed = grade_interactive(content, exercise_type, answers)
     return score, passed, None
 
@@ -273,6 +280,94 @@ def grade_interactive(content: dict, exercise_type: str, answers: dict) -> tuple
     elif exercise_type == "bubble_sheet":
         return _grade_bubble_sheet(content, answers)
     return 0.0, False
+
+
+def _grade_math_system(content: dict, answers: dict) -> tuple[float, bool, PerItem]:
+    """Mark a system of linear equations.
+
+    The server solves the system from the teacher's equations rather than
+    comparing against a stored answer key: with integrity model B the config
+    the student receives has no answer in it, and re-solving is cheaper than
+    keeping a second copy of the truth in sync.
+
+    An answer is `{"kind": "unique"|"none"|"infinite", "values": {...}}`.
+    The two non-unique kinds are the point of the topic — a student has to
+    recognise parallel lines and a repeated line, not just crank out numbers.
+    """
+    from app.math_validation.service import (
+        MathParseError,
+        solutions_match,
+        solve_linear_system,
+    )
+
+    equations = content.get("equations") or []
+    variables = content.get("variables") or []
+
+    try:
+        expected = solve_linear_system(list(equations), list(variables))
+    except MathParseError as e:
+        # The exercise itself is broken, not the attempt. Refuse rather than
+        # record a fail against the student for a config they cannot see.
+        raise BadRequestError(f"This exercise is misconfigured: {e}") from e
+
+    passed = solutions_match(expected, answers, list(variables))
+    return (1.0 if passed else 0.0), passed, None
+
+
+def stereometry_places(config: dict) -> int:
+    """How many decimals the answer is asked to. Default 2.
+
+    Rounding is what makes a numeric answer markable at all: a cone's volume
+    is irrational, and no student types 33.510321638291124.
+
+    Public: the reveal path in `exercises/service.py` rounds the same way.
+    """
+    raw = config.get("decimals", 2)
+    if isinstance(raw, bool) or not isinstance(raw, int):
+        return 2
+    return max(0, min(6, raw))
+
+
+def _grade_stereometry(content: dict, answers: dict) -> tuple[float, bool, PerItem]:
+    """Mark a solid-geometry answer.
+
+    The server computes the expected number from the teacher's solid rather
+    than comparing against a stored key — the config the student receives has
+    no answer in it, and recomputing is cheaper than keeping a second copy of
+    the truth in sync.
+
+    The comparison is against the rounded value, so a student who rounds as
+    asked is right, and one who answers to more places than asked is right
+    too as long as they are inside the tolerance.
+    """
+    from app.math_validation.solids import SolidError, compute
+
+    given_raw = answers.get("value")
+
+    try:
+        exact = compute(
+            content.get("solid") or "",
+            content.get("dimensions") or {},
+            content.get("quantity") or "",
+        )
+    except SolidError as e:
+        # The exercise is broken, not the attempt. Refuse rather than record a
+        # fail against a student for a config they cannot see.
+        raise BadRequestError(f"This exercise is misconfigured: {e}") from e
+
+    places = stereometry_places(content)
+    expected = round(exact, places)
+    # Half a unit in the last requested place, so "round to 2 dp" accepts
+    # 33.51 for 33.5103…, and a teacher can widen it deliberately.
+    tolerance = content.get("tolerance")
+    if isinstance(tolerance, bool) or not isinstance(tolerance, (int, float)):
+        tolerance = 0.5 * 10 ** (-places)
+    tolerance = abs(float(tolerance))
+
+    passed = False
+    if isinstance(given_raw, (int, float)) and not isinstance(given_raw, bool):
+        passed = abs(float(given_raw) - expected) <= tolerance
+    return (1.0 if passed else 0.0), passed, None
 
 
 def _grade_matching(content: dict, answers: dict) -> tuple[float, bool]:
