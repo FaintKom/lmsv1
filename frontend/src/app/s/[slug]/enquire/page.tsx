@@ -17,6 +17,7 @@ import { useParams } from "next/navigation";
 import { useEffect, useState } from "react";
 
 import { Button } from "@/components/ui/button";
+import { SchoolMark } from "@/components/layout/school-mark";
 import { fetchPublicSchool, type PublicSchool, submitPublicEnquiry } from "@/lib/api/crm";
 import { useTranslation } from "@/lib/i18n/context";
 
@@ -45,6 +46,15 @@ export default function EnquirePage() {
       .catch(() => setSchool(null))
       .finally(() => setLoading(false));
   }, [slug]);
+
+  // Next writes document.title from the route's static metadata at hydration,
+  // and BrandVars — which corrects it inside the app — needs a session this
+  // page does not have. An effect, not the fetch callback: setting it there
+  // raced hydration and won only about half the time.
+  useEffect(() => {
+    const named = school?.branding?.display_name || school?.name;
+    if (named) document.title = named;
+  }, [school]);
 
   const send = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -94,6 +104,9 @@ export default function EnquirePage() {
   return (
     <main className="mx-auto max-w-xl space-y-6 p-6 py-12">
       <header className="space-y-1">
+        {/* The page a school links from its own website: it should look
+            like the school, not like us. */}
+        <SchoolMark branding={school.branding} />
         <p className="text-sm font-semibold text-primary">{school.name}</p>
         <h1 className="text-2xl font-bold text-text">{t("enquire.heading")}</h1>
         <p className="text-base text-text-muted">{t("enquire.intro")}</p>

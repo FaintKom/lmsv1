@@ -145,7 +145,11 @@
  --color-primary: var(--primary, var(--green-600));
  --color-primary-hover: var(--primary-dark, var(--green-700));
  --color-primary-soft: var(--primary-light, var(--green-100));
- --color-primary-fg: #ffffff;
+  /* The odd one out until 2026-08-21: every sibling above already deferred
+     to the school's colour, this one was a constant. A school with a light
+     brand therefore got white text on a light fill, and nothing said so. */
+  --color-primary-fg: var(--primary-fg, #ffffff);
+  --color-primary-text: var(--primary-text-light, var(--color-primary));
 
  --color-reward: var(--sun-400);
  --color-reward-soft: var(--sun-100);
@@ -295,7 +299,8 @@
  --color-primary: var(--primary, #35d07f);
  --color-primary-hover: var(--primary-dark, #5ade97);
  --color-primary-soft: var(--primary-light, rgba(53, 208, 127, 0.14));
- --color-primary-fg: #04160c;
+  --color-primary-fg: var(--primary-fg, #04160c);
+  --color-primary-text: var(--primary-text-dark, var(--color-primary));
 
  --color-reward: #ffd84d;
  --color-reward-soft: rgba(255, 216, 77, 0.16);
@@ -1994,3 +1999,10 @@ button { font-family: inherit; }
 .driver-popover-arrow-side-right { border-right-color: var(--color-surface) !important; }
 .driver-popover-arrow-side-top { border-top-color: var(--color-surface) !important; }
 .driver-popover-arrow-side-bottom { border-bottom-color: var(--color-surface) !important; }
+
+
+/* A colour chosen to be a fill is not automatically readable as text. When
+   the school set one, --primary-text-* carries the same hue moved until it
+   clears 4.5:1 against the page; unset, this resolves to --color-primary and
+   the 458 places using .text-primary look exactly as they do today. */
+.text-primary { color: var(--color-primary-text); }

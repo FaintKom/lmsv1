@@ -4,6 +4,8 @@ import { useEffect, useState } from "react";
 import { Save } from "lucide-react";
 import { toast } from "sonner";
 
+import { BrandSection } from "@/components/admin/brand-section";
+import { SchoolContactsSection } from "@/components/admin/school-contacts-section";
 import { Button } from "@/components/ui/button";
 import { getOrganization, updateOrganization } from "@/lib/api/organizations";
 import { useTranslation } from "@/lib/i18n/context";
@@ -42,6 +44,12 @@ export function OrgSettingsForm({ orgId }: { orgId: string }) {
   const [logoUrl, setLogoUrl] = useState("");
   const [primaryColor, setPrimaryColor] = useState("#22c55e");
   const [secondaryColor, setSecondaryColor] = useState("#3b82f6");
+  // Stored, not inferred: a school may deliberately pick the very colour we
+  // suggested, and that is still a choice we must stop overwriting.
+  const [secondaryIsCustom, setSecondaryIsCustom] = useState(false);
+  const [faviconUrl, setFaviconUrl] = useState("");
+  const [supportEmail, setSupportEmail] = useState("");
+  const [supportUrl, setSupportUrl] = useState("");
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [notFound, setNotFound] = useState(false);
@@ -63,6 +71,10 @@ export function OrgSettingsForm({ orgId }: { orgId: string }) {
         setLogoUrl(settings.logo_url || "");
         setPrimaryColor(settings.primary_color || "#22c55e");
         setSecondaryColor(settings.secondary_color || "#3b82f6");
+        setSecondaryIsCustom(settings.secondary_is_custom === true);
+        setFaviconUrl(settings.favicon_url || "");
+        setSupportEmail(settings.support_email || "");
+        setSupportUrl(settings.support_url || "");
       })
       // A school that is not yours reads as 404, and so does one that does not
       // exist. Both say the same thing here, on purpose.
@@ -85,6 +97,10 @@ export function OrgSettingsForm({ orgId }: { orgId: string }) {
           logo_url: logoUrl.trim() || undefined,
           primary_color: primaryColor || undefined,
           secondary_color: secondaryColor || undefined,
+          secondary_is_custom: secondaryIsCustom,
+          favicon_url: faviconUrl.trim() || undefined,
+          support_email: supportEmail.trim() || undefined,
+          support_url: supportUrl.trim() || undefined,
         },
       });
       // Only when it is your own school: the auth store holds the branding the
@@ -117,105 +133,29 @@ export function OrgSettingsForm({ orgId }: { orgId: string }) {
 
   return (
     <div className="space-y-6">
-      <div className="rounded-lg border border-border-strong bg-surface">
-        <div className="border-b border-border px-6 py-4">
-          <h2 className="font-semibold text-text">{t("admin.settings.brandingTitle")}</h2>
-          <p className="text-xs text-text-subtle">{t("admin.settings.brandingSubtitle")}</p>
-        </div>
-        <div className="space-y-5 p-6">
-          <div>
-            <label htmlFor="displayName" className="mb-1 block text-sm font-medium text-text">
-              {t("admin.settings.displayName")}
-            </label>
-            <input
-              id="displayName"
-              type="text"
-              value={displayName}
-              onChange={(e) => setDisplayName(e.target.value)}
-              placeholder={t("admin.settings.displayNamePlaceholder")}
-              className="w-full rounded-lg border border-border-strong bg-surface px-3 py-2 text-sm focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary-soft"
-            />
-            <p className="mt-1 text-xs text-text-subtle">{t("admin.settings.displayNameHint")}</p>
-          </div>
+      <BrandSection
+        displayName={displayName}
+        onDisplayName={setDisplayName}
+        logoUrl={logoUrl}
+        onLogoUrl={setLogoUrl}
+        primary={primaryColor}
+        secondary={secondaryColor}
+        secondaryIsCustom={secondaryIsCustom}
+        onColors={({ primary, secondary, secondaryIsCustom: custom }) => {
+          setPrimaryColor(primary);
+          setSecondaryColor(secondary);
+          setSecondaryIsCustom(custom);
+        }}
+      />
 
-          <div>
-            <label htmlFor="logoUrl" className="mb-1 block text-sm font-medium text-text">
-              {t("admin.settings.logoUrl")}
-            </label>
-            <div className="flex items-center gap-3">
-              <input
-                id="logoUrl"
-                type="url"
-                value={logoUrl}
-                onChange={(e) => setLogoUrl(e.target.value)}
-                placeholder="https://example.com/logo.png"
-                className="flex-1 rounded-lg border border-border-strong bg-surface px-3 py-2 text-sm focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary-soft"
-              />
-              {logoUrl && (
-                <img
-                  src={logoUrl}
-                  alt={t("admin.settings.logoPreview")}
-                  className="h-10 w-10 rounded-lg border border-border-strong object-cover"
-                  onError={(e) => {
-                    (e.target as HTMLImageElement).style.display = "none";
-                  }}
-                />
-              )}
-            </div>
-            <p className="mt-1 text-xs text-text-subtle">{t("admin.settings.logoUrlHint")}</p>
-          </div>
-
-          <div>
-            <label htmlFor="primaryColor" className="mb-1 block text-sm font-medium text-text">
-              {t("admin.settings.primaryColor")}
-            </label>
-            <div className="flex items-center gap-3">
-              <input
-                id="primaryColor"
-                type="color"
-                value={primaryColor}
-                onChange={(e) => setPrimaryColor(e.target.value)}
-                className="h-10 w-10 cursor-pointer rounded-lg border border-border-strong p-0.5"
-              />
-              <input
-                type="text"
-                value={primaryColor}
-                onChange={(e) => setPrimaryColor(e.target.value)}
-                className="w-28 rounded-lg border border-border-strong bg-surface px-3 py-2 font-mono text-sm focus:border-primary focus:outline-none"
-                placeholder="#6366f1"
-              />
-              <div className="h-10 flex-1 rounded-lg" style={{ background: primaryColor }} />
-            </div>
-            <p className="mt-1 text-xs text-text-subtle">{t("admin.settings.primaryColorHint")}</p>
-          </div>
-
-          <div>
-            <label htmlFor="secondaryColor" className="mb-1 block text-sm font-medium text-text">
-              {t("admin.settings.secondaryColor")}
-            </label>
-            <div className="flex items-center gap-3">
-              <input
-                id="secondaryColor"
-                type="color"
-                value={secondaryColor}
-                onChange={(e) => setSecondaryColor(e.target.value)}
-                className="h-10 w-10 cursor-pointer rounded-lg border border-border-strong p-0.5"
-              />
-              <input
-                type="text"
-                value={secondaryColor}
-                onChange={(e) => setSecondaryColor(e.target.value)}
-                className="w-28 rounded-lg border border-border-strong bg-surface px-3 py-2 font-mono text-sm focus:border-primary focus:outline-none"
-                placeholder="#3b82f6"
-              />
-              <div className="h-10 flex-1 rounded-lg" style={{ background: secondaryColor }} />
-            </div>
-            <p className="mt-1 text-xs text-text-subtle">
-              {t("admin.settings.secondaryColorHint")}
-            </p>
-          </div>
-        </div>
-      </div>
+      <SchoolContactsSection
+        faviconUrl={faviconUrl}
+        onFaviconUrl={setFaviconUrl}
+        supportEmail={supportEmail}
+        onSupportEmail={setSupportEmail}
+        supportUrl={supportUrl}
+        onSupportUrl={setSupportUrl}
+      />
 
       <div className="rounded-lg border border-border-strong bg-surface">
         <div className="border-b border-border px-6 py-4">

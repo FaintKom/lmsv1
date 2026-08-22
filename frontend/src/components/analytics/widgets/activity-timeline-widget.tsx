@@ -61,17 +61,21 @@ export function ActivityTimelineWidget({ props }: WidgetProps) {
             fontSize: 12,
           }}
         />
+        {/* The school's pair, with the old literals as the fallback. A school
+            that set no colours sees exactly what it saw before; one that set
+            them finally sees its second colour somewhere, which until now was
+            saved and read by nothing. */}
         <Line
           type="monotone"
           dataKey="submissions"
-          stroke="#3b82f6"
+          stroke="var(--primary, #3b82f6)"
           strokeWidth={2}
           dot={false}
         />
         <Line
           type="monotone"
           dataKey="active_students"
-          stroke="#10b981"
+          stroke="var(--secondary, #10b981)"
           strokeWidth={2}
           dot={false}
         />

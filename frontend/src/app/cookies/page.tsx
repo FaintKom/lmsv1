@@ -137,6 +137,14 @@ export default function CookiePolicyPage() {
  </td>
  <td className="py-2">Local storage</td>
  </tr>
+<tr>
+ <td className="py-2 pr-4 font-mono text-xs">school-slug</td>
+ <td className="py-2 pr-4">
+  Remembers which school you last signed in to, so the sign-in page can
+  show the logo and colours of that school. Not used to identify you
+ </td>
+ <td className="py-2">Local storage</td>
+</tr>
  </tbody>
  </table>
  </div>

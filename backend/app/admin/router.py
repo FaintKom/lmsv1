@@ -1,5 +1,6 @@
 import csv
 import io
+import re
 import secrets
 import string
 import uuid
@@ -7,7 +8,7 @@ from datetime import date
 
 from fastapi import APIRouter, Depends, HTTPException, Query, UploadFile
 from fastapi.responses import StreamingResponse
-from pydantic import BaseModel
+from pydantic import BaseModel, field_validator
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm.attributes import flag_modified
@@ -65,10 +66,45 @@ def _parse_iso_dob(value) -> date | None:
 # ─── Organization Management ──────────────────────────────────────────
 
 
+#: Settings keys the server checks before storing. Anything not listed passes
+#: through untouched — this is a free-form blob by design, and the point here is
+#: not to police its shape but to stop the handful of values that end up in an
+#: href or a style from being able to do harm.
+_HEX = re.compile(r"^#[0-9a-fA-F]{6}$")
+_EMAIL = re.compile(r"^[^@\s]+@[^@\s]+\.[^@\s]+$")
+_COLOR_KEYS = ("primary_color", "secondary_color")
+_URL_KEYS = ("logo_url", "favicon_url", "support_url")
+
+
 class OrgUpdate(BaseModel):
     name: str | None = None
     is_active: bool | None = None
     settings: dict | None = None
+
+    @field_validator("settings")
+    @classmethod
+    def check_branding(cls, value: dict | None) -> dict | None:
+        if value is None:
+            return value
+
+        for key in _COLOR_KEYS:
+            colour = value.get(key)
+            if colour not in (None, "") and not _HEX.match(str(colour)):
+                raise ValueError(f"{key} must be a colour like #22c55e")
+
+        for key in _URL_KEYS:
+            url = value.get(key)
+            # https only. A support link is followed by every pupil in the
+            # school, so `javascript:` there would be a hole rather than a
+            # convenience, and plain http would leak the school's own traffic.
+            if url not in (None, "") and not str(url).lower().startswith("https://"):
+                raise ValueError(f"{key} must start with https://")
+
+        email = value.get("support_email")
+        if email not in (None, "") and not _EMAIL.match(str(email)):
+            raise ValueError("support_email must be an email address")
+
+        return value
 
 
 @router.get("/organizations")

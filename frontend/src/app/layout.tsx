@@ -54,6 +54,29 @@ export default function RootLayout({
 })();`,
  }}
  />
+  {/* The school's name and icon, before the first frame. Same trick as the
+      theme script above, for the same reason: read this in an effect instead
+      and every page load flashes "GrassLMS" at a pupil whose school is not
+      called that. Written by BrandVars once /me answers; absent until then,
+      and absent forever for a school that set nothing, in which case the
+      metadata above stands. */}
+  <script
+   dangerouslySetInnerHTML={{
+    __html: `(function () {
+  try {
+    var n = localStorage.getItem('school-name');
+    if (n) document.title = n;
+    var f = localStorage.getItem('school-favicon');
+    if (f) {
+      var l = document.querySelector("link[rel='icon']") || document.createElement('link');
+      l.rel = 'icon';
+      l.href = f;
+      document.head.appendChild(l);
+    }
+  } catch (e) {}
+})();`,
+   }}
+  />
  <link rel="apple-touch-icon" href="/icon-192.png" />
  </head>
  <body className="antialiased">

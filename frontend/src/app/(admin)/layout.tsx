@@ -5,6 +5,7 @@ import { usePathname, useRouter } from "next/navigation";
 import { useAuthStore } from "@/stores/auth-store";
 import { LiveLessonBanner } from "@/components/live/live-lesson-banner";
 import { Sidebar } from "@/components/layout/sidebar";
+import { BrandVars } from "@/components/layout/brand-vars";
 import { MobileTabBar } from "@/components/layout/mobile-tab-bar";
 import { Menu } from "lucide-react";
 
@@ -25,27 +26,6 @@ export default function AdminLayout({
  useEffect(() => {
  fetchUser();
  }, [fetchUser]);
-
- // P2-2: inject org brand colors (same logic as dashboard layout)
- useEffect(() => {
- const root = document.documentElement;
- const vars: string[] = [];
- const primary = branding?.primary_color;
- if (primary) {
- root.style.setProperty("--primary", primary);
- root.style.setProperty("--primary-light", `color-mix(in srgb, ${primary} 15%, transparent)`);
- root.style.setProperty("--primary-dark", `color-mix(in srgb, ${primary} 85%, black)`);
- vars.push("--primary", "--primary-light", "--primary-dark");
- }
- const secondary = branding?.secondary_color;
- if (secondary) {
- root.style.setProperty("--secondary", secondary);
- root.style.setProperty("--secondary-light", `color-mix(in srgb, ${secondary} 15%, transparent)`);
- root.style.setProperty("--secondary-dark", `color-mix(in srgb, ${secondary} 85%, black)`);
- vars.push("--secondary", "--secondary-light", "--secondary-dark");
- }
- return () => { vars.forEach((v) => root.style.removeProperty(v)); };
- }, [branding?.primary_color, branding?.secondary_color]);
 
  useEffect(() => {
  if (!isLoading && !isAuthenticated) {
@@ -77,6 +57,7 @@ export default function AdminLayout({
 
  return (
  <div className="flex h-screen bg-surface-2 ">
+      <BrandVars />
  <a
  href="#main-content"
  className="sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-[200] focus:rounded-lg focus:bg-primary focus:px-4 focus:py-2 focus:text-sm focus:font-medium focus:text-primary-fg focus:shadow-lg"

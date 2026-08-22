@@ -978,3 +978,63 @@ async def test_review_queue_list(client: AsyncClient, admin):
 async def test_student_cannot_access_review_queue(client: AsyncClient, student):
     resp = await client.get("/api/v1/admin/review-queue", headers=auth_header(student))
     assert resp.status_code == 403
+
+
+# ─── Organisation settings: what the server refuses to store ─────────────
+
+
+@pytest.mark.asyncio
+async def test_a_school_can_save_its_brand(client: AsyncClient, admin, org):
+    """Positive control. Without it the three refusals below would pass against
+    an endpoint that rejected everything, which proves nothing."""
+    resp = await client.put(
+        f"/api/v1/admin/organizations/{org.id}",
+        json={
+            "settings": {
+                "primary_color": "#22c55e",
+                "logo_url": "https://cdn.example/logo.svg",
+                "support_email": "help@example.school",
+            }
+        },
+        headers=auth_header(admin),
+    )
+    assert resp.status_code == 200
+    assert resp.json()["settings"]["primary_color"] == "#22c55e"
+
+
+@pytest.mark.asyncio
+@pytest.mark.parametrize(
+    "bad",
+    [
+        {"primary_color": "22c55e"},
+        {"primary_color": "red"},
+        {"secondary_color": "#12345"},
+        {"logo_url": "example.com/logo.png"},
+        {"support_email": "not-an-email"},
+    ],
+)
+async def test_a_value_that_would_not_work_is_refused_rather_than_stored(
+    client: AsyncClient, admin, org, bad
+):
+    resp = await client.put(
+        f"/api/v1/admin/organizations/{org.id}",
+        json={"settings": bad},
+        headers=auth_header(admin),
+    )
+    assert resp.status_code == 422
+
+
+@pytest.mark.asyncio
+async def test_a_support_link_cannot_be_a_script(client: AsyncClient, admin, org):
+    """Every pupil in the school follows this link. `javascript:` there is a
+    hole, not a convenience — and it would be stored by anything that only
+    checked the field was a string."""
+    resp = await client.put(
+        f"/api/v1/admin/organizations/{org.id}",
+        json={"settings": {"support_url": "javascript:alert(1)"}},
+        headers=auth_header(admin),
+    )
+    assert resp.status_code == 422
+
+    fetched = await client.get(f"/api/v1/admin/organizations/{org.id}", headers=auth_header(admin))
+    assert "support_url" not in fetched.json()["settings"]

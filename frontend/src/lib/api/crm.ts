@@ -176,10 +176,25 @@ export async function convertLead(
  * the response to branch on, and nothing worth reading back.
  */
 
+/**
+ * How a school looks, to somebody who has not logged in.
+ *
+ * Four fields and no more. The server decides that list; this mirrors it. If a
+ * support address or a menu layout ever turns up here, something upstream
+ * started handing out what belongs to people with accounts.
+ */
+export interface SchoolBranding {
+  display_name: string | null;
+  logo_url: string | null;
+  primary_color: string | null;
+  secondary_color: string | null;
+}
+
 export interface PublicSchool {
   name: string;
   slug: string;
   courses: { id: string; title: string }[];
+  branding: SchoolBranding;
 }
 
 export interface PublicEnquiry {

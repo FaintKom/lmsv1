@@ -518,6 +518,9 @@ async def me_endpoint(user: User = Depends(get_current_user)):
         org_settings = user.organization.settings or {}
     user_data["org_branding"] = {
         "logo_url": org_settings.get("logo_url"),
+        "favicon_url": org_settings.get("favicon_url"),
+        "support_email": org_settings.get("support_email"),
+        "support_url": org_settings.get("support_url"),
         "primary_color": org_settings.get("primary_color"),
         "secondary_color": org_settings.get("secondary_color"),
         "display_name": org_settings.get("display_name")

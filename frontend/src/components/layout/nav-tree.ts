@@ -42,6 +42,22 @@ export interface NavItem {
   label: string;
   icon: NavIcon;
   badge?: number;
+  /** Leaves the app: render an <a>, not a <Link>, and do not mark it active. */
+  external?: boolean;
+}
+
+/**
+ * A school's own support address, if it gave one.
+ *
+ * Only https: and mailto: are honoured. The check lives here as well as at the
+ * point of saving, deliberately: this value comes back out of the database, and
+ * a row could have been written before the validation existed.
+ */
+export function supportLink(raw: string | null | undefined): string | null {
+  const value = (raw || "").trim();
+  if (!value) return null;
+  const lower = value.toLowerCase();
+  return lower.startsWith("https://") || lower.startsWith("mailto:") ? value : null;
 }
 
 export interface NavGroup {
@@ -62,12 +78,15 @@ export interface NavTreeInput {
   /** The school's hidden-item settings. A missing key means "show it". */
   menuVisibility: Record<string, boolean>;
   reviewCount: number;
+  /** Where "Support" should go. Empty or unusable falls back to our own page. */
+  supportHref?: string | null;
   t: (key: string) => string;
 }
 
 export function buildNavTree({
   role,
   menuVisibility,
+  supportHref,
   reviewCount,
   t,
 }: NavTreeInput): NavTree {
@@ -199,7 +218,14 @@ export function buildNavTree({
           ? [{ href: "/admin/integrations", label: t("nav.integrations"), icon: Plug }]
           : []),
         ...(visible("support")
-          ? [{ href: "/support", label: t("nav.support"), icon: Heart }]
+          ? [
+              {
+                href: supportLink(supportHref) ?? "/support",
+                label: t("nav.support"),
+                icon: Heart,
+                external: supportLink(supportHref) !== null,
+              },
+            ]
           : []),
         ...(isAdminOnly
           ? [{ href: "/admin/settings", label: t("nav.settings"), icon: Settings }]
