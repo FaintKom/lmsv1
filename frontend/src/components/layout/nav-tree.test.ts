@@ -285,6 +285,39 @@ describe("the settings list and the menu", () => {
     expect(MENU_ITEM_KEYS.map((i) => i.key).filter((k) => !asked.has(k))).toEqual([]);
   });
 
+  it("honours the map in every role, not only where the gating was written", () => {
+    /**
+     * A key in the list is a promise: the entry it names can be switched off
+     * by the school. This asserts the promise holds for everyone who sees that
+     * entry — the part the two comparisons above cannot reach.
+     *
+     * They compare the *union* of keys asked across all roles against the list.
+     * Take the gating out of one branch and the union does not move: the staff
+     * branch still asks about all sixteen, so both stay green while that role
+     * ignores every setting. It is how a pupil's menu came to show what their
+     * school had hidden, and putting more roles in the loop above does not fix
+     * it — that widens what gets recorded, not what gets enforced.
+     *
+     * Nothing here is hand-listed, so nothing goes stale. An entry the list
+     * says nothing about is skipped: a school cannot hide a pupil's dashboard,
+     * and this is not the place to decide whether it should be able to.
+     */
+    const keyOf = new Map(MENU_ITEM_KEYS.map((i) => [i.labelKey, i.key]));
+
+    for (const role of ["super_admin", "admin", "teacher", "student", "parent"]) {
+      const tree = buildNavTree({ role, menuVisibility: {}, reviewCount: 0, t });
+      const shown = [...tree.top, ...tree.groups.flatMap((g) => g.items)];
+
+      for (const entry of shown) {
+        const key = keyOf.get(entry.label);
+        if (!key) continue;
+        expect(hrefsOf(role, { [key]: false }), `${role}: ${entry.label}`).not.toContain(
+          entry.href,
+        );
+      }
+    }
+  });
+
   it("names each switch the way the menu names the entry", () => {
     const labels = new Set(
       buildNavTree({ role: "super_admin", menuVisibility: {}, reviewCount: 0, t })
