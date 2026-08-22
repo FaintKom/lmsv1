@@ -14,7 +14,6 @@
 
 import { useQueries, useQuery, useQueryClient } from "@tanstack/react-query";
 import { ClipboardList, Code2, FileText, Plus, Presentation, Puzzle, Video } from "lucide-react";
-import { useRouter } from "next/navigation";
 import { useState } from "react";
 
 import apiClient from "@/lib/api-client";
@@ -40,6 +39,12 @@ interface LessonElementsPanelProps {
   content: Record<string, unknown> | undefined;
   /** Свернуть по Escape — фокус при этом возвращает вызывающая сторона. */
   onClose?: () => void;
+  /**
+   * Содержимое урока изменилось — пусть страница перечитает курс. `content`
+   * приходит пропсом из состояния страницы; обновление маршрута его не
+   * трогало, и после постановки учитель видел старый список до перезагрузки.
+   */
+  onChanged?: () => void;
 }
 
 /** Порядок групп в меню — от того, что заводят чаще, к узкому. */
@@ -61,9 +66,9 @@ export function LessonElementsPanel({
   moduleId,
   content,
   onClose,
+  onChanged,
 }: LessonElementsPanelProps) {
   const { t } = useTranslation();
-  const router = useRouter();
   const queryClient = useQueryClient();
   const [busy, setBusy] = useState(false);
   const [failed, setFailed] = useState(false);
@@ -113,7 +118,7 @@ export function LessonElementsPanel({
       // Название нового задания приходит тем же запросом, что и остальные, —
       // список обновляется целиком, а не дописывается по месту.
       await queryClient.invalidateQueries({ queryKey: ["lesson-exercise-names", lessonId] });
-      router.refresh();
+      onChanged?.();
     } catch {
       setFailed(true);
     } finally {
@@ -136,7 +141,7 @@ export function LessonElementsPanel({
         exerciseId,
       });
       await queryClient.invalidateQueries({ queryKey: ["lesson-exercise-names", lessonId] });
-      router.refresh();
+      onChanged?.();
     } catch {
       setFailed(true);
     } finally {

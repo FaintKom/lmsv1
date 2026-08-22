@@ -913,6 +913,7 @@ export default function CourseEditorPage() {
  courseId={courseId}
  moduleId={module.id}
  content={lesson.content as Record<string, unknown> | undefined}
+ onChanged={fetchCourse}
  onClose={() => {
  toggleLesson(lesson.id);
  document.getElementById(`lesson-toggle-${lesson.id}`)?.focus();

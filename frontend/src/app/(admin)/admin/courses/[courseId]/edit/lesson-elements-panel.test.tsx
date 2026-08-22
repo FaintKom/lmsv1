@@ -330,3 +330,22 @@ describe("вставить из библиотеки", () => {
     await waitFor(() => expect(screen.getByText("admin.courseEdit.elementsNothingFound")).toBeTruthy());
   });
 });
+
+describe("после постановки страница узнаёт об изменении", () => {
+  it("панель зовёт onChanged, а не надеется на перезагрузку", async () => {
+    const onChanged = vi.fn();
+    const client = new QueryClient({ defaultOptions: { queries: { retry: false } } });
+    render(
+      <QueryClientProvider client={client}>
+        <LessonElementsPanel open lessonId="l1" courseId="c1" moduleId="m1" content={lesson} onChanged={onChanged} />
+      </QueryClientProvider>,
+    );
+    await waitFor(() => expect(screen.getByText("Reading a range")).toBeTruthy());
+    fireEvent.click(screen.getAllByText("admin.courseEdit.elementsAdd")[0]);
+    fireEvent.click(screen.getByText("admin.courseEdit.elementsExisting"));
+    fireEvent.change(screen.getByPlaceholderText("admin.courseEdit.elementsSearch"), { target: { value: "фо" } });
+    await waitFor(() => expect(screen.getByText("Фотосинтез")).toBeTruthy());
+    fireEvent.click(screen.getByText("Фотосинтез"));
+    await waitFor(() => expect(onChanged).toHaveBeenCalledTimes(1));
+  });
+});
