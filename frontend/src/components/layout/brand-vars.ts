@@ -5,8 +5,10 @@ import { useEffect } from "react";
 import { readableAs, readableOn } from "@/lib/brand/contrast";
 import { useAuthStore } from "@/stores/auth-store";
 
-/** The page behind ordinary text, per theme. Matches --color-bg in globals.css. */
-const PAGE_LIGHT = "#ffffff";
+/** The page behind ordinary text, per theme. `--paper` in tokens.css says
+ * outright: "page background — never #fff". Computing against pure white cost
+ * exactly the difference — 4.42:1 where 4.5 was needed. */
+const PAGE_LIGHT = "#fbfcf7";
 const PAGE_DARK = "#0b100c";
 
 /** The default display_name the auth store hands out when a school set none. */

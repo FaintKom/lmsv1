@@ -103,7 +103,8 @@ test("the brand colour used as text reads its own variable too", async ({ page }
   });
 
   expect(resolved.after).not.toBe(resolved.before);
-  expect(ratio(resolved.after, "rgb(255, 255, 255)")).toBeGreaterThanOrEqual(4.5);
+  // The light page is #fbfcf7, not white — tokens.css is explicit about it.
+  expect(ratio(resolved.after, "rgb(251, 252, 247)")).toBeGreaterThanOrEqual(4.5);
 });
 
 test("the preview redraws before anything is saved, and saves nothing", async ({ page }) => {

@@ -18,7 +18,8 @@ import { useTranslation } from "@/lib/i18n/context";
  */
 
 const SURFACE = {
-  light: { page: "#ffffff", panel: "#f7f7f4", text: "#1a1a18", muted: "#6b6b66" },
+  // Not #fff: tokens.css calls the light page --paper and says "never #fff".
+  light: { page: "#fbfcf7", panel: "#f7f7f4", text: "#1a1a18", muted: "#6b6b66" },
   dark: { page: "#0b100c", panel: "#171f19", text: "#f0f0ec", muted: "#a8a8a2" },
 };
 
