@@ -258,10 +258,15 @@ describe("the settings list and the menu", () => {
       },
     ) as Record<string, boolean>;
 
-    // All three: `visible("crm")` sits behind `isAdminOnly &&`, so a teacher
-    // never reaches it, and a super admin alone would miss nothing but is not
-    // obviously enough on its own to rely on.
-    for (const role of ["super_admin", "admin", "teacher"]) {
+    // Every role, not just the staff. `visible("crm")` sits behind
+    // `isAdminOnly &&`, so a teacher never reaches it, and a super admin alone
+    // would miss nothing but is not obviously enough on its own to rely on.
+    //
+    // A pupil is here because leaving them out is what let their branch consult
+    // nothing at all: with no tree built there was nothing to record, and the
+    // comparison agreed with itself in both directions while every pupil kept
+    // seeing what their school had switched off.
+    for (const role of ["super_admin", "admin", "teacher", "student", "parent"]) {
       buildNavTree({ role, menuVisibility: spy, reviewCount: 0, t });
     }
     return asked;
@@ -289,5 +294,43 @@ describe("the settings list and the menu", () => {
     for (const item of MENU_ITEM_KEYS) {
       expect(labels).toContain(item.labelKey);
     }
+  });
+});
+
+describe("a pupil's menu obeys the same map", () => {
+  /**
+   * It did not, and the recorded-key test above could not tell.
+   *
+   * That test asks which keys the menu consults, but it only ever builds the
+   * three staff trees — a pupil's branch consulted nothing at all, so there
+   * was nothing to record and nothing to compare. Both directions agreed, and
+   * a school switching off "Team projects" watched it vanish from its own menu
+   * while every pupil kept it.
+   *
+   * These assertions are the other question: not which keys are asked, but
+   * whether the answer reaches the person the setting was aimed at.
+   */
+  it("drops the entry the school switched off", () => {
+    expect(hrefsOf("student", { team_projects: false })).not.toContain("/team-projects");
+    expect(hrefsOf("student", { courses: false })).not.toContain("/courses");
+  });
+
+  it("touches nothing else", () => {
+    const before = hrefsOf("student");
+    expect(hrefsOf("student", { live: false })).toEqual(before.filter((h) => h !== "/live"));
+  });
+
+  it("leaves the entries with no key alone", () => {
+    // A school cannot hide these four, and a stray key must not start hiding
+    // them. Everything the pupil's menu does guard is switched off here.
+    const stripped = hrefsOf("student", {
+      courses: false,
+      assignments: false,
+      calendar: false,
+      live: false,
+      peer_review: false,
+      team_projects: false,
+    });
+    expect(stripped).toEqual(["/dashboard", "/achievements", "/attendance", "/schedule"]);
   });
 });

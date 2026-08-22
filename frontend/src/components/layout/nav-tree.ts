@@ -146,6 +146,9 @@ export function buildNavTree({
   const visible = (key: string) => menuVisibility[key] !== false;
 
   if (isParent) {
+    // Nothing here answers to the school's map, because neither entry has a
+    // visibility key. A visible() call would be one that can never change
+    // anything — the map reaches a parent the moment some entry earns a key.
     return {
       top: [
         { href: "/parent", label: t("nav.dashboard"), icon: LayoutDashboard },
@@ -159,17 +162,37 @@ export function buildNavTree({
     // Ten entries and no role gates. Categories solve length, and a pupil
     // does not have the problem — nor would "People" or "School" mean anything
     // to one. Flat it stays.
+    //
+    // Six of the ten answer to the school's map. They did not until now: every
+    // visible() call sat in the staff branch below, so switching an entry off
+    // removed it from the office's menu and left it on every pupil's. The
+    // school had no way to learn that, and the switch said otherwise.
+    //
+    // The other four carry no key. A school cannot hide a pupil's dashboard,
+    // and whether it should be able to is a separate question.
     return {
       top: [
         { href: "/dashboard", label: t("nav.dashboard"), icon: LayoutDashboard },
-        { href: "/courses", label: t("nav.courses"), icon: BookOpen },
-        { href: "/assignments", label: t("nav.assignments"), icon: ClipboardList },
+        ...(visible("courses")
+          ? [{ href: "/courses", label: t("nav.courses"), icon: BookOpen }]
+          : []),
+        ...(visible("assignments")
+          ? [{ href: "/assignments", label: t("nav.assignments"), icon: ClipboardList }]
+          : []),
         // My room + My avatar live as tabs inside /achievements now.
         { href: "/achievements", label: t("nav.achievements"), icon: Trophy },
-        { href: "/calendar", label: t("nav.calendar"), icon: Calendar },
-        { href: "/live", label: t("nav.liveLessons"), icon: Radio },
-        { href: "/peer-review", label: t("nav.peerReview"), icon: MessagesSquare },
-        { href: "/team-projects", label: t("nav.teamProjects"), icon: FolderKanban },
+        ...(visible("calendar")
+          ? [{ href: "/calendar", label: t("nav.calendar"), icon: Calendar }]
+          : []),
+        ...(visible("live")
+          ? [{ href: "/live", label: t("nav.liveLessons"), icon: Radio }]
+          : []),
+        ...(visible("peer_review")
+          ? [{ href: "/peer-review", label: t("nav.peerReview"), icon: MessagesSquare }]
+          : []),
+        ...(visible("team_projects")
+          ? [{ href: "/team-projects", label: t("nav.teamProjects"), icon: FolderKanban }]
+          : []),
         { href: "/attendance", label: t("nav.attendance"), icon: CalendarCheck },
         { href: "/schedule", label: t("nav.schedule"), icon: CalendarClock },
       ],
