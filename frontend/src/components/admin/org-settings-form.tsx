@@ -6,6 +6,7 @@ import { toast } from "sonner";
 
 import { BrandSection } from "@/components/admin/brand-section";
 import { SchoolContactsSection } from "@/components/admin/school-contacts-section";
+import { MENU_ITEM_KEYS } from "@/components/layout/nav-tree";
 import { Button } from "@/components/ui/button";
 import { getOrganization, updateOrganization } from "@/lib/api/organizations";
 import { useTranslation } from "@/lib/i18n/context";
@@ -20,19 +21,6 @@ import { useAuthStore } from "@/stores/auth-store";
  * super admin looking after several schools could only ever edit their own.
  * Making the target explicit is what lets one form serve both screens.
  */
-
-export const MENU_ITEM_KEYS = [
-  { key: "users", labelKey: "admin.settings.menuUsers", adminOnly: true },
-  { key: "groups", labelKey: "admin.settings.menuGroups", adminOnly: false },
-  { key: "courses", labelKey: "admin.settings.menuCourses", adminOnly: false },
-  { key: "assignments", labelKey: "admin.settings.menuAssignments", adminOnly: false },
-  { key: "gradebook", labelKey: "admin.settings.menuGradebook", adminOnly: false },
-  { key: "review", labelKey: "admin.settings.menuReview", adminOnly: false },
-  { key: "paths", labelKey: "admin.settings.menuPaths", adminOnly: true },
-  { key: "calendar", labelKey: "admin.settings.menuCalendar", adminOnly: false },
-  { key: "live", labelKey: "admin.settings.menuLiveLessons", adminOnly: false },
-  { key: "analytics", labelKey: "admin.settings.menuAnalytics", adminOnly: false },
-];
 
 export function OrgSettingsForm({ orgId }: { orgId: string }) {
   const { t } = useTranslation();
