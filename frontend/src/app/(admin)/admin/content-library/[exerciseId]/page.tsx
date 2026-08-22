@@ -414,6 +414,7 @@ export default function ExerciseEditorPage() {
    missing. Two implementations of one thing is the sprawl specs/024 spent
    a day undoing. */}
  <LivePreview
+ exerciseId={exerciseId}
  exerciseType={exercise.exercise_type}
  config={config}
  title={title}

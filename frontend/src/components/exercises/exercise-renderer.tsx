@@ -144,6 +144,11 @@ const SELF_PERSISTING_TYPES = new Set([
  "web_editor",
  "scorm_package",
  "math_stepwise",
+ // Отправляет решение прямо на /submit и режима превью не смотрит. Пока у
+ // превью не было номера задания, запрос уходил в никуда и это было
+ // безопасно случайно; с номером тестовый прогон учителя записал бы сдачу
+ // ученику и потратил попытку (specs/041, specs/018 FR-005).
+ "code_challenge",
 ]);
 
 export default function ExerciseRenderer({ exercise, courseId, prevLesson, nextLesson, onAnswersChange, previewMode = false }: ExerciseRendererProps) {

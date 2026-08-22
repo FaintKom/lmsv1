@@ -655,6 +655,7 @@ def _get_correct_answer(exercise: Exercise) -> dict | None:
         # Same reason as math_system: the student's config carries the solid
         # and its measurements, never the number they lead to.
         from app.math_validation.solids import SolidError, compute
+        from app.submissions.service import stereometry_places
 
         try:
             value = compute(
@@ -664,7 +665,7 @@ def _get_correct_answer(exercise: Exercise) -> dict | None:
             )
         except SolidError:
             return None
-        return {"answer": round(value, _stereometry_places(config))}
+        return {"answer": round(value, stereometry_places(config))}
 
     elif ex_type in (ExerciseType.matching,):
         return {"answer": config.get("pairs", [])}
@@ -1024,39 +1025,26 @@ async def _submit_math_system(
     data: dict,
     now: datetime,
 ) -> ExerciseSubmission:
-    """Mark a system of linear equations.
+    """Record an attempt at a system of linear equations.
 
-    The server solves the system from the teacher's equations rather than
-    comparing against a stored answer key: with integrity model B the config
-    the student receives has no answer in it, and re-solving is cheaper than
-    keeping a second copy of the truth in sync.
+    The verdict comes from `grade_interactive_detail`, which is also what the
+    non-persisting `/check` calls: a teacher's preview and a student's
+    submission cannot disagree while one function decides both. What stays
+    here is the record — the submission row, the XP, the clock.
 
-    A submission is `{"kind": "unique"|"none"|"infinite", "values": {...}}`.
-    The two non-unique kinds are the point of the topic — a student has to
-    recognise parallel lines and a repeated line, not just crank out numbers.
+    An answer is `{"kind": "unique"|"none"|"infinite", "values": {...}}`.
     """
-    from app.math_validation.service import (
-        MathParseError,
-        solutions_match,
-        solve_linear_system,
-    )
+    from app.submissions.service import grade_interactive_detail
 
-    config = exercise.config or {}
-    equations = config.get("equations") or []
-    variables = config.get("variables") or []
     # interactive_answers, not answers: the submit schema types `answers` as a
     # list of per-question dicts, and this type sends one object.
     answer = data.get("interactive_answers") or {}
-
-    try:
-        expected = solve_linear_system(list(equations), list(variables))
-    except MathParseError as e:
-        # The exercise itself is broken, not the attempt. Refuse rather than
-        # record a fail against the student for a config they cannot see.
-        raise BadRequestError(f"This exercise is misconfigured: {e}")
-
     given = answer if isinstance(answer, dict) else {}
-    passed = solutions_match(expected, given, list(variables))
+
+    # Судит общая функция — та же, которую зовёт непишущая проверка. Пока
+    # правило жило здесь, проверка его не знала и отвечала «неверно» на
+    # верный ответ (specs/041).
+    _, passed, _ = grade_interactive_detail(exercise.config or {}, "math_system", given)
 
     submission = ExerciseSubmission(
         exercise_id=exercise.id,
@@ -1136,18 +1124,6 @@ async def _submit_math_stepwise(
     return await _reload_submission(db, submission.id)
 
 
-def _stereometry_places(config: dict) -> int:
-    """How many decimals the answer is asked to. Default 2.
-
-    Rounding is what makes a numeric answer markable at all: a cone's volume
-    is irrational, and no student types 33.510321638291124.
-    """
-    raw = config.get("decimals", 2)
-    if isinstance(raw, bool) or not isinstance(raw, int):
-        return 2
-    return max(0, min(6, raw))
-
-
 async def _submit_stereometry(
     db: AsyncSession,
     exercise: Exercise,
@@ -1155,46 +1131,20 @@ async def _submit_stereometry(
     data: dict,
     now: datetime,
 ) -> ExerciseSubmission:
-    """Mark a solid-geometry answer.
+    """Record an attempt at a solid-geometry answer.
 
-    The server computes the expected number from the teacher's solid rather
-    than comparing against a stored key — the config the student receives has
-    no answer in it, and recomputing is cheaper than keeping a second copy of
-    the truth in sync.
-
-    The comparison is against the rounded value, so a student who rounds as
-    asked is right, and one who answers to more places than asked is right
-    too as long as they are inside the tolerance.
+    Same split as `_submit_math_system`: `grade_interactive_detail` decides,
+    this function records. The rounding and the tolerance live with the
+    decision, not here.
     """
-    from app.math_validation.solids import SolidError, compute
+    from app.submissions.service import grade_interactive_detail
 
-    config = exercise.config or {}
     answer = data.get("interactive_answers") or {}
-    given_raw = answer.get("value") if isinstance(answer, dict) else None
+    given = answer if isinstance(answer, dict) else {}
+    given_raw = given.get("value")
 
-    try:
-        exact = compute(
-            config.get("solid") or "",
-            config.get("dimensions") or {},
-            config.get("quantity") or "",
-        )
-    except SolidError as e:
-        # The exercise is broken, not the attempt. Refuse rather than record a
-        # fail against a student for a config they cannot see.
-        raise BadRequestError(f"This exercise is misconfigured: {e}")
-
-    places = _stereometry_places(config)
-    expected = round(exact, places)
-    # Half a unit in the last requested place, so "round to 2 dp" accepts
-    # 33.51 for 33.5103…, and a teacher can widen it deliberately.
-    tolerance = config.get("tolerance")
-    if isinstance(tolerance, bool) or not isinstance(tolerance, (int, float)):
-        tolerance = 0.5 * 10 ** (-places)
-    tolerance = abs(float(tolerance))
-
-    passed = False
-    if isinstance(given_raw, (int, float)) and not isinstance(given_raw, bool):
-        passed = abs(float(given_raw) - expected) <= tolerance
+    # Та же общая функция, что судит непишущую проверку (specs/041).
+    _, passed, _ = grade_interactive_detail(exercise.config or {}, "stereometry", given)
 
     submission = ExerciseSubmission(
         exercise_id=exercise.id,

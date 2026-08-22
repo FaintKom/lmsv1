@@ -18,6 +18,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import { CheckCircle, XCircle } from "lucide-react";
+import { toast } from "sonner";
 import apiClient from "@/lib/api-client";
 import { startExerciseTimer, type ExerciseTimer } from "@/lib/api/exercises";
 import { useTranslation } from "@/lib/i18n/context";
@@ -148,11 +149,20 @@ export function V2ExerciseLive({
   const onGrade: V2GradeFn = async (answers) => {
     if (previewMode) {
       // Never /submit from a test run (specs/018 FR-005/FR-006).
-      const res = await apiClient.post(`/exercises/${exercise.id}/check`, {
-        interactive_answers: answers,
-      });
-      const d = res.data ?? {};
-      return { correct: !!d.passed, perItem: d.per_item ?? undefined };
+      try {
+        const res = await apiClient.post(`/exercises/${exercise.id}/check`, {
+          interactive_answers: answers,
+        });
+        const d = res.data ?? {};
+        return { correct: !!d.passed, perItem: d.per_item ?? undefined };
+      } catch (e) {
+        // Отказ проверки должен назвать себя. Виджеты ловят его по-разному:
+        // одни показывают свою строку, другие — как math_system — не ловят
+        // вовсе, и учитель видел просто погасшую кнопку (specs/041). Бросаем
+        // дальше: выдумать вердикт здесь значило бы соврать.
+        toast.info(t("admin.exercisePreview.verdictUnavailable"));
+        throw e;
+      }
     }
     const res = await apiClient.post(`/exercises/${exercise.id}/submit`, {
       interactive_answers: answers,

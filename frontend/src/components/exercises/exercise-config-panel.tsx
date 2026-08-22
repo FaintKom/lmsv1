@@ -267,6 +267,7 @@ export function ExerciseConfigPanel({ exerciseId, hideTitle, onSaved }: Exercise
         lesson into preview mode — which takes the form off the screen, so a
         setting and its result were never on it together. */}
       <LivePreview
+        exerciseId={exerciseId}
         exerciseType={type}
         config={config}
         title={title}
