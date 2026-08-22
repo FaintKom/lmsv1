@@ -235,3 +235,33 @@ describe("the support entry", () => {
     }
   });
 });
+
+describe("a pupil's menu obeys the same map", () => {
+  // It did not. Every one of the sixteen visible() calls sat in the staff
+  // branch, so a school switching off "Team projects" saw it vanish from its
+  // own menu and kept believing pupils had lost it too. Six of a pupil's ten
+  // entries carry a key; these are the two ends of that range.
+  it("drops the entry the school switched off", () => {
+    expect(hrefsOf("student", { team_projects: false })).not.toContain("/team-projects");
+    expect(hrefsOf("student", { courses: false })).not.toContain("/courses");
+  });
+
+  it("touches nothing else", () => {
+    const before = hrefsOf("student");
+    const after = hrefsOf("student", { live: false });
+    expect(after).toEqual(before.filter((href) => href !== "/live"));
+  });
+
+  it("leaves the entries with no key alone", () => {
+    // A school cannot hide these, and a stray key must not start hiding them.
+    const stripped = hrefsOf("student", {
+      courses: false,
+      assignments: false,
+      calendar: false,
+      live: false,
+      peer_review: false,
+      team_projects: false,
+    });
+    expect(stripped).toEqual(["/dashboard", "/achievements", "/attendance", "/schedule"]);
+  });
+});
