@@ -9,6 +9,7 @@ from datetime import date
 from fastapi import APIRouter, Depends, HTTPException, Query, UploadFile
 from fastapi.responses import StreamingResponse
 from pydantic import BaseModel, field_validator
+from slugify import slugify
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm.attributes import flag_modified
@@ -1194,8 +1195,6 @@ async def create_organization_endpoint(
     db: AsyncSession = Depends(get_db),
 ):
     """Super admin only: create a new organization."""
-    from python_slugify import slugify
-
     name = data.get("name", "").strip()
     if not name:
         raise HTTPException(400, "Organization name is required")
