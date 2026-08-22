@@ -56,9 +56,7 @@ export function Sidebar({ open, onClose }: SidebarProps) {
  // Only the two the fetches below gate on. Which entries each role may see is
  // decided in nav-tree.ts now, not here.
  const isAdminOrTeacher = user?.role === "super_admin" || user?.role === "admin" || user?.role === "teacher";
- const isAdminOnly = user?.role === "super_admin" || user?.role === "admin";
  const [reviewCount, setReviewCount] = useState(0);
- const [menuVisibility, setMenuVisibility] = useState<Record<string, boolean>>({});
 
  useEffect(() => {
  if (!isAdminOrTeacher) return;
@@ -69,19 +67,12 @@ export function Sidebar({ open, onClose }: SidebarProps) {
  return () => clearInterval(interval);
  }, [isAdminOrTeacher]);
 
- useEffect(() => {
- if (!isAdminOnly || !user?.org_id) return;
- apiClient
- .get(`/admin/organizations/${user.org_id}`)
- .then(({ data }) => {
- setMenuVisibility(data.settings?.menu_visibility || {});
- })
- .catch(() => {});
- }, [isAdminOnly, user?.org_id]);
-
  const tree = buildNavTree({
  role: user?.role,
- menuVisibility,
+ // Comes with the session, next to the logo and the school name. It used to
+ // be fetched from the settings endpoint, which is admin-only — so a teacher
+ // got an empty map and saw every item the school had hidden (specs/034).
+ menuVisibility: branding?.menu_visibility ?? {},
  reviewCount,
  supportHref: branding?.support_url || branding?.support_email
  ? branding.support_url || `mailto:${branding.support_email}`
