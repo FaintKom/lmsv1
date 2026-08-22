@@ -1860,6 +1860,7 @@ const en: TranslationMap = {
  "admin.settings.previewTooClose": "These two colours are close enough that chart series will merge.",
  "admin.settings.menuVisibility": "Menu Visibility",
  "admin.settings.menuVisibilityHint": "Toggle which sections appear in the navigation sidebar",
+ "admin.settings.menuSupportOff": "Nothing else links here. Support opens the contact you gave above — or our donation page, if you left that blank.",
  "admin.settings.adminOnly": "Admin only",
  "admin.settings.saveSettings": "Save Settings",
  "admin.settings.saved": "Settings saved",

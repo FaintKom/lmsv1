@@ -1860,6 +1860,7 @@ const de: TranslationMap = {
  "admin.settings.previewTooClose": "Diese beiden Farben liegen so nah beieinander, dass Diagrammreihen verschmelzen.",
  "admin.settings.menuVisibility": "Menü-Sichtbarkeit",
  "admin.settings.menuVisibilityHint": "Schalten Sie um, welche Abschnitte in der Navigationsleiste erscheinen",
+ "admin.settings.menuSupportOff": "Nichts sonst führt hierher. „Unterstützen“ öffnet die Adresse, die Sie oben angegeben haben — oder unsere Spendenseite, wenn Sie das Feld leer gelassen haben.",
  "admin.settings.adminOnly": "Nur Admin",
  "admin.settings.saveSettings": "Einstellungen speichern",
  "admin.settings.saved": "Einstellungen gespeichert",

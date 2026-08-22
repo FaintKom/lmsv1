@@ -1860,6 +1860,7 @@ const uk: TranslationMap = {
  "admin.settings.previewTooClose": "Ці два кольори настільки близькі, що серії графіка зіллються.",
  "admin.settings.menuVisibility": "Видимість меню",
  "admin.settings.menuVisibilityHint": "Перемикайте, які розділи зʼявляються в бічній панелі",
+ "admin.settings.menuSupportOff": "Інших посилань сюди немає. «Підтримати» відкриває контакт, який ви вказали вище, — або нашу сторінку пожертв, якщо не вказали.",
  "admin.settings.adminOnly": "Тільки адмін",
  "admin.settings.saveSettings": "Зберегти налаштування",
  "admin.settings.saved": "Налаштування збережено",

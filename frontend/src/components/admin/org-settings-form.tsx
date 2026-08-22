@@ -5,6 +5,7 @@ import { Save } from "lucide-react";
 import { toast } from "sonner";
 
 import { BrandSection } from "@/components/admin/brand-section";
+import { MenuVisibilitySection } from "@/components/admin/menu-visibility-section";
 import { SchoolContactsSection } from "@/components/admin/school-contacts-section";
 import { MENU_ITEM_KEYS } from "@/components/layout/nav-tree";
 import { Button } from "@/components/ui/button";
@@ -145,39 +146,7 @@ export function OrgSettingsForm({ orgId }: { orgId: string }) {
         onSupportUrl={setSupportUrl}
       />
 
-      <div className="rounded-lg border border-border-strong bg-surface">
-        <div className="border-b border-border px-6 py-4">
-          <h2 className="font-semibold text-text">{t("admin.settings.menuVisibility")}</h2>
-          <p className="text-xs text-text-subtle">{t("admin.settings.menuVisibilityHint")}</p>
-        </div>
-        <div className="divide-y divide-border">
-          {MENU_ITEM_KEYS.map((item) => (
-            <label
-              key={item.key}
-              className="flex cursor-pointer items-center justify-between px-6 py-3 hover:bg-surface-2"
-            >
-              <div>
-                <span className="text-sm font-medium text-text">{t(item.labelKey)}</span>
-                {item.adminOnly && (
-                  <span className="ml-2 rounded-pill bg-warning-soft px-2 py-0.5 text-3xs font-semibold text-warning-fg">
-                    {t("admin.settings.adminOnly")}
-                  </span>
-                )}
-              </div>
-              <div className="relative">
-                <input
-                  type="checkbox"
-                  checked={menuVisibility[item.key] ?? true}
-                  onChange={() => toggle(item.key)}
-                  className="peer sr-only"
-                />
-                <div className="h-6 w-11 rounded-pill bg-ink-200 transition-colors peer-checked:bg-primary" />
-                <div className="absolute left-0.5 top-0.5 h-5 w-5 rounded-pill bg-surface shadow transition-transform peer-checked:translate-x-5" />
-              </div>
-            </label>
-          ))}
-        </div>
-      </div>
+      <MenuVisibilitySection value={menuVisibility} onToggle={toggle} />
 
       <div className="flex justify-end">
         <Button onClick={save} disabled={saving}>
