@@ -7,6 +7,7 @@ import {
   BASE_URL,
   STUDENT,
   TEACHER,
+  teardownCourse,
 } from "../poms/ContentTypeHarness";
 
 /**
@@ -67,13 +68,7 @@ test.afterAll(async () => {
       console.warn(`teardown name restore failed: ${(e as Error).message}`);
     }
   }
-  if (courseId && teacherApi) {
-    try {
-      await teacherApi.deleteCourse(courseId);
-    } catch (e) {
-      console.warn(`teardown deleteCourse failed: ${(e as Error).message}`);
-    }
-  }
+  await teardownCourse(teacherApi, courseId);
 });
 
 test("a team project the teacher creates is listed", async ({ page }) => {

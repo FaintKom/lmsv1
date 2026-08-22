@@ -7,6 +7,7 @@ import {
   LessonPlayer,
   STUDENT,
   TEACHER,
+  teardownCourse,
   type Tokens,
 } from "./poms/ContentTypeHarness";
 
@@ -216,13 +217,7 @@ test.beforeAll(async ({ playwright }) => {
 });
 
 test.afterAll(async () => {
-  if (courseId && api) {
-    try {
-      await api.deleteCourse(courseId);
-    } catch (e) {
-      console.warn(`teardown deleteCourse failed: ${(e as Error).message}`);
-    }
-  }
+  await teardownCourse(api, courseId);
 });
 
 async function studentPlayer(page: Page): Promise<LessonPlayer> {

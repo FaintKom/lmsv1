@@ -85,11 +85,24 @@ function authHeaders(token: string) {
   return { Authorization: `Bearer ${token}`, "Content-Type": "application/json" };
 }
 
+/**
+ * An HTTP failure that still knows its status code.
+ *
+ * The message carries the response body, so matching "500" in the text would
+ * also match a server that merely mentions the number (specs/044).
+ */
+export class ApiError extends Error {
+  constructor(message: string, readonly status: number) {
+    super(message);
+    this.name = "ApiError";
+  }
+}
+
 async function expectOk(
   res: { ok(): boolean; status(): number; text(): Promise<string> },
   label: string,
 ) {
-  if (!res.ok()) throw new Error(`${label}: ${res.status()} ${await res.text()}`);
+  if (!res.ok()) throw new ApiError(`${label}: ${res.status()} ${await res.text()}`, res.status());
 }
 
 /** Thin API client over the verified backend endpoints the editor/builders call. */
@@ -204,6 +217,28 @@ export class Api {
   }
   addTestCase(challengeId: string, body: Record<string, unknown>) {
     return this.post(`/sandbox/challenges/${challengeId}/test-cases`, body);
+  }
+}
+
+/**
+ * Delete a course created by a test, loudly enough to matter.
+ *
+ * Cleanup runs against a database that is thrown away at the end of the run,
+ * so an already-deleted course or a blipped connection is noise and stays a
+ * warning. A 5xx is not noise: it says the server broke on a request the
+ * product makes, and it is the only place that shows.
+ *
+ * It went unheard for exactly that reason. Every journey carried its own
+ * `catch` around this call, so `DELETE /courses/{id}` answered 500 through
+ * runs where every test passed (specs/044).
+ */
+export async function teardownCourse(api: Api | undefined, courseId: string | undefined) {
+  if (!api || !courseId) return;
+  try {
+    await api.deleteCourse(courseId);
+  } catch (e) {
+    if (e instanceof ApiError && e.status >= 500) throw e;
+    console.warn(`teardown deleteCourse failed: ${(e as Error).message}`);
   }
 }
 
