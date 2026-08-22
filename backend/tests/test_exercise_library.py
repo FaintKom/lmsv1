@@ -138,6 +138,141 @@ async def test_listing_tells_placed_from_unplaced(client, db, org, teacher):
     assert by_id[spare.json()["id"]]["is_placed"] is False
 
 
+def _block(exercise_id: str) -> dict:
+    """Содержимое урока с одним блоком-заданием."""
+    return {
+        "version": 3,
+        "pages": [
+            {
+                "id": "page_1",
+                "blocks": [
+                    {
+                        "id": "block_1",
+                        "type": "exercise",
+                        "sort_order": 0,
+                        "page": 1,
+                        "exercise_id": exercise_id,
+                    }
+                ],
+            }
+        ],
+    }
+
+
+@pytest.mark.asyncio
+async def test_lesson_shows_the_exercise_its_block_names(client, db, org, teacher):
+    """Урок отдаёт то, на что ссылается блок, — даже если задание не его.
+
+    Смысл библиотеки в этом и есть: задание, заведённое в одном месте,
+    показывается в другом. Пока загрузка смотрит на `lesson_id`, заимствовать
+    нечего.
+    """
+    course = await make_course(db, org, teacher)
+    module = await make_module(db, course.id)
+    home = await make_lesson(db, module.id, title="Где завели")
+    borrower = await make_lesson(db, module.id, title="Где показывают")
+
+    created = await client.post(
+        "/api/v1/exercises",
+        json={
+            "lesson_id": str(home.id),
+            "exercise_type": "true_false",
+            "title": "Заимствованное",
+            "config": {"statement": "Небо голубое", "correct_answer": True},
+        },
+        headers=auth_header(teacher),
+    )
+    assert created.status_code == 200, created.text
+
+    borrower.content = _block(created.json()["id"])
+    await db.flush()
+
+    response = await client.get(
+        f"/api/v1/exercises/by-lesson/{borrower.id}", headers=auth_header(teacher)
+    )
+    assert response.status_code == 200, response.text
+    assert [item["id"] for item in response.json()] == [created.json()["id"]]
+
+
+@pytest.mark.asyncio
+async def test_the_student_still_gets_no_answers_through_this_load(
+    client, db, org, teacher, student
+):
+    """Новая загрузка идёт через тот же срез ответов, что и старая."""
+    course = await make_course(db, org, teacher)
+    module = await make_module(db, course.id)
+    lesson = await make_lesson(db, module.id)
+
+    created = await client.post(
+        "/api/v1/exercises",
+        json={
+            "lesson_id": str(lesson.id),
+            "exercise_type": "true_false",
+            "title": "С ключом",
+            "config": {"statement": "Небо голубое", "correct_answer": True},
+        },
+        headers=auth_header(teacher),
+    )
+    lesson.content = _block(created.json()["id"])
+    await db.flush()
+
+    response = await client.get(
+        f"/api/v1/exercises/by-lesson/{lesson.id}", headers=auth_header(student)
+    )
+    assert response.status_code == 200, response.text
+    assert "correct_answer" not in response.json()[0]["config"]
+
+
+@pytest.mark.asyncio
+async def test_a_block_naming_another_schools_exercise_is_refused(
+    client, db, org, org2, teacher, admin2
+):
+    """Постановка — единственное место, где номер задания приходит из запроса.
+
+    Чужое задание всё равно не отрисуется: чтение фильтруется по организации
+    читателя. Но это защита в другом слое, а проверять номер надо там, где он
+    приходит.
+    """
+    theirs = await client.post(
+        "/api/v1/exercises",
+        json={"exercise_type": "true_false", "title": "Чужое", "config": {}},
+        headers=auth_header(admin2),
+    )
+    assert theirs.status_code == 200, theirs.text
+
+    course = await make_course(db, org, teacher)
+    module = await make_module(db, course.id)
+    lesson = await make_lesson(db, module.id)
+
+    response = await client.put(
+        f"/api/v1/courses/{course.id}/modules/{module.id}/lessons/{lesson.id}/",
+        json={"content": _block(theirs.json()["id"])},
+        headers=auth_header(teacher),
+    )
+    assert response.status_code in (403, 404), response.text
+
+
+@pytest.mark.asyncio
+async def test_a_block_naming_my_own_exercise_is_saved(client, db, org, teacher):
+    """Контроль к предыдущему: запрет на всё сразу тоже был бы зелёным."""
+    course = await make_course(db, org, teacher)
+    module = await make_module(db, course.id)
+    lesson = await make_lesson(db, module.id)
+
+    mine = await client.post(
+        "/api/v1/exercises",
+        json={"exercise_type": "true_false", "title": "Моё", "config": {}},
+        headers=auth_header(teacher),
+    )
+
+    response = await client.put(
+        f"/api/v1/courses/{course.id}/modules/{module.id}/lessons/{lesson.id}/",
+        json={"content": _block(mine.json()["id"])},
+        headers=auth_header(teacher),
+    )
+    assert response.status_code == 200, response.text
+
+
 @pytest.mark.asyncio
 async def test_unknown_lesson_is_refused(client, teacher):
     """Несуществующий урок — не то же самое, что его отсутствие."""

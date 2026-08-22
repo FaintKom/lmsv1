@@ -322,11 +322,43 @@ async def update_lesson(
     lesson = await get_lesson(db, lesson_id, user)
     _check_course_owner(lesson.module.course, user)
 
-    for field, value in data.model_dump(exclude_unset=True).items():
+    fields = data.model_dump(exclude_unset=True)
+    if "content" in fields:
+        await _check_blocks_name_own_exercises(db, fields["content"], user)
+
+    for field, value in fields.items():
         setattr(lesson, field, value)
 
     await db.flush()
     return lesson
+
+
+async def _check_blocks_name_own_exercises(db: AsyncSession, content, user: User) -> None:
+    """Задание в блоке должно принадлежать школе того, кто ставит.
+
+    Это единственное место, где номер задания приходит из запроса. Пока блок
+    заполнял редактор, номер всегда был свой; библиотека делает постановку
+    действием человека, и номер приходит снаружи.
+
+    Чужое задание и так не отрисуется — чтение фильтруется по организации
+    читателя, — но тогда защита держится на фильтре в другом слое. Проверять
+    надо там, где номер приходит.
+    """
+    from app.exercises.models import Exercise
+    from app.exercises.service import _exercise_ids_in_blocks
+
+    ids = _exercise_ids_in_blocks(content if isinstance(content, dict) else None)
+    if not ids or user.role == UserRole.super_admin:
+        return
+
+    rows = await db.execute(
+        select(Exercise.id).where(Exercise.id.in_(ids), Exercise.org_id == user.org_id)
+    )
+    mine = {row[0] for row in rows}
+
+    # Чужое и несуществующее отвечают одинаково: для ставящего разницы нет.
+    if set(ids) - mine:
+        raise NotFoundError("Exercise not found")
 
 
 async def delete_course(db: AsyncSession, course_id: uuid.UUID, user: User) -> None:

@@ -245,21 +245,73 @@ async def placed_exercise_ids(db: AsyncSession, org_id: uuid.UUID) -> set[uuid.U
 async def get_exercises_by_lesson(
     db: AsyncSession, lesson_id: uuid.UUID, user: User
 ) -> list[Exercise]:
-    """Exercises of one lesson, scoped like every other read here.
+    """Задания, которые показывает этот урок.
 
-    Took no caller at all before, so a lesson id from another school listed
-    that school's exercises to anyone signed in.
+    Смысл тот же, что и был, — «что показывает урок», — но источник другой:
+    ссылки блоков вместо `lesson_id` (specs/030). Поле говорит, где задание
+    завели; блок — где его показывают, и после библиотеки это разные вещи:
+    задание может стоять в двух курсах или не стоять нигде.
+
+    Отдельного маршрута под это намеренно не заводится: в `router.py`
+    записано, чем кончился прошлый незащищённый близнец — он раздавал
+    ученикам `solution_code` и скрытые тест-кейсы. Один вход, один
+    `_for_reader`.
+
+    Фильтр по организации **читателя** остаётся: номер урока приходит из
+    запроса, и по чужому уроку никто не получает чужих заданий.
     """
+    lesson_org = await db.execute(
+        select(Course.org_id, Lesson.content)
+        .join(Module, Module.course_id == Course.id)
+        .join(Lesson, Lesson.module_id == Module.id)
+        .where(Lesson.id == lesson_id)
+    )
+    row = lesson_org.first()
+    if not row:
+        return []
+
+    org_id, content = row
+    if user.role != UserRole.super_admin and org_id != user.org_id:
+        return []
+
+    ordered_ids = _exercise_ids_in_blocks(content)
+    if not ordered_ids:
+        return []
+
     query = (
         select(Exercise)
-        .where(Exercise.lesson_id == lesson_id)
+        .where(Exercise.id.in_(ordered_ids))
         .options(selectinload(Exercise.questions), selectinload(Exercise.test_cases))
-        .order_by(Exercise.sort_order)
     )
     if user.role != UserRole.super_admin:
         query = query.where(Exercise.org_id == user.org_id)
     result = await db.execute(query)
-    return list(result.scalars().unique().all())
+    by_id = {exercise.id: exercise for exercise in result.scalars().unique().all()}
+
+    # Порядок берётся у блоков: ученик видит задания в том порядке, в каком
+    # они стоят на странице, а не в том, в каком их когда-то завели.
+    return [by_id[i] for i in ordered_ids if i in by_id]
+
+
+def _exercise_ids_in_blocks(content: dict | None) -> list[uuid.UUID]:
+    """Номера заданий из блоков урока, по порядку страниц и блоков."""
+    ordered: list[uuid.UUID] = []
+    seen: set[uuid.UUID] = set()
+
+    for page in (content or {}).get("pages") or []:
+        for block in (page or {}).get("blocks") or []:
+            raw = (block or {}).get("exercise_id")
+            if not raw:
+                continue
+            try:
+                value = uuid.UUID(str(raw))
+            except (ValueError, TypeError):
+                continue
+            if value not in seen:
+                seen.add(value)
+                ordered.append(value)
+
+    return ordered
 
 
 async def update_exercise(
