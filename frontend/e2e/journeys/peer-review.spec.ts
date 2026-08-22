@@ -1,6 +1,14 @@
 import { expect, test } from "@playwright/test";
 
-import { ADMIN, Api, apiLogin, authenticate, BASE_URL, TEACHER } from "../poms/ContentTypeHarness";
+import {
+  ADMIN,
+  Api,
+  apiLogin,
+  authenticate,
+  BASE_URL,
+  TEACHER,
+  teardownCourse,
+} from "../poms/ContentTypeHarness";
 
 /**
  * Peer review, end to end: hand the class out to each other, let a student
@@ -91,13 +99,7 @@ test.beforeAll(async ({ playwright }) => {
 
 test.afterAll(async () => {
   if (!teacherApi) return;
-  if (courseId) {
-    try {
-      await teacherApi.deleteCourse(courseId);
-    } catch (e) {
-      console.warn(`teardown deleteCourse failed: ${(e as Error).message}`);
-    }
-  }
+  await teardownCourse(teacherApi, courseId);
   try {
     const users = (await adminApi.get("/admin/users")) as { id: string; email: string }[];
     for (const s of students) {

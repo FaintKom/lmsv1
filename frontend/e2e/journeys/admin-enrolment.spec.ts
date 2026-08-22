@@ -1,6 +1,13 @@
 import { expect, test } from "@playwright/test";
 
-import { ADMIN, Api, apiLogin, authenticate, BASE_URL } from "../poms/ContentTypeHarness";
+import {
+  ADMIN,
+  Api,
+  apiLogin,
+  authenticate,
+  BASE_URL,
+  teardownCourse,
+} from "../poms/ContentTypeHarness";
 
 /**
  * What an administrator actually does on day one: put a class into a course,
@@ -55,13 +62,7 @@ test.afterAll(async () => {
   } catch (e) {
     console.warn(`teardown user cleanup failed: ${(e as Error).message}`);
   }
-  if (courseId) {
-    try {
-      await adminApi.deleteCourse(courseId);
-    } catch (e) {
-      console.warn(`teardown deleteCourse failed: ${(e as Error).message}`);
-    }
-  }
+  await teardownCourse(adminApi, courseId);
 });
 
 test("admin sees the user list", async ({ page }) => {

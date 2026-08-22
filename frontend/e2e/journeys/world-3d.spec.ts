@@ -7,6 +7,7 @@ import {
   BASE_URL,
   STUDENT,
   TEACHER,
+  teardownCourse,
 } from "../poms/ContentTypeHarness";
 
 /**
@@ -118,13 +119,7 @@ test.beforeAll(async ({ playwright }) => {
 });
 
 test.afterAll(async () => {
-  if (courseId && teacherApi) {
-    try {
-      await teacherApi.deleteCourse(courseId);
-    } catch (e) {
-      console.warn(`teardown deleteCourse failed: ${(e as Error).message}`);
-    }
-  }
+  await teardownCourse(teacherApi, courseId);
 });
 
 test("teacher builds the level with height and a door, and Check answers", async ({ page }) => {

@@ -7,6 +7,7 @@ import {
   BASE_URL,
   STUDENT,
   TEACHER,
+  teardownCourse,
 } from "../poms/ContentTypeHarness";
 
 /**
@@ -63,11 +64,7 @@ test.beforeAll(async ({ playwright }) => {
 test.afterAll(async () => {
   if (!teacherApi) return;
   for (const id of courseIds) {
-    try {
-      await teacherApi.deleteCourse(id);
-    } catch (e) {
-      console.warn(`teardown deleteCourse failed: ${(e as Error).message}`);
-    }
+    await teardownCourse(teacherApi, id);
   }
 });
 
