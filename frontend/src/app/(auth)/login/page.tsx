@@ -36,7 +36,15 @@ export default function LoginPage() {
  if (!found) return;
  let cancelled = false;
  fetchPublicSchool(found)
- .then((school) => !cancelled && setBrand(school.branding))
+ .then((school) => {
+ if (cancelled) return;
+ setBrand(school.branding);
+ // The page already wears the school's name; the tab should agree. Next
+ // resets document.title from static metadata at hydration, and there is
+ // no session here for BrandVars to correct it afterwards.
+ const named = school.branding?.display_name || school.name;
+ if (named) document.title = named;
+ })
  .catch(() => {});
  return () => {
  cancelled = true;
