@@ -83,6 +83,54 @@ export interface NavTreeInput {
   t: (key: string) => string;
 }
 
+/**
+ * Which menu entries a school may hide, in the order the menu shows them.
+ *
+ * Declared here rather than beside the settings form on purpose. A key exists
+ * because `buildNavTree` below asks the visibility map about it; the form is
+ * the consumer, writing answers to questions this file asks. Kept next to the
+ * form, the list fell behind the tree — `meetings` outlived its menu entry all
+ * the way into production and needed a migration to remove.
+ *
+ * Two lists is still two lists. What stops them drifting is the test that
+ * records every key `buildNavTree` actually asks about and compares it with
+ * this one, in both directions.
+ *
+ * Labels are the menu's own `nav.*` strings: a toggle that hides an entry
+ * should read exactly as the entry reads. A second set of labels bought
+ * nothing but the chance to disagree, and it had already taken it.
+ *
+ * Entries gated on role alone — Organizations, Waitlist, Integrations,
+ * Settings — never consult the map, so there is nothing here to switch off.
+ */
+export const MENU_ITEM_KEYS: {
+  key: string;
+  labelKey: string;
+  adminOnly: boolean;
+}[] = [
+  // Learning
+  { key: "courses", labelKey: "nav.courses", adminOnly: false },
+  { key: "content_library", labelKey: "nav.contentLibrary", adminOnly: false },
+  { key: "assignments", labelKey: "nav.assignments", adminOnly: false },
+  { key: "review", labelKey: "nav.review", adminOnly: false },
+  { key: "peer_review", labelKey: "nav.peerReview", adminOnly: false },
+  { key: "team_projects", labelKey: "nav.teamProjects", adminOnly: false },
+  { key: "paths", labelKey: "nav.paths", adminOnly: true },
+  // People
+  { key: "users", labelKey: "nav.users", adminOnly: true },
+  { key: "crm", labelKey: "nav.crm", adminOnly: true },
+  { key: "groups", labelKey: "nav.groups", adminOnly: false },
+  // Sessions
+  { key: "live", labelKey: "nav.liveLessons", adminOnly: false },
+  { key: "journal", labelKey: "nav.journal", adminOnly: false },
+  { key: "calendar", labelKey: "nav.calendar", adminOnly: false },
+  // Progress
+  { key: "gradebook", labelKey: "nav.gradebook", adminOnly: false },
+  { key: "analytics", labelKey: "nav.analytics", adminOnly: false },
+  // School
+  { key: "support", labelKey: "nav.support", adminOnly: false },
+];
+
 export function buildNavTree({
   role,
   menuVisibility,

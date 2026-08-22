@@ -1,6 +1,6 @@
 import { describe, it, expect } from "vitest";
 
-import { buildNavTree } from "./nav-tree";
+import { buildNavTree, MENU_ITEM_KEYS } from "./nav-tree";
 
 const t = (key: string) => key;
 
@@ -232,6 +232,62 @@ describe("the support entry", () => {
     // database, and a row could predate the validation.
     for (const hostile of ["javascript:alert(1)", "example.school/help", "http://example.school"]) {
       expect(support(hostile)?.href).toBe("/support");
+    }
+  });
+});
+
+
+describe("the settings list and the menu", () => {
+  /**
+   * Which keys the menu actually consults, recorded rather than listed.
+   *
+   * A third hand-written list would drift exactly as the second one did. This
+   * one cannot go stale: the proxy answers `undefined` to everything, so every
+   * entry stays visible and every branch gets evaluated, and it notes down what
+   * was asked on the way through.
+   */
+  function keysAskedFor(): Set<string> {
+    const asked = new Set<string>();
+    const spy = new Proxy(
+      {},
+      {
+        get(_target, prop) {
+          if (typeof prop === "string") asked.add(prop);
+          return undefined;
+        },
+      },
+    ) as Record<string, boolean>;
+
+    // All three: `visible("crm")` sits behind `isAdminOnly &&`, so a teacher
+    // never reaches it, and a super admin alone would miss nothing but is not
+    // obviously enough on its own to rely on.
+    for (const role of ["super_admin", "admin", "teacher"]) {
+      buildNavTree({ role, menuVisibility: spy, reviewCount: 0, t });
+    }
+    return asked;
+  }
+
+  it("offers a switch for every entry the menu can hide", () => {
+    const offered = MENU_ITEM_KEYS.map((i) => i.key).sort();
+    expect([...keysAskedFor()].sort()).toEqual(offered);
+  });
+
+  it("offers no switch for anything the menu never asks about", () => {
+    // The same comparison read the other way round, and the one that matters:
+    // `meetings` outlived its menu entry here and reached production, where it
+    // took a migration to remove.
+    const asked = keysAskedFor();
+    expect(MENU_ITEM_KEYS.map((i) => i.key).filter((k) => !asked.has(k))).toEqual([]);
+  });
+
+  it("names each switch the way the menu names the entry", () => {
+    const labels = new Set(
+      buildNavTree({ role: "super_admin", menuVisibility: {}, reviewCount: 0, t })
+        .groups.flatMap((g) => g.items)
+        .map((i) => i.label),
+    );
+    for (const item of MENU_ITEM_KEYS) {
+      expect(labels).toContain(item.labelKey);
     }
   });
 });
