@@ -1,4 +1,4 @@
-import { describe, it, expect, vi, beforeEach } from "vitest";
+import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
 import { render, screen, fireEvent, waitFor } from "@testing-library/react";
 
 import { Sidebar } from "./sidebar";
@@ -199,5 +199,41 @@ describe("Sidebar categories", () => {
     useUIStore.setState({ collapsed: true, openGroups: { people: false } });
     render(<Sidebar />);
     expect(screen.getAllByRole("link", { name: "nav.groups" }).length).toBeGreaterThan(0);
+  });
+});
+
+describe("Sidebar and the school's hidden menu items", () => {
+  // The seam this covers: the map now arrives with the session instead of
+  // being fetched from the admin-only settings endpoint. buildNavTree is
+  // tested on its own, and /me is tested in pytest — what neither of them
+  // sees is whether the sidebar actually hands one to the other.
+  const withVisibility = (visibility?: Record<string, boolean>) => {
+    authState.branding = { ...authState.branding, menu_visibility: visibility };
+  };
+
+  afterEach(() => withVisibility(undefined));
+
+  it("shows the item to a teacher when the school hides nothing", () => {
+    // Positive control. Without it the assertion below passes against a
+    // sidebar that renders no links at all.
+    authState.user.role = "teacher";
+    withVisibility({});
+    render(<Sidebar />);
+    expect(screen.getByRole("link", { name: /^nav\.gradebook$/ })).toBeInTheDocument();
+  });
+
+  it("hides it from the teacher too, which is who it was hidden from", () => {
+    authState.user.role = "teacher";
+    withVisibility({ gradebook: false });
+    render(<Sidebar />);
+    expect(screen.queryByRole("link", { name: /^nav\.gradebook$/ })).not.toBeInTheDocument();
+  });
+
+  it("treats a school that has never saved the setting as hiding nothing", () => {
+    // A brand-new school, and an older backend that does not send the field.
+    authState.user.role = "teacher";
+    withVisibility(undefined);
+    render(<Sidebar />);
+    expect(screen.getByRole("link", { name: /^nav\.gradebook$/ })).toBeInTheDocument();
   });
 });
