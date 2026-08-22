@@ -110,6 +110,41 @@ async def _get_exercise_with_relations(
 # ─── CRUD ────────────────────────────────────────────────────────────
 
 
+def with_exercise_block(content: dict | None, exercise_id: uuid.UUID) -> dict | None:
+    """Содержимое урока с блоком на задание, если его там ещё нет.
+
+    Один алгоритм с частью 2 миграции specs/030: в конец последней страницы,
+    урок старого формата получает одну страницу. Возвращает None, когда блок
+    уже есть, — повторный вызов ничего не меняет.
+    """
+    content = dict(content or {})
+    pages = [dict(p) for p in (content.get("pages") or []) if isinstance(p, dict)]
+
+    wanted = str(exercise_id)
+    for page in pages:
+        for block in page.get("blocks") or []:
+            if isinstance(block, dict) and str(block.get("exercise_id") or "") == wanted:
+                return None
+
+    if not pages:
+        pages = [{"id": "page_1", "blocks": []}]
+
+    last = dict(pages[-1])
+    blocks = list(last.get("blocks") or [])
+    blocks.append(
+        {
+            "id": f"block_{uuid.uuid4().hex[:12]}",
+            "type": "exercise",
+            "sort_order": len(blocks),
+            "page": len(pages),
+            "exercise_id": wanted,
+        }
+    )
+    last["blocks"] = blocks
+    pages[-1] = last
+    return {**content, "version": 3, "pages": pages}
+
+
 async def create_exercise(db: AsyncSession, user: User, data: dict) -> Exercise:
     _check_permission(user)
 
@@ -154,6 +189,18 @@ async def create_exercise(db: AsyncSession, user: User, data: dict) -> Exercise:
     )
     db.add(exercise)
     await db.flush()
+
+    # Урок назван — задание сразу встаёт в него блоком (specs/030). «Где
+    # завели» остаётся записью о происхождении; «где показывают» — блок, и
+    # урок читает только его. Иначе всё, что заводит задание через API с
+    # `lesson_id`, — QA-сид, E2E, внешние вызовы — теряет его у ученика.
+    if lesson_id:
+        lesson = await db.get(Lesson, lesson_id)
+        if lesson is not None:
+            updated = with_exercise_block(lesson.content, exercise.id)
+            if updated is not None:
+                lesson.content = updated
+                await db.flush()
 
     return await _get_exercise_with_relations(db, exercise.id, user)
 

@@ -296,6 +296,91 @@ async def test_a_block_naming_my_own_exercise_is_saved(client, db, org, teacher)
 
 
 @pytest.mark.asyncio
+async def test_creating_with_a_lesson_places_a_block_at_once(client, db, org, teacher, student):
+    """Создание с уроком ставит блок сразу — старый путь работает по новой модели.
+
+    Все, кто заводит задание через API с `lesson_id` — QA-сид, E2E, любой
+    внешний вызов, — ждут, что ученик его увидит. Раньше это обеспечивала
+    хвостовая секция плеера; теперь урок читает только блоки. Без этого шага
+    E2E падали на обоих роботах: кнопки «Python» на странице не было.
+
+    Заодно закрывается окно между выкатом и миграцией: хвостовое задание не
+    может появиться, потому что создание само ставит блок.
+    """
+    course = await make_course(db, org, teacher)
+    module = await make_module(db, course.id)
+    lesson = await make_lesson(
+        db, module.id, content={"version": 3, "pages": [{"id": "page_1", "blocks": []}]}
+    )
+
+    created = await client.post(
+        "/api/v1/exercises",
+        json={
+            "lesson_id": str(lesson.id),
+            "exercise_type": "true_false",
+            "title": "Заведено с уроком",
+            "config": {"statement": "Небо голубое", "correct_answer": True},
+        },
+        headers=auth_header(teacher),
+    )
+    assert created.status_code == 200, created.text
+
+    shown = await client.get(
+        f"/api/v1/exercises/by-lesson/{lesson.id}", headers=auth_header(student)
+    )
+    assert [item["id"] for item in shown.json()] == [created.json()["id"]]
+
+    listing = await client.get("/api/v1/exercises/", headers=auth_header(teacher))
+    assert {i["id"]: i for i in listing.json()["items"]}[created.json()["id"]]["is_placed"] is True
+
+
+@pytest.mark.asyncio
+async def test_creating_with_a_lesson_keeps_existing_blocks(client, db, org, teacher):
+    """Блок дописывается в конец, остальное содержимое урока не трогается."""
+    course = await make_course(db, org, teacher)
+    module = await make_module(db, course.id)
+    lesson = await make_lesson(
+        db,
+        module.id,
+        content={
+            "version": 3,
+            "pages": [
+                {
+                    "id": "page_1",
+                    "blocks": [
+                        {
+                            "id": "t1",
+                            "type": "text",
+                            "sort_order": 0,
+                            "page": 1,
+                            "body": "<p>Вступление</p>",
+                        }
+                    ],
+                },
+                {"id": "page_2", "blocks": []},
+            ],
+        },
+    )
+
+    created = await client.post(
+        "/api/v1/exercises",
+        json={
+            "lesson_id": str(lesson.id),
+            "exercise_type": "true_false",
+            "title": "Второе",
+            "config": {},
+        },
+        headers=auth_header(teacher),
+    )
+    assert created.status_code == 200, created.text
+
+    await db.refresh(lesson)
+    pages = lesson.content["pages"]
+    assert [b["id"] for b in pages[0]["blocks"]] == ["t1"]
+    assert [b.get("exercise_id") for b in pages[1]["blocks"]] == [created.json()["id"]]
+
+
+@pytest.mark.asyncio
 async def test_unknown_lesson_is_refused(client, teacher):
     """Несуществующий урок — не то же самое, что его отсутствие."""
     response = await client.post(
