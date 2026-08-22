@@ -50,6 +50,7 @@ from app.exercises.service import (
     get_exercises_by_lesson,
     list_exercises,
     list_submissions,
+    placed_exercise_ids,
     submit_exercise,
     update_exercise,
     update_question_in_exercise,
@@ -93,8 +94,11 @@ async def list_exercises_endpoint(
         page=page,
         per_page=per_page,
     )
+    # Библиотеку открывают с вопросом «что из этого никуда не поставлено»,
+    # поэтому признак считается по блокам уроков — один запрос на страницу.
+    placed = await placed_exercise_ids(db, user.org_id)
     return ExerciseListResponse(
-        items=[_for_reader(e, user) for e in items],
+        items=[_with_placement(_for_reader(e, user), placed) for e in items],
         total=total,
         page=page,
         per_page=per_page,
@@ -696,6 +700,17 @@ async def get_draft_endpoint(
 
 
 # ─── Helpers ─────────────────────────────────────────────────────────
+
+
+def _with_placement(response: ExerciseResponse, placed: set) -> ExerciseResponse:
+    """Проставить признак «стоит в уроке» уже отфильтрованному ответу.
+
+    Отдельной функцией, потому что порядок важен: сначала `_for_reader`
+    срезает ответы тем, кому их видеть нельзя, и только потом дописывается
+    то, что видно всем.
+    """
+    response.is_placed = response.id in placed
+    return response
 
 
 def _for_reader(exercise, user: User) -> ExerciseResponse:

@@ -375,7 +375,43 @@ async def make_exercise(db: AsyncSession, lesson_id: uuid.UUID, org_id: uuid.UUI
     )
     db.add(ex)
     await db.flush()
+
+    # Задание попадает в урок блоком, а не полем (specs/030): поле говорит,
+    # где его завели, блок — где показывают. Фабрика ставит блок, иначе тесты
+    # описывают модель, которой больше нет, и урок отдаёт пустоту.
+    if lesson_id:
+        await _place_in_lesson(db, lesson_id, ex.id)
+
     return ex
+
+
+async def _place_in_lesson(db: AsyncSession, lesson_id: uuid.UUID, exercise_id: uuid.UUID) -> None:
+    """Дописать блок-задание в конец последней страницы урока."""
+    from app.courses.models import Lesson
+
+    lesson = await db.get(Lesson, lesson_id)
+    if lesson is None:
+        return
+
+    content = dict(lesson.content or {})
+    pages = [dict(p) for p in (content.get("pages") or [])]
+    if not pages:
+        pages = [{"id": "page_1", "blocks": []}]
+
+    blocks = list(pages[-1].get("blocks") or [])
+    blocks.append(
+        {
+            "id": f"block_{uuid.uuid4().hex[:8]}",
+            "type": "exercise",
+            "sort_order": len(blocks),
+            "page": len(pages),
+            "exercise_id": str(exercise_id),
+        }
+    )
+    pages[-1] = {**pages[-1], "blocks": blocks}
+
+    lesson.content = {**content, "version": 3, "pages": pages}
+    await db.flush()
 
 
 async def make_assignment(db: AsyncSession, org_id, course_id, created_by, **kwargs):

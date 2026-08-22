@@ -5,7 +5,7 @@ from fractions import Fraction
 from pathlib import Path
 
 from fastapi import UploadFile
-from sqlalchemy import func, select
+from sqlalchemy import func, select, text
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import selectinload
 
@@ -110,20 +110,66 @@ async def _get_exercise_with_relations(
 # ─── CRUD ────────────────────────────────────────────────────────────
 
 
+def with_exercise_block(content: dict | None, exercise_id: uuid.UUID) -> dict | None:
+    """Содержимое урока с блоком на задание, если его там ещё нет.
+
+    Один алгоритм с частью 2 миграции specs/030: в конец последней страницы,
+    урок старого формата получает одну страницу. Возвращает None, когда блок
+    уже есть, — повторный вызов ничего не меняет.
+    """
+    content = dict(content or {})
+    pages = [dict(p) for p in (content.get("pages") or []) if isinstance(p, dict)]
+
+    wanted = str(exercise_id)
+    for page in pages:
+        for block in page.get("blocks") or []:
+            if isinstance(block, dict) and str(block.get("exercise_id") or "") == wanted:
+                return None
+
+    if not pages:
+        pages = [{"id": "page_1", "blocks": []}]
+
+    last = dict(pages[-1])
+    blocks = list(last.get("blocks") or [])
+    blocks.append(
+        {
+            "id": f"block_{uuid.uuid4().hex[:12]}",
+            "type": "exercise",
+            "sort_order": len(blocks),
+            "page": len(pages),
+            "exercise_id": wanted,
+        }
+    )
+    last["blocks"] = blocks
+    pages[-1] = last
+    return {**content, "version": 3, "pages": pages}
+
+
 async def create_exercise(db: AsyncSession, user: User, data: dict) -> Exercise:
     _check_permission(user)
 
-    lesson_id = data["lesson_id"]
-    # Resolve org_id from lesson → module → course
-    result = await db.execute(
-        select(Course.org_id)
-        .join(Module, Module.course_id == Course.id)
-        .join(Lesson, Lesson.module_id == Module.id)
-        .where(Lesson.id == lesson_id)
-    )
-    org_id = result.scalar_one_or_none()
-    if not org_id:
-        raise NotFoundError("Lesson not found")
+    # Школа берётся у того, кто создаёт. Раньше её вычисляли из урока, но
+    # задание может завестись в библиотеке, где урока нет вовсе (specs/030), —
+    # и другого источника, кроме вызывающего, там не существует. Это же ровно
+    # граница арендатора: номер школы не приходит из запроса.
+    lesson_id = data.get("lesson_id")
+    org_id = user.org_id
+
+    if lesson_id:
+        result = await db.execute(
+            select(Course.org_id)
+            .join(Module, Module.course_id == Course.id)
+            .join(Lesson, Lesson.module_id == Module.id)
+            .where(Lesson.id == lesson_id)
+        )
+        lesson_org_id = result.scalar_one_or_none()
+        # Чужой урок и несуществующий урок отвечают одинаково: чужого для
+        # вызывающего не существует.
+        if not lesson_org_id or (
+            user.role != UserRole.super_admin and lesson_org_id != user.org_id
+        ):
+            raise NotFoundError("Lesson not found")
+        org_id = lesson_org_id
 
     exercise_type = data["exercise_type"]
     if isinstance(exercise_type, str):
@@ -143,6 +189,18 @@ async def create_exercise(db: AsyncSession, user: User, data: dict) -> Exercise:
     )
     db.add(exercise)
     await db.flush()
+
+    # Урок назван — задание сразу встаёт в него блоком (specs/030). «Где
+    # завели» остаётся записью о происхождении; «где показывают» — блок, и
+    # урок читает только его. Иначе всё, что заводит задание через API с
+    # `lesson_id`, — QA-сид, E2E, внешние вызовы — теряет его у ученика.
+    if lesson_id:
+        lesson = await db.get(Lesson, lesson_id)
+        if lesson is not None:
+            updated = with_exercise_block(lesson.content, exercise.id)
+            if updated is not None:
+                lesson.content = updated
+                await db.flush()
 
     return await _get_exercise_with_relations(db, exercise.id, user)
 
@@ -193,24 +251,114 @@ async def list_exercises(
     return exercises, total
 
 
+async def placed_exercise_ids(db: AsyncSession, org_id: uuid.UUID) -> set[uuid.UUID]:
+    """Задания школы, на которые ссылается хоть один блок урока.
+
+    Считается по блокам, а не по `lesson_id`: поле говорит, где задание
+    завели, а блок — где его показывают. После specs/030 это разные вещи, и
+    библиотеку интересует вторая.
+
+    Один запрос на страницу списка: содержимое урока — JSONB со страницами и
+    блоками, и Postgres разворачивает его сам.
+    """
+    rows = await db.execute(
+        text(
+            """
+            SELECT DISTINCT block ->> 'exercise_id' AS exercise_id
+            FROM lessons l
+            JOIN modules m ON m.id = l.module_id
+            JOIN courses c ON c.id = m.course_id,
+                 LATERAL jsonb_array_elements(COALESCE(l.content -> 'pages', '[]'::jsonb)) page,
+                 LATERAL jsonb_array_elements(COALESCE(page -> 'blocks', '[]'::jsonb)) block
+            WHERE c.org_id = :org_id
+              AND block ? 'exercise_id'
+              AND block ->> 'exercise_id' <> ''
+            """
+        ),
+        {"org_id": str(org_id)},
+    )
+
+    placed: set[uuid.UUID] = set()
+    for (value,) in rows:
+        try:
+            placed.add(uuid.UUID(value))
+        except (ValueError, TypeError):
+            # Блок мог унести с собой мусор вместо номера — это не повод
+            # ронять список библиотеки.
+            continue
+    return placed
+
+
 async def get_exercises_by_lesson(
     db: AsyncSession, lesson_id: uuid.UUID, user: User
 ) -> list[Exercise]:
-    """Exercises of one lesson, scoped like every other read here.
+    """Задания, которые показывает этот урок.
 
-    Took no caller at all before, so a lesson id from another school listed
-    that school's exercises to anyone signed in.
+    Смысл тот же, что и был, — «что показывает урок», — но источник другой:
+    ссылки блоков вместо `lesson_id` (specs/030). Поле говорит, где задание
+    завели; блок — где его показывают, и после библиотеки это разные вещи:
+    задание может стоять в двух курсах или не стоять нигде.
+
+    Отдельного маршрута под это намеренно не заводится: в `router.py`
+    записано, чем кончился прошлый незащищённый близнец — он раздавал
+    ученикам `solution_code` и скрытые тест-кейсы. Один вход, один
+    `_for_reader`.
+
+    Фильтр по организации **читателя** остаётся: номер урока приходит из
+    запроса, и по чужому уроку никто не получает чужих заданий.
     """
+    lesson_org = await db.execute(
+        select(Course.org_id, Lesson.content)
+        .join(Module, Module.course_id == Course.id)
+        .join(Lesson, Lesson.module_id == Module.id)
+        .where(Lesson.id == lesson_id)
+    )
+    row = lesson_org.first()
+    if not row:
+        return []
+
+    org_id, content = row
+    if user.role != UserRole.super_admin and org_id != user.org_id:
+        return []
+
+    ordered_ids = _exercise_ids_in_blocks(content)
+    if not ordered_ids:
+        return []
+
     query = (
         select(Exercise)
-        .where(Exercise.lesson_id == lesson_id)
+        .where(Exercise.id.in_(ordered_ids))
         .options(selectinload(Exercise.questions), selectinload(Exercise.test_cases))
-        .order_by(Exercise.sort_order)
     )
     if user.role != UserRole.super_admin:
         query = query.where(Exercise.org_id == user.org_id)
     result = await db.execute(query)
-    return list(result.scalars().unique().all())
+    by_id = {exercise.id: exercise for exercise in result.scalars().unique().all()}
+
+    # Порядок берётся у блоков: ученик видит задания в том порядке, в каком
+    # они стоят на странице, а не в том, в каком их когда-то завели.
+    return [by_id[i] for i in ordered_ids if i in by_id]
+
+
+def _exercise_ids_in_blocks(content: dict | None) -> list[uuid.UUID]:
+    """Номера заданий из блоков урока, по порядку страниц и блоков."""
+    ordered: list[uuid.UUID] = []
+    seen: set[uuid.UUID] = set()
+
+    for page in (content or {}).get("pages") or []:
+        for block in (page or {}).get("blocks") or []:
+            raw = (block or {}).get("exercise_id")
+            if not raw:
+                continue
+            try:
+                value = uuid.UUID(str(raw))
+            except (ValueError, TypeError):
+                continue
+            if value not in seen:
+                seen.add(value)
+                ordered.append(value)
+
+    return ordered
 
 
 async def update_exercise(
