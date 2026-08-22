@@ -2006,3 +2006,12 @@ button { font-family: inherit; }
    clears 4.5:1 against the page; unset, this resolves to --color-primary and
    the 458 places using .text-primary look exactly as they do today. */
 .text-primary { color: var(--color-primary-text); }
+
+/* The school's name on a page with no session above it — the sign-in screen and
+   a school's own public enquiry page. SchoolMark cannot know which theme the
+   visitor is in, and computing the shade against white put dark green on a dark
+   page at 4.32:1 in production. It supplies both shades; the stylesheet picks,
+   so switching theme needs no JavaScript and cannot flash. Unset — a school
+   that chose no colour — falls back to ordinary body text. */
+.brand-mark-name { color: var(--mark-light, var(--color-text)); }
+.dark .brand-mark-name { color: var(--mark-dark, var(--color-text)); }

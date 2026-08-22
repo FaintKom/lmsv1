@@ -1,5 +1,7 @@
 "use client";
 
+import type { CSSProperties } from "react";
+
 import type { SchoolBranding } from "@/lib/api/crm";
 import { readableAs, readableOn } from "@/lib/brand/contrast";
 import { useTranslation } from "@/lib/i18n/context";
@@ -12,10 +14,21 @@ import { useTranslation } from "@/lib/i18n/context";
  * through the CSS variables, because on those pages there is no session and so
  * no `BrandVars` above it.
  *
+ * The name's colour is handed to the stylesheet as two shades rather than one:
+ * this component runs where there is no session, so it cannot know the visitor's
+ * theme, and computing a single shade against white put dark green on a dark
+ * page at 4.32:1 in production.
+ *
  * Given nothing, it renders nothing. That is the whole of the "unknown slug
  * looks like an unbranded school" behaviour: no error, no gap, no hint about
  * whether the school exists.
  */
+/** The page behind ordinary text, per theme. `--paper` in tokens.css says
+ * outright: "page background — never #fff". Computing against pure white cost
+ * exactly the difference — 4.42:1 where 4.5 was needed. */
+const PAGE_LIGHT = "#fbfcf7";
+const PAGE_DARK = "#0b100c";
+
 export function SchoolMark({
   branding,
   className = "",
@@ -54,8 +67,15 @@ export function SchoolMark({
       )}
       {name && (
         <p
-          className="text-lg font-bold"
-          style={primary ? { color: readableAs(primary, "#ffffff") } : undefined}
+          className="brand-mark-name text-lg font-bold"
+          style={
+            primary
+              ? ({
+                  "--mark-light": readableAs(primary, PAGE_LIGHT),
+                  "--mark-dark": readableAs(primary, PAGE_DARK),
+                } as CSSProperties)
+              : undefined
+          }
         >
           {name}
         </p>
