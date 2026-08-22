@@ -42,18 +42,19 @@ export default function EnquirePage() {
   useEffect(() => {
     if (!slug) return;
     fetchPublicSchool(slug)
-      .then((found) => {
-        setSchool(found);
-        // Next writes document.title from the route's static metadata during
-        // hydration, so the inline <head> script alone loses this page — and
-        // BrandVars, which fixes it inside the app, needs a session this page
-        // does not have. The school is right here; use it.
-        const named = found.branding?.display_name || found.name;
-        if (named) document.title = named;
-      })
+      .then(setSchool)
       .catch(() => setSchool(null))
       .finally(() => setLoading(false));
   }, [slug]);
+
+  // Next writes document.title from the route's static metadata at hydration,
+  // and BrandVars — which corrects it inside the app — needs a session this
+  // page does not have. An effect, not the fetch callback: setting it there
+  // raced hydration and won only about half the time.
+  useEffect(() => {
+    const named = school?.branding?.display_name || school?.name;
+    if (named) document.title = named;
+  }, [school]);
 
   const send = async (e: React.FormEvent) => {
     e.preventDefault();
