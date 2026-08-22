@@ -101,6 +101,52 @@ export async function addExerciseToPage({
   return { exerciseId: data.id };
 }
 
+
+export interface PlaceExistingArgs {
+  client: Pick<ApiLike, "put">;
+  where: LessonWhere;
+  content: Record<string, unknown> | undefined;
+  pageIndex: number;
+  exerciseId: string;
+}
+
+/**
+ * Поставить в урок задание, которое уже есть в библиотеке.
+ *
+ * Вторая половина того, что делает `addExerciseToPage`, — без первой: ничего
+ * не создаётся, только блок в конец названной страницы. Одно и то же задание
+ * дважды в одном уроке — не постановка, а опечатка, поэтому повтор ничего
+ * не сохраняет. В другом уроке — пожалуйста: в этом и смысл библиотеки.
+ */
+export async function placeExistingInPage({
+  client,
+  where,
+  content,
+  pageIndex,
+  exerciseId,
+}: PlaceExistingArgs): Promise<void> {
+  const pages = extractPages(content);
+  const already = pages.some((p) => p.blocks.some((b) => b.exercise_id === exerciseId));
+  if (already) return;
+
+  const target = pages[pageIndex] ?? pages[pages.length - 1];
+  target.blocks = [
+    ...target.blocks,
+    {
+      id: blockId(),
+      type: "exercise" as const,
+      sort_order: target.blocks.length,
+      page: pageIndex + 1,
+      exercise_id: exerciseId,
+    },
+  ];
+
+  await client.put(
+    `/courses/${where.courseId}/modules/${where.moduleId}/lessons/${where.lessonId}/`,
+    { content: buildPagesContent(pages) },
+  );
+}
+
 /** Тот же вид идентификатора, что заводит редактор урока. */
 function blockId(): string {
   return `block_${Date.now()}_${Math.random().toString(36).slice(2, 9)}`;

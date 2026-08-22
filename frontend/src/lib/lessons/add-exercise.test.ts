@@ -1,6 +1,6 @@
 import { describe, expect, it, vi } from "vitest";
 
-import { addExerciseToPage, newExercisePayload } from "./add-exercise";
+import { addExerciseToPage, newExercisePayload, placeExistingInPage } from "./add-exercise";
 
 /**
  * Создание задания со страницы курса.
@@ -132,5 +132,29 @@ describe("куда встаёт новый блок", () => {
         exerciseType: "quiz",
       }),
     ).rejects.toThrow();
+  });
+});
+
+describe("поставить существующее задание", () => {
+  const api = () => ({
+    post: vi.fn(),
+    put: vi.fn().mockResolvedValue({ data: {} }),
+  });
+  const where = { lessonId: "l1", courseId: "c1", moduleId: "m1" };
+
+  it("ничего не создаёт — только ставит блок на названной странице", async () => {
+    const client = api();
+    await placeExistingInPage({ client: client as never, where, content: lesson, pageIndex: 1, exerciseId: "e7" });
+
+    expect(client.post).not.toHaveBeenCalled();
+    const saved = client.put.mock.calls[0][1] as { content: { pages: { blocks: { exercise_id?: string }[] }[] } };
+    expect(saved.content.pages[0].blocks).toHaveLength(1);
+    expect(saved.content.pages[1].blocks.map((b) => b.exercise_id)).toEqual(["e1", "e7"]);
+  });
+
+  it("то, что уже стоит в уроке, второй раз не ставится", async () => {
+    const client = api();
+    await placeExistingInPage({ client: client as never, where, content: lesson, pageIndex: 0, exerciseId: "e1" });
+    expect(client.put).not.toHaveBeenCalled();
   });
 });
