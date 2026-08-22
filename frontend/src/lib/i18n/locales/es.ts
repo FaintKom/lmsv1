@@ -1798,6 +1798,7 @@ const es: TranslationMap = {
  "admin.settings.previewTooClose": "Estos dos colores están tan cerca que las series del gráfico se fundirán.",
  "admin.settings.menuVisibility": "Visibilidad del menú",
  "admin.settings.menuVisibilityHint": "Activa/desactiva qué secciones aparecen en la barra lateral",
+ "admin.settings.menuSupportOff": "Nada más enlaza aquí. Apoyar abre el contacto que indicaste arriba — o nuestra página de donaciones, si lo dejaste vacío.",
  "admin.settings.adminOnly": "Solo admin",
  "admin.settings.saveSettings": "Guardar ajustes",
  "admin.settings.saved": "Ajustes guardados",

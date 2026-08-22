@@ -1808,6 +1808,7 @@ const ru: TranslationMap = {
  "admin.settings.previewTooClose": "Эти два цвета настолько близки, что серии графика сольются.",
  "admin.settings.menuVisibility": "Видимость меню",
  "admin.settings.menuVisibilityHint": "Переключайте, какие разделы появляются в боковой панели",
+ "admin.settings.menuSupportOff": "Других ссылок сюда нет. «Поддержать» открывает контакт, который вы указали выше, — или нашу страницу пожертвований, если не указали.",
  "admin.settings.adminOnly": "Только админ",
  "admin.settings.saveSettings": "Сохранить настройки",
  "admin.settings.saved": "Настройки сохранены",

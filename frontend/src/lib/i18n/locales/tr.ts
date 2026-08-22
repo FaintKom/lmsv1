@@ -1801,6 +1801,7 @@ const tr: TranslationMap = {
  "admin.settings.previewTooClose": "Bu iki renk o kadar yakın ki grafik serileri birbirine karışacak.",
  "admin.settings.menuVisibility": "Menü görünürlüğü",
  "admin.settings.menuVisibilityHint": "Kenar çubuğunda hangi bölümlerin görüneceğini aç/kapat",
+ "admin.settings.menuSupportOff": "Buraya başka hiçbir yerden bağlantı yok. Destek, yukarıda verdiğiniz iletişim adresini açar — vermediyseniz bağış sayfamızı.",
  "admin.settings.adminOnly": "Yalnızca admin",
  "admin.settings.saveSettings": "Ayarları kaydet",
  "admin.settings.saved": "Ayarlar kaydedildi",

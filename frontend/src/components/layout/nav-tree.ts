@@ -107,28 +107,31 @@ export const MENU_ITEM_KEYS: {
   key: string;
   labelKey: string;
   adminOnly: boolean;
+  /** Раздел меню, в котором пункт стоит.
+   *
+   *  Был комментарием — то есть существовал для читателя файла и не
+   *  существовал для экрана настроек, который рисовал шестнадцать строк
+   *  подряд там, где меню рисует пять озаглавленных разделов (specs/045).
+   *  Значения те же, что у групп в `buildNavTree` ниже, и тест сверяет их
+   *  состав и порядок. */
+  group: string;
 }[] = [
-  // Learning
-  { key: "courses", labelKey: "nav.courses", adminOnly: false },
-  { key: "content_library", labelKey: "nav.contentLibrary", adminOnly: false },
-  { key: "assignments", labelKey: "nav.assignments", adminOnly: false },
-  { key: "review", labelKey: "nav.review", adminOnly: false },
-  { key: "peer_review", labelKey: "nav.peerReview", adminOnly: false },
-  { key: "team_projects", labelKey: "nav.teamProjects", adminOnly: false },
-  { key: "paths", labelKey: "nav.paths", adminOnly: true },
-  // People
-  { key: "users", labelKey: "nav.users", adminOnly: true },
-  { key: "crm", labelKey: "nav.crm", adminOnly: true },
-  { key: "groups", labelKey: "nav.groups", adminOnly: false },
-  // Sessions
-  { key: "live", labelKey: "nav.liveLessons", adminOnly: false },
-  { key: "journal", labelKey: "nav.journal", adminOnly: false },
-  { key: "calendar", labelKey: "nav.calendar", adminOnly: false },
-  // Progress
-  { key: "gradebook", labelKey: "nav.gradebook", adminOnly: false },
-  { key: "analytics", labelKey: "nav.analytics", adminOnly: false },
-  // School
-  { key: "support", labelKey: "nav.support", adminOnly: false },
+  { key: "courses", labelKey: "nav.courses", adminOnly: false, group: "learning" },
+  { key: "content_library", labelKey: "nav.contentLibrary", adminOnly: false, group: "learning" },
+  { key: "assignments", labelKey: "nav.assignments", adminOnly: false, group: "learning" },
+  { key: "review", labelKey: "nav.review", adminOnly: false, group: "learning" },
+  { key: "peer_review", labelKey: "nav.peerReview", adminOnly: false, group: "learning" },
+  { key: "team_projects", labelKey: "nav.teamProjects", adminOnly: false, group: "learning" },
+  { key: "paths", labelKey: "nav.paths", adminOnly: true, group: "learning" },
+  { key: "users", labelKey: "nav.users", adminOnly: true, group: "people" },
+  { key: "crm", labelKey: "nav.crm", adminOnly: true, group: "people" },
+  { key: "groups", labelKey: "nav.groups", adminOnly: false, group: "people" },
+  { key: "live", labelKey: "nav.liveLessons", adminOnly: false, group: "sessions" },
+  { key: "journal", labelKey: "nav.journal", adminOnly: false, group: "sessions" },
+  { key: "calendar", labelKey: "nav.calendar", adminOnly: false, group: "sessions" },
+  { key: "gradebook", labelKey: "nav.gradebook", adminOnly: false, group: "progress" },
+  { key: "analytics", labelKey: "nav.analytics", adminOnly: false, group: "progress" },
+  { key: "support", labelKey: "nav.support", adminOnly: false, group: "school" },
 ];
 
 export function buildNavTree({
