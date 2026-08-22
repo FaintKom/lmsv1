@@ -348,16 +348,19 @@ async def _check_blocks_name_own_exercises(db: AsyncSession, content, user: User
     from app.exercises.service import _exercise_ids_in_blocks
 
     ids = _exercise_ids_in_blocks(content if isinstance(content, dict) else None)
-    if not ids or user.role == UserRole.super_admin:
+    if not ids:
         return
 
-    rows = await db.execute(
-        select(Exercise.id).where(Exercise.id.in_(ids), Exercise.org_id == user.org_id)
-    )
-    mine = {row[0] for row in rows}
+    # Супер-админ стоит вне границы школ, но не вне существования: блок с
+    # номером, которого нет, — тихая потеря блока, и она никому не нужна.
+    query = select(Exercise.id).where(Exercise.id.in_(ids))
+    if user.role != UserRole.super_admin:
+        query = query.where(Exercise.org_id == user.org_id)
+    rows = await db.execute(query)
+    known = {row[0] for row in rows}
 
     # Чужое и несуществующее отвечают одинаково: для ставящего разницы нет.
-    if set(ids) - mine:
+    if set(ids) - known:
         raise NotFoundError("Exercise not found")
 
 
