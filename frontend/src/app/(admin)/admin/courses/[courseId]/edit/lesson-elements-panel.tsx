@@ -18,9 +18,9 @@ import { useRouter } from "next/navigation";
 import { useState } from "react";
 
 import apiClient from "@/lib/api-client";
-import { EXERCISE_TYPES_META, type ExerciseGroupKey } from "@/lib/api/exercises";
+import { EXERCISE_TYPES_META, exercisesApi, type ExerciseGroupKey } from "@/lib/api/exercises";
 import { useTranslation } from "@/lib/i18n/context";
-import { addExerciseToPage } from "@/lib/lessons/add-exercise";
+import { addExerciseToPage, placeExistingInPage } from "@/lib/lessons/add-exercise";
 
 import {
   elementHref,
@@ -121,6 +121,29 @@ export function LessonElementsPanel({
     }
   };
 
+  // Тот же путь, что у создания, но без первого шага: задание уже есть, его
+  // только ставят. Список имён обновляется целиком — новое имя придёт тем же
+  // запросом, что и остальные.
+  const place = async (pageIndex: number, exerciseId: string) => {
+    setBusy(true);
+    setFailed(false);
+    try {
+      await placeExistingInPage({
+        client: apiClient,
+        where: { lessonId, courseId, moduleId },
+        content,
+        pageIndex,
+        exerciseId,
+      });
+      await queryClient.invalidateQueries({ queryKey: ["lesson-exercise-names", lessonId] });
+      router.refresh();
+    } catch {
+      setFailed(true);
+    } finally {
+      setBusy(false);
+    }
+  };
+
   if (!open) return null;
 
   const names: ElementNames | null = exercises.isSuccess
@@ -172,11 +195,12 @@ export function LessonElementsPanel({
               pageIndex={page.index}
               busy={busy}
               onPick={(type) => add(page.index, type)}
+              onPlace={(id) => place(page.index, id)}
             />
           </div>
         ))
       )}
-      {empty && <AddExercise pageIndex={0} busy={busy} onPick={(type) => add(0, type)} />}
+      {empty && <AddExercise pageIndex={0} busy={busy} onPick={(type) => add(0, type)} onPlace={(id) => place(0, id)} />}
       {failed && <p className="pt-1 text-xs text-danger-fg">{t("admin.courseEdit.elementsAddFailed")}</p>}
     </div>
   );
@@ -186,22 +210,27 @@ export function LessonElementsPanel({
  * Выбор типа задания.
  *
  * Двадцать шесть типов — это список, в котором ищут, а не разглядывают, поэтому
- * поиск и группы. Второй пункт — «вставить существующее задание» — встанет
- * сюда же, когда появится библиотека (specs/030): меню для этого и разделено
- * на заголовок и содержимое.
+ * поиск и группы. Вторая вкладка — «из библиотеки» — ставит задание, которое
+ * школа уже завела (specs/030): тем же поиском, по названию и номеру.
  */
 function AddExercise({
   pageIndex,
   busy,
   onPick,
+  onPlace,
 }: {
   pageIndex: number;
   busy: boolean;
   onPick: (type: string) => void;
+  onPlace: (exerciseId: string) => void;
 }) {
   const { t } = useTranslation();
   const [open, setOpen] = useState(false);
   const [query, setQuery] = useState("");
+  // «Новое» — 26 типов; «Из библиотеки» — то, что школа уже завела. Второй
+  // режим и есть библиотека (specs/030): задание из одного курса ставится в
+  // другой, не создаваясь заново.
+  const [mode, setMode] = useState<"new" | "existing">("new");
 
   const needle = query.trim().toLowerCase();
   const matching = EXERCISE_TYPES_META.filter(
@@ -236,6 +265,25 @@ function AddExercise({
             placeholder={t("admin.courseEdit.elementsSearch")}
             className="mb-2 w-full rounded border border-border-strong bg-surface px-2 py-1 text-xs text-text outline-none focus:border-primary"
           />
+          <div className="mb-2 flex gap-1" role="tablist">
+            {(["new", "existing"] as const).map((m) => (
+              <button
+                key={m}
+                type="button"
+                role="tab"
+                aria-selected={mode === m}
+                onClick={() => setMode(m)}
+                className={`rounded px-2 py-0.5 text-2xs font-medium ${
+                  mode === m ? "bg-primary-soft text-text" : "text-text-muted hover:bg-surface-2"
+                }`}
+              >
+                {t(m === "new" ? "admin.courseEdit.elementsNew" : "admin.courseEdit.elementsExisting")}
+              </button>
+            ))}
+          </div>
+          {mode === "existing" ? (
+            <ExistingPicker query={needle} onPlace={onPlace} />
+          ) : (
           <div className="max-h-64 overflow-y-auto">
             {GROUP_ORDER.map((group) => {
               const types = matching.filter((type) => type.group === group);
@@ -268,9 +316,60 @@ function AddExercise({
               );
             })}
           </div>
+          )}
         </div>
       )}
     </div>
+  );
+}
+
+/**
+ * Поиск по библиотеке школы.
+ *
+ * Запрос уходит только когда есть что искать: пустая строка — это не «покажи
+ * всё», библиотека на полторы сотни заданий не для листания из выпадающего
+ * меню. Чужая школа здесь невозможна — список фильтруется по организации
+ * читателя на сервере, и это проверено тестом.
+ */
+function ExistingPicker({ query, onPlace }: { query: string; onPlace: (id: string) => void }) {
+  const { t } = useTranslation();
+  const results = useQuery({
+    queryKey: ["library-search", query],
+    queryFn: async () => {
+      const { data } = await exercisesApi.list({ search: query, per_page: 20 });
+      return data.items;
+    },
+    enabled: query.length >= 2,
+    staleTime: 30 * 1000,
+  });
+
+  if (query.length < 2) {
+    return <p className="px-1 py-2 text-xs text-text-muted">{t("admin.courseEdit.elementsTypeToSearch")}</p>;
+  }
+  if (results.isPending) {
+    return <p className="px-1 py-2 text-xs text-text-subtle">…</p>;
+  }
+  if (!results.data?.length) {
+    return <p className="px-1 py-2 text-xs text-text-muted">{t("admin.courseEdit.elementsNothingFound")}</p>;
+  }
+  return (
+    <ul className="max-h-64 overflow-y-auto">
+      {results.data.map((ex) => (
+        <li key={ex.id}>
+          <button
+            type="button"
+            onClick={() => onPlace(ex.id)}
+            className="flex w-full items-center gap-2 rounded px-1.5 py-1 text-left text-xs text-text hover:bg-surface-2"
+          >
+            <span className="shrink-0 rounded bg-surface-2 px-1.5 font-mono text-2xs text-text-muted">{ex.display_id}</span>
+            <span className="truncate">{ex.title}</span>
+            {ex.is_placed === false && (
+              <span className="ml-auto shrink-0 text-2xs text-text-subtle">{t("admin.contentLibrary.unplaced")}</span>
+            )}
+          </button>
+        </li>
+      ))}
+    </ul>
   );
 }
 

@@ -30,10 +30,18 @@ vi.mock("next/navigation", () => ({
 }));
 
 const addExerciseToPage = vi.fn();
+const placeExistingInPage = vi.fn();
+const libraryList = vi.fn();
 
 vi.mock("@/lib/lessons/add-exercise", () => ({
   addExerciseToPage: (...args: unknown[]) => addExerciseToPage(...args),
+  placeExistingInPage: (...args: unknown[]) => placeExistingInPage(...args),
 }));
+
+vi.mock("@/lib/api/exercises", async (importOriginal) => {
+  const actual = await importOriginal<typeof import("@/lib/api/exercises")>();
+  return { ...actual, exercisesApi: { ...actual.exercisesApi, list: (...args: unknown[]) => libraryList(...args) } };
+});
 
 const lesson = {
   version: 3,
@@ -72,6 +80,12 @@ function draw(props: { open: boolean; content?: Record<string, unknown> }) {
 beforeEach(() => {
   addExerciseToPage.mockReset();
   addExerciseToPage.mockResolvedValue({ exerciseId: "e9" });
+  placeExistingInPage.mockReset();
+  placeExistingInPage.mockResolvedValue(undefined);
+  libraryList.mockReset();
+  libraryList.mockResolvedValue({
+    data: { items: [{ id: "lib-1", display_id: "QZ-0001", title: "Фотосинтез", is_placed: false }], total: 1 },
+  });
   get.mockReset();
   get.mockResolvedValue({
     data: [
@@ -275,5 +289,44 @@ describe("добавление задания", () => {
 
     await waitFor(() => expect(screen.getByText("admin.courseEdit.elementsAddFailed")).toBeTruthy());
     expect(screen.getByText("Reading a range")).toBeTruthy();
+  });
+});
+
+describe("вставить из библиотеки", () => {
+  const openExisting = async (pageIndex = 0) => {
+    draw({ open: true });
+    await waitFor(() => expect(screen.getByText("Reading a range")).toBeTruthy());
+    fireEvent.click(screen.getAllByText("admin.courseEdit.elementsAdd")[pageIndex]);
+    fireEvent.click(screen.getByText("admin.courseEdit.elementsExisting"));
+  };
+
+  it("пустая строка ничего не ищет — библиотека не для листания из меню", async () => {
+    await openExisting();
+    expect(screen.getByText("admin.courseEdit.elementsTypeToSearch")).toBeTruthy();
+    expect(libraryList).not.toHaveBeenCalled();
+  });
+
+  it("от двух букв идёт поиск, и найденное можно поставить на свою страницу", async () => {
+    await openExisting(1);
+    fireEvent.change(screen.getByPlaceholderText("admin.courseEdit.elementsSearch"), {
+      target: { value: "фо" },
+    });
+    await waitFor(() => expect(screen.getByText("Фотосинтез")).toBeTruthy());
+    expect(libraryList).toHaveBeenCalledWith(expect.objectContaining({ search: "фо" }));
+    expect(screen.getByText("admin.contentLibrary.unplaced")).toBeTruthy();
+
+    fireEvent.click(screen.getByText("Фотосинтез"));
+    await waitFor(() => expect(placeExistingInPage).toHaveBeenCalledTimes(1));
+    expect(placeExistingInPage.mock.calls[0][0]).toMatchObject({ pageIndex: 1, exerciseId: "lib-1" });
+    expect(addExerciseToPage).not.toHaveBeenCalled();
+  });
+
+  it("ничего не нашлось — так и сказано", async () => {
+    libraryList.mockResolvedValue({ data: { items: [], total: 0 } });
+    await openExisting();
+    fireEvent.change(screen.getByPlaceholderText("admin.courseEdit.elementsSearch"), {
+      target: { value: "zzzz" },
+    });
+    await waitFor(() => expect(screen.getByText("admin.courseEdit.elementsNothingFound")).toBeTruthy());
   });
 });
