@@ -1858,6 +1858,9 @@ const es: TranslationMap = {
     "No hay estudiantes para añadir. Primero un administrador te los asigna.",
   "admin.dashboard.noLessonsToday": "Hoy no hay clases.",
   "admin.dashboard.needsDecision": "Requiere una decisión",
+  "admin.dashboard.needsAttention": "Requieren atención",
+  "admin.dashboard.missedClasses": "Faltas",
+  "admin.dashboard.journalUnfilled": "Registro sin completar",
   "admin.dashboard.groupsWithoutTeacher": "Grupos sin profesor",
 
  // Admin org-members

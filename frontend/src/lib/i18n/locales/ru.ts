@@ -1868,6 +1868,9 @@ const ru: TranslationMap = {
     "Некого добавить. Учеников распределяет администратор.",
   "admin.dashboard.noLessonsToday": "Сегодня занятий нет.",
   "admin.dashboard.needsDecision": "Требует решения",
+  "admin.dashboard.needsAttention": "Кто отстаёт",
+  "admin.dashboard.missedClasses": "Пропущено",
+  "admin.dashboard.journalUnfilled": "Журнал не заполнен",
   "admin.dashboard.groupsWithoutTeacher": "Групп без учителя",
 
  // Admin org-members

@@ -164,6 +164,22 @@ async def list_teachers(
         raise _translate(exc) from exc
 
 
+@router.get("/journal/attention")
+async def get_attention(
+    user: User = Depends(require_role(*_MANAGER_ROLES)),
+    db: AsyncSession = Depends(get_db),
+):
+    """Who is slipping, and which journal days are still empty.
+
+    Scoped like everything else a teacher sees: their own people and courses
+    (specs/061). Returns ``{students, unfilled}``, a handful of each.
+    """
+    try:
+        return await journal_service.get_attention(db, user)
+    except TaskStatsError as exc:
+        raise _translate(exc) from exc
+
+
 @router.get("/journal/students")
 async def list_students(
     user: User = Depends(require_role(*_MANAGER_ROLES)),

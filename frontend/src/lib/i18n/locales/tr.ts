@@ -1861,6 +1861,9 @@ const tr: TranslationMap = {
     "Eklenecek öğrenci yok. Önce bir yönetici size öğrenci atar.",
   "admin.dashboard.noLessonsToday": "Bugün ders yok.",
   "admin.dashboard.needsDecision": "Karar bekliyor",
+  "admin.dashboard.needsAttention": "İlgi bekleyenler",
+  "admin.dashboard.missedClasses": "Devamsızlık",
+  "admin.dashboard.journalUnfilled": "Yoklama girilmemiş",
   "admin.dashboard.groupsWithoutTeacher": "Öğretmensiz gruplar",
 
  // Admin org-members

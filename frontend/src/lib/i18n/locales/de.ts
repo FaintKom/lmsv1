@@ -1920,6 +1920,9 @@ const de: TranslationMap = {
     "Keine Schüler zum Hinzufügen. Zuerst weist die Verwaltung dir Schüler zu.",
   "admin.dashboard.noLessonsToday": "Heute kein Unterricht.",
   "admin.dashboard.needsDecision": "Entscheidung nötig",
+  "admin.dashboard.needsAttention": "Brauchen Aufmerksamkeit",
+  "admin.dashboard.missedClasses": "Versäumt",
+  "admin.dashboard.journalUnfilled": "Klassenbuch offen",
   "admin.dashboard.groupsWithoutTeacher": "Gruppen ohne Lehrkraft",
 
  // Admin org-members
