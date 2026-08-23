@@ -354,6 +354,7 @@ const uk: TranslationMap = {
  "dash.avgProgress": "Сер. прогрес",
  "dash.streak": "Днів поспіль",
  "dash.continue": "Продовжити навчання",
+  "dash.recentGrades": "Останні оцінки",
  "dash.getStarted": "Почати",
  "dash.noActivity": "Поки що немає активності",
  "dash.enrollPrompt": "Запишіться на курс, щоб почати навчання!",

@@ -37,11 +37,16 @@ export default function DashboardPage() {
  const [upcomingEvents, setUpcomingEvents] = useState<CalendarEvent[]>([]);
  const [recommendations, setRecommendations] = useState<Recommendation[]>([]);
  const [streak, setStreak] = useState(0);
+ // null while loading, [] when there is genuinely nothing graded yet.
+ const [grades, setGrades] = useState<
+ { type: string; title: string; score: number | null; max_score: number }[] | null
+ >(null);
  const [xp, setXp] = useState(0);
 
  useEffect(() => {
  apiClient.get("/calendar/upcoming?limit=5").then(({ data }) => setUpcomingEvents(data)).catch(() => {});
  apiClient.get("/recommendations/").then(({ data }) => setRecommendations(data)).catch(() => {});
+ apiClient.get("/progress/my-grades").then(({ data }) => setGrades(data)).catch(() => setGrades([]));
  apiClient.get("/gamification/my-streak").then(({ data }) => {
  setStreak(data.current_streak || 0);
  setXp(data.total_xp || 0);
@@ -84,13 +89,17 @@ export default function DashboardPage() {
  {t("dash.welcomeBack") || "Welcome back"}
  </p>
  <h1 className="relative mb-3 text-2xl font-extrabold leading-[1.05] tracking-tight text-primary-fg">
- {"Let's keep "}
- <em className="sun-mark">learning</em>
+ {t("dash.welcomeBack")}
+ {user?.full_name ? (
+ <>
  {", "}
- {user?.full_name?.split(" ")[0] || "Student"}!
+ <em className="sun-mark">{user.full_name.split(" ")[0]}</em>
+ </>
+ ) : null}
+ !
  </h1>
  <p className="relative mb-6 max-w-[380px] text-base leading-relaxed text-primary-fg/85">
- {t("dash.subtitle") || "Here's an overview of your learning progress"}
+ {t("dash.subtitle")}
  </p>
  <div className="relative flex flex-wrap gap-2.5">
  <Link
@@ -98,14 +107,14 @@ export default function DashboardPage() {
  className="btn-pop btn-pop--sun inline-flex items-center gap-2 rounded-md bg-reward px-5 py-3 text-sm font-bold text-ink-900"
  >
  <BookOpen className="h-4 w-4" />
- Browse Courses
+ {t("dash.browseCourses")}
  </Link>
  <Link
  href="/progress"
  className="inline-flex items-center gap-2 rounded-md bg-primary-fg/10 px-5 py-3 text-sm font-bold text-primary-fg transition-colors hover:bg-white/[0.18]"
  >
  <TrendingUp className="h-4 w-4" />
- My Progress
+ {t("nav.progress")}
  </Link>
  </div>
  </div>
@@ -114,9 +123,9 @@ export default function DashboardPage() {
  <div className="relative overflow-hidden rounded-xl border border-border bg-surface p-6">
  <div className="mb-3.5 flex items-start justify-between">
  <div>
- <p className="eyebrow mb-1">Current Streak</p>
+ <p className="eyebrow mb-1">{t("dash.streak")}</p>
  <p className="text-4xl font-extrabold leading-[0.9] tracking-tight text-clay-500 tabular-nums">
- {streak}<small className="ml-1 text-md font-bold tracking-normal text-danger-fg">days</small>
+ {streak}
  </p>
  </div>
  <div className="flex h-12 w-12 items-center justify-center rounded-md bg-danger text-ink-900 shadow-pop-clay">
@@ -136,15 +145,15 @@ export default function DashboardPage() {
      so the 4th KPI is XP (average grade needs a new endpoint — todo) */}
  <div className="stagger-children mb-8 grid grid-cols-2 gap-4 lg:grid-cols-4">
  <div className="rounded-lg border border-border bg-surface p-5 shadow-sm">
- <p className="eyebrow mb-1">Enrolled</p>
+ <p className="eyebrow mb-1">{t("dash.enrolled")}</p>
  <p className="text-xl font-extrabold leading-tight tracking-tight text-text tabular-nums">{loading ? "…" : enrolledCount}</p>
  </div>
  <div className="rounded-lg border border-border bg-surface p-5 shadow-sm">
- <p className="eyebrow mb-1">Completed</p>
+ <p className="eyebrow mb-1">{t("dash.completed")}</p>
  <p className="text-xl font-extrabold leading-tight tracking-tight text-text tabular-nums">{loading ? "…" : completedCount}</p>
  </div>
  <div className="rounded-lg border border-border bg-surface p-5 shadow-sm">
- <p className="eyebrow mb-1">Avg. Progress</p>
+ <p className="eyebrow mb-1">{t("dash.avgProgress")}</p>
  <p className="text-xl font-extrabold leading-tight tracking-tight text-text tabular-nums">{loading ? "…" : `${avgProgress}%`}</p>
  </div>
  <div className="rounded-lg border border-border bg-surface p-5 shadow-sm">
@@ -197,7 +206,7 @@ export default function DashboardPage() {
  {enrolledCourses.length > 0 && (
  <div className="mb-8">
  <div className="mb-4 flex items-center justify-between">
- <h2 className="text-md font-bold text-text">Continue Learning</h2>
+ <h2 className="text-md font-bold text-text">{t("dash.continue")}</h2>
  <Link href="/progress" className="flex items-center gap-1 text-sm font-semibold text-primary hover:text-primary-hover">
  View all <ArrowRight className="h-3.5 w-3.5" />
  </Link>
@@ -205,6 +214,25 @@ export default function DashboardPage() {
  <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
  {enrolledCourses.slice(0, 3).map(({ enrollment, course }) => (
  <CourseCard key={enrollment.id} course={course!} progress={enrollment.progress_percent} />
+ ))}
+ </div>
+ </div>
+ )}
+
+ {/* Recent grades — the student had no way to see these without leaving
+     the page, though the endpoint has always been there (specs/061). */}
+ {grades && grades.length > 0 && (
+ <div className="mb-8 rounded-lg border border-border bg-surface p-6 shadow-sm">
+ <h3 className="mb-4 text-base font-bold text-text">{t("dash.recentGrades")}</h3>
+ <div className="space-y-2">
+ {grades.slice(0, 5).map((g, i) => (
+ <div key={`${g.title}-${i}`} className="flex items-center gap-3 rounded-sm p-2">
+ <span className="min-w-0 flex-1 truncate text-sm text-text">{g.title}</span>
+ <span className="font-mono text-sm font-bold tabular-nums text-text">
+ {g.score ?? "—"}
+ <span className="text-text-subtle">/{g.max_score}</span>
+ </span>
+ </div>
  ))}
  </div>
  </div>
@@ -223,7 +251,9 @@ export default function DashboardPage() {
  <div className="space-y-2">
  {upcomingEvents.map((ev) => (
  <Link key={ev.id} href="/calendar" className="flex items-center gap-3 rounded-sm p-3 transition-colors hover:bg-surface-2">
- <span className="h-2.5 w-2.5 shrink-0 rounded-full" style={{
+ {/* Colour alone carries the event type, so the dot is decoration:
+     hide it from the reader rather than announce a bare bullet. */}
+ <span aria-hidden="true" className="h-2.5 w-2.5 shrink-0 rounded-full" style={{
  backgroundColor: ev.event_type === "deadline" ? "var(--clay-500)" : ev.event_type === "lesson" ? "var(--color-info)" : ev.event_type === "meeting" ? "var(--green-500)" : "var(--ink-400)"
  }} />
  <div className="min-w-0 flex-1">

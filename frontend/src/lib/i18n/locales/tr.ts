@@ -349,6 +349,7 @@ const tr: TranslationMap = {
  "dash.avgProgress": "Ort. İlerleme",
  "dash.streak": "Günlük Seri",
  "dash.continue": "Öğrenmeye Devam Et",
+  "dash.recentGrades": "Son notlar",
  "dash.getStarted": "Başla",
  "dash.noActivity": "Henüz aktivite yok",
  "dash.enrollPrompt": "Öğrenmeye başlamak için bir kursa kayıt olun!",
