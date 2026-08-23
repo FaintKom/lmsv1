@@ -1163,6 +1163,8 @@ const uk: TranslationMap = {
  "admin.users.title": "Користувачі",
  "admin.users.countAll": "користувачів у всіх організаціях",
  "admin.users.countOrg": "користувачів у вашій організації",
+ "admin.users.noAccessTitle": "Людьми школи опікується адміністратор",
+ "admin.users.noAccessBody": "Ваш обліковий запис працює зі своїми групами й уроками, а список людей веде адміністратор школи. Попросіть його додати або запросити людину.",
  "admin.users.addUser": "Додати користувача",
  "admin.users.newUser": "Новий користувач",
  "admin.users.fullName": "Повне імʼя",

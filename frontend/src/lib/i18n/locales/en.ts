@@ -1163,6 +1163,8 @@ const en: TranslationMap = {
  "admin.users.title": "Users",
  "admin.users.countAll": "users across all organizations",
  "admin.users.countOrg": "users in your organization",
+ "admin.users.noAccessTitle": "Only an administrator manages people",
+ "admin.users.noAccessBody": "Your account works with its groups and lessons; the list of people belongs to the school administrator. Ask them to add or invite someone.",
  "admin.users.addUser": "Add User",
  "admin.users.newUser": "New User",
  "admin.users.fullName": "Full Name",

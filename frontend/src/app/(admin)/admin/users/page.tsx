@@ -35,6 +35,7 @@ export default function AdminUsersPage() {
  const confirm = useConfirm();
  const currentUser = useAuthStore((s) => s.user);
  const isSuperAdmin = currentUser?.role === "super_admin";
+ const [denied, setDenied] = useState(false);
  const [users, setUsers] = useState<User[]>([]);
  const [orgs, setOrgs] = useState<OrgOption[]>([]);
  const [loading, setLoading] = useState(true);
@@ -45,8 +46,17 @@ export default function AdminUsersPage() {
  const fetchUsers = () => {
  apiClient
  .get("/admin/users")
- .then(({ data }) => setUsers(data))
- .catch(() => {})
+ .then(({ data }) => {
+ setUsers(data);
+ setDenied(false);
+ })
+ .catch((err) => {
+ // A swallowed 403 left the empty list on screen, so a teacher who
+ // followed "Manage users" from their own dashboard read "0 users in
+ // your organization" about a school with seven people in it — and was
+ // still offered the button to add one.
+ if (err?.response?.status === 403) setDenied(true);
+ })
  .finally(() => setLoading(false));
  };
 
@@ -159,6 +169,20 @@ export default function AdminUsersPage() {
  return (
  <div className="flex h-64 items-center justify-center">
  <div className="h-8 w-8 animate-spin rounded-pill border-4 border-primary border-t-transparent" />
+ </div>
+ );
+ }
+
+ if (denied) {
+ return (
+ <div className="mx-auto max-w-6xl">
+ <h1 className="text-2xl font-bold text-text">{t("admin.users.title")}</h1>
+ <Card className="mt-6">
+ <CardContent className="p-6">
+ <p className="font-semibold text-text">{t("admin.users.noAccessTitle")}</p>
+ <p className="mt-1 text-sm text-text-muted">{t("admin.users.noAccessBody")}</p>
+ </CardContent>
+ </Card>
  </div>
  );
  }
