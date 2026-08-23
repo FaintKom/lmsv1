@@ -36,6 +36,7 @@ from app.auth.dependencies import require_role
 from app.auth.models import Organization, User, UserRole
 from app.auth.schemas import UserResponse
 from app.common.exceptions import BadRequestError, NotFoundError
+from app.common.teacher_scope import teacher_course_ids, teacher_student_ids
 from app.db.session import get_db
 
 router = APIRouter()
@@ -241,21 +242,31 @@ async def teacher_stats_endpoint(
     from app.courses.models import Course
     from app.progress.models import Enrollment
 
+    # "Mine" is the group I lead as much as the course I own (specs/061). This
+    # product attaches teachers to groups, so a teacher running somebody else's
+    # course for their own group owned nothing and every card read zero.
+    course_ids = None
+    student_ids = None
+    if user.role == UserRole.teacher:
+        course_ids = await teacher_course_ids(db, user)
+        student_ids = await teacher_student_ids(db, user)
+
     # My courses count
     course_q = select(func.count(Course.id)).where(Course.org_id == user.org_id)
-    if user.role == UserRole.teacher:
-        course_q = course_q.where(Course.teacher_id == user.id)
+    if course_ids is not None:
+        course_q = course_q.where(Course.id.in_(course_ids))
     my_courses = (await db.execute(course_q)).scalar() or 0
 
-    # My students (enrolled in my courses)
-    student_q = (
-        select(func.count(func.distinct(Enrollment.student_id)))
-        .join(Course, Enrollment.course_id == Course.id)
-        .where(Course.org_id == user.org_id)
-    )
-    if user.role == UserRole.teacher:
-        student_q = student_q.where(Course.teacher_id == user.id)
-    my_students = (await db.execute(student_q)).scalar() or 0
+    # My students
+    if student_ids is not None:
+        my_students = len(student_ids)
+    else:
+        student_q = (
+            select(func.count(func.distinct(Enrollment.student_id)))
+            .join(Course, Enrollment.course_id == Course.id)
+            .where(Course.org_id == user.org_id)
+        )
+        my_students = (await db.execute(student_q)).scalar() or 0
 
     # Ungraded submissions
     ungraded_q = (
@@ -266,8 +277,10 @@ async def teacher_stats_endpoint(
             Assignment.org_id == user.org_id,
         )
     )
-    if user.role == UserRole.teacher:
-        ungraded_q = ungraded_q.where(Assignment.created_by == user.id)
+    # Scoped by course, not by authorship: the person who marks the work is
+    # not always the person who wrote the assignment (specs/061).
+    if course_ids is not None:
+        ungraded_q = ungraded_q.where(Assignment.course_id.in_(course_ids))
     to_review = (await db.execute(ungraded_q)).scalar() or 0
 
     # Average score across graded submissions
@@ -279,8 +292,8 @@ async def teacher_stats_endpoint(
             Assignment.org_id == user.org_id,
         )
     )
-    if user.role == UserRole.teacher:
-        avg_q = avg_q.where(Assignment.created_by == user.id)
+    if course_ids is not None:
+        avg_q = avg_q.where(Assignment.course_id.in_(course_ids))
     avg_score = (await db.execute(avg_q)).scalar()
     avg_score = round(float(avg_score), 1) if avg_score else 0
 
@@ -295,8 +308,8 @@ async def teacher_stats_endpoint(
         .join(User, AssignmentSubmission.student_id == User.id)
         .where(Assignment.org_id == user.org_id)
     )
-    if user.role == UserRole.teacher:
-        recent_q = recent_q.where(Assignment.created_by == user.id)
+    if course_ids is not None:
+        recent_q = recent_q.where(Assignment.course_id.in_(course_ids))
     recent_q = recent_q.order_by(AssignmentSubmission.submitted_at.desc()).limit(5)
     result = await db.execute(recent_q)
     recent = [

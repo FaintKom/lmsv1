@@ -1856,6 +1856,9 @@ const tr: TranslationMap = {
  "admin.groups.failedAddMembers": "Üyeler eklenemedi",
  "admin.groups.failedRemoveMember": "Üye kaldırılamadı",
  "admin.groups.failedEnroll": "Grup kaydedilemedi",
+  "admin.groups.noStudentsVisible":
+    "Eklenecek öğrenci yok. Önce bir yönetici size öğrenci atar.",
+  "admin.dashboard.noLessonsToday": "Bugün ders yok.",
 
  // Admin org-members
  "admin.orgMembers.title": "Organizasyon üyeleri",

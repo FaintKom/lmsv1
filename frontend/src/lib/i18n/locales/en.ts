@@ -1915,6 +1915,9 @@ const en: TranslationMap = {
  "admin.groups.failedAddMembers": "Failed to add members",
  "admin.groups.failedRemoveMember": "Failed to remove member",
  "admin.groups.failedEnroll": "Failed to enroll group",
+  "admin.groups.noStudentsVisible":
+    "No students to add. An administrator assigns students to you first.",
+  "admin.dashboard.noLessonsToday": "No classes today.",
 
  // Admin org-members
  "admin.orgMembers.title": "Organization members",

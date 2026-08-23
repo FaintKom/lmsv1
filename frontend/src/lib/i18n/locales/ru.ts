@@ -1863,6 +1863,9 @@ const ru: TranslationMap = {
  "admin.groups.failedAddMembers": "Не удалось добавить участников",
  "admin.groups.failedRemoveMember": "Не удалось удалить участника",
  "admin.groups.failedEnroll": "Не удалось записать группу",
+  "admin.groups.noStudentsVisible":
+    "Некого добавить. Учеников распределяет администратор.",
+  "admin.dashboard.noLessonsToday": "Сегодня занятий нет.",
 
  // Admin org-members
  "admin.orgMembers.title": "Участники организации",

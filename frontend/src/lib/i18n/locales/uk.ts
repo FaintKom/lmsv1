@@ -1915,6 +1915,9 @@ const uk: TranslationMap = {
  "admin.groups.failedAddMembers": "Не вдалося додати учасників",
  "admin.groups.failedRemoveMember": "Не вдалося видалити учасника",
  "admin.groups.failedEnroll": "Не вдалося записати групу",
+  "admin.groups.noStudentsVisible":
+    "Немає кого додати. Учнів розподіляє адміністратор.",
+  "admin.dashboard.noLessonsToday": "Сьогодні занять немає.",
 
  // Admin org-members
  "admin.orgMembers.title": "Учасники організації",

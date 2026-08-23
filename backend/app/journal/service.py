@@ -16,6 +16,7 @@ timezone-aware (timestamptz). We therefore filter on the half-open UTC range
 would bucket by the server's session timezone and is ambiguous for tz-aware
 columns. Aggregation uses GROUP BY (no N+1), mirroring task_stats_service.
 """
+
 from __future__ import annotations
 
 import csv
@@ -43,6 +44,7 @@ from app.assessments.models import Quiz, QuizSubmission
 from app.assignments.models import Assignment, AssignmentStatus, AssignmentSubmission
 from app.attendance.models import AttendanceRecord, AttendanceStatus
 from app.auth.models import User, UserRole
+from app.common.teacher_scope import teacher_student_ids
 from app.courses.models import Course, Lesson, Module
 from app.curriculum.models import CurriculumTopic
 from app.exercises.models import Exercise, ExerciseSubmission
@@ -117,16 +119,20 @@ async def _scheduled_slots_for_day(
     ``ScheduleSlot.day_of_week`` — so no remapping is needed. One query, no N+1.
     """
     rows = (
-        await db.execute(
-            select(ScheduleSlot)
-            .where(
-                ScheduleSlot.course_id == course_id,
-                ScheduleSlot.active.is_(True),
-                ScheduleSlot.day_of_week == day.weekday(),
+        (
+            await db.execute(
+                select(ScheduleSlot)
+                .where(
+                    ScheduleSlot.course_id == course_id,
+                    ScheduleSlot.active.is_(True),
+                    ScheduleSlot.day_of_week == day.weekday(),
+                )
+                .order_by(ScheduleSlot.start_time)
             )
-            .order_by(ScheduleSlot.start_time)
         )
-    ).scalars().all()
+        .scalars()
+        .all()
+    )
     return [_slot_dict(s) for s in rows]
 
 
@@ -149,9 +155,7 @@ async def _authorize_group(
     return group
 
 
-async def _group_member_ids(
-    db: AsyncSession, group_id: uuid.UUID
-) -> list[uuid.UUID]:
+async def _group_member_ids(db: AsyncSession, group_id: uuid.UUID) -> list[uuid.UUID]:
     """Active student user-ids that are members of the group, name-ordered."""
     rows = (
         await db.execute(
@@ -197,6 +201,36 @@ async def list_org_teachers(db: AsyncSession, user: User) -> list[dict]:
     return [{"id": str(tid), "full_name": name or ""} for tid, name in rows]
 
 
+async def list_visible_students(db: AsyncSession, user: User) -> list[dict]:
+    """Students the caller may put in a group.
+
+    The owner's rule, 2026-08-23 (specs/061): a teacher sees only their own —
+    members of a group they lead, enrollees of a course they own. Org-wide
+    staff see every student in the school.
+
+    Exists because the group screen called admin-only ``/admin/users``, took a
+    403 and drew an empty list without a word (Н-16). Mirrors the journal's own
+    RBAC the way ``list_org_teachers`` does, and returns no more than the
+    picker needs: ``[{id, full_name, email}]``.
+    """
+    require_stats_role(user)
+    stmt = select(User.id, User.full_name, User.email).where(
+        User.role == UserRole.student,
+        User.is_active.is_(True),
+    )
+    if user.role != UserRole.super_admin:
+        stmt = stmt.where(User.org_id == user.org_id)
+
+    if not _is_org_wide(user):
+        mine = await teacher_student_ids(db, user)
+        if not mine:
+            return []
+        stmt = stmt.where(User.id.in_(mine))
+
+    rows = (await db.execute(stmt.order_by(User.full_name))).all()
+    return [{"id": str(sid), "full_name": name or "", "email": email} for sid, name, email in rows]
+
+
 # ── Upsert ───────────────────────────────────────────────────────────────
 
 
@@ -204,9 +238,7 @@ async def _validate_topic_for_course(
     db: AsyncSession, course_id: uuid.UUID, topic_id: uuid.UUID
 ) -> None:
     """Confirm ``topic_id`` is a curriculum topic of ``course_id``."""
-    topic = await db.scalar(
-        select(CurriculumTopic).where(CurriculumTopic.id == topic_id)
-    )
+    topic = await db.scalar(select(CurriculumTopic).where(CurriculumTopic.id == topic_id))
     if topic is None or topic.course_id != course_id:
         raise TaskStatsError("not_found", "Curriculum topic not found for this course")
 
@@ -235,12 +267,16 @@ async def _resolve_session_group_id(
         return group_id
 
     rows = (
-        await db.execute(
-            select(StudentGroup)
-            .where(StudentGroup.course_id == course_id)
-            .order_by(StudentGroup.created_at.asc(), StudentGroup.id.asc())
+        (
+            await db.execute(
+                select(StudentGroup)
+                .where(StudentGroup.course_id == course_id)
+                .order_by(StudentGroup.created_at.asc(), StudentGroup.id.asc())
+            )
         )
-    ).scalars().all()
+        .scalars()
+        .all()
+    )
     if not rows:
         return None
     # One default group is the norm; if several exist prefer the one named after
@@ -279,9 +315,7 @@ async def upsert_session(
     if actual_topic_set and actual_topic_id is not None:
         await _validate_topic_for_course(db, course_id, actual_topic_id)
 
-    resolved_group_id = await _resolve_session_group_id(
-        db, user, course, course_id, group_id
-    )
+    resolved_group_id = await _resolve_session_group_id(db, user, course, course_id, group_id)
 
     existing = await db.scalar(
         select(ClassSession).where(
@@ -344,8 +378,8 @@ async def list_sessions(
     if group_id is not None:
         sess_stmt = sess_stmt.where(ClassSession.group_id == group_id)
     sessions = (
-        await db.execute(sess_stmt.order_by(ClassSession.session_date.desc()))
-    ).scalars().all()
+        (await db.execute(sess_stmt.order_by(ClassSession.session_date.desc()))).scalars().all()
+    )
 
     # One grouped query: attendance counts per (date, status) for this course.
     att_rows = (
@@ -758,13 +792,9 @@ async def get_student_activity(
     # Exercises.
     for r in ex_rows:
         ex_type = (
-            r.exercise_type.value
-            if hasattr(r.exercise_type, "value")
-            else str(r.exercise_type)
+            r.exercise_type.value if hasattr(r.exercise_type, "value") else str(r.exercise_type)
         )
-        result = _result_from_verdict(
-            r.passed, float(r.score) if r.score is not None else None
-        )
+        result = _result_from_verdict(r.passed, float(r.score) if r.score is not None else None)
         b = _bucket(r.course_id, r.course_title, r.lesson_id, r.lesson_title)
         b["attended"] = True
         if b["_first_at"] is None or r.submitted_at < b["_first_at"]:
@@ -785,15 +815,11 @@ async def get_student_activity(
             if result == "correct":
                 correct_count += 1
         _track_time(r.time_spent_seconds)
-        timeline.append(
-            {"at": r.submitted_at.isoformat(), "kind": result, "text": r.title}
-        )
+        timeline.append({"at": r.submitted_at.isoformat(), "kind": result, "text": r.title})
 
     # Quizzes (treated as exercises with type "quiz").
     for r in quiz_rows:
-        result = _result_from_verdict(
-            r.passed, float(r.score) if r.score is not None else None
-        )
+        result = _result_from_verdict(r.passed, float(r.score) if r.score is not None else None)
         b = _bucket(r.course_id, r.course_title, r.lesson_id, r.lesson_title)
         b["attended"] = True
         if b["_first_at"] is None or r.submitted_at < b["_first_at"]:
@@ -814,9 +840,7 @@ async def get_student_activity(
             if result == "correct":
                 correct_count += 1
         _track_time(r.time_spent_seconds)
-        timeline.append(
-            {"at": r.submitted_at.isoformat(), "kind": result, "text": r.title}
-        )
+        timeline.append({"at": r.submitted_at.isoformat(), "kind": result, "text": r.title})
 
     # Assignments (course-level bucket, lesson_id None).
     for r in assign_rows:
@@ -824,11 +848,7 @@ async def get_student_activity(
         # Only a graded assignment carries a meaningful verdict; otherwise it is
         # "done" (handed in, awaiting grade).
         if st == AssignmentStatus.graded.value and r.score is not None:
-            pct = (
-                float(r.score) / float(r.max_score) * 100.0
-                if r.max_score
-                else float(r.score)
-            )
+            pct = float(r.score) / float(r.max_score) * 100.0 if r.max_score else float(r.score)
             result = _result_from_verdict(None, pct)
             score_pct = round(pct, 1)
         else:
@@ -854,9 +874,7 @@ async def get_student_activity(
             if result == "correct":
                 correct_count += 1
         _track_time(r.time_spent_seconds)
-        timeline.append(
-            {"at": r.submitted_at.isoformat(), "kind": result, "text": r.title}
-        )
+        timeline.append({"at": r.submitted_at.isoformat(), "kind": result, "text": r.title})
 
     # ── Assemble lessons list (chronological by first event), strip helper. ──
     lessons_sorted = sorted(
@@ -938,7 +956,9 @@ async def generate_from_schedule(
                 )
                 .distinct()
             )
-        ).scalars().all()
+        )
+        .scalars()
+        .all()
     )
 
     created_dates: list[str] = []
@@ -955,7 +975,9 @@ async def generate_from_schedule(
                     ClassSession.session_date <= to_date,
                 )
             )
-        ).scalars().all()
+        )
+        .scalars()
+        .all()
     )
 
     day = from_date
@@ -1015,16 +1037,20 @@ async def export_register_csv(
 
     # Sessions in range, oldest first.
     sessions = (
-        await db.execute(
-            select(ClassSession)
-            .where(
-                ClassSession.course_id == course_id,
-                ClassSession.session_date >= from_date,
-                ClassSession.session_date <= to_date,
+        (
+            await db.execute(
+                select(ClassSession)
+                .where(
+                    ClassSession.course_id == course_id,
+                    ClassSession.session_date >= from_date,
+                    ClassSession.session_date <= to_date,
+                )
+                .order_by(ClassSession.session_date)
             )
-            .order_by(ClassSession.session_date)
         )
-    ).scalars().all()
+        .scalars()
+        .all()
+    )
 
     # Enrolled students (id + name), ordered by name — one query.
     student_rows = (
@@ -1073,9 +1099,7 @@ async def export_register_csv(
         topic = s.topic or ""
         for sid, name in student_rows:
             status_label, note = att_by_key.get((sid, s.session_date), ("", ""))
-            writer.writerow(
-                [date_iso, weekday, held, topic, name or "", status_label, note]
-            )
+            writer.writerow([date_iso, weekday, held, topic, name or "", status_label, note])
 
     csv_text = "﻿" + buf.getvalue()
     slug = course.slug or str(course_id)
@@ -1157,10 +1181,10 @@ async def get_today(
     group_by_id: dict[uuid.UUID, StudentGroup] = {}
     if day_group_ids:
         for g in (
-            await db.execute(
-                select(StudentGroup).where(StudentGroup.id.in_(day_group_ids))
-            )
-        ).scalars().all():
+            (await db.execute(select(StudentGroup).where(StudentGroup.id.in_(day_group_ids))))
+            .scalars()
+            .all()
+        ):
             group_by_id[g.id] = g
 
     # Teacher names: course teachers + group teachers, one query.
@@ -1173,9 +1197,7 @@ async def get_today(
     teacher_names: dict[uuid.UUID, str] = {}
     if teacher_ids:
         for tid, name in (
-            await db.execute(
-                select(User.id, User.full_name).where(User.id.in_(teacher_ids))
-            )
+            await db.execute(select(User.id, User.full_name).where(User.id.in_(teacher_ids)))
         ).all():
             teacher_names[tid] = name or ""
 
@@ -1183,13 +1205,17 @@ async def get_today(
     # group-linked slot matches its own session and a course-level slot matches
     # the course-level (group_id NULL) session. One query.
     sessions = (
-        await db.execute(
-            select(ClassSession).where(
-                ClassSession.course_id.in_(day_course_ids),
-                ClassSession.session_date == day,
+        (
+            await db.execute(
+                select(ClassSession).where(
+                    ClassSession.course_id.in_(day_course_ids),
+                    ClassSession.session_date == day,
+                )
             )
         )
-    ).scalars().all()
+        .scalars()
+        .all()
+    )
     session_by_key: dict[tuple[uuid.UUID, uuid.UUID | None], ClassSession] = {
         (s.course_id, s.group_id): s for s in sessions
     }
@@ -1243,12 +1269,10 @@ async def get_today(
             session_by_key.get((cid, None)) if gid is None else None
         )
         # Prefer the group's teacher when the slot is group-linked.
-        tid = (group.teacher_id if group and group.teacher_id else teacher_by_course.get(cid))
+        tid = group.teacher_id if group and group.teacher_id else teacher_by_course.get(cid)
         # Prefer group name as the agenda title when group-linked.
         title = group.name if group else titles.get(cid, "")
-        total = (
-            member_count_by_group.get(gid, 0) if gid else enrolled_by_course.get(cid, 0)
-        )
+        total = member_count_by_group.get(gid, 0) if gid else enrolled_by_course.get(cid, 0)
         agenda.append(
             {
                 "slot_id": str(slot.id),
@@ -1266,9 +1290,7 @@ async def get_today(
                 "room_name": room_name or (slot.location or None),
                 "room_url": slot_room_url(slot.id) if slot.is_online else None,
                 "session": (
-                    {"held": sess.held, "topic": sess.topic or ""}
-                    if sess is not None
-                    else None
+                    {"held": sess.held, "topic": sess.topic or ""} if sess is not None else None
                 ),
                 "attendance": {
                     "present": present_by_course.get(cid, 0),
@@ -1342,9 +1364,7 @@ async def get_room_board(
     out_rooms: list[dict] = []
     conflicts: list[dict] = []
     for room in rooms:
-        room_slots = sorted(
-            slots_by_room.get(room.id, []), key=lambda s: s.start_time
-        )
+        room_slots = sorted(slots_by_room.get(room.id, []), key=lambda s: s.start_time)
         slot_dicts = [
             {
                 "slot_id": str(s.id),
@@ -1366,9 +1386,7 @@ async def get_room_board(
                             "room_id": str(room.id),
                             "room_name": room.name,
                             "slot_ids": [str(a.id), str(b.id)],
-                            "start_time": max(a.start_time, b.start_time).strftime(
-                                "%H:%M"
-                            ),
+                            "start_time": max(a.start_time, b.start_time).strftime("%H:%M"),
                             "end_time": min(a.end_time, b.end_time).strftime("%H:%M"),
                         }
                     )
@@ -1519,7 +1537,9 @@ async def backfill_groups(db: AsyncSession) -> dict[str, int]:
                     StudentGroup.course_id.in_(candidate_course_ids)
                 )
             )
-        ).scalars().all()
+        )
+        .scalars()
+        .all()
     )
     courses_needing_group = candidate_course_ids - courses_with_group
 
@@ -1584,21 +1604,23 @@ async def backfill_groups(db: AsyncSession) -> dict[str, int]:
 
         # Backfill members from enrollment, skipping anyone already a member.
         enrolled_ids = (
-            await db.execute(
-                select(Enrollment.student_id)
-                .where(Enrollment.course_id == cid)
-                .distinct()
+            (
+                await db.execute(
+                    select(Enrollment.student_id).where(Enrollment.course_id == cid).distinct()
+                )
             )
-        ).scalars().all()
+            .scalars()
+            .all()
+        )
         if enrolled_ids:
             existing_member_ids = set(
                 (
                     await db.execute(
-                        select(StudentGroupMember.user_id).where(
-                            StudentGroupMember.group_id == gid
-                        )
+                        select(StudentGroupMember.user_id).where(StudentGroupMember.group_id == gid)
                     )
-                ).scalars().all()
+                )
+                .scalars()
+                .all()
             )
             for sid in enrolled_ids:
                 if sid in existing_member_ids:

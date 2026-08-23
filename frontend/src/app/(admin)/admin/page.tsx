@@ -27,7 +27,6 @@ import {
   type LucideIcon,
 } from "lucide-react";
 import { useAuthStore } from "@/stores/auth-store";
-import { TeacherOnboarding } from "@/components/onboarding/teacher-onboarding";
 import { toast } from "sonner";
 import { OnboardingTour, startOnboardingTour } from "@/components/onboarding-tour";
 import { useTranslation } from "@/lib/i18n/context";
@@ -135,10 +134,24 @@ function QuickLink({
   );
 }
 
+/** One line of the teacher's day, as /journal/today returns it. */
+type TodayLesson = {
+  slot_id: string;
+  title: string;
+  group_name: string | null;
+  start_time: string;
+  end_time: string;
+  room_name: string | null;
+  is_online: boolean;
+};
+
 export default function AdminDashboardPage() {
   const { t } = useTranslation();
   const [stats, setStats] = useState<Stats | null>(null);
   const [teacherStats, setTeacherStats] = useState<TeacherStats | null>(null);
+  // null while loading, [] when the day is genuinely empty — a refusal must
+  // not be drawn as "nothing scheduled" (specs/061).
+  const [today, setToday] = useState<TodayLesson[] | null>(null);
   const [copied, setCopied] = useState(false);
   const [onboardingDismissed, setOnboardingDismissed] = useState(() => {
     if (typeof window === "undefined") return true;
@@ -165,13 +178,17 @@ export default function AdminDashboardPage() {
         .get("/admin/teacher-stats")
         .then(({ data }) => setTeacherStats(data))
         .catch(() => {});
+      apiClient
+        .get("/journal/today", { params: { teacher_id: user?.id } })
+        .then(({ data }) => setToday(data.agenda ?? []))
+        .catch(() => setToday([]));
     } else {
       apiClient
         .get("/admin/dashboard")
         .then(({ data }) => setStats(data))
         .catch(() => {});
     }
-  }, [isTeacher]);
+  }, [isTeacher, user?.id]);
 
   /* ================================================================
      TEACHER DASHBOARD
@@ -189,8 +206,45 @@ export default function AdminDashboardPage() {
           </h1>
         </div>
 
-        <div className="mb-6">
-          <TeacherOnboarding />
+        {/* Today. A teacher opens this page asking "where am I due", not
+            "how do I set up a school" — the onboarding that used to sit here
+            was written for the owner and its button led to a 403 (specs/061). */}
+        <div className="mb-6 rounded-md border border-border bg-surface">
+          <div className="flex items-center gap-2 border-b border-border px-5 py-3.5">
+            <Clock className="h-4 w-4 text-green-600" />
+            <h3 className="text-sm font-extrabold text-text">
+              {t("journal.today")}
+            </h3>
+          </div>
+          <div className="divide-y divide-border">
+            {today === null && (
+              <div className="lms-skeleton m-4 h-10 rounded-xs" />
+            )}
+            {today?.length === 0 && (
+              <p className="px-5 py-4 text-xs text-text-muted">
+                {t("admin.dashboard.noLessonsToday")}
+              </p>
+            )}
+            {today?.map((lesson) => (
+              <Link
+                key={lesson.slot_id}
+                href="/admin/journal"
+                className="flex items-center gap-3 px-5 py-3 hover:bg-surface-muted/50"
+              >
+                <span className="font-mono text-xs font-bold text-text">
+                  {lesson.start_time}–{lesson.end_time}
+                </span>
+                <span className="flex-1 truncate text-sm text-text">
+                  {lesson.group_name || lesson.title}
+                </span>
+                <span className="text-2xs text-text-subtle">
+                  {lesson.is_online
+                    ? t("journal.online")
+                    : lesson.room_name || ""}
+                </span>
+              </Link>
+            ))}
+          </div>
         </div>
 
         {/* KPI strip */}

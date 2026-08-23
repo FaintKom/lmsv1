@@ -1915,6 +1915,9 @@ const de: TranslationMap = {
  "admin.groups.failedAddMembers": "Mitglieder konnten nicht hinzugefügt werden",
  "admin.groups.failedRemoveMember": "Mitglied konnte nicht entfernt werden",
  "admin.groups.failedEnroll": "Gruppe konnte nicht eingeschrieben werden",
+  "admin.groups.noStudentsVisible":
+    "Keine Schüler zum Hinzufügen. Zuerst weist die Verwaltung dir Schüler zu.",
+  "admin.dashboard.noLessonsToday": "Heute kein Unterricht.",
 
  // Admin org-members
  "admin.orgMembers.title": "Organisationsmitglieder",

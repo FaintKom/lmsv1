@@ -5,6 +5,7 @@ super_admin); the org-vs-own-course scoping is enforced in the service layer
 via the shared analytics task-stats helpers. ``TaskStatsError`` codes are
 mapped to HTTP exactly like the analytics router (forbidden→403, not_found→404).
 """
+
 from __future__ import annotations
 
 import uuid
@@ -163,6 +164,23 @@ async def list_teachers(
         raise _translate(exc) from exc
 
 
+@router.get("/journal/students")
+async def list_students(
+    user: User = Depends(require_role(*_MANAGER_ROLES)),
+    db: AsyncSession = Depends(get_db),
+):
+    """Students the caller may add to a group.
+
+    A teacher gets their own only (specs/061); org-wide staff get the school.
+    The group screen used to ask admin-only ``/admin/users`` and draw the 403
+    as an empty list. Returns ``[{id, full_name, email}]``.
+    """
+    try:
+        return await journal_service.list_visible_students(db, user)
+    except TaskStatsError as exc:
+        raise _translate(exc) from exc
+
+
 @router.get("/journal/today")
 async def get_today(
     date_: date | None = Query(default=None, alias="date"),
@@ -219,9 +237,7 @@ async def get_day(
     session lookup to that group (falls back to course enrollment when absent).
     """
     try:
-        return await journal_service.get_day(
-            db, user, course_id, session_date, group_id=group_id
-        )
+        return await journal_service.get_day(db, user, course_id, session_date, group_id=group_id)
     except TaskStatsError as exc:
         raise _translate(exc) from exc
 
