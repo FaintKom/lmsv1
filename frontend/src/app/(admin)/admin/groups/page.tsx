@@ -88,7 +88,10 @@ export default function GroupsPage() {
 
  useEffect(() => {
  fetchGroups();
- apiClient.get("/admin/users").then(({ data }) => setUsers(data));
+ // /journal/students, not /admin/users: the latter is admin-only, so a
+    // teacher took a 403 and got an empty picker with no word of explanation.
+    // This one answers a teacher with their own students (specs/061).
+    apiClient.get("/journal/students").then(({ data }) => setUsers(data));
  apiClient.get("/admin/courses").then(({ data }) => setCourses(data));
  apiClient
  .get("/journal/teachers")
@@ -438,7 +441,12 @@ export default function GroupsPage() {
  )}
  </div>
  <div className="max-h-48 space-y-1 overflow-y-auto">
- {filteredUsers.map((u) => {
+ {users.length === 0 && (
+                                <p className="px-1 py-3 text-2xs text-text-subtle">
+                                  {t("admin.groups.noStudentsVisible")}
+                                </p>
+                              )}
+                              {filteredUsers.map((u) => {
  const isMember = members[g.id]?.some(
  (m) => m.id === u.id
  );

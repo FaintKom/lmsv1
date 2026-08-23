@@ -1853,6 +1853,9 @@ const es: TranslationMap = {
  "admin.groups.failedAddMembers": "Error al añadir miembros",
  "admin.groups.failedRemoveMember": "Error al quitar miembro",
  "admin.groups.failedEnroll": "Error al matricular grupo",
+  "admin.groups.noStudentsVisible":
+    "No hay estudiantes para añadir. Primero un administrador te los asigna.",
+  "admin.dashboard.noLessonsToday": "Hoy no hay clases.",
 
  // Admin org-members
  "admin.orgMembers.title": "Miembros de la organización",
