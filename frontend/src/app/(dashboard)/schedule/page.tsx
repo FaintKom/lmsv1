@@ -72,10 +72,14 @@ export default function StudentSchedulePage() {
                     <span className="flex-1 text-sm font-medium text-text">
                       {slot.course_title}
                     </span>
-                    {slot.location && (
+                    {/* The room comes from the picker in Setup and arrives as
+                        room_name; `location` is a free-text field nobody is
+                        offered. Reading only the latter left the pupil with a
+                        time and no place to go (specs/054). */}
+                    {(slot.room_name || slot.location) && (
                       <span className="flex items-center gap-1 text-xs text-text-subtle">
                         <MapPin className="h-3 w-3" />
-                        {slot.location}
+                        {slot.room_name || slot.location}
                       </span>
                     )}
                     {slot.is_online && slot.room_url && (
