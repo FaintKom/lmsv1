@@ -1860,6 +1860,8 @@ const tr: TranslationMap = {
   "admin.groups.noStudentsVisible":
     "Eklenecek öğrenci yok. Önce bir yönetici size öğrenci atar.",
   "admin.dashboard.noLessonsToday": "Bugün ders yok.",
+  "admin.dashboard.needsDecision": "Karar bekliyor",
+  "admin.dashboard.groupsWithoutTeacher": "Öğretmensiz gruplar",
 
  // Admin org-members
  "admin.orgMembers.title": "Organizasyon üyeleri",

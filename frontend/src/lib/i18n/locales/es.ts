@@ -1857,6 +1857,8 @@ const es: TranslationMap = {
   "admin.groups.noStudentsVisible":
     "No hay estudiantes para añadir. Primero un administrador te los asigna.",
   "admin.dashboard.noLessonsToday": "Hoy no hay clases.",
+  "admin.dashboard.needsDecision": "Requiere una decisión",
+  "admin.dashboard.groupsWithoutTeacher": "Grupos sin profesor",
 
  // Admin org-members
  "admin.orgMembers.title": "Miembros de la organización",
