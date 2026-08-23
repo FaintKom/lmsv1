@@ -68,6 +68,7 @@ export default function CourseDetailPage() {
   const { t } = useTranslation();
   const user = useAuthStore((s) => s.user);
   const [course, setCourse] = useState<Course | null>(null);
+  const [missing, setMissing] = useState(false);
   const [loading, setLoading] = useState(true);
   const [enrolling, setEnrolling] = useState(false);
   const [enrolled, setEnrolled] = useState(false);
@@ -86,7 +87,10 @@ export default function CourseDetailPage() {
     apiClient
       .get(`/courses/${params.courseId}`)
       .then(({ data }) => setCourse(data))
-      .catch(() => {})
+      // A course from another school answers 404 — isolation working as it
+      // should. The screen, though, stayed in its loading skeleton for ever
+      // and read as a broken page (specs/058).
+      .catch(() => setMissing(true))
       .finally(() => setLoading(false));
 
     apiClient
@@ -114,6 +118,23 @@ export default function CourseDetailPage() {
       setEnrolling(false);
     }
   };
+
+  /* ── course we may not read ──────────────────────────────────── */
+  if (missing) {
+    return (
+      <div className="mx-auto max-w-3xl p-6 text-center">
+        <p className="text-lg font-semibold text-ink-900">
+          {t("admin.courseEdit.notFound")}
+        </p>
+        <Link
+          href="/courses"
+          className="mt-4 inline-block text-sm text-ink-700 underline"
+        >
+          {t("nav.courses")}
+        </Link>
+      </div>
+    );
+  }
 
   /* ── loading skeleton ────────────────────────────────────────── */
   if (loading || !course) {
