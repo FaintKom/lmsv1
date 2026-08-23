@@ -12,6 +12,7 @@ Covers:
   - attendance roster/records scoped to a group = group members.
   - schedule slot create/update via group_id sets course_id from the group.
 """
+
 import uuid
 from datetime import date, datetime, time, timezone
 
@@ -53,8 +54,9 @@ async def _make_room(db, org, name="Room 1"):
     return room
 
 
-async def _make_slot(db, org, course, day_of_week, *, group_id=None, start=time(9, 0),
-                     end=time(10, 30), room_id=None):
+async def _make_slot(
+    db, org, course, day_of_week, *, group_id=None, start=time(9, 0), end=time(10, 30), room_id=None
+):
     slot = ScheduleSlot(
         org_id=org.id,
         course_id=course.id,
@@ -125,6 +127,28 @@ async def test_group_scheduling_fields_round_trip(client, admin, org, db):
     assert rows[gid]["course_id"] == str(course.id)
 
 
+async def test_group_teacher_must_be_able_to_teach(client, admin, org, db):
+    """The teacher slot of a group takes staff only.
+
+    The picker on /admin/groups lists teachers, but the endpoint accepted any
+    user id from the org. A student could be recorded as the teacher of their
+    own group, and the journal's teacher filter would then offer them as one.
+    """
+    student = await _new_user(db, org, UserRole.student, suffix="s")
+
+    resp = await client.post(
+        "/api/v1/admin/groups",
+        json={"name": "9B", "teacher_id": str(student.id)},
+        headers=auth_header(admin),
+    )
+    assert resp.status_code == 400, resp.text
+
+    # The group is not half-created: the check runs before the row is added.
+    resp = await client.get("/api/v1/admin/groups", headers=auth_header(admin))
+    assert resp.status_code == 200, resp.text
+    assert all(g["name"] != "9B" for g in resp.json())
+
+
 async def test_multiple_groups_per_course(client, admin, org, db):
     course = await make_course(db, org, admin)
     for name in ("3A morning", "3B evening"):
@@ -175,9 +199,7 @@ async def test_backfill_creates_default_group_links_and_members(client, teacher,
 
     # A default group was created for the course.
     group = (
-        await db.execute(
-            StudentGroup.__table__.select().where(StudentGroup.course_id == course.id)
-        )
+        await db.execute(StudentGroup.__table__.select().where(StudentGroup.course_id == course.id))
     ).first()
     assert group is not None
     gid = group.id
@@ -194,9 +216,7 @@ async def test_backfill_creates_default_group_links_and_members(client, teacher,
     # Members backfilled from enrollment.
     members = (
         await db.execute(
-            StudentGroupMember.__table__.select().where(
-                StudentGroupMember.group_id == gid
-            )
+            StudentGroupMember.__table__.select().where(StudentGroupMember.group_id == gid)
         )
     ).all()
     member_user_ids = {m.user_id for m in members}
@@ -211,9 +231,7 @@ async def test_backfill_creates_default_group_links_and_members(client, teacher,
         "members_added": 0,
     }
     groups = (
-        await db.execute(
-            StudentGroup.__table__.select().where(StudentGroup.course_id == course.id)
-        )
+        await db.execute(StudentGroup.__table__.select().where(StudentGroup.course_id == course.id))
     ).all()
     assert len(groups) == 1
 
@@ -230,9 +248,7 @@ async def test_backfill_skips_course_with_existing_group(client, teacher, org, d
     assert counters["groups_created"] == 0
     # Slot is linked to the existing group (only one group for the course).
     groups = (
-        await db.execute(
-            StudentGroup.__table__.select().where(StudentGroup.course_id == course.id)
-        )
+        await db.execute(StudentGroup.__table__.select().where(StudentGroup.course_id == course.id))
     ).all()
     assert len(groups) == 1
 
@@ -244,8 +260,11 @@ async def test_today_group_filter_and_name_override(client, teacher, org, db):
     course = await make_course(db, org, teacher)
     group_teacher = await _new_user(db, org, UserRole.teacher, suffix="gt")
     group = StudentGroup(
-        org_id=org.id, name="Group Alpha", course_id=course.id,
-        teacher_id=group_teacher.id, status="active",
+        org_id=org.id,
+        name="Group Alpha",
+        course_id=course.id,
+        teacher_id=group_teacher.id,
+        status="active",
     )
     db.add(group)
     await db.flush()
@@ -254,8 +273,9 @@ async def test_today_group_filter_and_name_override(client, teacher, org, db):
     await db.flush()
 
     # One group-linked slot + one course-only slot on the same weekday.
-    await _make_slot(db, org, course, DAY.weekday(), group_id=group.id,
-                     start=time(9, 0), end=time(10, 0))
+    await _make_slot(
+        db, org, course, DAY.weekday(), group_id=group.id, start=time(9, 0), end=time(10, 0)
+    )
     await _make_slot(db, org, course, DAY.weekday(), start=time(11, 0), end=time(12, 0))
 
     # Without group_id: both slots appear (course behavior unchanged).
@@ -301,10 +321,25 @@ async def test_sessions_and_day_scoped_to_group(client, teacher, org, db):
     db.add(StudentGroupMember(group_id=group.id, user_id=member.id))
 
     # Group-linked session + a course-only session on a different date.
-    db.add(ClassSession(org_id=org.id, course_id=course.id, group_id=group.id,
-                        session_date=DAY, held=True, topic="grp"))
-    db.add(ClassSession(org_id=org.id, course_id=course.id,
-                        session_date=date(2026, 5, 21), held=True, topic="course"))
+    db.add(
+        ClassSession(
+            org_id=org.id,
+            course_id=course.id,
+            group_id=group.id,
+            session_date=DAY,
+            held=True,
+            topic="grp",
+        )
+    )
+    db.add(
+        ClassSession(
+            org_id=org.id,
+            course_id=course.id,
+            session_date=date(2026, 5, 21),
+            held=True,
+            topic="course",
+        )
+    )
     await db.flush()
 
     # sessions scoped to group → only the group session.
@@ -330,8 +365,11 @@ async def test_sessions_and_day_scoped_to_group(client, teacher, org, db):
     # day roster scoped to group members only.
     r = await client.get(
         "/api/v1/journal/day",
-        params={"course_id": str(course.id), "session_date": DAY.isoformat(),
-                "group_id": str(group.id)},
+        params={
+            "course_id": str(course.id),
+            "session_date": DAY.isoformat(),
+            "group_id": str(group.id),
+        },
         headers=auth_header(teacher),
     )
     assert r.status_code == 200, r.text
@@ -383,10 +421,24 @@ async def test_attendance_records_scoped_to_group(client, teacher, org, db):
     member = await _new_user(db, org, UserRole.student, suffix="mem")
     nonmember = await _new_user(db, org, UserRole.student, suffix="non")
     db.add(StudentGroupMember(group_id=group.id, user_id=member.id))
-    db.add(AttendanceRecord(org_id=org.id, student_id=member.id, course_id=course.id,
-                            session_date=DAY, status=AttendanceStatus.present))
-    db.add(AttendanceRecord(org_id=org.id, student_id=nonmember.id, course_id=course.id,
-                            session_date=DAY, status=AttendanceStatus.absent))
+    db.add(
+        AttendanceRecord(
+            org_id=org.id,
+            student_id=member.id,
+            course_id=course.id,
+            session_date=DAY,
+            status=AttendanceStatus.present,
+        )
+    )
+    db.add(
+        AttendanceRecord(
+            org_id=org.id,
+            student_id=nonmember.id,
+            course_id=course.id,
+            session_date=DAY,
+            status=AttendanceStatus.absent,
+        )
+    )
     await db.flush()
 
     r = await client.get(
