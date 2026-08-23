@@ -2436,16 +2436,22 @@ function SlotRow({ initial, rooms, isNew, onSave, onDelete }: SlotRowProps) {
           />
           <Video className="h-3.5 w-3.5 text-text-muted" />
         </label>
+        {/* The draft row used to commit through a bare "+" while the rows
+            above it said "Save". Two faces for one action, and the eye goes
+            to the word: the draft got left behind (specs/059). */}
         <button
           onClick={() => save(false)}
           disabled={saving}
-          className="rounded-pill bg-primary px-2 py-1 text-2xs font-semibold text-primary-fg hover:bg-primary-hover disabled:opacity-50"
+          className="flex items-center gap-1 rounded-pill bg-primary px-2 py-1 text-2xs font-semibold text-primary-fg hover:bg-primary-hover disabled:opacity-50"
           title={isNew ? t("schedule.addSlot") : t("schedule.save")}
         >
           {saving ? (
             <Loader2 className="h-3.5 w-3.5 animate-spin" />
           ) : isNew ? (
-            <Plus className="h-3.5 w-3.5" />
+            <>
+              <Plus className="h-3.5 w-3.5" />
+              {t("schedule.addSlot")}
+            </>
           ) : (
             t("schedule.save")
           )}
