@@ -1964,3 +1964,53 @@ async def _award_xp(db: AsyncSession, user_id: uuid.UUID, amount: int, reason: s
         await award_xp(db, user_id, amount, reason)
     except Exception:
         logger.warning("XP award failed for user %s (reason=%s)", user_id, reason, exc_info=True)
+
+
+async def complete_lesson_if_exercises_passed(
+    db: AsyncSession, exercise_id: uuid.UUID, user: User
+) -> bool:
+    """Close the lesson once every exercise in it is solved.
+
+    A lesson made of exercises had no way to finish. The "mark lesson as
+    complete" button is deliberately hidden while a lesson carries exercises —
+    solving them is what finishes it — but nothing ever did the finishing. Such
+    a lesson stayed open forever, the course never reached 100 %, and the
+    certificate that waits on it never arrived.
+
+    Returns True when this call closed the lesson, so callers and tests can
+    tell "solved the last one" from "solved one of three".
+    """
+    exercise = (
+        await db.execute(select(Exercise).where(Exercise.id == exercise_id))
+    ).scalar_one_or_none()
+    if exercise is None or exercise.lesson_id is None:
+        return False
+
+    sibling_ids = (
+        (await db.execute(select(Exercise.id).where(Exercise.lesson_id == exercise.lesson_id)))
+        .scalars()
+        .all()
+    )
+    if not sibling_ids:
+        return False
+
+    passed_ids = set(
+        (
+            await db.execute(
+                select(ExerciseSubmission.exercise_id).where(
+                    ExerciseSubmission.exercise_id.in_(sibling_ids),
+                    ExerciseSubmission.student_id == user.id,
+                    ExerciseSubmission.passed.is_(True),
+                )
+            )
+        )
+        .scalars()
+        .all()
+    )
+    if not set(sibling_ids).issubset(passed_ids):
+        return False
+
+    from app.progress.service import complete_lesson
+
+    await complete_lesson(db, exercise.lesson_id, user)
+    return True
