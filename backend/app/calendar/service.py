@@ -166,7 +166,7 @@ async def list_events(
                             "description": slot.get("room_name") or slot.get("location") or "",
                             "event_type": "lesson",
                             "start_time": when.isoformat(),
-                            "end_time": None,
+                            "end_time": _slot_end(slot, when),
                             "all_day": False,
                             "course_id": str(slot["course_id"]) if slot.get("course_id") else None,
                             "group_id": str(slot["group_id"]) if slot.get("group_id") else None,
@@ -186,6 +186,19 @@ async def list_events(
 # A window wider than a term is somebody's fat finger, not a real request:
 # expanding it would build thousands of rows for one screen.
 _MAX_EXPANDED_DAYS = 120
+
+
+def _slot_end(slot: dict, when: datetime) -> str | None:
+    """When the class ends, on the day it starts.
+
+    A lesson without an end reads as a point in time, and the calendar draws
+    it as one — no duration, no clash with the next class (specs/060).
+    """
+    try:
+        hour, minute = (int(part) for part in str(slot["end_time"]).split(":")[:2])
+    except (KeyError, TypeError, ValueError):
+        return None
+    return datetime.combine(when.date(), time(hour=hour, minute=minute)).isoformat()
 
 
 def _weekly_occurrences(slot: dict, start: datetime, end: datetime) -> list[datetime]:
