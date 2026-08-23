@@ -1780,6 +1780,7 @@ const en: TranslationMap = {
  "admin.organizations.deactivateTitle": "Deactivate",
  "admin.organizations.deleteTitle": "Delete organization",
  "admin.organizations.createdLabel": "Created",
+ "admin.organizations.confirmDeactivate": "Switch \"{name}\" off? Everyone in that school stops being able to sign in until it is switched back on.",
  "admin.organizations.confirmDelete": "Delete \"{name}\"? This will remove all users, courses, and data in this organization. This action cannot be undone.",
  "admin.organizations.orgUpdated": "Organization updated",
  "admin.organizations.orgCreated": "Organization created",

@@ -1780,6 +1780,7 @@ const uk: TranslationMap = {
  "admin.organizations.deactivateTitle": "Деактивувати",
  "admin.organizations.deleteTitle": "Видалити організацію",
  "admin.organizations.createdLabel": "Створено",
+ "admin.organizations.confirmDeactivate": "Вимкнути \"{name}\"? Ніхто з цієї школи не зможе увійти, доки її не увімкнуть знову.",
  "admin.organizations.confirmDelete": "Видалити \"{name}\"? Буде видалено всіх користувачів, курси та дані цієї організації. Це не можна скасувати.",
  "admin.organizations.orgUpdated": "Організацію оновлено",
  "admin.organizations.orgCreated": "Організацію створено",

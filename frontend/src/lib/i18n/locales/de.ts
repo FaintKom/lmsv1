@@ -1780,6 +1780,7 @@ const de: TranslationMap = {
  "admin.organizations.deactivateTitle": "Deaktivieren",
  "admin.organizations.deleteTitle": "Organisation löschen",
  "admin.organizations.createdLabel": "Erstellt",
+ "admin.organizations.confirmDeactivate": "\"{name}\" abschalten? Niemand aus dieser Schule kann sich anmelden, bis sie wieder eingeschaltet wird.",
  "admin.organizations.confirmDelete": "\"{name}\" löschen? Dies entfernt alle Benutzer, Kurse und Daten dieser Organisation. Diese Aktion kann nicht rückgängig gemacht werden.",
  "admin.organizations.orgUpdated": "Organisation aktualisiert",
  "admin.organizations.orgCreated": "Organisation erstellt",
