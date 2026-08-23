@@ -1171,6 +1171,7 @@ const uk: TranslationMap = {
  "admin.users.methodist": "Методист",
  "admin.users.regular": "Звичайний",
  "admin.users.organization": "Організація",
+ "admin.users.myOrg": "Школа, у якій я зараз",
  "admin.users.confirmDelete": "Ви впевнені, що хочете видалити цього користувача?",
  "admin.users.userCreated": "Користувача створено",
  "admin.users.userDeleted": "Користувача видалено",

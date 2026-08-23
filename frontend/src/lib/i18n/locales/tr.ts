@@ -1112,6 +1112,7 @@ const tr: TranslationMap = {
  "admin.users.methodist": "Metodist",
  "admin.users.regular": "Standart",
  "admin.users.organization": "Organizasyon",
+ "admin.users.myOrg": "Bulunduğum okul",
  "admin.users.confirmDelete": "Bu kullanıcıyı silmek istediğinize emin misiniz?",
  "admin.users.userCreated": "Kullanıcı oluşturuldu",
  "admin.users.userDeleted": "Kullanıcı silindi",
