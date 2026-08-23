@@ -243,6 +243,104 @@ async def test_super_admin_can_delete_org(client: AsyncClient, super_admin, org2
 
 
 @pytest.mark.asyncio
+async def test_super_admin_can_delete_org_that_has_users(
+    client: AsyncClient, super_admin, org2, db
+):
+    """A school with people in it, which is the only kind anyone deletes.
+
+    `test_super_admin_can_delete_org` deletes an org nobody belongs to, so it
+    never touched the `organizations` → `users` relationship and stayed green
+    while prod 500'd on every real school (Sentry, 2026-08-22). The ORM's default
+    on a parent delete is to nullify the children — `UPDATE users SET
+    org_id=NULL` — and `users.org_id` is NOT NULL, so Postgres refused. The
+    foreign key has carried ON DELETE CASCADE the whole time; nothing was ever
+    letting it run.
+    """
+    from sqlalchemy import select
+
+    from app.auth.models import User, UserRole
+    from tests.conftest import _make_user
+
+    org2_id = org2.id
+    _make_user(db, org2, UserRole.admin, suffix="-doomed")
+    _make_user(db, org2, UserRole.student, suffix="-doomed")
+    await db.flush()
+
+    before = (await db.execute(select(User.id).where(User.org_id == org2_id))).scalars().all()
+    assert len(before) == 2, "fixture did not populate the org"
+
+    resp = await client.delete(
+        f"/api/v1/admin/organizations/{org2_id}",
+        headers=auth_header(super_admin),
+    )
+    assert resp.status_code == 200, resp.text
+
+    after = (await db.execute(select(User.id).where(User.org_id == org2_id))).scalars().all()
+    assert after == [], "the database cascade did not carry the users away"
+
+
+@pytest.mark.asyncio
+async def test_super_admin_can_create_org(client: AsyncClient, super_admin):
+    """The endpoint had no test at all, and its import named the wrong module.
+
+    `python-slugify` is the distribution; `slugify` is what you import. The
+    call sat inside the function body, so the mistake surfaced as a 500 on the
+    first attempt to create a school rather than at startup or import.
+    """
+    resp = await client.post(
+        "/api/v1/admin/organizations",
+        json={"name": "Bright Future Academy"},
+        headers=auth_header(super_admin),
+    )
+    assert resp.status_code == 200, resp.text
+    body = resp.json()
+    assert body["name"] == "Bright Future Academy"
+    assert body["slug"] == "bright-future-academy"
+
+
+@pytest.mark.asyncio
+async def test_create_org_gives_a_colliding_name_its_own_slug(client: AsyncClient, super_admin):
+    """Two schools may share a name; `organizations.slug` is unique.
+
+    The name is unique per run rather than fixed: a local database that kept
+    rows from earlier manual testing would otherwise decide what the slug
+    counter starts at.
+    """
+    name = f"Lincoln High {uuid.uuid4().hex[:8]}"
+    slugs = []
+    for _ in range(2):
+        resp = await client.post(
+            "/api/v1/admin/organizations",
+            json={"name": name},
+            headers=auth_header(super_admin),
+        )
+        assert resp.status_code == 200, resp.text
+        slugs.append(resp.json()["slug"])
+
+    assert slugs[1] == f"{slugs[0]}-1"
+
+
+@pytest.mark.asyncio
+async def test_create_org_requires_a_name(client: AsyncClient, super_admin):
+    resp = await client.post(
+        "/api/v1/admin/organizations",
+        json={"name": "   "},
+        headers=auth_header(super_admin),
+    )
+    assert resp.status_code == 400
+
+
+@pytest.mark.asyncio
+async def test_create_org_requires_super_admin(client: AsyncClient, admin):
+    resp = await client.post(
+        "/api/v1/admin/organizations",
+        json={"name": "Not Yours"},
+        headers=auth_header(admin),
+    )
+    assert resp.status_code == 403
+
+
+@pytest.mark.asyncio
 async def test_super_admin_cannot_delete_own_org(client: AsyncClient, super_admin, org):
     resp = await client.delete(
         f"/api/v1/admin/organizations/{org.id}",

@@ -40,7 +40,14 @@ class Organization(Base, IDMixin, TimestampMixin):
     is_active: Mapped[bool] = mapped_column(Boolean, default=True)
     settings: Mapped[dict] = mapped_column(JSONB, default=dict)
 
-    users: Mapped[list["User"]] = relationship(back_populates="organization")
+    # `passive_deletes=True` because `users.org_id` is NOT NULL and its foreign
+    # key already carries ON DELETE CASCADE. Without it the ORM's default on
+    # `db.delete(org)` is to *nullify* the children first — it issues
+    # `UPDATE users SET org_id=NULL` before the DELETE, and Postgres rejects it
+    # with NotNullViolationError, so deleting a school that has people in it
+    # 500s (prod, 2026-08-22). This hands the deletion to the database, which
+    # every one of the 33 `org_id` foreign keys is already declared for.
+    users: Mapped[list["User"]] = relationship(back_populates="organization", passive_deletes=True)
 
 
 class User(Base, IDMixin, TimestampMixin):
