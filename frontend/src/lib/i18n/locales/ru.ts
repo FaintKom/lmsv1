@@ -349,6 +349,7 @@ const ru: TranslationMap = {
  "dash.avgProgress": "Средний прогресс",
  "dash.streak": "Дней подряд",
  "dash.continue": "Продолжить обучение",
+  "dash.recentGrades": "Последние оценки",
  "dash.getStarted": "Начать",
  "dash.noActivity": "Пока нет активности",
  "dash.enrollPrompt": "Запишитесь на курс, чтобы начать обучение!",

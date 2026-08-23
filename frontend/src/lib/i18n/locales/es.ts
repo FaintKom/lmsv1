@@ -349,6 +349,7 @@ const es: TranslationMap = {
  "dash.avgProgress": "Progreso Promedio",
  "dash.streak": "Racha de Días",
  "dash.continue": "Continuar Aprendiendo",
+  "dash.recentGrades": "Notas recientes",
  "dash.getStarted": "Comenzar",
  "dash.noActivity": "Sin actividad aún",
  "dash.enrollPrompt": "¡Inscríbete en un curso para comenzar a aprender!",
