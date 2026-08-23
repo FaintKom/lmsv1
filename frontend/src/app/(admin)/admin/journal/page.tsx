@@ -39,6 +39,7 @@ import {
 } from "lucide-react";
 
 import apiClient from "@/lib/api-client";
+import { mondayOf, shiftISO, todayISO } from "@/lib/date-iso";
 import { useAuthStore } from "@/stores/auth-store";
 import { useTranslation } from "@/lib/i18n/context";
 import { buildJoinUrl } from "@/lib/meetings";
@@ -132,23 +133,9 @@ interface TeacherOption {
   full_name: string;
 }
 
-function todayISO(): string {
-  return new Date().toISOString().slice(0, 10);
-}
-
-function shiftISO(iso: string, days: number): string {
-  const d = new Date(iso + "T00:00:00");
-  d.setDate(d.getDate() + days);
-  return d.toISOString().slice(0, 10);
-}
-
-/** Monday (ISO) of the week containing `iso` (week starts Monday). */
-function mondayOf(iso: string): string {
-  const d = new Date(iso + "T00:00:00");
-  const dow = (d.getDay() + 6) % 7; // 0 = Monday … 6 = Sunday
-  d.setDate(d.getDate() - dow);
-  return d.toISOString().slice(0, 10);
-}
+// Calendar days live in @/lib/date-iso now. The copies that stood here printed
+// local midnight as a UTC instant, so each one handed back the previous day
+// east of Greenwich and the week board drifted a day per call (specs/057).
 
 // ── Page ──────────────────────────────────────────────────────────────────
 
