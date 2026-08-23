@@ -41,6 +41,9 @@ async def test_enrolled_student_sees_the_lesson(client, student, teacher, org, d
     lessons = [e for e in resp.json() if e["source"] == "lesson"]
     assert len(lessons) == 1
     assert lessons[0]["start_time"].startswith("2026-08-25T17:00")
+    # A class lasts an hour and a half; without an end the calendar draws it
+    # as a point, and a clash with the next class stays invisible (specs/060).
+    assert lessons[0]["end_time"].startswith("2026-08-25T18:30")
 
 
 async def test_student_of_another_course_sees_nothing(client, student, teacher, org, db):
