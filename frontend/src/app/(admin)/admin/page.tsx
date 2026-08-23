@@ -152,6 +152,9 @@ export default function AdminDashboardPage() {
   // null while loading, [] when the day is genuinely empty — a refusal must
   // not be drawn as "nothing scheduled" (specs/061).
   const [today, setToday] = useState<TodayLesson[] | null>(null);
+  // Groups nobody teaches — the one thing on this screen an administrator
+  // can act on today. null means we could not ask, not "none" (specs/061).
+  const [groupsNoTeacher, setGroupsNoTeacher] = useState<number | null>(null);
   const [copied, setCopied] = useState(false);
   const [onboardingDismissed, setOnboardingDismissed] = useState(() => {
     if (typeof window === "undefined") return true;
@@ -187,6 +190,20 @@ export default function AdminDashboardPage() {
         .get("/admin/dashboard")
         .then(({ data }) => setStats(data))
         .catch(() => {});
+      apiClient
+        .get("/journal/today")
+        .then(({ data }) => setToday(data.agenda ?? []))
+        .catch(() => setToday([]));
+      apiClient
+        .get("/admin/groups")
+        .then(({ data }) =>
+          setGroupsNoTeacher(
+            (data || []).filter(
+              (g: { teacher_id: string | null }) => !g.teacher_id,
+            ).length,
+          ),
+        )
+        .catch(() => setGroupsNoTeacher(null));
     }
   }, [isTeacher, user?.id]);
 
@@ -546,6 +563,33 @@ export default function AdminDashboardPage() {
             </div>
           </div>
         )}
+
+      {/* ── The day, and what needs a decision ────────────────────
+          Four totals answered "how big is the school". These two answer
+          "what do I do now" — the question an administrator opens the
+          page with (specs/061). */}
+      <div className="mb-6 grid grid-cols-1 gap-3 sm:grid-cols-2">
+        <Link
+          href="/admin/journal"
+          className="rounded-md border border-border bg-surface p-5 transition-colors hover:bg-surface-muted/50"
+        >
+          <p className="eyebrow mb-1">{t("journal.today")}</p>
+          <p className="text-xl font-extrabold tabular-nums text-text">
+            {today === null ? "…" : today.length}
+          </p>
+        </Link>
+        {groupsNoTeacher !== null && groupsNoTeacher > 0 && (
+          <Link
+            href="/admin/groups"
+            className="rounded-md border border-clay-300 bg-surface p-5 transition-colors hover:bg-surface-muted/50"
+          >
+            <p className="eyebrow mb-1">{t("admin.dashboard.needsDecision")}</p>
+            <p className="text-sm font-bold text-text">
+              {t("admin.dashboard.groupsWithoutTeacher")}: {groupsNoTeacher}
+            </p>
+          </Link>
+        )}
+      </div>
 
       {/* ── KPI strip ─────────────────────────────────────────── */}
       <div className="mb-6 grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-4">

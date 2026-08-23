@@ -1919,6 +1919,8 @@ const uk: TranslationMap = {
   "admin.groups.noStudentsVisible":
     "Немає кого додати. Учнів розподіляє адміністратор.",
   "admin.dashboard.noLessonsToday": "Сьогодні занять немає.",
+  "admin.dashboard.needsDecision": "Потребує рішення",
+  "admin.dashboard.groupsWithoutTeacher": "Груп без учителя",
 
  // Admin org-members
  "admin.orgMembers.title": "Учасники організації",
