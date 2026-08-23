@@ -1173,6 +1173,7 @@ const en: TranslationMap = {
  "admin.users.methodist": "Methodist",
  "admin.users.regular": "Regular",
  "admin.users.organization": "Organization",
+ "admin.users.myOrg": "The school I am in",
  "admin.users.confirmDelete": "Are you sure you want to delete this user?",
  "admin.users.userCreated": "User created successfully",
  "admin.users.userDeleted": "User deleted",

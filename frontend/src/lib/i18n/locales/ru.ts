@@ -1121,6 +1121,7 @@ const ru: TranslationMap = {
  "admin.users.methodist": "Методист",
  "admin.users.regular": "Обычный",
  "admin.users.organization": "Организация",
+ "admin.users.myOrg": "Школа, в которой я сейчас",
  "admin.users.confirmDelete": "Вы уверены, что хотите удалить этого пользователя?",
  "admin.users.userCreated": "Пользователь создан",
  "admin.users.userDeleted": "Пользователь удалён",

@@ -40,7 +40,7 @@ export default function AdminUsersPage() {
  const [orgs, setOrgs] = useState<OrgOption[]>([]);
  const [loading, setLoading] = useState(true);
  const [showForm, setShowForm] = useState(false);
- const [form, setForm] = useState({ full_name: "", email: "", password: "", role: "student" });
+ const [form, setForm] = useState({ full_name: "", email: "", password: "", role: "student", org_id: "" });
  const [submitting, setSubmitting] = useState(false);
 
  const fetchUsers = () => {
@@ -78,8 +78,11 @@ export default function AdminUsersPage() {
  e.preventDefault();
  setSubmitting(true);
  try {
- await apiClient.post("/admin/users", form);
- setForm({ full_name: "", email: "", password: "", role: "student" });
+ // An empty org_id means "the school I am in" — the server reads a
+ // missing key that way, and sending "" would fail its UUID parse.
+ const { org_id, ...rest } = form;
+ await apiClient.post("/admin/users", org_id ? { ...rest, org_id } : rest);
+ setForm({ full_name: "", email: "", password: "", role: "student", org_id: "" });
  setShowForm(false);
  toast.success(t("admin.users.userCreated"));
  fetchUsers();
@@ -242,6 +245,25 @@ export default function AdminUsersPage() {
  <option value="teacher">teacher</option>
  <option value="admin">admin</option>
  </select>
+ {/* A super admin creating the first administrator of a brand-new school
+   had nowhere to say which school: the account landed in whatever org
+   they happened to be in, and the only way back was the organization
+   dropdown in the table below (specs/053). */}
+ {isSuperAdmin && (
+ <select
+ value={form.org_id}
+ onChange={(e) => setForm({ ...form, org_id: e.target.value })}
+ aria-label={t("admin.users.organization")}
+ className="rounded-lg border border-border-strong bg-transparent px-3 py-2 text-sm focus:border-primary focus:outline-none focus:ring-1 focus:ring-green-500"
+ >
+ <option value="">{t("admin.users.myOrg")}</option>
+ {orgs.map((o) => (
+ <option key={o.id} value={o.id}>
+ {o.name}
+ </option>
+ ))}
+ </select>
+ )}
  <div className="flex gap-2 sm:col-span-2">
  <Button type="submit" disabled={submitting}>
  {submitting ? t("common.creating") : t("admin.users.createUser")}

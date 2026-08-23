@@ -1173,6 +1173,7 @@ const de: TranslationMap = {
  "admin.users.methodist": "Methodist",
  "admin.users.regular": "Regulär",
  "admin.users.organization": "Organisation",
+ "admin.users.myOrg": "Die Schule, in der ich bin",
  "admin.users.confirmDelete": "Möchten Sie diesen Benutzer wirklich löschen?",
  "admin.users.userCreated": "Benutzer erfolgreich erstellt",
  "admin.users.userDeleted": "Benutzer gelöscht",

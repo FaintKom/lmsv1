@@ -1111,6 +1111,7 @@ const es: TranslationMap = {
  "admin.users.methodist": "Metodólogo",
  "admin.users.regular": "Regular",
  "admin.users.organization": "Organización",
+ "admin.users.myOrg": "El centro en el que estoy",
  "admin.users.confirmDelete": "¿Seguro que quieres eliminar este usuario?",
  "admin.users.userCreated": "Usuario creado correctamente",
  "admin.users.userDeleted": "Usuario eliminado",
