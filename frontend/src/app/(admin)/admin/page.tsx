@@ -134,6 +134,12 @@ function QuickLink({
   );
 }
 
+/** Who is slipping and what the journal is still missing (/journal/attention). */
+type Attention = {
+  students: { id: string; full_name: string; missed: number }[];
+  unfilled: { session_id: string; session_date: string; course_title: string }[];
+};
+
 /** One line of the teacher's day, as /journal/today returns it. */
 type TodayLesson = {
   slot_id: string;
@@ -155,6 +161,10 @@ export default function AdminDashboardPage() {
   // Groups nobody teaches — the one thing on this screen an administrator
   // can act on today. null means we could not ask, not "none" (specs/061).
   const [groupsNoTeacher, setGroupsNoTeacher] = useState<number | null>(null);
+  const [attention, setAttention] = useState<Attention | null>(null);
+  // Two classes in one room at the same hour. Not a statistic — a mistake
+  // somebody has to undo before the bell rings (specs/061).
+  const [roomClashes, setRoomClashes] = useState<number | null>(null);
   const [copied, setCopied] = useState(false);
   const [onboardingDismissed, setOnboardingDismissed] = useState(() => {
     if (typeof window === "undefined") return true;
@@ -185,6 +195,10 @@ export default function AdminDashboardPage() {
         .get("/journal/today", { params: { teacher_id: user?.id } })
         .then(({ data }) => setToday(data.agenda ?? []))
         .catch(() => setToday([]));
+      apiClient
+        .get("/journal/attention")
+        .then(({ data }) => setAttention(data))
+        .catch(() => setAttention({ students: [], unfilled: [] }));
     } else {
       apiClient
         .get("/admin/dashboard")
@@ -204,6 +218,10 @@ export default function AdminDashboardPage() {
           ),
         )
         .catch(() => setGroupsNoTeacher(null));
+      apiClient
+        .get("/journal/room-board")
+        .then(({ data }) => setRoomClashes((data.conflicts ?? []).length))
+        .catch(() => setRoomClashes(null));
     }
   }, [isTeacher, user?.id]);
 
@@ -263,6 +281,67 @@ export default function AdminDashboardPage() {
             ))}
           </div>
         </div>
+
+        {/* Who is slipping, and what the journal is still missing. Both were
+            already in the data and nowhere on screen (specs/061). */}
+        {attention &&
+          (attention.students.length > 0 || attention.unfilled.length > 0) && (
+            <div className="mb-6 grid grid-cols-1 gap-3 lg:grid-cols-2">
+              {attention.students.length > 0 && (
+                <div className="rounded-md border border-border bg-surface">
+                  <div className="flex items-center gap-2 border-b border-border px-5 py-3.5">
+                    <Users className="h-4 w-4 text-danger-fg" />
+                    <h3 className="text-sm font-extrabold text-text">
+                      {t("admin.dashboard.needsAttention")}
+                    </h3>
+                  </div>
+                  <div className="divide-y divide-border">
+                    {attention.students.map((s) => (
+                      <Link
+                        key={s.id}
+                        href="/admin/journal"
+                        className="flex items-center justify-between px-5 py-3 hover:bg-surface-muted/50"
+                      >
+                        <span className="truncate text-sm text-text">
+                          {s.full_name}
+                        </span>
+                        <span className="ml-3 shrink-0 rounded-pill bg-danger-soft px-2 py-0.5 text-2xs font-bold text-danger-fg">
+                          {t("admin.dashboard.missedClasses")}: {s.missed}
+                        </span>
+                      </Link>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {attention.unfilled.length > 0 && (
+                <div className="rounded-md border border-border bg-surface">
+                  <div className="flex items-center gap-2 border-b border-border px-5 py-3.5">
+                    <ClipboardList className="h-4 w-4 text-clay-500" />
+                    <h3 className="text-sm font-extrabold text-text">
+                      {t("admin.dashboard.journalUnfilled")}
+                    </h3>
+                  </div>
+                  <div className="divide-y divide-border">
+                    {attention.unfilled.map((s) => (
+                      <Link
+                        key={s.session_id}
+                        href="/admin/journal"
+                        className="flex items-center gap-3 px-5 py-3 hover:bg-surface-muted/50"
+                      >
+                        <span className="font-mono text-2xs font-bold text-text-subtle">
+                          {s.session_date}
+                        </span>
+                        <span className="flex-1 truncate text-sm text-text">
+                          {s.course_title}
+                        </span>
+                      </Link>
+                    ))}
+                  </div>
+                </div>
+              )}
+            </div>
+          )}
 
         {/* KPI strip */}
         <div className="mb-6 grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-4">
@@ -578,15 +657,25 @@ export default function AdminDashboardPage() {
             {today === null ? "…" : today.length}
           </p>
         </Link>
-        {groupsNoTeacher !== null && groupsNoTeacher > 0 && (
+        {((groupsNoTeacher !== null && groupsNoTeacher > 0) ||
+          (roomClashes !== null && roomClashes > 0)) && (
           <Link
-            href="/admin/groups"
+            href={
+              groupsNoTeacher ? "/admin/groups" : "/admin/journal?tab=schedule"
+            }
             className="rounded-md border border-clay-300 bg-surface p-5 transition-colors hover:bg-surface-muted/50"
           >
             <p className="eyebrow mb-1">{t("admin.dashboard.needsDecision")}</p>
-            <p className="text-sm font-bold text-text">
-              {t("admin.dashboard.groupsWithoutTeacher")}: {groupsNoTeacher}
-            </p>
+            {groupsNoTeacher !== null && groupsNoTeacher > 0 && (
+              <p className="text-sm font-bold text-text">
+                {t("admin.dashboard.groupsWithoutTeacher")}: {groupsNoTeacher}
+              </p>
+            )}
+            {roomClashes !== null && roomClashes > 0 && (
+              <p className="text-sm font-bold text-text">
+                {t("admin.dashboard.roomClashes")}: {roomClashes}
+              </p>
+            )}
           </Link>
         )}
       </div>

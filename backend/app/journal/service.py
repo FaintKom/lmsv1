@@ -24,7 +24,7 @@ import io
 import uuid
 from datetime import date, datetime, time, timedelta, timezone
 
-from sqlalchemy import func, select
+from sqlalchemy import exists, func, select
 from sqlalchemy import update as sa_update
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -44,7 +44,7 @@ from app.assessments.models import Quiz, QuizSubmission
 from app.assignments.models import Assignment, AssignmentStatus, AssignmentSubmission
 from app.attendance.models import AttendanceRecord, AttendanceStatus
 from app.auth.models import User, UserRole
-from app.common.teacher_scope import teacher_student_ids
+from app.common.teacher_scope import teacher_course_ids, teacher_student_ids
 from app.courses.models import Course, Lesson, Module
 from app.curriculum.models import CurriculumTopic
 from app.exercises.models import Exercise, ExerciseSubmission
@@ -171,6 +171,93 @@ async def _group_member_ids(db: AsyncSession, group_id: uuid.UUID) -> list[uuid.
         )
     ).all()
     return [r[0] for r in rows]
+
+
+# ── What the teacher should look at today ───────────────────────────────────
+
+# A month is long enough to show a pattern and short enough to still be news.
+_ATTENTION_WINDOW_DAYS = 30
+
+# One missed class is life; two is a pattern worth a phone call.
+_ATTENTION_MIN_ABSENCES = 2
+
+# The screen shows a handful, not a report — the rest live in the journal.
+_ATTENTION_LIMIT = 5
+
+
+async def get_attention(db: AsyncSession, user: User) -> dict:
+    """Who is slipping, and which journal days the teacher still owes.
+
+    Both answers already existed in the data and nowhere on screen (specs/061).
+    Scope follows the owner's rule: a plain teacher sees only their own people
+    and their own courses; org-wide staff see the school.
+
+    Returns ``{"students": [...], "unfilled": [...]}``.
+    """
+    require_stats_role(user)
+    since = date.today() - timedelta(days=_ATTENTION_WINDOW_DAYS)
+
+    course_ids: list[uuid.UUID] | None = None
+    student_ids: list[uuid.UUID] | None = None
+    if not _is_org_wide(user):
+        course_ids = await teacher_course_ids(db, user)
+        student_ids = await teacher_student_ids(db, user)
+
+    students: list[dict] = []
+    if student_ids is None or student_ids:
+        misses = func.count(AttendanceRecord.id).label("misses")
+        absent_q = (
+            select(AttendanceRecord.student_id, User.full_name, misses)
+            .join(User, AttendanceRecord.student_id == User.id)
+            .where(
+                AttendanceRecord.org_id == user.org_id,
+                AttendanceRecord.session_date >= since,
+                AttendanceRecord.status == AttendanceStatus.absent,
+            )
+            .group_by(AttendanceRecord.student_id, User.full_name)
+            .having(misses >= _ATTENTION_MIN_ABSENCES)
+            .order_by(misses.desc())
+            .limit(_ATTENTION_LIMIT)
+        )
+        if student_ids is not None:
+            absent_q = absent_q.where(AttendanceRecord.student_id.in_(student_ids))
+        students = [
+            {"id": str(sid), "full_name": name or "", "missed": int(count)}
+            for sid, name, count in (await db.execute(absent_q)).all()
+        ]
+
+    unfilled: list[dict] = []
+    if course_ids is None or course_ids:
+        # A day marked "held" with not one attendance row is a day nobody
+        # registered — the teacher's own unfinished business.
+        nothing_marked = ~exists().where(
+            AttendanceRecord.course_id == ClassSession.course_id,
+            AttendanceRecord.session_date == ClassSession.session_date,
+        )
+        unfilled_q = (
+            select(ClassSession.id, ClassSession.session_date, Course.title)
+            .join(Course, ClassSession.course_id == Course.id)
+            .where(
+                ClassSession.org_id == user.org_id,
+                ClassSession.held.is_(True),
+                ClassSession.session_date >= since,
+                nothing_marked,
+            )
+            .order_by(ClassSession.session_date.desc())
+            .limit(_ATTENTION_LIMIT)
+        )
+        if course_ids is not None:
+            unfilled_q = unfilled_q.where(ClassSession.course_id.in_(course_ids))
+        unfilled = [
+            {
+                "session_id": str(sid),
+                "session_date": day.isoformat(),
+                "course_title": title or "",
+            }
+            for sid, day, title in (await db.execute(unfilled_q)).all()
+        ]
+
+    return {"students": students, "unfilled": unfilled}
 
 
 # ── Teacher directory (filter dropdown) ─────────────────────────────────────

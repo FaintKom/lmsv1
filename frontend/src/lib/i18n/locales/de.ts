@@ -1920,6 +1920,10 @@ const de: TranslationMap = {
     "Keine Schüler zum Hinzufügen. Zuerst weist die Verwaltung dir Schüler zu.",
   "admin.dashboard.noLessonsToday": "Heute kein Unterricht.",
   "admin.dashboard.needsDecision": "Entscheidung nötig",
+  "admin.dashboard.needsAttention": "Brauchen Aufmerksamkeit",
+  "admin.dashboard.missedClasses": "Versäumt",
+  "admin.dashboard.journalUnfilled": "Klassenbuch offen",
+  "admin.dashboard.roomClashes": "Raumkonflikte heute",
   "admin.dashboard.groupsWithoutTeacher": "Gruppen ohne Lehrkraft",
 
  // Admin org-members
@@ -1975,8 +1979,8 @@ const de: TranslationMap = {
  "admin.bulkEnroll.autoLabel": "auto",
  "admin.bulkEnroll.defaultLabel": "Standard",
  "admin.bulkEnroll.randomLabel": "zufällig",
- "admin.bulkEnroll.importAndEnroll": "{n} Schüler importieren & einschreiben",
- "admin.bulkEnroll.importStudents": "{n} Schüler importieren",
+ "admin.bulkEnroll.importAndEnroll": "Importieren & einschreiben: {n}",
+ "admin.bulkEnroll.importStudents": "Importieren: {n}",
  "admin.bulkEnroll.importing": "Wird importiert...",
  "admin.bulkEnroll.importResults": "Import-Ergebnisse",
  "admin.bulkEnroll.statTotal": "Gesamt",

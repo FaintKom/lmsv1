@@ -198,11 +198,11 @@ export default function CourseDetailPage() {
           <div className="mb-6 flex items-center gap-3">
             <span className="flex items-center gap-1.5 rounded-pill bg-white/15 px-3 py-1 font-mono text-2xs font-semibold text-white/90">
               <BookOpen className="h-3.5 w-3.5" />
-              {course.modules?.length || 0} {t("courses.modules")}
+              {t("courses.modules")}: {course.modules?.length || 0}
             </span>
             <span className="flex items-center gap-1.5 rounded-pill bg-white/15 px-3 py-1 font-mono text-2xs font-semibold text-white/90">
               <FileText className="h-3.5 w-3.5" />
-              {totalLessons} {t("courses.lessons")}
+              {t("courses.lessons")}: {totalLessons}
             </span>
           </div>
 
@@ -260,7 +260,7 @@ export default function CourseDetailPage() {
                 {module.title}
               </h2>
               <span className="font-mono text-2xs text-text-muted">
-                {module.lessons?.length || 0} {t("courses.lessons")}
+                {t("courses.lessons")}: {module.lessons?.length || 0}
               </span>
             </div>
 
