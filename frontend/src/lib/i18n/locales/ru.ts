@@ -1871,6 +1871,7 @@ const ru: TranslationMap = {
   "admin.dashboard.needsAttention": "Кто отстаёт",
   "admin.dashboard.missedClasses": "Пропущено",
   "admin.dashboard.journalUnfilled": "Журнал не заполнен",
+  "admin.dashboard.roomClashes": "Накладки по кабинетам сегодня",
   "admin.dashboard.groupsWithoutTeacher": "Групп без учителя",
 
  // Admin org-members

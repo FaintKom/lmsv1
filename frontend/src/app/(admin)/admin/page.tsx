@@ -162,6 +162,9 @@ export default function AdminDashboardPage() {
   // can act on today. null means we could not ask, not "none" (specs/061).
   const [groupsNoTeacher, setGroupsNoTeacher] = useState<number | null>(null);
   const [attention, setAttention] = useState<Attention | null>(null);
+  // Two classes in one room at the same hour. Not a statistic — a mistake
+  // somebody has to undo before the bell rings (specs/061).
+  const [roomClashes, setRoomClashes] = useState<number | null>(null);
   const [copied, setCopied] = useState(false);
   const [onboardingDismissed, setOnboardingDismissed] = useState(() => {
     if (typeof window === "undefined") return true;
@@ -215,6 +218,10 @@ export default function AdminDashboardPage() {
           ),
         )
         .catch(() => setGroupsNoTeacher(null));
+      apiClient
+        .get("/journal/room-board")
+        .then(({ data }) => setRoomClashes((data.conflicts ?? []).length))
+        .catch(() => setRoomClashes(null));
     }
   }, [isTeacher, user?.id]);
 
@@ -650,15 +657,25 @@ export default function AdminDashboardPage() {
             {today === null ? "…" : today.length}
           </p>
         </Link>
-        {groupsNoTeacher !== null && groupsNoTeacher > 0 && (
+        {((groupsNoTeacher !== null && groupsNoTeacher > 0) ||
+          (roomClashes !== null && roomClashes > 0)) && (
           <Link
-            href="/admin/groups"
+            href={
+              groupsNoTeacher ? "/admin/groups" : "/admin/journal?tab=schedule"
+            }
             className="rounded-md border border-clay-300 bg-surface p-5 transition-colors hover:bg-surface-muted/50"
           >
             <p className="eyebrow mb-1">{t("admin.dashboard.needsDecision")}</p>
-            <p className="text-sm font-bold text-text">
-              {t("admin.dashboard.groupsWithoutTeacher")}: {groupsNoTeacher}
-            </p>
+            {groupsNoTeacher !== null && groupsNoTeacher > 0 && (
+              <p className="text-sm font-bold text-text">
+                {t("admin.dashboard.groupsWithoutTeacher")}: {groupsNoTeacher}
+              </p>
+            )}
+            {roomClashes !== null && roomClashes > 0 && (
+              <p className="text-sm font-bold text-text">
+                {t("admin.dashboard.roomClashes")}: {roomClashes}
+              </p>
+            )}
           </Link>
         )}
       </div>

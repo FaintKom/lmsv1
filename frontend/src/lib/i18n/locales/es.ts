@@ -1861,6 +1861,7 @@ const es: TranslationMap = {
   "admin.dashboard.needsAttention": "Requieren atención",
   "admin.dashboard.missedClasses": "Faltas",
   "admin.dashboard.journalUnfilled": "Registro sin completar",
+  "admin.dashboard.roomClashes": "Choques de aula hoy",
   "admin.dashboard.groupsWithoutTeacher": "Grupos sin profesor",
 
  // Admin org-members

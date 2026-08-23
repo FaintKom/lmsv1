@@ -1864,6 +1864,7 @@ const tr: TranslationMap = {
   "admin.dashboard.needsAttention": "İlgi bekleyenler",
   "admin.dashboard.missedClasses": "Devamsızlık",
   "admin.dashboard.journalUnfilled": "Yoklama girilmemiş",
+  "admin.dashboard.roomClashes": "Bugün derslik çakışması",
   "admin.dashboard.groupsWithoutTeacher": "Öğretmensiz gruplar",
 
  // Admin org-members

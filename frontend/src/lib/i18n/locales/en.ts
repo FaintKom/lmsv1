@@ -1923,6 +1923,7 @@ const en: TranslationMap = {
   "admin.dashboard.needsAttention": "Needs attention",
   "admin.dashboard.missedClasses": "Missed",
   "admin.dashboard.journalUnfilled": "Journal not filled in",
+  "admin.dashboard.roomClashes": "Room clashes today",
   "admin.dashboard.groupsWithoutTeacher": "Groups with no teacher",
 
  // Admin org-members

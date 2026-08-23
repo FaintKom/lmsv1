@@ -1923,6 +1923,7 @@ const de: TranslationMap = {
   "admin.dashboard.needsAttention": "Brauchen Aufmerksamkeit",
   "admin.dashboard.missedClasses": "Versäumt",
   "admin.dashboard.journalUnfilled": "Klassenbuch offen",
+  "admin.dashboard.roomClashes": "Raumkonflikte heute",
   "admin.dashboard.groupsWithoutTeacher": "Gruppen ohne Lehrkraft",
 
  // Admin org-members

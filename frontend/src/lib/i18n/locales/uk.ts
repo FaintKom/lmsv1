@@ -1923,6 +1923,7 @@ const uk: TranslationMap = {
   "admin.dashboard.needsAttention": "Хто відстає",
   "admin.dashboard.missedClasses": "Пропущено",
   "admin.dashboard.journalUnfilled": "Журнал не заповнено",
+  "admin.dashboard.roomClashes": "Накладки по кабінетах сьогодні",
   "admin.dashboard.groupsWithoutTeacher": "Груп без учителя",
 
  // Admin org-members
