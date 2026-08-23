@@ -7,7 +7,8 @@ methodist-facing metrics and gates access by role:
 RBAC / scoping (enforced in :func:`_course_scope_clause` +
 :func:`_authorize_course`):
 
-  - teacher                      → only their own courses (Course.teacher_id == user.id)
+  - teacher                      → courses they own, plus courses they teach
+                                   through a group they lead (specs/061)
   - is_methodist (any non-super) → all courses in their org
   - admin                        → all courses in their org
   - super_admin                  → all courses, all orgs (global)
