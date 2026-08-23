@@ -550,6 +550,16 @@ async def submit_exercise_endpoint(
     except Exception:  # noqa: BLE001 — a broken hook must never fail a submit
         pass
 
+    # Lesson-completion hook: a lesson made of exercises hides the "complete"
+    # button, so solving them has to be what closes it (specs/050).
+    if submission.passed:
+        try:
+            from app.exercises.service import complete_lesson_if_exercises_passed
+
+            await complete_lesson_if_exercises_passed(db, exercise_id, user)
+        except Exception:  # noqa: BLE001 — same rule: the work is already saved
+            pass
+
     resp = ExerciseSubmissionResponse.model_validate(submission)
 
     if hasattr(submission, "_per_item"):
