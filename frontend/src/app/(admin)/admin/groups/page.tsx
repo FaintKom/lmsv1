@@ -311,19 +311,8 @@ export default function GroupsPage() {
  {groups.map((g) => (
  <Card key={g.id} className="overflow-hidden">
  <div
- role="button"
- tabIndex={0}
- aria-expanded={expandedGroup === g.id}
- className="flex cursor-pointer items-center justify-between p-5 hover:bg-surface-2 focus-visible:outline focus-visible:outline-2 focus-visible:outline-primary"
+ className="flex cursor-pointer items-center justify-between p-5 hover:bg-surface-2 "
  onClick={() => toggleExpand(g.id)}
- onKeyDown={(e) => {
- // The card is the only way into a group's members, its course and
- // its teacher. As a bare div it answered the mouse and nothing else.
- if (e.key === "Enter" || e.key === " ") {
- e.preventDefault();
- toggleExpand(g.id);
- }
- }}
  >
  <div className="flex items-center gap-3">
  <div className="rounded-lg bg-success-soft p-2.5">
@@ -344,11 +333,25 @@ export default function GroupsPage() {
  <span className="rounded-pill bg-surface-2 px-2.5 py-1 text-xs font-medium text-text-muted ">
  {g.member_count} {t("admin.groups.members")}
  </span>
+ {/* The row answers the mouse; this is what answers the keyboard.
+   Its own label keeps it apart from «Start lesson» beside it —
+   a row-wide button would swallow that name into its own. */}
+ <button
+ type="button"
+ aria-expanded={expandedGroup === g.id}
+ aria-label={t("admin.groups.toggleDetails")}
+ className="rounded-lg p-1 text-text-subtle focus-visible:outline focus-visible:outline-2 focus-visible:outline-primary"
+ onClick={(e) => {
+ e.stopPropagation();
+ toggleExpand(g.id);
+ }}
+ >
  {expandedGroup === g.id ? (
- <ChevronUp className="h-4 w-4 text-text-subtle" />
+ <ChevronUp className="h-4 w-4" />
  ) : (
- <ChevronDown className="h-4 w-4 text-text-subtle" />
+ <ChevronDown className="h-4 w-4" />
  )}
+ </button>
  </div>
  </div>
 

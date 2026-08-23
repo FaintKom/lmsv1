@@ -1851,6 +1851,7 @@ const ru: TranslationMap = {
  "admin.groups.failedLoad": "Не удалось загрузить группы",
  "admin.groups.failedCreate": "Не удалось создать группу",
  "admin.groups.teacherLabel": "Учитель",
+ "admin.groups.toggleDetails": "Показать состав группы",
  "admin.groups.noTeacher": "Без учителя",
  "admin.groups.teacherSaved": "Учитель назначен",
  "admin.groups.failedTeacher": "Не удалось сменить учителя",

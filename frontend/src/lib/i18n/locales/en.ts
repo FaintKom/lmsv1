@@ -1903,6 +1903,7 @@ const en: TranslationMap = {
  "admin.groups.failedLoad": "Failed to load groups",
  "admin.groups.failedCreate": "Failed to create group",
  "admin.groups.teacherLabel": "Teacher",
+ "admin.groups.toggleDetails": "Show group details",
  "admin.groups.noTeacher": "No teacher",
  "admin.groups.teacherSaved": "Teacher updated",
  "admin.groups.failedTeacher": "Failed to update teacher",

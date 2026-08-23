@@ -1841,6 +1841,7 @@ const es: TranslationMap = {
  "admin.groups.failedLoad": "Error al cargar grupos",
  "admin.groups.failedCreate": "Error al crear grupo",
  "admin.groups.teacherLabel": "Profesor",
+ "admin.groups.toggleDetails": "Mostrar los detalles del grupo",
  "admin.groups.noTeacher": "Sin profesor",
  "admin.groups.teacherSaved": "Profesor actualizado",
  "admin.groups.failedTeacher": "No se pudo actualizar el profesor",

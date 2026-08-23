@@ -1844,6 +1844,7 @@ const tr: TranslationMap = {
  "admin.groups.failedLoad": "Gruplar yüklenemedi",
  "admin.groups.failedCreate": "Grup oluşturulamadı",
  "admin.groups.teacherLabel": "Öğretmen",
+ "admin.groups.toggleDetails": "Grup ayrıntılarını göster",
  "admin.groups.noTeacher": "Öğretmen yok",
  "admin.groups.teacherSaved": "Öğretmen güncellendi",
  "admin.groups.failedTeacher": "Öğretmen güncellenemedi",

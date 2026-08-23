@@ -1903,6 +1903,7 @@ const de: TranslationMap = {
  "admin.groups.failedLoad": "Gruppen konnten nicht geladen werden",
  "admin.groups.failedCreate": "Gruppe konnte nicht erstellt werden",
  "admin.groups.teacherLabel": "Lehrkraft",
+ "admin.groups.toggleDetails": "Gruppendetails anzeigen",
  "admin.groups.noTeacher": "Keine Lehrkraft",
  "admin.groups.teacherSaved": "Lehrkraft aktualisiert",
  "admin.groups.failedTeacher": "Lehrkraft konnte nicht aktualisiert werden",
