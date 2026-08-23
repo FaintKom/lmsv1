@@ -258,6 +258,9 @@ export default function BulkEnrollPage() {
  if (groupId) {
  params.group_id = groupId;
  }
+ if (defaultPassword.trim()) {
+ params.default_password = defaultPassword.trim();
+ }
 
  const { data } = await apiClient.post<BulkImportResponse>(
  "/admin/bulk-import-students",
@@ -499,7 +502,7 @@ export default function BulkEnrollPage() {
  <td className="px-3 py-1.5 text-text-subtle">{i + 1}</td>
  <td className="px-3 py-1.5 font-mono text-text ">{row.email}</td>
  <td className="px-3 py-1.5 text-text ">{row.full_name || <span className="italic text-text-subtle">{t("admin.bulkEnroll.autoLabel")}</span>}</td>
- <td className="px-3 py-1.5 text-text-muted">{row.password ? "***" : <span className="italic text-text-subtle">{mode === "enroll" ? t("admin.bulkEnroll.defaultLabel") : t("admin.bulkEnroll.randomLabel")}</span>}</td>
+ <td className="px-3 py-1.5 text-text-muted">{row.password ? "***" : <span className="italic text-text-subtle">{defaultPassword.trim() ? t("admin.bulkEnroll.defaultLabel") : t("admin.bulkEnroll.randomLabel")}</span>}</td>
  </tr>
  ))}
  </tbody>
@@ -509,8 +512,9 @@ export default function BulkEnrollPage() {
  </Card>
  )}
 
- {/* Default password (enroll mode) */}
- {mode === "enroll" && (
+ {/* Default password — in both modes. Gating it to "enroll" left the
+   other one generating passwords nobody ever saw, and the school
+   imported a class it could not log into (specs/052). */}
  <Card className="mb-6">
  <CardHeader>
  <CardTitle className="flex items-center gap-2 text-base">
@@ -531,7 +535,6 @@ export default function BulkEnrollPage() {
  </p>
  </CardContent>
  </Card>
- )}
 
  {/* Parental consent attestation */}
  {parsed.length > 0 && (

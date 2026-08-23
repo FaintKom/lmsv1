@@ -831,6 +831,7 @@ async def bulk_import_students(
     file: UploadFile,
     group_id: str | None = None,
     parental_consent: bool = False,
+    default_password: str | None = None,
     db: AsyncSession = Depends(get_db),
     user: User = Depends(require_role(UserRole.admin, UserRole.teacher)),
 ):
@@ -838,7 +839,9 @@ async def bulk_import_students(
 
     Accepts a CSV file with columns: name, email (required), password (optional).
     For each row, creates a User with role=student in the admin's org.
-    If password is blank, generates a random 8-char password.
+    A row without a password takes ``default_password``; without that too, a
+    random 8-char one is generated — and nobody ever learns it, which is how a
+    school imported a class it could not log into (specs/052).
     If group_id is provided, adds the created students to that group.
     Skips rows where email already exists in the org.
 
@@ -857,6 +860,9 @@ async def bulk_import_students(
             400,
             "parental_consent must be confirmed before bulk-creating student accounts",
         )
+
+    if default_password is not None and len(default_password) < 8:
+        raise HTTPException(400, "default_password must be at least 8 characters")
 
     email_re = _re.compile(r"^[\w.+-]+@[\w-]+(\.[\w-]+)+$")
 
@@ -944,9 +950,12 @@ async def bulk_import_students(
                 errors.append(f"Row {row_num}: email '{email}' belongs to a different organization")
             continue
 
-        # Generate password if blank
+        # A blank cell falls back to the one the importer typed for the batch.
+        # Only when there is none does a random password get generated — and
+        # that one is never shown to anybody, so the account is unreachable
+        # until someone resets it.
         if not password:
-            password = _generate_password()
+            password = default_password or _generate_password()
 
         try:
             new_user = User(
