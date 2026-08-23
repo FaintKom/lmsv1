@@ -7,6 +7,7 @@ Covers:
   - cross-org isolation (admin in org A cannot see/edit org B rows)
   - is_default single-on-per-(user, scope) invariant
 """
+
 from __future__ import annotations
 
 import uuid
@@ -28,9 +29,7 @@ from tests.conftest import auth_header
 
 
 @pytest.mark.asyncio
-async def test_admin_create_list_get_update_delete(
-    client: AsyncClient, admin
-):
+async def test_admin_create_list_get_update_delete(client: AsyncClient, admin):
     headers = auth_header(admin)
 
     # Create
@@ -93,9 +92,7 @@ async def test_student_blocked(client: AsyncClient, student):
 
 
 @pytest.mark.asyncio
-async def test_teacher_can_only_use_own_teacher_scope(
-    client: AsyncClient, teacher
-):
+async def test_teacher_can_only_use_own_teacher_scope(client: AsyncClient, teacher):
     headers = auth_header(teacher)
 
     res = await client.post(
@@ -115,6 +112,27 @@ async def test_teacher_can_only_use_own_teacher_scope(
 
 
 @pytest.mark.asyncio
+async def test_methodist_may_use_org_scope(client: AsyncClient, teacher, db: AsyncSession):
+    """A methodist is a teacher by role and a curriculum lead by job.
+
+    The client hands them the org-wide "Curriculum overview" preset on their
+    first visit to /admin/analytics. Reading the role alone refused it, and the
+    page died with "Failed to create dashboard" before drawing anything.
+    """
+    teacher.is_methodist = True
+    db.add(teacher)
+    await db.flush()
+
+    res = await client.post(
+        "/api/v1/admin/dashboards",
+        json={"name": "Curriculum overview", "view_scope": "org"},
+        headers=auth_header(teacher),
+    )
+    assert res.status_code == 201, res.text
+    assert res.json()["view_scope"] == "org"
+
+
+@pytest.mark.asyncio
 async def test_admin_cannot_use_global_scope(client: AsyncClient, admin):
     res = await client.post(
         "/api/v1/admin/dashboards",
@@ -125,9 +143,7 @@ async def test_admin_cannot_use_global_scope(client: AsyncClient, admin):
 
 
 @pytest.mark.asyncio
-async def test_super_admin_can_use_any_scope(
-    client: AsyncClient, super_admin
-):
+async def test_super_admin_can_use_any_scope(client: AsyncClient, super_admin):
     for scope in ("own_teacher", "org", "global"):
         res = await client.post(
             "/api/v1/admin/dashboards",
@@ -141,9 +157,7 @@ async def test_super_admin_can_use_any_scope(
 
 
 @pytest.mark.asyncio
-async def test_admin_cross_org_isolation(
-    client: AsyncClient, admin, admin2
-):
+async def test_admin_cross_org_isolation(client: AsyncClient, admin, admin2):
     """Admin in org A cannot fetch / edit / delete an org-B dashboard."""
     # admin2 (org B) creates one.
     res = await client.post(
@@ -155,9 +169,7 @@ async def test_admin_cross_org_isolation(
     did = res.json()["id"]
 
     # admin (org A) cannot see it
-    res = await client.get(
-        f"/api/v1/admin/dashboards/{did}", headers=auth_header(admin)
-    )
+    res = await client.get(f"/api/v1/admin/dashboards/{did}", headers=auth_header(admin))
     assert res.status_code == 404
 
     # ...nor edit
@@ -169,15 +181,11 @@ async def test_admin_cross_org_isolation(
     assert res.status_code == 404
 
     # ...nor delete
-    res = await client.delete(
-        f"/api/v1/admin/dashboards/{did}", headers=auth_header(admin)
-    )
+    res = await client.delete(f"/api/v1/admin/dashboards/{did}", headers=auth_header(admin))
     assert res.status_code == 404
 
     # And the list endpoint excludes it
-    listed = (
-        await client.get("/api/v1/admin/dashboards", headers=auth_header(admin))
-    ).json()
+    listed = (await client.get("/api/v1/admin/dashboards", headers=auth_header(admin))).json()
     assert did not in [d["id"] for d in listed]
 
 
@@ -231,7 +239,5 @@ async def test_layout_widget_cap_rejected(client: AsyncClient, admin):
 
 @pytest.mark.asyncio
 async def test_unknown_uuid_returns_404(client: AsyncClient, admin):
-    res = await client.get(
-        f"/api/v1/admin/dashboards/{uuid.uuid4()}", headers=auth_header(admin)
-    )
+    res = await client.get(f"/api/v1/admin/dashboards/{uuid.uuid4()}", headers=auth_header(admin))
     assert res.status_code == 404

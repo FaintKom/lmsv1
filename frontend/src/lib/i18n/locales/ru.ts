@@ -1111,6 +1111,8 @@ const ru: TranslationMap = {
  "admin.users.title": "Пользователи",
  "admin.users.countAll": "пользователей во всех организациях",
  "admin.users.countOrg": "пользователей в вашей организации",
+ "admin.users.noAccessTitle": "Людьми школы распоряжается администратор",
+ "admin.users.noAccessBody": "Ваша учётная запись работает со своими группами и уроками, а список людей ведёт администратор школы. Попросите его добавить или пригласить человека.",
  "admin.users.addUser": "Добавить пользователя",
  "admin.users.newUser": "Новый пользователь",
  "admin.users.fullName": "Полное имя",

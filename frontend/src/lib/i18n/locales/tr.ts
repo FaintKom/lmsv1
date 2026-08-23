@@ -1104,6 +1104,8 @@ const tr: TranslationMap = {
  "admin.users.title": "Kullanıcılar",
  "admin.users.countAll": "tüm organizasyonlarda kullanıcı",
  "admin.users.countOrg": "organizasyonunuzda kullanıcı",
+ "admin.users.noAccessTitle": "Kişileri yalnızca yönetici yönetir",
+ "admin.users.noAccessBody": "Hesabınız kendi gruplarıyla ve dersleriyle çalışır; kişi listesi okul yöneticisine aittir. Birini eklemesini veya davet etmesini isteyin.",
  "admin.users.addUser": "Kullanıcı ekle",
  "admin.users.newUser": "Yeni kullanıcı",
  "admin.users.fullName": "Tam ad",

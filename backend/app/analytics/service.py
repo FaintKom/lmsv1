@@ -10,6 +10,7 @@ is_default flips one row "on" per (user, view_scope) — flipping a new
 default automatically clears the prior one in the same transaction so
 the UI always lands on a single canonical dashboard.
 """
+
 from __future__ import annotations
 
 import uuid
@@ -49,6 +50,13 @@ def _allowed_scopes(user: User) -> set[DashboardScope]:
     if user.role == UserRole.admin:
         return {DashboardScope.org, DashboardScope.own_teacher}
     if user.role == UserRole.teacher:
+        # A methodist is a teacher by role and a curriculum lead by job, and the
+        # client hands them the org-wide "Curriculum overview" preset. Reading
+        # the role alone refused it, so the analytics page died on the first
+        # visit with "Failed to create dashboard" (specs/051). The scope labels
+        # saved dashboards; it does not widen what any KPI endpoint returns.
+        if user.is_methodist:
+            return {DashboardScope.org, DashboardScope.own_teacher}
         return {DashboardScope.own_teacher}
     # student / parent
     return set()
@@ -162,19 +170,13 @@ async def list_dashboards(
         )
     if scope is not None:
         stmt = stmt.where(AdminDashboard.view_scope == scope.value)
-    stmt = stmt.order_by(
-        desc(AdminDashboard.is_default), desc(AdminDashboard.updated_at)
-    )
+    stmt = stmt.order_by(desc(AdminDashboard.is_default), desc(AdminDashboard.updated_at))
     return list((await db.execute(stmt)).scalars().all())
 
 
-async def get_dashboard(
-    db: AsyncSession, user: User, dashboard_id: uuid.UUID
-) -> AdminDashboard:
+async def get_dashboard(db: AsyncSession, user: User, dashboard_id: uuid.UUID) -> AdminDashboard:
     require_dashboard_role(user)
-    row = await db.scalar(
-        select(AdminDashboard).where(AdminDashboard.id == dashboard_id)
-    )
+    row = await db.scalar(select(AdminDashboard).where(AdminDashboard.id == dashboard_id))
     if row is None:
         raise DashboardError("not_found", "Dashboard not found")
     if not _can_read(user, row):
@@ -190,9 +192,7 @@ async def update_dashboard(
     body: DashboardUpdateRequest,
 ) -> AdminDashboard:
     require_dashboard_role(user)
-    row = await db.scalar(
-        select(AdminDashboard).where(AdminDashboard.id == dashboard_id)
-    )
+    row = await db.scalar(select(AdminDashboard).where(AdminDashboard.id == dashboard_id))
     if row is None or not _can_write(user, row):
         # Hide existence on cross-org / other-user reads to avoid
         # leaking that an id exists in a different org.
@@ -220,13 +220,9 @@ async def update_dashboard(
     return row
 
 
-async def delete_dashboard(
-    db: AsyncSession, user: User, dashboard_id: uuid.UUID
-) -> None:
+async def delete_dashboard(db: AsyncSession, user: User, dashboard_id: uuid.UUID) -> None:
     require_dashboard_role(user)
-    row = await db.scalar(
-        select(AdminDashboard).where(AdminDashboard.id == dashboard_id)
-    )
+    row = await db.scalar(select(AdminDashboard).where(AdminDashboard.id == dashboard_id))
     if row is None or not _can_write(user, row):
         raise DashboardError("not_found", "Dashboard not found")
     await db.delete(row)
