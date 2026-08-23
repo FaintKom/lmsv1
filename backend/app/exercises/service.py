@@ -9,6 +9,7 @@ from sqlalchemy import func, select, text
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import selectinload
 
+from app.assessments.grading import grade_quiz, quiz_answers_from_payload
 from app.assessments.models import Question
 from app.auth.models import Organization, User, UserRole
 from app.common.exceptions import BadRequestError, ForbiddenError, NotFoundError
@@ -828,11 +829,8 @@ async def _submit_quiz(
     data: dict,
     now: datetime,
 ) -> ExerciseSubmission:
-    answers = data.get("answers", [])
+    answers = quiz_answers_from_payload(data)
     questions = exercise.questions or []
-
-    # Grade
-    from app.assessments.grading import grade_quiz
 
     score_percent, _ = grade_quiz(questions, answers)
     passing = exercise.config.get("passing_score", 70)

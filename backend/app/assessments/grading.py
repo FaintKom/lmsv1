@@ -121,6 +121,35 @@ def correct_answer_display(question: Question) -> str | None:
     return question.correct_answer
 
 
+def quiz_answers_from_payload(data: dict) -> list[dict]:
+    """The answer list a quiz was submitted with, whichever envelope carried it.
+
+    Two shapes reach the server. `{"answers": [...]}` is what the schema
+    documents. `{"interactive_answers": {"answers": [...]}}` is what the V2
+    renderer actually sends — its wrapper hands every V2 type the same
+    envelope, quiz included.
+
+    `/check` unwrapped the second shape; `/submit` read only the first, so a
+    real quiz submission arrived as `answers=None` and grading iterated it —
+    500 on every graded quiz in prod (2026-08-23, specs/047). One reader for
+    both routes, so they cannot drift apart again.
+
+    Also accepts the `{question_id: value}` shorthand, and drops entries that
+    are not dicts rather than failing on `.get` further down.
+    """
+    answers = data.get("answers")
+    if answers is None:
+        answers = (data.get("interactive_answers") or {}).get("answers")
+    if isinstance(answers, dict):  # {question_id: value} shorthand
+        answers = [
+            {"question_id": qid, **(v if isinstance(v, dict) else {"answer": v})}
+            for qid, v in answers.items()
+        ]
+    if not isinstance(answers, list):
+        return []
+    return [a for a in answers if isinstance(a, dict)]
+
+
 def grade_quiz(questions: list[Question], answers: list[dict]) -> tuple[float, int]:
     """Grade a quiz submission. Returns (score_percent, total_points)."""
     answer_map = {str(a.get("question_id")): a for a in answers}

@@ -288,15 +288,12 @@ async def check_exercise_endpoint(
     if exercise.exercise_type == ExerciseType.quiz:
         # quiz answers live in the `questions` relation, not in config —
         # reuse the same correctness helper the submit path grades with
-        from app.assessments.grading import is_answer_correct
+        from app.assessments.grading import is_answer_correct, quiz_answers_from_payload
 
-        answers = data.interactive_answers.get("answers") or []
-        if isinstance(answers, dict):  # {question_id: value} shorthand
-            answers = [
-                {"question_id": qid, **(v if isinstance(v, dict) else {"answer": v})}
-                for qid, v in answers.items()
-            ]
-        by_q = {str(a.get("question_id")): a for a in answers if isinstance(a, dict)}
+        # Same reader as /submit — the two unwrapped the envelope separately
+        # until one of them stopped matching what the client sends (specs/047).
+        answers = quiz_answers_from_payload(data.model_dump())
+        by_q = {str(a.get("question_id")): a for a in answers}
         # read the relation fresh — a cached exercise instance can carry a
         # stale (empty) collection right after questions were added
         from app.assessments.models import Question
