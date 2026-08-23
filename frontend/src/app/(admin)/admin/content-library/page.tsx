@@ -454,7 +454,7 @@ function TemplatesTab() {
  {group.member_count != null && (
  <p className="flex items-center gap-1 text-xs text-text-subtle">
  <Users className="h-3 w-3" />
- {group.member_count} {t("admin.groups.members")}
+ {t("admin.groups.membersLabel")}: {group.member_count}
  </p>
  )}
  </div>

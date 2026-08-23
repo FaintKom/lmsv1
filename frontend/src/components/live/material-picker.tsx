@@ -201,7 +201,7 @@ export function MaterialPicker({
               {m.title}
             </span>
             <span className="font-mono text-3xs text-text-subtle">
-              {(m.lessons ?? []).length} {t("courses.lessons")}
+              {t("courses.lessons")}: {(m.lessons ?? []).length}
             </span>
           </div>
           {(m.lessons ?? []).map((l) => {

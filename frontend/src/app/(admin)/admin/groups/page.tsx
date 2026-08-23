@@ -334,7 +334,7 @@ export default function GroupsPage() {
  {teacherName(g.teacher_id) ?? t("admin.groups.noTeacher")}
  </span>
  <span className="rounded-pill bg-surface-2 px-2.5 py-1 text-xs font-medium text-text-muted ">
- {g.member_count} {t("admin.groups.members")}
+ {t("admin.groups.membersLabel")}: {g.member_count}
  </span>
  {/* The row answers the mouse; this is what answers the keyboard.
    Its own label keeps it apart from «Start lesson» beside it —

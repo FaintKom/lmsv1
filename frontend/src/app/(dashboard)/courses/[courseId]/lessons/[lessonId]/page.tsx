@@ -348,7 +348,7 @@ export default function LessonViewerPage() {
       </button>
      </div>
      <p className="mb-1 font-mono text-3xs font-semibold uppercase tracking-widest text-green-700">
-      {t("lesson.courseLabel")} · {course.modules?.length || 0} {t("courses.modules")} · {allLessons.length} {t("courses.lessons")}
+      {t("lesson.courseLabel")} · {t("courses.modules")}: {course.modules?.length || 0} · {t("courses.lessons")}: {allLessons.length}
      </p>
      <h3 className="mb-3 text-base font-extrabold leading-tight tracking-tight text-text">
       {course.title}
