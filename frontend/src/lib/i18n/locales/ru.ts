@@ -1727,6 +1727,7 @@ const ru: TranslationMap = {
  "admin.organizations.deactivateTitle": "Деактивировать",
  "admin.organizations.deleteTitle": "Удалить организацию",
  "admin.organizations.createdLabel": "Создана",
+ "admin.organizations.confirmDeactivate": "Отключить \"{name}\"? Все в этой школе не смогут войти, пока её не включат обратно.",
  "admin.organizations.confirmDelete": "Удалить \"{name}\"? Будут удалены все пользователи, курсы и данные этой организации. Это нельзя отменить.",
  "admin.organizations.orgUpdated": "Организация обновлена",
  "admin.organizations.orgCreated": "Организация создана",

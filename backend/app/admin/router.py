@@ -1791,6 +1791,10 @@ async def gradebook_export_csv(
 
     def generate():
         output = io.StringIO()
+        # Excel on Windows reads a CSV in the system codepage unless the file
+        # opens with the UTF-8 mark, and a gradebook full of Cyrillic names and
+        # Russian assignment titles arrived as mojibake (specs/056).
+        output.write("﻿")
         writer = csv.writer(output)
         header = ["Student", "Email"] + [c["title"] for c in data["columns"]] + ["Average"]
         writer.writerow(header)

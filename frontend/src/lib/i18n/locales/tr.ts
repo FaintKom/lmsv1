@@ -1720,6 +1720,7 @@ const tr: TranslationMap = {
  "admin.organizations.deactivateTitle": "Devre dışı bırak",
  "admin.organizations.deleteTitle": "Organizasyonu sil",
  "admin.organizations.createdLabel": "Oluşturuldu",
+ "admin.organizations.confirmDeactivate": "\"{name}\" kapatılsın mı? Yeniden açılana kadar o okuldaki hiç kimse giriş yapamaz.",
  "admin.organizations.confirmDelete": "\"{name}\" silinsin mi? Bu organizasyondaki tüm kullanıcılar, kurslar ve veriler kaldırılacak. Geri alınamaz.",
  "admin.organizations.orgUpdated": "Organizasyon güncellendi",
  "admin.organizations.orgCreated": "Organizasyon oluşturuldu",

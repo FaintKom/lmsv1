@@ -12,6 +12,7 @@ We deliberately avoid libmagic / python-magic to keep zero system dependencies.
 For the handful of types we actually allow in an LMS, explicit signatures are
 both simpler and more auditable than a full libmagic dependency.
 """
+
 from __future__ import annotations
 
 import os
@@ -22,6 +23,7 @@ from dataclasses import dataclass
 # Hard ceiling — overrides any per-exercise / per-lesson config.
 # An admin-set "allow 500 MB uploads" is not a safe configuration.
 HARD_MAX_SIZE_MB = 50
+
 
 # Allowed file categories. Endpoints specify which categories they accept.
 class FileCategory:
@@ -39,31 +41,65 @@ class FileCategory:
 # where there's no reliable signature, e.g. plain text, SVG).
 _EXT_SPECS: dict[str, tuple[str, tuple | None, str]] = {
     # Images
-    ".png":  (FileCategory.IMAGE, ((0, b"\x89PNG\r\n\x1a\n"),), "image/png"),
-    ".jpg":  (FileCategory.IMAGE, ((0, b"\xff\xd8\xff"),), "image/jpeg"),
+    ".png": (FileCategory.IMAGE, ((0, b"\x89PNG\r\n\x1a\n"),), "image/png"),
+    ".jpg": (FileCategory.IMAGE, ((0, b"\xff\xd8\xff"),), "image/jpeg"),
     ".jpeg": (FileCategory.IMAGE, ((0, b"\xff\xd8\xff"),), "image/jpeg"),
-    ".gif":  (FileCategory.IMAGE, ((0, b"GIF87a"), (0, b"GIF89a")), "image/gif"),
+    ".gif": (FileCategory.IMAGE, ((0, b"GIF87a"), (0, b"GIF89a")), "image/gif"),
     ".webp": (FileCategory.IMAGE, ((0, b"RIFF"), (8, b"WEBP")), "image/webp"),
     # SVG is XML text — we validate with a regex at the text level instead.
-    ".svg":  (FileCategory.IMAGE, None, "image/svg+xml"),
-
+    ".svg": (FileCategory.IMAGE, None, "image/svg+xml"),
+    # Plain text and source files. A school that teaches programming sets
+    # homework in code, and the upload refused every extension it arrives in:
+    # "File type .py is not allowed" (specs/056). No magic bytes exist for
+    # these — what keeps them safe is that they are stored, never executed,
+    # and handed back as downloads.
+    ".txt": (FileCategory.DOCUMENT, None, "text/plain"),
+    ".md": (FileCategory.DOCUMENT, None, "text/markdown"),
+    ".csv": (FileCategory.DOCUMENT, None, "text/csv"),
+    ".json": (FileCategory.DOCUMENT, None, "application/json"),
+    ".py": (FileCategory.DOCUMENT, None, "text/plain"),
+    ".js": (FileCategory.DOCUMENT, None, "text/plain"),
+    ".ts": (FileCategory.DOCUMENT, None, "text/plain"),
+    ".html": (FileCategory.DOCUMENT, None, "text/plain"),
+    ".css": (FileCategory.DOCUMENT, None, "text/plain"),
+    ".java": (FileCategory.DOCUMENT, None, "text/plain"),
+    ".c": (FileCategory.DOCUMENT, None, "text/plain"),
+    ".cpp": (FileCategory.DOCUMENT, None, "text/plain"),
+    ".cs": (FileCategory.DOCUMENT, None, "text/plain"),
+    ".go": (FileCategory.DOCUMENT, None, "text/plain"),
+    ".rb": (FileCategory.DOCUMENT, None, "text/plain"),
+    ".sql": (FileCategory.DOCUMENT, None, "text/plain"),
     # Documents
-    ".pdf":  (FileCategory.DOCUMENT, ((0, b"%PDF-"),), "application/pdf"),
+    ".pdf": (FileCategory.DOCUMENT, ((0, b"%PDF-"),), "application/pdf"),
     # Office OOXML files (docx/pptx/xlsx) are ZIP containers — signature: PK\x03\x04
-    ".docx": (FileCategory.DOCUMENT, ((0, b"PK\x03\x04"),),
-              "application/vnd.openxmlformats-officedocument.wordprocessingml.document"),
-    ".pptx": (FileCategory.DOCUMENT, ((0, b"PK\x03\x04"),),
-              "application/vnd.openxmlformats-officedocument.presentationml.presentation"),
-    ".xlsx": (FileCategory.DOCUMENT, ((0, b"PK\x03\x04"),),
-              "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"),
+    ".docx": (
+        FileCategory.DOCUMENT,
+        ((0, b"PK\x03\x04"),),
+        "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+    ),
+    ".pptx": (
+        FileCategory.DOCUMENT,
+        ((0, b"PK\x03\x04"),),
+        "application/vnd.openxmlformats-officedocument.presentationml.presentation",
+    ),
+    ".xlsx": (
+        FileCategory.DOCUMENT,
+        ((0, b"PK\x03\x04"),),
+        "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+    ),
     # Legacy binary Office docs
-    ".doc":  (FileCategory.DOCUMENT, ((0, b"\xd0\xcf\x11\xe0\xa1\xb1\x1a\xe1"),),
-              "application/msword"),
-    ".ppt":  (FileCategory.DOCUMENT, ((0, b"\xd0\xcf\x11\xe0\xa1\xb1\x1a\xe1"),),
-              "application/vnd.ms-powerpoint"),
-
+    ".doc": (
+        FileCategory.DOCUMENT,
+        ((0, b"\xd0\xcf\x11\xe0\xa1\xb1\x1a\xe1"),),
+        "application/msword",
+    ),
+    ".ppt": (
+        FileCategory.DOCUMENT,
+        ((0, b"\xd0\xcf\x11\xe0\xa1\xb1\x1a\xe1"),),
+        "application/vnd.ms-powerpoint",
+    ),
     # Archives
-    ".zip":  (FileCategory.ARCHIVE, ((0, b"PK\x03\x04"),), "application/zip"),
+    ".zip": (FileCategory.ARCHIVE, ((0, b"PK\x03\x04"),), "application/zip"),
 }
 
 
@@ -78,11 +114,11 @@ _SVG_DANGEROUS = re.compile(
 
 @dataclass
 class UploadResult:
-    safe_name: str          # UUID-based filename safe to write to disk
-    data: bytes             # file contents (already read)
-    size: int               # size in bytes
-    verified_mime: str      # canonical MIME for the detected type
-    extension: str          # lowercase, includes leading dot
+    safe_name: str  # UUID-based filename safe to write to disk
+    data: bytes  # file contents (already read)
+    size: int  # size in bytes
+    verified_mime: str  # canonical MIME for the detected type
+    extension: str  # lowercase, includes leading dot
 
 
 class UploadValidationError(ValueError):
@@ -106,7 +142,10 @@ def _sanitize_filename(name: str) -> str:
 
 def _match_magic(data: bytes, signatures: tuple) -> bool:
     for offset, expected in signatures:
-        if len(data) >= offset + len(expected) and data[offset : offset + len(expected)] == expected:
+        if (
+            len(data) >= offset + len(expected)
+            and data[offset : offset + len(expected)] == expected
+        ):
             return True
     return False
 
@@ -161,9 +200,7 @@ def validate_upload(
 
     # 5. Optional category enforcement
     if category is not None and spec_category != category:
-        raise UploadValidationError(
-            f"File type {ext} is not allowed in this context"
-        )
+        raise UploadValidationError(f"File type {ext} is not allowed in this context")
 
     # 6. Magic-byte sniffing (or SVG text check)
     if ext == ".svg":
@@ -171,9 +208,7 @@ def validate_upload(
             raise UploadValidationError("SVG contains unsafe content and was rejected")
     elif signatures is not None:
         if not _match_magic(data, signatures):
-            raise UploadValidationError(
-                f"File content does not match declared type {ext}"
-            )
+            raise UploadValidationError(f"File content does not match declared type {ext}")
 
     # 7. Generate a safe stored filename — UUID only, never trust client input
     safe_name = f"{uuid.uuid4().hex}{ext}"
@@ -190,4 +225,23 @@ def validate_upload(
 # Convenience allowlists for common endpoints — use these instead of ad-hoc sets.
 IMAGE_EXTENSIONS = {".png", ".jpg", ".jpeg", ".gif", ".webp", ".svg"}
 DOCUMENT_EXTENSIONS = {".pdf", ".doc", ".docx", ".ppt", ".pptx", ".xlsx"}
-SUBMISSION_EXTENSIONS = IMAGE_EXTENSIONS | DOCUMENT_EXTENSIONS
+# What a pupil hands in for a programming course. Stored, never executed.
+CODE_EXTENSIONS = {
+    ".txt",
+    ".md",
+    ".csv",
+    ".json",
+    ".py",
+    ".js",
+    ".ts",
+    ".html",
+    ".css",
+    ".java",
+    ".c",
+    ".cpp",
+    ".cs",
+    ".go",
+    ".rb",
+    ".sql",
+}
+SUBMISSION_EXTENSIONS = IMAGE_EXTENSIONS | DOCUMENT_EXTENSIONS | CODE_EXTENSIONS

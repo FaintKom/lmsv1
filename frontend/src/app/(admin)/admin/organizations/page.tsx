@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import apiClient from "@/lib/api-client";
 import { toast } from "sonner";
-import { Building2, Pencil, Trash2, X, Check, Users, Plus } from "lucide-react";
+import { Building2, Pencil, Trash2, X, Check, Power, Plus } from "lucide-react";
 import { useTranslation } from "@/lib/i18n/context";
 
 interface Org {
@@ -65,6 +65,15 @@ export default function OrganizationsPage() {
  };
 
  const toggleActive = async (org: Org) => {
+ // Switching a school off locks out everyone in it, and the button sat one
+ // icon away from the bin with no question asked (specs/056). Deletion has
+ // always confirmed; this is an action of the same weight.
+ if (
+ org.is_active &&
+ !confirm(t("admin.organizations.confirmDeactivate").replace("{name}", org.name))
+ ) {
+ return;
+ }
  try {
  await apiClient.put(`/admin/organizations/${org.id}`, { is_active: !org.is_active });
  toast.success(org.is_active ? t("admin.organizations.orgDeactivated") : t("admin.organizations.orgActivated"));
@@ -221,7 +230,9 @@ export default function OrganizationsPage() {
  }`}
  title={org.is_active ? t("admin.organizations.deactivateTitle") : t("admin.organizations.activateTitle")}
  >
- <Users className="h-4 w-4" />
+ {/* A "people" icon on the button that switches a school off read as
+   «members» and sat next to the bin (specs/056). */}
+ <Power className="h-4 w-4" />
  </button>
  <button
  onClick={() => deleteOrg(org)}

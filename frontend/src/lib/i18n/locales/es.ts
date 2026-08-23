@@ -1717,6 +1717,7 @@ const es: TranslationMap = {
  "admin.organizations.deactivateTitle": "Desactivar",
  "admin.organizations.deleteTitle": "Eliminar organización",
  "admin.organizations.createdLabel": "Creada",
+ "admin.organizations.confirmDeactivate": "¿Desactivar \"{name}\"? Nadie de ese centro podrá iniciar sesión hasta que se vuelva a activar.",
  "admin.organizations.confirmDelete": "¿Eliminar \"{name}\"? Esto eliminará todos los usuarios, cursos y datos de esta organización. Esta acción no se puede deshacer.",
  "admin.organizations.orgUpdated": "Organización actualizada",
  "admin.organizations.orgCreated": "Organización creada",
