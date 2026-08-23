@@ -35,7 +35,7 @@ from app.admin.student_profile_service import (
 from app.auth.dependencies import require_role
 from app.auth.models import Organization, User, UserRole
 from app.auth.schemas import UserResponse
-from app.common.exceptions import NotFoundError
+from app.common.exceptions import BadRequestError, NotFoundError
 from app.db.session import get_db
 
 router = APIRouter()
@@ -1119,6 +1119,11 @@ def _parse_optional_date(value, field: str) -> date | None:
 _GROUP_STATUSES = ("planned", "active", "archived")
 
 
+# Roles that may be recorded as the teacher of a group. Admins do teach in
+# small schools, and super_admin is the owner's own account.
+_TEACHING_ROLES = (UserRole.teacher, UserRole.admin, UserRole.super_admin)
+
+
 async def _apply_group_scheduling_fields(db, admin, group, data) -> None:
     """Validate + apply the optional Phase B scheduling fields onto ``group``.
 
@@ -1149,6 +1154,11 @@ async def _apply_group_scheduling_fields(db, admin, group, data) -> None:
             ).scalar_one_or_none()
             if not teacher:
                 raise NotFoundError("Teacher not found")
+            # Anyone in the org used to fit here, pupils of the group included.
+            # The journal's teacher filter reads this field, so a student could
+            # end up listed as the teacher of their own class.
+            if teacher.role not in _TEACHING_ROLES:
+                raise BadRequestError("That user cannot be the teacher of a group")
         group.teacher_id = tid
     if "default_room_id" in data:
         rid = _parse_optional_uuid(data.get("default_room_id"), "default_room_id")

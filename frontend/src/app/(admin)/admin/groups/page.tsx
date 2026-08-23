@@ -25,8 +25,17 @@ interface Group {
  id: string;
  name: string;
  description: string | null;
+ teacher_id: string | null;
  member_count: number;
  created_at: string;
+}
+
+/** Teachers of this school, for the "who teaches this group" picker.
+ *  Read from /journal/teachers, not /admin/users: the latter is admin-only,
+ *  so a teacher managing their own groups got a 403 and an empty picker. */
+interface TeacherOption {
+ id: string;
+ full_name: string;
 }
 
 interface Member {
@@ -60,6 +69,8 @@ export default function GroupsPage() {
  const [showCreate, setShowCreate] = useState(false);
  const [newName, setNewName] = useState("");
  const [newDesc, setNewDesc] = useState("");
+ const [teachers, setTeachers] = useState<TeacherOption[]>([]);
+ const [newTeacherId, setNewTeacherId] = useState("");
  const [addingMembers, setAddingMembers] = useState<string | null>(null);
  const [enrollingGroup, setEnrollingGroup] = useState<string | null>(null);
  const [selectedUsers, setSelectedUsers] = useState<string[]>([]);
@@ -79,6 +90,10 @@ export default function GroupsPage() {
  fetchGroups();
  apiClient.get("/admin/users").then(({ data }) => setUsers(data));
  apiClient.get("/admin/courses").then(({ data }) => setCourses(data));
+ apiClient
+ .get("/journal/teachers")
+ .then(({ data }) => setTeachers(data))
+ .catch(() => setTeachers([]));
  }, [fetchGroups]);
 
  const fetchMembers = async (groupId: string) => {
@@ -103,16 +118,35 @@ export default function GroupsPage() {
  await apiClient.post("/admin/groups", {
  name: newName.trim(),
  description: newDesc.trim() || null,
+ teacher_id: newTeacherId || null,
  });
  toast.success(t("admin.groups.groupCreated"));
  setNewName("");
  setNewDesc("");
+ setNewTeacherId("");
  setShowCreate(false);
  fetchGroups();
  } catch {
  toast.error(t("admin.groups.failedCreate"));
  }
  };
+
+ /** Who teaches this group. Empty string clears the assignment — the server
+  *  reads "" and null the same way. */
+ const setGroupTeacher = async (groupId: string, teacherId: string) => {
+ try {
+ await apiClient.put(`/admin/groups/${groupId}`, { teacher_id: teacherId || null });
+ setGroups((prev) =>
+ prev.map((g) => (g.id === groupId ? { ...g, teacher_id: teacherId || null } : g)),
+ );
+ toast.success(t("admin.groups.teacherSaved"));
+ } catch {
+ toast.error(t("admin.groups.failedTeacher"));
+ }
+ };
+
+ const teacherName = (id: string | null) =>
+ teachers.find((x) => x.id === id)?.full_name ?? null;
 
  const deleteGroup = async (g: Group) => {
  const ok = await confirm({
@@ -230,6 +264,21 @@ export default function GroupsPage() {
  onChange={(e) => setNewDesc(e.target.value)}
  className="w-full rounded-lg border border-border-strong px-3 py-2 text-sm focus:border-primary focus:outline-none"
  />
+ <label className="block text-sm text-text-muted">
+ {t("admin.groups.teacherLabel")}
+ <select
+ value={newTeacherId}
+ onChange={(e) => setNewTeacherId(e.target.value)}
+ className="mt-1 w-full rounded-lg border border-border-strong px-3 py-2 text-sm text-text focus:border-primary focus:outline-none"
+ >
+ <option value="">{t("admin.groups.noTeacher")}</option>
+ {teachers.map((tch) => (
+ <option key={tch.id} value={tch.id}>
+ {tch.full_name}
+ </option>
+ ))}
+ </select>
+ </label>
  <div className="flex gap-2">
  <Button size="sm" onClick={createGroup} disabled={!newName.trim()}>
  {t("common.create")}
@@ -279,18 +328,51 @@ export default function GroupsPage() {
  <div className="flex items-center gap-3">
  <StartLessonButton groupId={g.id} />
  <span className="rounded-pill bg-surface-2 px-2.5 py-1 text-xs font-medium text-text-muted ">
+ {teacherName(g.teacher_id) ?? t("admin.groups.noTeacher")}
+ </span>
+ <span className="rounded-pill bg-surface-2 px-2.5 py-1 text-xs font-medium text-text-muted ">
  {g.member_count} {t("admin.groups.members")}
  </span>
+ {/* The row answers the mouse; this is what answers the keyboard.
+   Its own label keeps it apart from «Start lesson» beside it —
+   a row-wide button would swallow that name into its own. */}
+ <button
+ type="button"
+ aria-expanded={expandedGroup === g.id}
+ aria-label={t("admin.groups.toggleDetails")}
+ className="rounded-lg p-1 text-text-subtle focus-visible:outline focus-visible:outline-2 focus-visible:outline-primary"
+ onClick={(e) => {
+ e.stopPropagation();
+ toggleExpand(g.id);
+ }}
+ >
  {expandedGroup === g.id ? (
- <ChevronUp className="h-4 w-4 text-text-subtle" />
+ <ChevronUp className="h-4 w-4" />
  ) : (
- <ChevronDown className="h-4 w-4 text-text-subtle" />
+ <ChevronDown className="h-4 w-4" />
  )}
+ </button>
  </div>
  </div>
 
  {expandedGroup === g.id && (
  <div className="border-t border-border bg-surface-2/50 p-5">
+ <label className="mb-4 block max-w-sm text-sm text-text-muted">
+ {t("admin.groups.teacherLabel")}
+ <select
+ value={g.teacher_id ?? ""}
+ onChange={(e) => setGroupTeacher(g.id, e.target.value)}
+ className="mt-1 w-full rounded-lg border border-border-strong bg-surface px-3 py-2 text-sm text-text focus:border-primary focus:outline-none"
+ >
+ <option value="">{t("admin.groups.noTeacher")}</option>
+ {teachers.map((tch) => (
+ <option key={tch.id} value={tch.id}>
+ {tch.full_name}
+ </option>
+ ))}
+ </select>
+ </label>
+
  {/* Action Buttons */}
  <div className="mb-4 flex flex-wrap gap-2">
  <Button
