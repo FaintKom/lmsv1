@@ -18,6 +18,7 @@ interface AssignmentData {
  due_date: string;
  max_score: number;
  allow_late: boolean;
+ group_id: string | null;
 }
 
 export default function EditAssignmentPage() {
@@ -35,7 +36,12 @@ export default function EditAssignmentPage() {
  due_date: "",
  max_score: 100,
  allow_late: false,
+ group_id: "",
  });
+ // The audience could be picked once, at creation, and never again: a task
+ // issued to the wrong group had to be deleted and written out afresh
+ // (specs/055). The server has always accepted group_id on update.
+ const [groups, setGroups] = useState<{ id: string; name: string }[]>([]);
 
  useEffect(() => {
  apiClient
@@ -51,12 +57,18 @@ export default function EditAssignmentPage() {
  due_date: dueLocal,
  max_score: data.max_score ?? 100,
  allow_late: data.allow_late ?? false,
+ group_id: data.group_id ?? "",
  });
  })
  .catch(() => {
  toast.error(t("admin.assignmentEdit.failedLoad"));
  })
  .finally(() => setLoading(false));
+
+ apiClient
+ .get("/admin/groups")
+ .then(({ data }) => setGroups(data))
+ .catch(() => setGroups([]));
  }, [id]);
 
  const handleSave = async (e: React.FormEvent) => {
@@ -69,6 +81,7 @@ export default function EditAssignmentPage() {
  due_date: new Date(form.due_date).toISOString(),
  max_score: form.max_score,
  allow_late: form.allow_late,
+ group_id: form.group_id || null,
  });
  toast.success(t("admin.assignmentEdit.updated"));
  } catch {
@@ -148,6 +161,25 @@ export default function EditAssignmentPage() {
  rows={4}
  className="w-full rounded-lg border border-border-strong bg-surface px-3 py-2 text-sm text-text focus:border-primary focus:outline-none "
  />
+ </div>
+
+ {/* Audience */}
+ <div>
+ <label className="mb-1 block text-xs font-medium text-text-muted ">
+ {t("admin.assignments.groupOptional")}
+ </label>
+ <select
+ value={form.group_id}
+ onChange={(e) => setForm({ ...form, group_id: e.target.value })}
+ className="w-full rounded-lg border border-border-strong bg-surface px-3 py-2 text-sm text-text focus:border-primary focus:outline-none "
+ >
+ <option value="">{t("admin.assignments.allStudents")}</option>
+ {groups.map((g) => (
+ <option key={g.id} value={g.id}>
+ {g.name}
+ </option>
+ ))}
+ </select>
  </div>
 
  {/* Due Date + Max Score */}

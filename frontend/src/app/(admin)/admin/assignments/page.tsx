@@ -7,7 +7,7 @@ import { toast } from "sonner";
 import { useConfirm } from "@/components/ui/confirm-dialog";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { ClipboardList, Plus, Trash2, Clock, Users, ArrowRight } from "lucide-react";
+import { ClipboardList, Plus, Pencil, Trash2, Clock, Users, ArrowRight } from "lucide-react";
 import { useTranslation } from "@/lib/i18n/context";
 
 interface AdminAssignment {
@@ -268,8 +268,21 @@ export default function AdminAssignmentsPage() {
  {t("admin.assignments.review")}
  <ArrowRight className="h-3 w-3" />
  </Link>
+ {/* The edit page existed and nothing linked to it: a wrong deadline
+   or a wrong group could only be fixed by deleting the assignment
+   and issuing it again (specs/055). */}
+ <Link
+ href={`/admin/assignments/${a.id}/edit`}
+ aria-label={t("common.edit")}
+ title={t("common.edit")}
+ className="rounded-lg p-2 text-text-subtle transition-colors hover:bg-surface-2 hover:text-text"
+ >
+ <Pencil className="h-4 w-4" />
+ </Link>
  <button
  onClick={() => handleDelete(a.id)}
+ aria-label={t("common.delete")}
+ title={t("common.delete")}
  className="rounded-lg p-2 text-text-subtle transition-colors hover:bg-danger-soft hover:text-danger-fg "
  >
  <Trash2 className="h-4 w-4" />
