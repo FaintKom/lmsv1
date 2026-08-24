@@ -7,7 +7,8 @@ methodist-facing metrics and gates access by role:
 RBAC / scoping (enforced in :func:`_course_scope_clause` +
 :func:`_authorize_course`):
 
-  - teacher                      → only their own courses (Course.teacher_id == user.id)
+  - teacher                      → courses they own, plus courses they teach
+                                   through a group they lead (specs/061)
   - is_methodist (any non-super) → all courses in their org
   - admin                        → all courses in their org
   - super_admin                  → all courses, all orgs (global)
@@ -20,14 +21,16 @@ Aggregates use GROUP BY (no N+1). pass_rate excludes rows with NULL ``passed``;
 AVG over attempt_number / time_spent_seconds naturally skips NULLs;
 median uses PostgreSQL ``percentile_cont``.
 """
+
 from __future__ import annotations
 
 import uuid
 from datetime import date
 
-from sqlalchemy import Float, and_, cast, func, select
+from sqlalchemy import Float, and_, cast, func, or_, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from app.admin.models import StudentGroup
 from app.assessments.models import Quiz, QuizSubmission
 from app.assignments.models import Assignment, AssignmentSubmission
 from app.auth.models import User, UserRole
@@ -59,17 +62,41 @@ def _is_org_wide(user: User) -> bool:
     return user.role in (UserRole.admin, UserRole.super_admin) or bool(user.is_methodist)
 
 
+def _courses_led_through_a_group(user: User):
+    """Course ids of the groups this teacher leads.
+
+    A subquery rather than a lookup on purpose: this clause is built
+    synchronously and dropped into larger statements, so the database does the
+    join and no caller has to await anything.
+    """
+    return select(StudentGroup.course_id).where(
+        StudentGroup.teacher_id == user.id,
+        StudentGroup.course_id.is_not(None),
+    )
+
+
 def _course_scope_clause(user: User):
     """SQLAlchemy clause restricting Course rows to what the user may see.
 
     super_admin → no restriction. Everyone else → own org; plain teachers (not
-    methodist/admin) are further restricted to courses they own.
+    methodist/admin) see the courses they own **and the courses they teach
+    through a group** (specs/061).
+
+    That second half is the owner's rule of 2026-08-23. Without it the product
+    contradicted itself: the dashboard counted a group's students as the
+    teacher's own while the journal, attendance and analytics denied them the
+    very course those students study.
     """
     clauses = []
     if user.role != UserRole.super_admin:
         clauses.append(Course.org_id == user.org_id)
         if not _is_org_wide(user):
-            clauses.append(Course.teacher_id == user.id)
+            clauses.append(
+                or_(
+                    Course.teacher_id == user.id,
+                    Course.id.in_(_courses_led_through_a_group(user)),
+                )
+            )
     return and_(*clauses) if clauses else None
 
 
@@ -84,7 +111,18 @@ async def _authorize_course(db: AsyncSession, user: User, course_id: uuid.UUID) 
         # Hide existence across orgs.
         raise TaskStatsError("not_found", "Course not found")
     if not _is_org_wide(user) and course.teacher_id != user.id:
-        raise TaskStatsError("forbidden", "You can only view your own courses")
+        # Not the owner — but leading a group on this course makes it theirs
+        # to teach, and so theirs to look at (specs/061).
+        leads_here = await db.scalar(
+            select(StudentGroup.id)
+            .where(
+                StudentGroup.teacher_id == user.id,
+                StudentGroup.course_id == course.id,
+            )
+            .limit(1)
+        )
+        if leads_here is None:
+            raise TaskStatsError("forbidden", "You can only view your own courses")
     return course
 
 
@@ -102,9 +140,7 @@ def _agg_columns(passed_col, time_col, attempt_col, student_col):
         func.count(passed_col).label("graded_count"),
         func.avg(cast(attempt_col, Float)).label("avg_attempts"),
         func.avg(cast(time_col, Float)).label("avg_time_spent_seconds"),
-        func.percentile_cont(0.5)
-        .within_group(time_col.asc())
-        .label("median_time_spent_seconds"),
+        func.percentile_cont(0.5).within_group(time_col.asc()).label("median_time_spent_seconds"),
     ]
 
 
@@ -123,9 +159,7 @@ def _row_to_stats(
     success = row.success_count or 0
     unique = row.unique_students or 0
     pass_rate = round(success / graded, 4) if graded else None
-    completion_rate = (
-        round(unique / enrolled, 4) if enrolled and enrolled > 0 else None
-    )
+    completion_rate = round(unique / enrolled, 4) if enrolled and enrolled > 0 else None
     return {
         "task_id": task_id,
         "task_type": task_type,
@@ -139,9 +173,7 @@ def _row_to_stats(
         "pass_rate": pass_rate,
         "avg_attempts": round(row.avg_attempts, 2) if row.avg_attempts is not None else None,
         "avg_time_spent_seconds": (
-            round(row.avg_time_spent_seconds, 1)
-            if row.avg_time_spent_seconds is not None
-            else None
+            round(row.avg_time_spent_seconds, 1) if row.avg_time_spent_seconds is not None else None
         ),
         "median_time_spent_seconds": (
             round(float(row.median_time_spent_seconds), 1)
@@ -304,9 +336,7 @@ async def _assignment_stats_for_courses(
 # ── Public API ──────────────────────────────────────────────────────────
 
 
-async def get_course_task_stats(
-    db: AsyncSession, user: User, course_id: uuid.UUID
-) -> dict:
+async def get_course_task_stats(db: AsyncSession, user: User, course_id: uuid.UUID) -> dict:
     """All tasks (exercises + quizzes + assignments) in one course."""
     require_stats_role(user)
     course = await _authorize_course(db, user, course_id)
@@ -329,9 +359,7 @@ async def get_course_task_stats(
     }
 
 
-async def get_lesson_task_stats(
-    db: AsyncSession, user: User, lesson_id: uuid.UUID
-) -> dict:
+async def get_lesson_task_stats(db: AsyncSession, user: User, lesson_id: uuid.UUID) -> dict:
     """All tasks tied to a single lesson (exercises + the lesson's quiz)."""
     require_stats_role(user)
 
@@ -425,14 +453,10 @@ async def _course_id_for_task(
             .join(Course, Course.id == Module.course_id)
             .where(Quiz.id == task_id)
         )
-    return await db.scalar(
-        select(Assignment.course_id).where(Assignment.id == task_id)
-    )
+    return await db.scalar(select(Assignment.course_id).where(Assignment.id == task_id))
 
 
-async def _task_timeline(
-    db: AsyncSession, task_type: str, task_id: uuid.UUID
-) -> list[dict]:
+async def _task_timeline(db: AsyncSession, task_type: str, task_id: uuid.UUID) -> list[dict]:
     if task_type == "exercise":
         fk, passed_col, ts_col = (
             ExerciseSubmission.exercise_id,
