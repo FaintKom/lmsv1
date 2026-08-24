@@ -66,6 +66,44 @@ async def test_teacher_sees_their_group_and_not_the_others(client, org, db):
     assert "Nobody's group" not in names
 
 
+async def test_teacher_cannot_take_over_somebody_elses_group(client, org, db):
+    """The gap that made the prod check possible in the first place.
+
+    ``PUT /admin/groups/{id}`` admitted any teacher, so one could point a
+    colleague's group at themselves — and, since specs/061, thereby reach that
+    group's course. Reading the list was one door; this was the other.
+    """
+    mine = await _staff(db, org, "Mine")
+    other = await _staff(db, org, "Other")
+
+    my_group = await _group(db, org, "My group", mine)
+    their_group = await _group(db, org, "Their group", other)
+
+    # Positive control: my own group still takes an edit.
+    ok = await client.put(
+        f"/api/v1/admin/groups/{my_group.id}",
+        json={"name": "My group, renamed"},
+        headers=auth_header(mine),
+    )
+    assert ok.status_code == 200, ok.text
+
+    grab = await client.put(
+        f"/api/v1/admin/groups/{their_group.id}",
+        json={"teacher_id": str(mine.id)},
+        headers=auth_header(mine),
+    )
+    assert grab.status_code == 404, grab.text
+
+
+async def test_teacher_cannot_delete_somebody_elses_group(client, org, db):
+    mine = await _staff(db, org, "Mine")
+    other = await _staff(db, org, "Other")
+    their_group = await _group(db, org, "Their group", other)
+
+    resp = await client.delete(f"/api/v1/admin/groups/{their_group.id}", headers=auth_header(mine))
+    assert resp.status_code == 404, resp.text
+
+
 async def test_methodist_still_sees_the_whole_school(client, org, db):
     other = await _staff(db, org, "Other")
     await _group(db, org, "Their group", other)

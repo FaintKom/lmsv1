@@ -1318,6 +1318,10 @@ async def update_group_endpoint(
     )
     if admin.role != UserRole.super_admin:
         query = query.where(StudentGroup.org_id == admin.org_id)
+    if not _is_org_wide(admin):
+        # Otherwise any teacher could take over any group in the school by
+        # moving its teacher_id to themselves (specs/061).
+        query = query.where(StudentGroup.teacher_id == admin.id)
     result = await db.execute(query)
     group = result.scalar_one_or_none()
     if not group:
@@ -1344,6 +1348,8 @@ async def delete_group_endpoint(
     query = select(StudentGroup).where(StudentGroup.id == group_id)
     if admin.role != UserRole.super_admin:
         query = query.where(StudentGroup.org_id == admin.org_id)
+    if not _is_org_wide(admin):
+        query = query.where(StudentGroup.teacher_id == admin.id)
     result = await db.execute(query)
     group = result.scalar_one_or_none()
     if not group:
@@ -1400,6 +1406,8 @@ async def add_group_members_endpoint(
     query = select(StudentGroup).where(StudentGroup.id == group_id)
     if admin.role != UserRole.super_admin:
         query = query.where(StudentGroup.org_id == admin.org_id)
+    if not _is_org_wide(admin):
+        query = query.where(StudentGroup.teacher_id == admin.id)
     result = await db.execute(query)
     if not result.scalar_one_or_none():
         raise NotFoundError("Group not found")
@@ -1469,6 +1477,8 @@ async def remove_group_member_endpoint(
     group_query = select(StudentGroup).where(StudentGroup.id == group_id)
     if admin.role != UserRole.super_admin:
         group_query = group_query.where(StudentGroup.org_id == admin.org_id)
+    if not _is_org_wide(admin):
+        group_query = group_query.where(StudentGroup.teacher_id == admin.id)
     if not (await db.execute(group_query)).scalar_one_or_none():
         raise NotFoundError("Group not found")
 
@@ -1502,6 +1512,8 @@ async def enroll_group_endpoint(
     query = select(StudentGroup).where(StudentGroup.id == group_id)
     if admin.role != UserRole.super_admin:
         query = query.where(StudentGroup.org_id == admin.org_id)
+    if not _is_org_wide(admin):
+        query = query.where(StudentGroup.teacher_id == admin.id)
     result = await db.execute(query)
     if not result.scalar_one_or_none():
         raise NotFoundError("Group not found")
