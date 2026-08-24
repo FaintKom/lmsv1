@@ -1212,7 +1212,12 @@ async def list_groups_endpoint(
     admin: User = Depends(require_role(UserRole.admin, UserRole.teacher)),
     db: AsyncSession = Depends(get_db),
 ):
-    """List all student groups in the org."""
+    """Student groups the caller may see.
+
+    Org-wide staff get the school; a plain teacher gets the groups they lead
+    (specs/061). Measured in prod 2026-08-24: a teacher who led nothing still
+    read every group of the school, with member counts.
+    """
     from sqlalchemy.orm import selectinload
 
     from app.admin.models import StudentGroup
@@ -1220,6 +1225,8 @@ async def list_groups_endpoint(
     query = select(StudentGroup).options(selectinload(StudentGroup.members))
     if admin.role != UserRole.super_admin:
         query = query.where(StudentGroup.org_id == admin.org_id)
+    if not _is_org_wide(admin):
+        query = query.where(StudentGroup.teacher_id == admin.id)
     result = await db.execute(query.order_by(StudentGroup.created_at.desc()))
     groups = result.scalars().unique().all()
     return [_group_to_dict(g, member_count=len(g.members)) for g in groups]
@@ -1311,6 +1318,10 @@ async def update_group_endpoint(
     )
     if admin.role != UserRole.super_admin:
         query = query.where(StudentGroup.org_id == admin.org_id)
+    if not _is_org_wide(admin):
+        # Otherwise any teacher could take over any group in the school by
+        # moving its teacher_id to themselves (specs/061).
+        query = query.where(StudentGroup.teacher_id == admin.id)
     result = await db.execute(query)
     group = result.scalar_one_or_none()
     if not group:
@@ -1337,6 +1348,8 @@ async def delete_group_endpoint(
     query = select(StudentGroup).where(StudentGroup.id == group_id)
     if admin.role != UserRole.super_admin:
         query = query.where(StudentGroup.org_id == admin.org_id)
+    if not _is_org_wide(admin):
+        query = query.where(StudentGroup.teacher_id == admin.id)
     result = await db.execute(query)
     group = result.scalar_one_or_none()
     if not group:
@@ -1393,6 +1406,8 @@ async def add_group_members_endpoint(
     query = select(StudentGroup).where(StudentGroup.id == group_id)
     if admin.role != UserRole.super_admin:
         query = query.where(StudentGroup.org_id == admin.org_id)
+    if not _is_org_wide(admin):
+        query = query.where(StudentGroup.teacher_id == admin.id)
     result = await db.execute(query)
     if not result.scalar_one_or_none():
         raise NotFoundError("Group not found")
@@ -1462,6 +1477,8 @@ async def remove_group_member_endpoint(
     group_query = select(StudentGroup).where(StudentGroup.id == group_id)
     if admin.role != UserRole.super_admin:
         group_query = group_query.where(StudentGroup.org_id == admin.org_id)
+    if not _is_org_wide(admin):
+        group_query = group_query.where(StudentGroup.teacher_id == admin.id)
     if not (await db.execute(group_query)).scalar_one_or_none():
         raise NotFoundError("Group not found")
 
@@ -1495,6 +1512,8 @@ async def enroll_group_endpoint(
     query = select(StudentGroup).where(StudentGroup.id == group_id)
     if admin.role != UserRole.super_admin:
         query = query.where(StudentGroup.org_id == admin.org_id)
+    if not _is_org_wide(admin):
+        query = query.where(StudentGroup.teacher_id == admin.id)
     result = await db.execute(query)
     if not result.scalar_one_or_none():
         raise NotFoundError("Group not found")
