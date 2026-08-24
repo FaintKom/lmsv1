@@ -5,8 +5,10 @@ from sqlalchemy import func, select
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import selectinload
 
+from app.analytics.task_stats_service import _is_org_wide
 from app.auth.models import User, UserRole
 from app.common.exceptions import ForbiddenError, NotFoundError
+from app.common.teacher_scope import teacher_course_ids
 from app.courses.models import Course, CourseStatus, Lesson, Module
 from app.courses.schemas import (
     CourseCreate,
@@ -34,12 +36,15 @@ async def list_courses(
             Course.is_template == False,  # noqa: E712
             (Course.status == CourseStatus.published) | (Course.id.in_(enrolled_course_ids)),
         )
-    elif user.role == UserRole.teacher:
-        # Teachers see only their own courses (non-template)
+    elif user.role == UserRole.teacher and not _is_org_wide(user):
+        # A plain teacher sees the courses they answer for: owned outright, or
+        # taught through a group they lead (specs/061). A methodist also has
+        # role=teacher but is org-wide, so they fall through below — otherwise
+        # their course list is empty while the journal below it is not.
         query = query.where(
             Course.org_id == user.org_id,
             Course.is_template == False,  # noqa: E712
-            Course.teacher_id == user.id,
+            Course.id.in_(await teacher_course_ids(db, user)),
         )
     else:
         # admin — all courses in their org (including templates)

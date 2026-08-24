@@ -32,6 +32,7 @@ from app.admin.student_profile_service import (
     StudentProfileError,
     get_student_profile,
 )
+from app.analytics.task_stats_service import _is_org_wide
 from app.auth.dependencies import require_role
 from app.auth.models import Organization, User, UserRole
 from app.auth.schemas import UserResponse
@@ -245,9 +246,13 @@ async def teacher_stats_endpoint(
     # "Mine" is the group I lead as much as the course I own (specs/061). This
     # product attaches teachers to groups, so a teacher running somebody else's
     # course for their own group owned nothing and every card read zero.
+    # A methodist has role=teacher too, and every other module treats them as
+    # org-wide. This one keyed on the role alone, so a methodist opened the
+    # dashboard, read "0 courses, 0 students", and saw the school's journal
+    # listed right underneath (measured in prod 2026-08-24, specs/061).
     course_ids = None
     student_ids = None
-    if user.role == UserRole.teacher:
+    if not _is_org_wide(user):
         course_ids = await teacher_course_ids(db, user)
         student_ids = await teacher_student_ids(db, user)
 
