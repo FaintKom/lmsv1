@@ -103,6 +103,33 @@ RBAC_ROWS: list[tuple[str, str, dict | None, dict | None, dict[str, set[int] | i
         None,
         {"student": 403, "teacher": 403, "methodist": 403, "admin": {200, 204, 404, 422}},
     ),
+    # ── What only a super admin may do ───────────────────────────────────
+    #
+    # Added 2026-08-28 (specs/066). The matrix had no super admin at all, so
+    # nothing here separated GrassLMS's own surfaces from a school's — and
+    # /admin/waitlist answered an ordinary administrator with "0 signups"
+    # instead of saying no.
+    #
+    # `admin` is deliberately absent from these two rows: .env.qa names that
+    # address SUPER_ADMIN_EMAIL, so which role it holds depends on whether the
+    # backend booted or the seed ran last. `school_admin` is the settled one.
+    (
+        "GET",
+        "/api/v1/waitlist",
+        None,
+        None,
+        {"student": 403, "teacher": 403, "methodist": 403, "school_admin": 403, "super_admin": 200},
+    ),
+    (
+        # Empty body on purpose: 400 means "the name is missing", an answer
+        # only somebody past the role gate gets. Creating a real organization
+        # would leave a tenant behind for every later test.
+        "POST",
+        "/api/v1/admin/organizations",
+        {},
+        None,
+        {"student": 403, "teacher": 403, "methodist": 403, "school_admin": 403, "super_admin": 400},
+    ),
 ]
 
 
@@ -110,8 +137,16 @@ RBAC_IDS = [f"{row[0]} {row[1]}" for row in RBAC_ROWS]
 
 
 @pytest.mark.parametrize("method,path,body,params,expected", RBAC_ROWS, ids=RBAC_IDS)
-@pytest.mark.parametrize("role", ["student", "teacher", "methodist", "admin"])
+@pytest.mark.parametrize(
+    "role", ["student", "teacher", "methodist", "admin", "school_admin", "super_admin"]
+)
 async def test_rbac(role, method, path, body, params, expected, role_client_factory):
+    # A row states only the roles it means to pin. Filling every row for every
+    # role would mean writing an expectation nobody thought about, which is
+    # how a matrix ends up agreeing with whatever the code happens to do.
+    if role not in expected:
+        pytest.skip(f"{method} {path} makes no claim about {role}")
+
     c = await role_client_factory(role)
     r = await c.request(method, path, json=body, params=params)
     want = expected[role]

@@ -116,6 +116,14 @@ QA_USERS = [
     # refuse an ordinary admin, and the pages answered with an empty list
     # instead of saying so (specs/066).
     {"slug": "qa-school-admin", "email": "qa-school-admin@qa.example.com", "role": UserRole.admin, "is_methodist": False, "name": "QA School Admin"},
+    # A super admin the seed actually owns. The one above the bootstrap makes
+    # is unusable as a fixture: e2e.yml runs this script *after* the stack is
+    # up, so the seed writes qa-admin's declared role back and the stand ends
+    # the setup with no super admin at all. Everything super-only — the public
+    # waitlist among it — had nobody to test it with. This address is not
+    # SUPER_ADMIN_EMAIL, so nothing promotes or demotes it and the order of
+    # boot and seed stops mattering.
+    {"slug": "qa-superadmin", "email": "qa-superadmin@qa.example.com", "role": UserRole.super_admin, "is_methodist": False, "name": "QA Super Admin"},
     # Unlinked on purpose: the parent journey starts from an empty portal and
     # has staff attach the child, which is the only way a link is made now.
     {"slug": "qa-parent",    "email": "qa-parent@qa.example.com",    "role": UserRole.parent,  "is_methodist": False, "name": "QA Parent"},

@@ -18,8 +18,7 @@ import { LoginPage } from "../poms/LoginPage";
 type Case = {
   route: string;
   refusedAs: "teacher" | "schoolAdmin";
-  /** Who may see it — null when the stand has nobody who can (see below). */
-  allowedAs: "admin" | "methodist" | null;
+  allowedAs: "admin" | "methodist" | "superAdmin";
   /** A phrase only the working page shows. */
   worksMarker: RegExp;
 };
@@ -45,19 +44,15 @@ const CASES: Case[] = [
   },
   {
     // The public waitlist is GrassLMS's, not a school's: super-admin only.
-    // This case is why scripts/seed_qa.py grew a plain administrator — before
-    // that the stand had no role that could be refused here at all.
-    //
-    // No positive control, because the stand has nobody who may see it. The
-    // backend promotes SUPER_ADMIN_EMAIL (qa-admin) on boot, and e2e.yml runs
-    // seed_qa.py *after* that, which writes the declared role back: by the
-    // time the tests start there is no super admin left. Locally the same run
-    // passes, because there the backend was restarted after seeding — the
-    // ordering trap written up in tasks/lessons.md, met from the other side.
-    // That the actor is healthy is shown by the cases above, which use it.
+    // This case is why scripts/seed_qa.py grew two accounts — a plain
+    // administrator to be refused, and a super admin the seed owns to be let
+    // in. `admin` is neither: the backend promotes SUPER_ADMIN_EMAIL on boot
+    // and e2e.yml seeds *after* that, writing the declared role back, so in CI
+    // that account is an ordinary administrator and this pair had no one on
+    // either side of it.
     route: "/admin/waitlist",
     refusedAs: "schoolAdmin",
-    allowedAs: null,
+    allowedAs: "superAdmin",
     worksMarker: /signups/i,
   },
 ];
@@ -90,14 +85,11 @@ for (const c of CASES) {
       await expect(page.locator("main")).not.toContainText(c.worksMarker);
     });
 
-    const allowed = c.allowedAs;
-    if (allowed) {
-      test(`${allowed} still sees the page itself`, async ({ page }) => {
-        await new LoginPage(page).loginViaUi(allowed);
-        await page.goto(c.route);
-        await expect(page.locator("main")).toContainText(c.worksMarker, { timeout: 20_000 });
-      });
-    }
+    test(`${c.allowedAs} still sees the page itself`, async ({ page }) => {
+      await new LoginPage(page).loginViaUi(c.allowedAs);
+      await page.goto(c.route);
+      await expect(page.locator("main")).toContainText(c.worksMarker, { timeout: 20_000 });
+    });
   });
 }
 

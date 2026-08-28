@@ -23,6 +23,7 @@ Or from the host (port 8000 is published):
 These tests are NOT transactional - mutations persist for the lifetime
 of the QA stack. Order independence is the test author's responsibility.
 """
+
 import os
 import uuid
 
@@ -48,16 +49,22 @@ def qa_uuid(slug: str) -> uuid.UUID:
     return uuid.uuid5(NAMESPACE_QA, slug)
 
 
-QA_ORG_ID    = qa_uuid("qa-org")
+QA_ORG_ID = qa_uuid("qa-org")
 QA_COURSE_ID = qa_uuid("qa-course")
 QA_MODULE_ID = qa_uuid("qa-module")
 QA_LESSON_ID = qa_uuid("qa-lesson")
 
 QA_USERS: dict[str, tuple[str, str]] = {
-    "student":   ("qa-student@qa.example.com",   "qa-test-not-for-prod"),
-    "teacher":   ("qa-teacher@qa.example.com",   "qa-test-not-for-prod"),
+    "student": ("qa-student@qa.example.com", "qa-test-not-for-prod"),
+    "teacher": ("qa-teacher@qa.example.com", "qa-test-not-for-prod"),
     "methodist": ("qa-methodist@qa.example.com", "qa-test-not-for-prod"),
-    "admin":     ("qa-admin@qa.example.com",     "qa-test-not-for-prod"),
+    # Declared as admin in the seed, but .env.qa names this address
+    # SUPER_ADMIN_EMAIL. Which role it actually holds depends on whether the
+    # backend booted or the seed ran last, so nothing may rely on it being one
+    # or the other — use the two below when the difference matters.
+    "admin": ("qa-admin@qa.example.com", "qa-test-not-for-prod"),
+    "school_admin": ("qa-school-admin@qa.example.com", "qa-test-not-for-prod"),
+    "super_admin": ("qa-superadmin@qa.example.com", "qa-test-not-for-prod"),
 }
 
 
@@ -98,6 +105,7 @@ async def role_client_factory(live_client: AsyncClient):
     40+ calls share at most one login per role - well under the auth/login
     rate-limit (5/minute per IP).
     """
+
     async def make(role: str) -> AsyncClient:
         if role not in QA_USERS:
             raise KeyError(f"unknown QA role: {role}; valid: {list(QA_USERS)}")

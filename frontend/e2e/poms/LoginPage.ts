@@ -21,6 +21,10 @@ const CREDS = {
   // could not tell an administrator from a super admin, and the pages that
   // separate them answered a refusal with an empty list (specs/066).
   schoolAdmin: { email: "qa-school-admin@qa.example.com", password: "qa-test-not-for-prod" },
+  // A super admin the seed owns, so it survives the boot-then-seed order that
+  // leaves `admin` above as an ordinary administrator in CI. Use this one for
+  // anything super-only.
+  superAdmin: { email: "qa-superadmin@qa.example.com", password: "qa-test-not-for-prod" },
 } as const;
 
 export type QaRole = keyof typeof CREDS;
