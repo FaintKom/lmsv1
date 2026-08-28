@@ -16,8 +16,9 @@ service (:mod:`app.analytics.task_stats_service`).
 
 RBAC / scoping (see :func:`_authorize_student`):
 
-  - teacher                      → only students enrolled in one of the
-                                   teacher's own courses (Course.teacher_id)
+  - teacher                      → only students enrolled in a course the
+                                   teacher leads: owned outright, or led
+                                   through a group (see teacher_scope)
   - is_methodist (any non-super) → any student in their org
   - admin                        → any student in their org
   - super_admin                  → any student, any org (global)
@@ -31,6 +32,7 @@ Efficiency: each submission family is summarised with a single GROUP-BY
 aggregate query and the recent-N list with one ORDER BY ... LIMIT query — no
 per-row or per-course follow-up queries (no N+1).
 """
+
 from __future__ import annotations
 
 import uuid
@@ -42,6 +44,7 @@ from app.assessments.models import Quiz, QuizSubmission
 from app.assignments.models import Assignment, AssignmentSubmission
 from app.auth.models import User, UserRole
 from app.certificates.models import Certificate
+from app.common.teacher_scope import teacher_course_ids
 from app.courses.models import Course
 from app.exercises.models import Exercise, ExerciseSubmission
 from app.gamification.models import Badge, UserBadge, UserStreak
@@ -65,25 +68,29 @@ def _is_org_wide(user: User) -> bool:
     return user.role in (UserRole.admin, UserRole.super_admin) or bool(user.is_methodist)
 
 
-async def _teacher_shares_course(
-    db: AsyncSession, teacher_id: uuid.UUID, student_id: uuid.UUID
-) -> bool:
-    """True iff the student is enrolled in at least one course the teacher owns."""
+async def _teacher_shares_course(db: AsyncSession, user: User, student_id: uuid.UUID) -> bool:
+    """True iff the student sits in a course this teacher leads.
+
+    "Leads" means owned outright *or* led through a group — the definition the
+    rest of the product uses since specs/061. Keyed on ``Course.teacher_id``
+    alone, a teacher's own panel linked to a pupil whose profile then answered
+    403: the pupil was in their group, on somebody else's course.
+    """
+    course_ids = await teacher_course_ids(db, user)
+    if not course_ids:
+        return False
     found = await db.scalar(
         select(Enrollment.id)
-        .join(Course, Course.id == Enrollment.course_id)
         .where(
             Enrollment.student_id == student_id,
-            Course.teacher_id == teacher_id,
+            Enrollment.course_id.in_(course_ids),
         )
         .limit(1)
     )
     return found is not None
 
 
-async def _authorize_student(
-    db: AsyncSession, user: User, student_id: uuid.UUID
-) -> User:
+async def _authorize_student(db: AsyncSession, user: User, student_id: uuid.UUID) -> User:
     """Fetch the target student and confirm the caller may view their profile.
 
     Raises :class:`StudentProfileError`:
@@ -111,7 +118,7 @@ async def _authorize_student(
         return target
 
     # Plain teacher: only students enrolled in one of their own courses.
-    if not await _teacher_shares_course(db, user.id, student_id):
+    if not await _teacher_shares_course(db, user, student_id):
         raise StudentProfileError(
             "forbidden", "You can only view students enrolled in your courses"
         )
@@ -164,9 +171,7 @@ async def _exercise_summary(db: AsyncSession, student_id: uuid.UUID) -> dict:
         "avg_score": round(float(row.avg_score), 1) if row.avg_score is not None else None,
         # pass_rate denominator is rows with a non-NULL passed verdict.
         "pass_rate": (
-            round((row.passed_count or 0) / row.verdict_count, 4)
-            if row.verdict_count
-            else None
+            round((row.passed_count or 0) / row.verdict_count, 4) if row.verdict_count else None
         ),
         "avg_attempts": round(float(row.avg_attempts), 2) if row.avg_attempts is not None else None,
         "avg_time_spent_seconds": (
@@ -196,9 +201,7 @@ async def _quiz_summary(db: AsyncSession, student_id: uuid.UUID) -> dict:
         "graded": row.graded or 0,
         "avg_score": round(float(row.avg_score), 1) if row.avg_score is not None else None,
         "pass_rate": (
-            round((row.passed_count or 0) / row.verdict_count, 4)
-            if row.verdict_count
-            else None
+            round((row.passed_count or 0) / row.verdict_count, 4) if row.verdict_count else None
         ),
         "avg_attempts": round(float(row.avg_attempts), 2) if row.avg_attempts is not None else None,
         "avg_time_spent_seconds": (
@@ -231,9 +234,7 @@ async def _assignment_summary(db: AsyncSession, student_id: uuid.UUID) -> dict:
     }
 
 
-async def _recent_exercises(
-    db: AsyncSession, student_id: uuid.UUID, limit: int
-) -> list[dict]:
+async def _recent_exercises(db: AsyncSession, student_id: uuid.UUID, limit: int) -> list[dict]:
     rows = (
         await db.execute(
             select(
@@ -273,9 +274,7 @@ async def _recent_exercises(
     ]
 
 
-async def _recent_quizzes(
-    db: AsyncSession, student_id: uuid.UUID, limit: int
-) -> list[dict]:
+async def _recent_quizzes(db: AsyncSession, student_id: uuid.UUID, limit: int) -> list[dict]:
     rows = (
         await db.execute(
             select(
@@ -314,9 +313,7 @@ async def _recent_quizzes(
     ]
 
 
-async def _recent_assignments(
-    db: AsyncSession, student_id: uuid.UUID, limit: int
-) -> list[dict]:
+async def _recent_assignments(db: AsyncSession, student_id: uuid.UUID, limit: int) -> list[dict]:
     rows = (
         await db.execute(
             select(
@@ -356,9 +353,7 @@ async def _recent_assignments(
 
 
 async def _gamification(db: AsyncSession, student_id: uuid.UUID) -> dict:
-    streak = await db.scalar(
-        select(UserStreak).where(UserStreak.user_id == student_id)
-    )
+    streak = await db.scalar(select(UserStreak).where(UserStreak.user_id == student_id))
     badge_rows = (
         await db.execute(
             select(UserBadge.earned_at, Badge.name, Badge.icon, Badge.id)
