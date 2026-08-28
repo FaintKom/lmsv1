@@ -1013,8 +1013,21 @@ async def list_course_students(
     admin: User = Depends(require_role(UserRole.admin, UserRole.teacher)),
     db: AsyncSession = Depends(get_db),
 ):
-    """List all students enrolled in a course."""
+    """Students enrolled in a course the caller may see.
+
+    The course itself went unchecked: any teacher could name any course id and
+    read its roster — full names and addresses of a colleague's pupils. The
+    org filter below is about the *students*, and said nothing about whether
+    this course was the caller's business (measured on the QA stack,
+    2026-08-24, specs/061).
+    """
+    from app.analytics.task_stats_service import TaskStatsError, _authorize_course
     from app.progress.models import Enrollment
+
+    try:
+        await _authorize_course(db, admin, course_id)
+    except TaskStatsError as exc:
+        raise NotFoundError("Course not found") from exc
 
     query = (
         select(User, Enrollment)
