@@ -36,13 +36,21 @@ export function CalendarView({ canCreate = false }: Props) {
  // do not fit. So a phone opens on the day view: one column, names readable,
  // and the month button is still there for anyone who wants the overview.
  //
- // Applied once, on mount: after that the choice belongs to whoever is
- // looking, and a resize should not overrule them.
+ // Waits for the calendar to exist. `loading` returns a spinner instead of
+ // FullCalendar, so an effect with no dependencies fires while the ref is
+ // still null and quietly does nothing — measured in prod, where the month
+ // grid came back untouched. Runs once after that; the view is then the
+ // reader's to choose, and a resize must not overrule them.
+ const narrowedOnce = useRef(false);
  useEffect(() => {
+ if (loading || narrowedOnce.current) return;
  if (typeof window === "undefined") return;
  if (!window.matchMedia("(max-width: 640px)").matches) return;
- calendarRef.current?.getApi().changeView("timeGridDay");
- }, []);
+ const api = calendarRef.current?.getApi();
+ if (!api) return;
+ api.changeView("timeGridDay");
+ narrowedOnce.current = true;
+ }, [loading]);
 
  const [form, setForm] = useState({
  title: "",

@@ -186,6 +186,30 @@ test.describe("phone: what the audit fixed", () => {
     ).toBeLessThanOrEqual(viewport!.width);
   });
 
+  test("the calendar opens on a view a phone can read", async ({ page }) => {
+    // A month grid needs seven columns; at phone width each day is ~60px and
+    // an event title shows 6 of its 87 pixels. So a narrow screen opens on the
+    // day view instead (specs/067).
+    //
+    // Worth pinning because the first version of this failed silently: the
+    // effect ran while `loading` still rendered a spinner, so the ref was null
+    // and `changeView` never happened. Prod came back on the month grid and
+    // nothing anywhere said so.
+    await new LoginPage(page).loginViaUi("teacher");
+    await page.goto("/admin/calendar");
+
+    const view = page.locator(".fc-view");
+    await expect(view).toBeVisible({ timeout: 20_000 });
+    await expect(view).toHaveClass(/fc-timeGridDay-view/);
+
+    // And the toolbar fits, rather than running off the right edge.
+    const lost = await page.evaluate(() => {
+      const t = document.querySelector(".fc-toolbar");
+      return t ? t.scrollWidth - t.clientWidth : 0;
+    });
+    expect(lost, "calendar toolbar overflow in px").toBeLessThanOrEqual(0);
+  });
+
   test("no tap target under 24px on the landing page", async ({ page }) => {
     await page.goto("/");
     const offenders = await page.evaluate(() => {
