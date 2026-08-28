@@ -3,7 +3,8 @@
 RBAC is delegated to the analytics task-stats helpers so the journal shares the
 exact same scoping rules as the rest of the staff tooling:
 
-  - teacher                      → only their own courses
+  - teacher                      → only courses they lead: owned outright, or
+                                   led through a group (app.common.teacher_scope)
   - is_methodist (any non-super) → all courses in their org
   - admin                        → all courses in their org
   - super_admin                  → all courses, all orgs

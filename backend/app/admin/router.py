@@ -464,9 +464,9 @@ async def list_courses_admin(
 
     # The same scope every other staff-facing list uses: super_admin sees
     # everything, admins and methodists see their org, and a plain teacher
-    # sees the courses they own. This list used to stop at the org, so one
+    # sees the courses they lead. This list used to stop at the org, so one
     # teacher could read the whole school's catalogue — while the dashboard
-    # right above it counted only their own courses.
+    # right above it counted only the courses that were theirs.
     query = select(Course)
     scope = _course_scope_clause(user)
     if scope is not None:
