@@ -126,12 +126,14 @@ describe("buildNavTree — nobody loses a page", () => {
     });
   }
 
-  it("counts 21 entries for a super admin, 19 for an admin, 14 for a teacher", () => {
+  it("counts 21 entries for a super admin, 19 for an admin, 13 for a teacher", () => {
     // Two Jitsi entries and the standalone recordings page left; one live
     // lessons entry arrived. Net: one fewer than the 22 we started with.
+    // The teacher lost a fourteenth on 2026-08-24: school-wide analytics
+    // names other teachers' pupils and went to methodists (specs/061).
     expect(hrefsOf("super_admin")).toHaveLength(21);
     expect(hrefsOf("admin")).toHaveLength(19);
-    expect(hrefsOf("teacher")).toHaveLength(14);
+    expect(hrefsOf("teacher")).toHaveLength(13);
   });
 
   it("never lists the same page twice", () => {
@@ -197,8 +199,10 @@ describe("buildNavTree — shape", () => {
       t,
     });
 
-    const hrefs = (tree: ReturnType<typeof buildNavTree>) =>
-      tree.flatMap((g) => ("items" in g ? g.items : [g])).map((i) => i.href);
+    const hrefs = (tree: ReturnType<typeof buildNavTree>) => [
+      ...tree.top.map((i) => i.href),
+      ...tree.groups.flatMap((g) => g.items.map((i) => i.href)),
+    ];
 
     // Positive control: the same role and the same school settings, so the
     // only difference between these two menus is the flag.
