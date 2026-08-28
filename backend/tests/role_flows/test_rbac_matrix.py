@@ -79,13 +79,16 @@ RBAC_ROWS: list[tuple[str, str, dict | None, dict | None, dict[str, set[int] | i
         None,
         {"student": 403, "teacher": 403, "methodist": 403, "admin": 200},
     ),
-    # Admin dashboard - admin or teacher (methodist included).
+    # Admin dashboard — the school's totals, so administrators and methodists.
+    # The teacher column said 200 until 2026-08-24: these are counts of the
+    # whole school, and a class teacher sees only their own (specs/061). Their
+    # own figures are at /admin/teacher-stats, which stays open to them.
     (
         "GET",
         "/api/v1/admin/dashboard",
         None,
         None,
-        {"student": 403, "teacher": 200, "methodist": 200, "admin": 200},
+        {"student": 403, "teacher": 403, "methodist": 200, "admin": 200},
     ),
     # The knowledge rows that used to live here were dropped on 2026-08-11.
     # The module went dormant on 2026-05-31: its router is not mounted in

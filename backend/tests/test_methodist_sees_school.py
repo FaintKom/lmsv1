@@ -56,6 +56,30 @@ async def test_methodist_course_list_is_not_empty(client, org, db):
     assert resp.json()["total"] >= 1
 
 
+async def test_school_wide_analytics_is_closed_to_a_class_teacher(client, org, db):
+    """Measured on the QA stack 2026-08-24: it named another teacher's pupil.
+
+    ``analytics/v2/student-risks`` and its ten neighbours read the school
+    through ``_org_filter``, which knows about organisations and nothing about
+    roles. The owner's call was to close the door rather than narrow eleven
+    queries — a class teacher already has the scoped "needs attention" block.
+    """
+    methodist = await _staff(db, org, "Мария", methodist=True)
+    teacher = await _staff(db, org, "Игорь")
+
+    for path in (
+        "/api/v1/admin/analytics/v2/student-risks",
+        "/api/v1/admin/analytics/detailed",
+        "/api/v1/admin/dashboard",
+    ):
+        # Positive control: the door is not simply broken.
+        ok = await client.get(path, headers=auth_header(methodist))
+        assert ok.status_code == 200, f"{path}: {ok.text}"
+
+        shut = await client.get(path, headers=auth_header(teacher))
+        assert shut.status_code == 403, f"{path}: {shut.text}"
+
+
 async def test_a_plain_teacher_still_sees_only_their_own(client, org, db):
     owner = await _staff(db, org, "Course Owner")
     await make_course(db, org, owner)

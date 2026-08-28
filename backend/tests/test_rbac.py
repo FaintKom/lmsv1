@@ -17,6 +17,7 @@ from tests.conftest import (
 
 # ─── Helper ──────────────────────────────────────────────────────────────
 
+
 async def _assert_allowed(client, method, url, user, *, json=None, expected=None):
     """Assert that a user CAN access an endpoint."""
     fn = getattr(client, method)
@@ -25,9 +26,13 @@ async def _assert_allowed(client, method, url, user, *, json=None, expected=None
         kwargs["json"] = json
     resp = await fn(url, **kwargs)
     if expected:
-        assert resp.status_code in expected, f"{user.role} got {resp.status_code} on {method.upper()} {url}"
+        assert resp.status_code in expected, (
+            f"{user.role} got {resp.status_code} on {method.upper()} {url}"
+        )
     else:
-        assert resp.status_code < 400, f"{user.role} got {resp.status_code} on {method.upper()} {url}"
+        assert resp.status_code < 400, (
+            f"{user.role} got {resp.status_code} on {method.upper()} {url}"
+        )
 
 
 async def _assert_forbidden(client, method, url, user, *, json=None):
@@ -37,7 +42,9 @@ async def _assert_forbidden(client, method, url, user, *, json=None):
     if json:
         kwargs["json"] = json
     resp = await fn(url, **kwargs)
-    assert resp.status_code == 403, f"{user.role} got {resp.status_code} on {method.upper()} {url} (expected 403)"
+    assert resp.status_code == 403, (
+        f"{user.role} got {resp.status_code} on {method.upper()} {url} (expected 403)"
+    )
 
 
 # ─── Course Endpoints RBAC ───────────────────────────────────────────────
@@ -88,10 +95,15 @@ async def test_admin_users_rbac(client, super_admin, admin, teacher, student, pa
 
 @pytest.mark.asyncio
 async def test_admin_dashboard_rbac(client, super_admin, admin, teacher, student, parent):
-    """Admin and teacher can view dashboard."""
+    """The school's totals belong to administrators and methodists.
+
+    The teacher line asserted "allowed" until 2026-08-24: the dashboard counts
+    the whole school, and a class teacher sees only their own. Their own
+    figures are at ``/admin/teacher-stats`` (specs/061).
+    """
     await _assert_allowed(client, "get", "/api/v1/admin/dashboard", super_admin)
     await _assert_allowed(client, "get", "/api/v1/admin/dashboard", admin)
-    await _assert_allowed(client, "get", "/api/v1/admin/dashboard", teacher)
+    await _assert_forbidden(client, "get", "/api/v1/admin/dashboard", teacher)
     await _assert_forbidden(client, "get", "/api/v1/admin/dashboard", student)
     await _assert_forbidden(client, "get", "/api/v1/admin/dashboard", parent)
 
@@ -128,10 +140,16 @@ async def test_admin_review_queue_rbac(client, super_admin, admin, teacher, stud
 
 @pytest.mark.asyncio
 async def test_admin_analytics_rbac(client, super_admin, admin, teacher, student, parent):
-    """Admin and teacher can access analytics."""
+    """School-wide analytics belongs to administrators and methodists.
+
+    The teacher line asserted "allowed" until 2026-08-24, when a probe on the
+    QA stack showed these figures naming another teacher's pupil. A class
+    teacher sees only their own, and has a scoped view of who is slipping on
+    their own dashboard (specs/061).
+    """
     await _assert_allowed(client, "get", "/api/v1/admin/analytics/detailed", super_admin)
     await _assert_allowed(client, "get", "/api/v1/admin/analytics/detailed", admin)
-    await _assert_allowed(client, "get", "/api/v1/admin/analytics/detailed", teacher)
+    await _assert_forbidden(client, "get", "/api/v1/admin/analytics/detailed", teacher)
     await _assert_forbidden(client, "get", "/api/v1/admin/analytics/detailed", student)
     await _assert_forbidden(client, "get", "/api/v1/admin/analytics/detailed", parent)
 
@@ -165,7 +183,9 @@ async def test_exercise_list_rbac(client, super_admin, admin, teacher, student, 
 
 
 @pytest.mark.asyncio
-async def test_assignment_create_rbac(client, super_admin, admin, teacher, student, parent, org, db):
+async def test_assignment_create_rbac(
+    client, super_admin, admin, teacher, student, parent, org, db
+):
     """Only admin/teacher can create assignments."""
     course = await make_course(db, org, teacher)
     payload = {
@@ -197,8 +217,11 @@ async def test_my_courses_all_roles(client, super_admin, admin, teacher, student
 @pytest.mark.asyncio
 async def test_gamification_all_roles(client, super_admin, admin, teacher, student, parent):
     """All authenticated users can access gamification."""
-    for endpoint in ["/api/v1/gamification/my-badges", "/api/v1/gamification/my-streak",
-                     "/api/v1/gamification/leaderboard"]:
+    for endpoint in [
+        "/api/v1/gamification/my-badges",
+        "/api/v1/gamification/my-streak",
+        "/api/v1/gamification/leaderboard",
+    ]:
         for user in [super_admin, admin, teacher, student, parent]:
             await _assert_allowed(client, "get", endpoint, user)
 
@@ -243,9 +266,15 @@ async def test_parent_portal_rbac(client, super_admin, admin, teacher, student, 
 async def test_learning_paths_create_rbac(client, super_admin, admin, teacher, student, parent):
     """Only admin/teacher can create learning paths."""
     payload = {"title": "RBAC Path", "description": "Test"}
-    await _assert_allowed(client, "post", "/api/v1/learning-paths", super_admin, json=payload, expected=[200, 201])
-    await _assert_allowed(client, "post", "/api/v1/learning-paths", admin, json=payload, expected=[200, 201])
-    await _assert_allowed(client, "post", "/api/v1/learning-paths", teacher, json=payload, expected=[200, 201])
+    await _assert_allowed(
+        client, "post", "/api/v1/learning-paths", super_admin, json=payload, expected=[200, 201]
+    )
+    await _assert_allowed(
+        client, "post", "/api/v1/learning-paths", admin, json=payload, expected=[200, 201]
+    )
+    await _assert_allowed(
+        client, "post", "/api/v1/learning-paths", teacher, json=payload, expected=[200, 201]
+    )
     await _assert_forbidden(client, "post", "/api/v1/learning-paths", student, json=payload)
     await _assert_forbidden(client, "post", "/api/v1/learning-paths", parent, json=payload)
 
@@ -261,9 +290,7 @@ async def test_learning_paths_list_rbac(client, super_admin, admin, teacher, stu
 
 
 @pytest.mark.asyncio
-async def test_super_admin_bypasses_all_role_checks(
-    client, super_admin, org, db
-):
+async def test_super_admin_bypasses_all_role_checks(client, super_admin, org, db):
     """Super admin can access every protected endpoint."""
     endpoints = [
         ("get", "/api/v1/admin/dashboard"),
@@ -329,6 +356,7 @@ async def test_admin_cannot_see_other_org_users(client, admin, admin2):
 async def test_admin_cannot_manage_other_org_groups(client, admin, org2, db):
     """Admin cannot see groups from another org."""
     from app.admin.models import StudentGroup
+
     g = StudentGroup(org_id=org2.id, name="Other Org Group")
     db.add(g)
     await db.flush()

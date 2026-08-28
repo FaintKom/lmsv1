@@ -23,9 +23,15 @@ async def test_dashboard_as_admin(client: AsyncClient, admin):
 
 
 @pytest.mark.asyncio
-async def test_dashboard_as_teacher(client: AsyncClient, teacher):
+async def test_dashboard_closed_to_a_class_teacher(client: AsyncClient, teacher):
+    """School totals are an administrator's number, not a class teacher's.
+
+    This asserted 200 until 2026-08-24. The dashboard counts the whole school —
+    users, courses, enrolments — and a teacher sees only their own (specs/061).
+    Their own figures live at ``/admin/teacher-stats``, which is still theirs.
+    """
     resp = await client.get("/api/v1/admin/dashboard", headers=auth_header(teacher))
-    assert resp.status_code == 200
+    assert resp.status_code == 403
 
 
 @pytest.mark.asyncio

@@ -83,7 +83,9 @@ const BEFORE: Record<string, string[]> = {
     "/admin/recordings",
     "/admin/calendar",
     "/admin/meetings",
-    "/admin/analytics",
+    // No "/admin/analytics": school-wide analytics names other teachers'
+    // pupils, so it belongs to methodists and administrators. A class teacher
+    // has the scoped "needs attention" block on their dashboard (specs/061).
     "/support",
   ],
   student: [
@@ -124,12 +126,14 @@ describe("buildNavTree — nobody loses a page", () => {
     });
   }
 
-  it("counts 21 entries for a super admin, 19 for an admin, 14 for a teacher", () => {
+  it("counts 21 entries for a super admin, 19 for an admin, 13 for a teacher", () => {
     // Two Jitsi entries and the standalone recordings page left; one live
     // lessons entry arrived. Net: one fewer than the 22 we started with.
+    // The teacher lost a fourteenth on 2026-08-24: school-wide analytics
+    // names other teachers' pupils and went to methodists (specs/061).
     expect(hrefsOf("super_admin")).toHaveLength(21);
     expect(hrefsOf("admin")).toHaveLength(19);
-    expect(hrefsOf("teacher")).toHaveLength(14);
+    expect(hrefsOf("teacher")).toHaveLength(13);
   });
 
   it("never lists the same page twice", () => {
@@ -178,6 +182,32 @@ describe("buildNavTree — shape", () => {
     });
     const biggest = Math.max(...tree.groups.map((g) => g.items.length));
     expect(biggest).toBeLessThanOrEqual(8);
+  });
+
+  it("gives a methodist the analytics a class teacher does not get", () => {
+    const plain = buildNavTree({
+      role: "teacher",
+      menuVisibility: {},
+      reviewCount: 0,
+      t,
+    });
+    const methodist = buildNavTree({
+      role: "teacher",
+      menuVisibility: {},
+      isMethodist: true,
+      reviewCount: 0,
+      t,
+    });
+
+    const hrefs = (tree: ReturnType<typeof buildNavTree>) => [
+      ...tree.top.map((i) => i.href),
+      ...tree.groups.flatMap((g) => g.items.map((i) => i.href)),
+    ];
+
+    // Positive control: the same role and the same school settings, so the
+    // only difference between these two menus is the flag.
+    expect(hrefs(methodist)).toContain("/admin/analytics");
+    expect(hrefs(plain)).not.toContain("/admin/analytics");
   });
 
   it("drops a category once the school has hidden everything in it", () => {
