@@ -1806,6 +1806,19 @@ const en: TranslationMap = {
  "admin.waitlist.copyEmails": "Copy pending emails",
  "admin.waitlist.copied": "Emails copied to clipboard",
  "admin.waitlist.failedLoad": "Failed to load waitlist",
+
+ // Refusals (specs/066). A page whose data the server withheld says so, and
+ // offers nothing it cannot deliver — an empty list is not an answer to
+ // "you may not see this".
+ "admin.waitlist.noAccessTitle": "The waitlist belongs to GrassLMS",
+ "admin.waitlist.noAccessBody": "Sign-ups from the public site are handled by GrassLMS, not by your school. Your school's own enquiries live under Enquiries.",
+ "admin.orgMembers.noAccessTitle": "Only an administrator manages membership",
+ "admin.orgMembers.noAccessBody": "Your account works with its groups and lessons; who belongs to this organization is the school administrator's to set. Ask them to add someone.",
+ "crm.noAccessTitle": "Only an administrator sees enquiries",
+ "crm.noAccessBody": "Enquiries are the school's admissions pipeline and the administrator keeps it. Your account works with the students already in your groups.",
+ "admin.analytics.noAccessTitle": "School-wide analytics is for administrators",
+ "admin.analytics.noAccessBody": "These figures cover the whole school. Your own classes are on your dashboard: the courses you lead, the work waiting to be marked, and who needs attention.",
+ "analytics.widget.loadFailed": "Could not load this widget.",
  "admin.waitlist.failedMark": "Failed to mark as contacted",
 
  // Admin integrations

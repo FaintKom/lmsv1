@@ -1747,6 +1747,17 @@ const tr: TranslationMap = {
  "admin.waitlist.copyEmails": "Bekleyen e-postaları kopyala",
  "admin.waitlist.copied": "E-postalar panoya kopyalandı",
  "admin.waitlist.failedLoad": "Bekleme listesi yüklenemedi",
+
+ // Erişim redleri (specs/066).
+ "admin.waitlist.noAccessTitle": "Bekleme listesi GrassLMS'e aittir",
+ "admin.waitlist.noAccessBody": "Herkese açık siteden gelen kayıtları okulunuz değil GrassLMS yönetir. Okulunuzun kendi başvuruları Başvurular bölümündedir.",
+ "admin.orgMembers.noAccessTitle": "Üyeleri yalnızca yönetici yönetir",
+ "admin.orgMembers.noAccessBody": "Hesabınız kendi grupları ve dersleriyle çalışır; bu kuruma kimin dahil olduğuna okul yöneticisi karar verir. Birini eklemesini isteyin.",
+ "crm.noAccessTitle": "Başvuruları yalnızca yönetici görür",
+ "crm.noAccessBody": "Başvurular okulun kayıt hunisidir ve yönetici tarafından tutulur. Hesabınız zaten gruplarınızdaki öğrencilerle çalışır.",
+ "admin.analytics.noAccessTitle": "Okul geneli analitik yöneticiler içindir",
+ "admin.analytics.noAccessBody": "Bu sayılar okulun tamamını kapsar. Kendi derslerinizi panonuzda bulursunuz: yürüttüğünüz kurslar, değerlendirilecek işler ve kimin desteğe ihtiyacı olduğu.",
+ "analytics.widget.loadFailed": "Yüklenemedi.",
  "admin.waitlist.failedMark": "İletişime geçildi olarak işaretlenemedi",
 
  // Admin integrations

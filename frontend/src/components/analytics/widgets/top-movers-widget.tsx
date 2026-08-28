@@ -5,6 +5,7 @@
  *
  * Reads /admin/analytics/v2/xp-movers?window_days=N&limit=K.
  */
+import { WidgetError } from "./widget-error";
 import { useXpMovers } from "@/hooks/use-dashboards";
 
 import type { WidgetProps } from "../widget-registry";
@@ -18,7 +19,7 @@ export function TopMoversWidget({ props }: WidgetProps) {
     return <div className="text-sm text-text-muted">Loading movers…</div>;
   }
   if (error) {
-    return <div className="text-sm text-danger">{(error as Error).message}</div>;
+    return <WidgetError />;
   }
   if (!data) return null;
 

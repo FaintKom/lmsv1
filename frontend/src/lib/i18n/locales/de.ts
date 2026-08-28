@@ -1806,6 +1806,17 @@ const de: TranslationMap = {
  "admin.waitlist.copyEmails": "Offene E-Mails kopieren",
  "admin.waitlist.copied": "E-Mails in die Zwischenablage kopiert",
  "admin.waitlist.failedLoad": "Warteliste konnte nicht geladen werden",
+
+ // Zugriffsverweigerungen (specs/066).
+ "admin.waitlist.noAccessTitle": "Die Warteliste gehört GrassLMS",
+ "admin.waitlist.noAccessBody": "Anmeldungen über die öffentliche Website betreut GrassLMS, nicht Ihre Schule. Die Anfragen Ihrer Schule stehen unter Anfragen.",
+ "admin.orgMembers.noAccessTitle": "Mitglieder verwaltet nur die Administration",
+ "admin.orgMembers.noAccessBody": "Ihr Konto arbeitet mit seinen Gruppen und Lektionen; wer zu dieser Organisation gehört, entscheidet die Schuladministration. Bitten Sie sie, jemanden hinzuzufügen.",
+ "crm.noAccessTitle": "Anfragen sieht nur die Administration",
+ "crm.noAccessBody": "Anfragen sind der Aufnahmeprozess der Schule und liegen bei der Administration. Ihr Konto arbeitet mit den Lernenden, die bereits in Ihren Gruppen sind.",
+ "admin.analytics.noAccessTitle": "Schulweite Auswertungen sind für die Administration",
+ "admin.analytics.noAccessBody": "Diese Zahlen umfassen die ganze Schule. Ihre eigenen Klassen finden Sie auf Ihrem Dashboard: die Kurse, die Sie leiten, offene Bewertungen und wer Unterstützung braucht.",
+ "analytics.widget.loadFailed": "Konnte nicht geladen werden.",
  "admin.waitlist.failedMark": "Konnte nicht als kontaktiert markiert werden",
 
  // Admin integrations

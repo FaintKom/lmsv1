@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { Mail, Check, Copy } from "lucide-react";
 import { toast } from "sonner";
+import { AccessDenied } from "@/components/ui/access-denied";
 import { Button } from "@/components/ui/button";
 import apiClient from "@/lib/api-client";
 import { useTranslation } from "@/lib/i18n/context";
@@ -21,13 +22,23 @@ export default function WaitlistPage() {
  const { t } = useTranslation();
  const [entries, setEntries] = useState<WaitlistEntry[]>([]);
  const [loading, setLoading] = useState(true);
+ const [denied, setDenied] = useState(false);
 
  const fetchEntries = async () => {
  try {
  const { data } = await apiClient.get("/waitlist");
  setEntries(data.entries);
- } catch {
+ setDenied(false);
+ } catch (err) {
+ // The list belongs to GrassLMS, not to a school: GET /waitlist is
+ // super-admin only. A school administrator used to read "0 signups ·
+ // no one has joined yet" — a sentence about somebody else's data
+ // (specs/066). A toast lasts four seconds; the empty list stayed.
+ if ((err as { response?: { status?: number } })?.response?.status === 403) {
+ setDenied(true);
+ } else {
  toast.error(t("admin.waitlist.failedLoad"));
+ }
  } finally {
  setLoading(false);
  }
@@ -59,6 +70,16 @@ export default function WaitlistPage() {
  <div className="flex items-center justify-center py-20">
  <div className="h-8 w-8 animate-spin rounded-pill border-4 border-primary border-t-transparent" />
  </div>
+ );
+ }
+
+ if (denied) {
+ return (
+ <AccessDenied
+ pageTitleKey="admin.waitlist.title"
+ titleKey="admin.waitlist.noAccessTitle"
+ reasonKey="admin.waitlist.noAccessBody"
+ />
  );
  }
 

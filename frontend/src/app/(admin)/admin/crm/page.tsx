@@ -12,6 +12,7 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { CheckCircle2, Loader2, Phone, Plus, StickyNote, UserPlus } from "lucide-react";
 
+import { AccessDenied } from "@/components/ui/access-denied";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { useTranslation } from "@/lib/i18n/context";
@@ -52,6 +53,7 @@ export default function CrmPage() {
   const [tasks, setTasks] = useState<LeadTask[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [denied, setDenied] = useState(false);
 
   // New-enquiry form.
   const [newName, setNewName] = useState("");
@@ -80,8 +82,17 @@ export default function CrmPage() {
       ]);
       setLeads(rows);
       setSummary(counts);
-    } catch {
-      setError(t("crm.loadFailed"));
+      setDenied(false);
+    } catch (err) {
+      // The board is the administrator's. A teacher arriving by URL used to
+      // read "Could not load the enquiries" and, directly underneath, four
+      // tidy empty columns saying "Nothing here" — the refusal and a picture
+      // of an empty pipeline on one screen (specs/066).
+      if ((err as { response?: { status?: number } })?.response?.status === 403) {
+        setDenied(true);
+      } else {
+        setError(t("crm.loadFailed"));
+      }
     } finally {
       setLoading(false);
     }
@@ -225,6 +236,16 @@ export default function CrmPage() {
       <div className="flex h-96 items-center justify-center">
         <Loader2 className="h-8 w-8 animate-spin text-primary" />
       </div>
+    );
+  }
+
+  if (denied) {
+    return (
+      <AccessDenied
+        pageTitleKey="crm.title"
+        titleKey="crm.noAccessTitle"
+        reasonKey="crm.noAccessBody"
+      />
     );
   }
 

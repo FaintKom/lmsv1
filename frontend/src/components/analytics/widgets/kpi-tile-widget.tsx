@@ -8,6 +8,7 @@
  */
 import { ArrowDown, ArrowUp, Minus } from "lucide-react";
 
+import { WidgetError } from "./widget-error";
 import { useKpiDeltas } from "@/hooks/use-dashboards";
 import type { KpiDeltasResponse, KpiMetric } from "@/lib/api/analytics";
 
@@ -34,11 +35,12 @@ export function KpiTileWidget({ props }: WidgetProps) {
   const days = (props?.days as number | undefined) ?? 7;
   const { data, isLoading, error } = useKpiDeltas(days);
 
+  // Error first: on a failed query `data` never arrives, so the loading branch
+  // used to swallow it and the tile read "Loading KPIs…" for ever — for any
+  // failure and any role, not just a refusal (specs/066).
+  if (error) return <WidgetError />;
   if (isLoading || !data) {
     return <div className="text-sm text-text-muted">Loading KPIs…</div>;
-  }
-  if (error) {
-    return <div className="text-sm text-danger">{(error as Error).message}</div>;
   }
 
   return (

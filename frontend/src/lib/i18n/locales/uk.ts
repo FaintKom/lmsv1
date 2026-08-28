@@ -1806,6 +1806,17 @@ const uk: TranslationMap = {
  "admin.waitlist.copyEmails": "Скопіювати адреси",
  "admin.waitlist.copied": "Адреси скопійовано в буфер обміну",
  "admin.waitlist.failedLoad": "Не вдалося завантажити лист очікування",
+
+ // Відмови (specs/066).
+ "admin.waitlist.noAccessTitle": "Лист очікування веде GrassLMS",
+ "admin.waitlist.noAccessBody": "Записи з публічного сайту опрацьовує GrassLMS, а не школа. Заявки вашої школи — у розділі «Заявки».",
+ "admin.orgMembers.noAccessTitle": "Склад організації веде адміністратор",
+ "admin.orgMembers.noAccessBody": "Ваш обліковий запис працює зі своїми групами та уроками, а хто входить до організації — вирішує адміністратор школи. Попросіть його додати людину.",
+ "crm.noAccessTitle": "Заявки бачить адміністратор",
+ "crm.noAccessBody": "Заявки — це воронка вступу, її веде адміністратор школи. Ваша робота з тими, хто вже у ваших групах.",
+ "admin.analytics.noAccessTitle": "Аналітика по школі — для адміністраторів",
+ "admin.analytics.noAccessBody": "Тут цифри по всій школі. Ваші заняття — на вашій панелі: курси, які ви ведете, роботи на перевірку і кому потрібна допомога.",
+ "analytics.widget.loadFailed": "Не вдалося завантажити.",
  "admin.waitlist.failedMark": "Не вдалося позначити як «зв'язалися»",
 
  // Admin integrations

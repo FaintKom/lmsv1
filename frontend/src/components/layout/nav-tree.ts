@@ -25,6 +25,8 @@ import {
   UsersRound,
 } from "lucide-react";
 
+import { isOrgWide } from "@/lib/auth/org-wide";
+
 /**
  * Who sees which menu entry, and in which category.
  *
@@ -152,7 +154,8 @@ export function buildNavTree({
     role === "super_admin" || role === "admin" || role === "teacher";
   const isAdminOnly = role === "super_admin" || role === "admin";
   // Mirrors the backend's _is_org_wide: sees the school, not just their own.
-  const isOrgWide = isAdminOnly || Boolean(isMethodist);
+  // Shared with the pages the menu points at, so the two cannot drift apart.
+  const orgWide = isOrgWide(role, isMethodist);
   const isSuperAdmin = role === "super_admin";
   const isParent = role === "parent";
   const visible = (key: string) => menuVisibility[key] !== false;
@@ -290,7 +293,7 @@ export function buildNavTree({
         // their own, scoped view of who is slipping, on their dashboard
         // (specs/061). The API refuses them either way — this keeps them from
         // clicking into the refusal.
-        ...(visible("analytics") && isOrgWide
+        ...(visible("analytics") && orgWide
           ? [{ href: "/admin/analytics", label: t("nav.analytics"), icon: BarChart3 }]
           : []),
       ],

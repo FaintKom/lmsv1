@@ -13,6 +13,8 @@ import { Check, Loader2, MoreHorizontal, Pencil, Plus, Trash2 } from "lucide-rea
 import { useEffect, useMemo, useState } from "react";
 
 import { DashboardCanvas } from "@/components/analytics/dashboard-canvas";
+import { AccessDenied } from "@/components/ui/access-denied";
+import { isOrgWide } from "@/lib/auth/org-wide";
 import { DashboardFilterBar } from "@/components/analytics/dashboard-filter-bar";
 import { presetForUser, type StaffRole } from "@/components/analytics/dashboard-presets";
 import { WIDGET_REGISTRY } from "@/components/analytics/widget-registry";
@@ -61,6 +63,21 @@ export default function AnalyticsPage() {
       });
     }
   }, [isLoading, dashboards, bootstrapped, create, user]);
+
+  // School-wide analytics is for administrators and methodists (specs/061);
+  // the server closed it in specs/063 and the menu already hides it. Arriving
+  // by URL used to render the whole dashboard shell and then fill it with
+  // "Request failed with status code 403" — nine refused calls, none of them
+  // explained. Same rule as the menu, so the two cannot disagree.
+  if (!isOrgWide(user?.role, user?.is_methodist)) {
+    return (
+      <AccessDenied
+        pageTitleKey="admin.analytics.title"
+        titleKey="admin.analytics.noAccessTitle"
+        reasonKey="admin.analytics.noAccessBody"
+      />
+    );
+  }
 
   if (error) {
     return (
