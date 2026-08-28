@@ -35,7 +35,10 @@ export function AccessDenied({
 }) {
   const { t } = useTranslation();
   return (
-    <div className="mx-auto max-w-6xl">
+    // The hook lets a test say "this card offers nothing" without counting
+    // buttons in <main>: the admin layout puts LiveLessonBanner in there too,
+    // and a lesson another spec started makes the count 1 (specs/066).
+    <div className="mx-auto max-w-6xl" data-testid="access-denied">
       <h1 className="text-2xl font-bold text-text">{t(pageTitleKey)}</h1>
       <Card className="mt-6">
         <CardContent className="p-6">

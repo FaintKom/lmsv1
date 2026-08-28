@@ -59,15 +59,26 @@ for (const c of CASES) {
       await new LoginPage(page).loginViaUi(c.refusedAs);
       await page.goto(c.route);
 
-      const main = page.locator("main");
+      // Scoped to the card, not to <main>: the admin layout renders
+      // LiveLessonBanner inside <main> as well, so a lesson some other spec
+      // left running put a button on this page and failed the first version
+      // of this assertion in CI — a fault of the test, not of the page.
+      const card = page.getByTestId("access-denied");
       // "Only an administrator…", "belongs to GrassLMS…" — every refusal names
       // an owner. Matching the shape rather than one sentence, so rewording
       // the copy does not fail the gate.
-      await expect(main).toContainText(/administrator|GrassLMS/i, { timeout: 20_000 });
+      await expect(card).toContainText(/administrator|GrassLMS/i, { timeout: 20_000 });
 
       // The original mistake was offering a control the server refuses.
-      await expect(main.getByRole("button")).toHaveCount(0);
-      await expect(main).not.toContainText(c.worksMarker);
+      // Asserting on names rather than a count: when this fails it should say
+      // what it found.
+      const offered = await card
+        .getByRole("button")
+        .evaluateAll((els) =>
+          els.map((e) => (e.textContent || e.getAttribute("aria-label") || "?").trim()),
+        );
+      expect(offered, "the refusal card offers controls").toEqual([]);
+      await expect(page.locator("main")).not.toContainText(c.worksMarker);
     });
 
     test(`${c.allowedAs} still sees the page itself`, async ({ page }) => {
