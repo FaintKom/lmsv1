@@ -4,6 +4,7 @@ import { useCallback, useEffect, useState, type FormEvent } from "react";
 import { toast } from "sonner";
 import { Trash2, UserPlus, Users } from "lucide-react";
 import apiClient from "@/lib/api-client";
+import { AccessDenied } from "@/components/ui/access-denied";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useTranslation } from "@/lib/i18n/context";
@@ -37,6 +38,7 @@ export default function OrgMembersPage() {
  const { t } = useTranslation();
  const [members, setMembers] = useState<Member[]>([]);
  const [loading, setLoading] = useState(true);
+ const [denied, setDenied] = useState(false);
  const [email, setEmail] = useState("");
  const [role, setRole] = useState<Role>("teacher");
  const [submitting, setSubmitting] = useState(false);
@@ -45,8 +47,16 @@ export default function OrgMembersPage() {
  try {
  const res = await apiClient.get<MembersResponse>("/admin/org-members");
  setMembers(res.data.members);
- } catch {
+ setDenied(false);
+ } catch (err) {
+ // Membership is the administrator's to manage. A teacher arriving by
+ // URL used to get the add-member form, a role dropdown and "Current
+ // members (0)" — a count of a list they were never shown (specs/066).
+ if ((err as { response?: { status?: number } })?.response?.status === 403) {
+ setDenied(true);
+ } else {
  toast.error(t("admin.orgMembers.failedLoad"));
+ }
  } finally {
  setLoading(false);
  }
@@ -104,6 +114,16 @@ export default function OrgMembersPage() {
  };
  toast.error(anyErr.response?.data?.detail ?? t("admin.orgMembers.failedRemove"));
  }
+ }
+
+ if (denied) {
+ return (
+ <AccessDenied
+ pageTitleKey="admin.orgMembers.title"
+ titleKey="admin.orgMembers.noAccessTitle"
+ reasonKey="admin.orgMembers.noAccessBody"
+ />
+ );
  }
 
  return (

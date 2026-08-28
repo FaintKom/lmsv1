@@ -1744,6 +1744,17 @@ const es: TranslationMap = {
  "admin.waitlist.copyEmails": "Copiar correos pendientes",
  "admin.waitlist.copied": "Correos copiados al portapapeles",
  "admin.waitlist.failedLoad": "Error al cargar la lista de espera",
+
+ // Rechazos (specs/066).
+ "admin.waitlist.noAccessTitle": "La lista de espera es de GrassLMS",
+ "admin.waitlist.noAccessBody": "Las altas desde el sitio público las gestiona GrassLMS, no tu centro. Las solicitudes de tu centro están en Solicitudes.",
+ "admin.orgMembers.noAccessTitle": "Solo un administrador gestiona los miembros",
+ "admin.orgMembers.noAccessBody": "Tu cuenta trabaja con sus grupos y lecciones; quién pertenece a esta organización lo decide el administrador del centro. Pídele que añada a alguien.",
+ "crm.noAccessTitle": "Solo un administrador ve las solicitudes",
+ "crm.noAccessBody": "Las solicitudes son el embudo de admisiones del centro y lo lleva el administrador. Tu cuenta trabaja con los alumnos que ya están en tus grupos.",
+ "admin.analytics.noAccessTitle": "La analítica del centro es para administradores",
+ "admin.analytics.noAccessBody": "Estas cifras abarcan todo el centro. Tus clases están en tu panel: los cursos que impartes, el trabajo por corregir y quién necesita ayuda.",
+ "analytics.widget.loadFailed": "No se pudo cargar.",
  "admin.waitlist.failedMark": "Error al marcar como contactado",
 
  // Admin integrations

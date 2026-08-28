@@ -14,7 +14,17 @@ const CREDS = {
   student2:  { email: "qa-student2@qa.example.com",  password: "qa-test-not-for-prod" },
   teacher:   { email: "qa-teacher@qa.example.com",   password: "qa-test-not-for-prod" },
   methodist: { email: "qa-methodist@qa.example.com", password: "qa-test-not-for-prod" },
+  // .env.qa names this address SUPER_ADMIN_EMAIL, so the backend promotes it
+  // on boot: "admin" here is really a super admin.
   admin:     { email: "qa-admin@qa.example.com",     password: "qa-test-not-for-prod" },
+  // The plain school administrator, added 2026-08-28. Without it the suite
+  // could not tell an administrator from a super admin, and the pages that
+  // separate them answered a refusal with an empty list (specs/066).
+  schoolAdmin: { email: "qa-school-admin@qa.example.com", password: "qa-test-not-for-prod" },
+  // A super admin the seed owns, so it survives the boot-then-seed order that
+  // leaves `admin` above as an ordinary administrator in CI. Use this one for
+  // anything super-only.
+  superAdmin: { email: "qa-superadmin@qa.example.com", password: "qa-test-not-for-prod" },
 } as const;
 
 export type QaRole = keyof typeof CREDS;

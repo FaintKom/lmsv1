@@ -8,6 +8,7 @@
  */
 import Link from "next/link";
 
+import { WidgetError } from "./widget-error";
 import { useReviewQueue } from "@/hooks/use-dashboards";
 
 import type { WidgetProps } from "../widget-registry";
@@ -29,7 +30,7 @@ export function ReviewQueueWidget({ props }: WidgetProps) {
     return <div className="text-sm text-text-muted">Loading queue…</div>;
   }
   if (error) {
-    return <div className="text-sm text-danger">{(error as Error).message}</div>;
+    return <WidgetError />;
   }
   if (!data) return null;
 

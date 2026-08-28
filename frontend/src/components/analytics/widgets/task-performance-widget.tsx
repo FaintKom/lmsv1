@@ -13,6 +13,7 @@
  */
 import { useMemo, useState } from "react";
 
+import { WidgetError } from "./widget-error";
 import { useCourseTaskStats } from "@/hooks/use-dashboards";
 import { useTranslation } from "@/lib/i18n/context";
 import type { TaskStats } from "@/lib/api/analytics";
@@ -170,10 +171,7 @@ export function TaskPerformanceWidget({ props }: WidgetProps) {
     return (
       <div className="text-sm text-text-muted">{t("analytics.loading")}</div>
     );
-  if (error)
-    return (
-      <div className="text-sm text-danger">{(error as Error).message}</div>
-    );
+  if (error) return <WidgetError />;
   if (!data || data.tasks.length === 0)
     return (
       <div className="text-sm text-text-muted">

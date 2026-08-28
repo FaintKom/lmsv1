@@ -16,6 +16,7 @@ import {
   YAxis,
 } from "recharts";
 
+import { WidgetError } from "./widget-error";
 import { useActivityTimeline } from "@/hooks/use-dashboards";
 
 import type { WidgetProps } from "../widget-registry";
@@ -28,7 +29,7 @@ export function ActivityTimelineWidget({ props }: WidgetProps) {
     return <div className="text-sm text-text-muted">Loading activity…</div>;
   }
   if (error) {
-    return <div className="text-sm text-danger">{(error as Error).message}</div>;
+    return <WidgetError />;
   }
   if (!data || data.length === 0) {
     return (

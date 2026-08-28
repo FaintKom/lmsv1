@@ -4,6 +4,7 @@
  * rate, with avg-score + enrollment counts. Reads
  * /admin/analytics/v2/course-effectiveness.
  */
+import { WidgetError } from "./widget-error";
 import { useCourseEffectiveness } from "@/hooks/use-dashboards";
 
 import type { WidgetProps } from "../widget-registry";
@@ -13,7 +14,7 @@ export function CourseEffectivenessWidget(_props: WidgetProps) {
 
   if (isLoading) return <div className="text-sm text-text-muted">Loading…</div>;
   if (error)
-    return <div className="text-sm text-danger">{(error as Error).message}</div>;
+    return <WidgetError />;
   if (!data || data.length === 0)
     return <div className="text-sm text-text-muted">No courses yet.</div>;
 

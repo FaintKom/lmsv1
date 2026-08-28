@@ -5,6 +5,7 @@
  *
  * Caller: components/analytics/widget-registry.tsx. No file I/O.
  */
+import { WidgetError } from "./widget-error";
 import { useStudentRisks } from "@/hooks/use-dashboards";
 
 import type { WidgetProps } from "../widget-registry";
@@ -21,7 +22,7 @@ export function StudentRisksWidget({ props }: WidgetProps) {
 
   if (isLoading) return <div className="text-sm text-text-muted">Loading…</div>;
   if (error)
-    return <div className="text-sm text-danger">{(error as Error).message}</div>;
+    return <WidgetError />;
   if (!data || data.length === 0)
     return <div className="text-sm text-text-muted">No risk data.</div>;
 

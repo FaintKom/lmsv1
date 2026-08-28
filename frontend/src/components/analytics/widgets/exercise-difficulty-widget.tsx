@@ -3,6 +3,7 @@
  * ExerciseDifficultyWidget — table of exercises sorted by lowest
  * pass-rate. Reads /admin/analytics/v2/exercise-difficulty.
  */
+import { WidgetError } from "./widget-error";
 import { useExerciseDifficulty } from "@/hooks/use-dashboards";
 
 import type { WidgetProps } from "../widget-registry";
@@ -13,7 +14,7 @@ export function ExerciseDifficultyWidget({ props }: WidgetProps) {
 
   if (isLoading) return <div className="text-sm text-text-muted">Loading…</div>;
   if (error)
-    return <div className="text-sm text-danger">{(error as Error).message}</div>;
+    return <WidgetError />;
   if (!data || data.length === 0)
     return <div className="text-sm text-text-muted">No exercises yet.</div>;
 
