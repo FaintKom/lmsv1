@@ -6,11 +6,13 @@ distinct *other* students (never themselves).
 
 RBAC mirrors :mod:`app.analytics.task_stats_service`:
 
-  - teacher                      → only their own courses (Course.teacher_id == user.id)
+  - teacher                      → only courses they lead: owned outright, or
+                                   led through a group (app.common.teacher_scope)
   - is_methodist (any non-super) → all courses in their org
   - admin                        → all courses in their org
   - super_admin                  → all courses, all orgs (global)
 """
+
 from __future__ import annotations
 
 import uuid
@@ -20,6 +22,7 @@ from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.auth.models import User, UserRole
+from app.common.teacher_scope import teacher_course_ids
 from app.courses.models import Course
 from app.peer_review.models import (
     PeerReview,
@@ -34,9 +37,7 @@ def _is_org_wide(user: User) -> bool:
     return user.role in (UserRole.admin, UserRole.super_admin) or bool(user.is_methodist)
 
 
-async def authorize_assignment_course(
-    db: AsyncSession, user: User, course_id: uuid.UUID
-) -> Course:
+async def authorize_assignment_course(db: AsyncSession, user: User, course_id: uuid.UUID) -> Course:
     """Confirm the caller may manage peer reviews for ``course_id``.
 
     Raises 404 across org boundaries (hide existence) and 403 when a plain
@@ -49,7 +50,7 @@ async def authorize_assignment_course(
         return course
     if course.org_id != user.org_id:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Course not found")
-    if not _is_org_wide(user) and course.teacher_id != user.id:
+    if not _is_org_wide(user) and course.id not in await teacher_course_ids(db, user):
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
             detail="You can only manage your own courses",
@@ -57,9 +58,7 @@ async def authorize_assignment_course(
     return course
 
 
-async def _enrolled_student_ids(
-    db: AsyncSession, course_id: uuid.UUID
-) -> list[uuid.UUID]:
+async def _enrolled_student_ids(db: AsyncSession, course_id: uuid.UUID) -> list[uuid.UUID]:
     """Active enrolled students of a course, sorted for deterministic pairing."""
     rows = (
         await db.execute(
@@ -98,10 +97,10 @@ async def distribute_reviews(
 
     # Existing reviews for this assignment. Keep completed pairs; clear pending.
     existing = (
-        await db.execute(
-            select(PeerReview).where(PeerReview.assignment_id == assignment.id)
-        )
-    ).scalars().all()
+        (await db.execute(select(PeerReview).where(PeerReview.assignment_id == assignment.id)))
+        .scalars()
+        .all()
+    )
 
     completed_pairs: set[tuple[uuid.UUID, uuid.UUID]] = set()
     for r in existing:
