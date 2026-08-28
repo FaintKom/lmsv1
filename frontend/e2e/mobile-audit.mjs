@@ -239,6 +239,57 @@ const PROBE = () => {
     else if (min < 44 && !inline) belowProjectBar.push(row);
   }
 
+  // ── content wider than the box that holds it ─────────────────────────────
+  //
+  // The check the first version of this audit lacked, and the owner found the
+  // gap by looking: `/admin/courses` reported zero overflow while "New course"
+  // sat 67px past the right edge, and the calendar showed 6px of an 87px event
+  // title. Both are invisible to a document-level measurement, because the
+  // container clips instead of scrolling — the page never grows, the control
+  // simply is not there.
+  //
+  // A container that scrolls on purpose is fine; one that hides is not.
+  const clipped = [];
+  for (const el of document.querySelectorAll("body *")) {
+    if (el.clientWidth < 1) continue;
+    const lost = el.scrollWidth - el.clientWidth;
+    // Under 8px is rounding: focus rings, shadows, a border on a rotated chip.
+    // Above it, something a person came to read or press is not on screen.
+    if (lost < 8) continue;
+    const s = getComputedStyle(el);
+    if (s.overflowX === "auto" || s.overflowX === "scroll") continue;
+    // A skip link is clipped to 1px on purpose — that is what sr-only is.
+    if (typeof el.className === "string" && /\bsr-only\b/.test(el.className)) continue;
+    if (el.closest(".sr-only")) continue;
+    // `truncate` cuts a long name and shows an ellipsis. The overflow is the
+    // feature, and the reader can see there is more.
+    if (s.textOverflow === "ellipsis") continue;
+    clipped.push({ el, lost });
+  }
+  // Innermost, not outermost. Every layer between the page container and the
+  // row that will not wrap clips in turn, so each one's rectangle stays inside
+  // its parent and only `scrollWidth` gives it away. Reporting the outermost
+  // names the page and hides the culprit; the innermost is the row itself.
+  const clippedOutermost = clipped
+    .filter(({ el }) => !clipped.some((o) => o.el !== el && el.contains(o.el)))
+    .slice(0, 6)
+    .map(({ el, lost }) => {
+      // Which child actually sticks out. Without this the report names the
+      // page container and leaves the reader to guess which row inside it
+      // refuses to wrap.
+      const box = el.getBoundingClientRect();
+      const child = Array.from(el.children).find(
+        (c) => c.getBoundingClientRect().right > box.right + 1,
+      );
+      return {
+        ...describe(el),
+        box: el.clientWidth,
+        content: el.scrollWidth,
+        lost,
+        child: child ? describe(child) : null,
+      };
+    });
+
   // ── text too small to read on a phone ────────────────────────────────────
   const smallText = new Map();
   for (const el of document.querySelectorAll("body *")) {
@@ -255,6 +306,7 @@ const PROBE = () => {
     viewportWidth: vw,
     overflowPx: de.scrollWidth - vw,
     offenders: outermost,
+    clipped: clippedOutermost,
     tinyTargets: { count: tiny.length, examples: tiny.slice(0, 6) },
     below44: { count: belowProjectBar.length, examples: belowProjectBar.slice(0, 8) },
     smallText: Object.fromEntries(smallText),
@@ -353,9 +405,11 @@ async function run() {
         ? "ERR"
         : entry.overflowPx > 0
           ? `OVERFLOW +${entry.overflowPx}`
-          : entry.tinyTargets?.count
-            ? `tiny x${entry.tinyTargets.count}`
-            : "ok";
+          : entry.clipped?.length
+            ? `CLIPPED x${entry.clipped.length} (-${entry.clipped[0].lost}px)`
+            : entry.tinyTargets?.count
+              ? `tiny x${entry.tinyTargets.count}`
+              : "ok";
       console.log(`${role.padEnd(8)} ${route.padEnd(46)} ${flag}`);
     }
     await context.close();

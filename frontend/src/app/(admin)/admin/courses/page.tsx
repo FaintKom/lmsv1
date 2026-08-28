@@ -358,18 +358,18 @@ export default function AdminCoursesPage() {
 
  return (
  <div>
- <div className="mb-6 flex items-center justify-between">
+ <div className="mb-6 flex flex-wrap items-center justify-between gap-3">
  <div>
  <h1 className="text-2xl font-bold text-text ">{t("admin.courses.title")}</h1>
  {isSuperAdmin && (
  <p className="mt-1 text-sm text-text-muted ">{t("admin.courses.countAcross")}: {courses.length}</p>
  )}
  </div>
- <div className="flex items-center gap-3">
+ <div className="flex flex-1 flex-wrap items-center gap-3">
  {/* The search that used to sit in the sidebar, moved to where the list
      is. Filters what is already loaded — this page fetches every course
      at once, so asking the server again would only be slower. */}
- <div className="relative">
+ <div className="relative min-w-0 flex-1">
  <Search className="pointer-events-none absolute left-2.5 top-1/2 h-4 w-4 -translate-y-1/2 text-text-subtle" aria-hidden="true" />
  <input
  type="search"
@@ -377,7 +377,7 @@ export default function AdminCoursesPage() {
  onChange={(e) => setFilter(e.target.value)}
  placeholder={t("admin.courses.filterPlaceholder")}
  aria-label={t("admin.courses.filterPlaceholder")}
- className="w-56 rounded-lg border border-border-strong bg-surface py-2 pl-8 pr-3 text-sm text-text focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary-soft"
+ className="w-full rounded-lg border border-border-strong bg-surface py-2 pl-8 pr-3 text-sm text-text sm:w-56 focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary-soft"
  />
  </div>
  <Button onClick={() => setShowForm(!showForm)}>

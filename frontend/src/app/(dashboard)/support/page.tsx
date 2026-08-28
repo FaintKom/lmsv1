@@ -12,7 +12,7 @@ export default function SupportPage() {
   return (
     <div className="mx-auto max-w-3xl space-y-8 p-6">
       <header className="text-center">
-        <h1 className="mb-3 text-3xl font-extrabold tracking-tight text-text md:text-4xl">
+        <h1 className="mb-3 break-words text-3xl font-extrabold tracking-tight text-text md:text-4xl">
           {t("support.heroTitle")}
         </h1>
         <p className="text-text-muted">{t("support.heroSubtitle")}</p>

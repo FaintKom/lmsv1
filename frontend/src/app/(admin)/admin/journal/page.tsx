@@ -189,7 +189,9 @@ function JournalModule() {
       </div>
 
       {/* Tab bar */}
-      <div className="flex items-center gap-5 border-b border-border text-sm font-medium">
+      {/* Scrolls rather than wraps: this is a strip, and six tabs at 375px
+          lose 152px off the right edge otherwise (specs/067). */}
+      <div className="flex items-center gap-5 overflow-x-auto border-b border-border text-sm font-medium">
         {TABS.map((tab) => {
           const isActive = tab === activeTab;
           return (
@@ -346,7 +348,7 @@ function TodayTab({ courses, isManager }: TodayTabProps) {
       </div>
 
       {/* Mini-metrics */}
-      <div className="flex gap-2.5">
+      <div className="flex gap-2.5 overflow-x-auto">
         {[
           {
             key: "lessons",

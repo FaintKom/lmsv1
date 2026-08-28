@@ -545,7 +545,7 @@ export default function LessonEditorPage() {
                       : "rounded-xl border border-border-strong bg-surface/40 p-4"
                   }
                 >
-                  <div className="mb-2 flex items-center gap-2">
+                  <div className="mb-2 flex flex-wrap items-center gap-2">
                     <span className="rounded-pill bg-surface-2 px-2 py-0.5 text-2xs font-semibold uppercase tracking-wider text-text-subtle">
                       {fill(t("admin.lessonEditor.pageLabel"), {
                         n: pageIndex + 1,

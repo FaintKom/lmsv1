@@ -132,7 +132,7 @@ export default function ContentLibraryPage() {
  </div>
 
  {/* Tabs */}
- <div className="flex gap-1 rounded-lg bg-surface-2 p-1 ">
+ <div className="flex gap-1 overflow-x-auto rounded-lg bg-surface-2 p-1 ">
  <button
  onClick={() => setActiveTab("templates")}
  className={`flex items-center gap-2 rounded-md px-4 py-2 text-sm font-medium transition-colors ${
