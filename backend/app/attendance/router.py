@@ -2,6 +2,7 @@
 
 Teachers/admins can mark and query student attendance per session date.
 """
+
 from __future__ import annotations
 
 import uuid
@@ -50,9 +51,15 @@ async def mark_attendance(
     teacher: User = Depends(require_role(*_MANAGER_ROLES)),
     db: AsyncSession = Depends(get_db),
 ):
-    """Mark attendance for one or more students in one call."""
+    """Mark attendance for one or more students in one call.
+
+    Every named course is authorized before anything is written. The read side
+    has always asked whose course this is; this one never did, so a teacher
+    could mark a colleague's class through the API alone (specs/063).
+    """
     created = 0
     updated = 0
+    authorized: set[uuid.UUID] = set()
     for rec in data.records:
         try:
             status = AttendanceStatus(rec.status)
@@ -69,6 +76,9 @@ async def mark_attendance(
                 course_uuid = uuid.UUID(rec.course_id)
             except ValueError:
                 raise HTTPException(400, f"Invalid course_id: {rec.course_id}") from None
+            if course_uuid not in authorized:
+                await authorize_course(db, teacher, course_uuid)
+                authorized.add(course_uuid)
 
         course_filter = (
             AttendanceRecord.course_id == course_uuid
@@ -95,15 +105,17 @@ async def mark_attendance(
             db.add(existing)
             updated += 1
         else:
-            db.add(AttendanceRecord(
-                org_id=teacher.org_id,
-                student_id=student_uuid,
-                course_id=course_uuid,
-                session_date=rec.session_date,
-                status=status,
-                note=rec.note,
-                marked_by=teacher.id,
-            ))
+            db.add(
+                AttendanceRecord(
+                    org_id=teacher.org_id,
+                    student_id=student_uuid,
+                    course_id=course_uuid,
+                    session_date=rec.session_date,
+                    status=status,
+                    note=rec.note,
+                    marked_by=teacher.id,
+                )
+            )
             created += 1
 
     await db.flush()
@@ -192,9 +204,7 @@ async def attendance_summary(
     if summary:
         name_rows = (
             await db.execute(
-                select(User.id, User.full_name).where(
-                    User.id.in_([uuid.UUID(s) for s in summary])
-                )
+                select(User.id, User.full_name).where(User.id.in_([uuid.UUID(s) for s in summary]))
             )
         ).all()
         names = {str(uid): full_name for uid, full_name in name_rows}
@@ -242,14 +252,18 @@ async def attendance_roster(
         raise HTTPException(400, "course_id or group_id is required")
 
     existing_rows = (
-        await db.execute(
-            select(AttendanceRecord).where(
-                AttendanceRecord.course_id == course_uuid,
-                AttendanceRecord.session_date == session_date,
-                AttendanceRecord.org_id == course.org_id,
+        (
+            await db.execute(
+                select(AttendanceRecord).where(
+                    AttendanceRecord.course_id == course_uuid,
+                    AttendanceRecord.session_date == session_date,
+                    AttendanceRecord.org_id == course.org_id,
+                )
             )
         )
-    ).scalars().all()
+        .scalars()
+        .all()
+    )
     by_student = {str(r.student_id): r for r in existing_rows}
 
     roster = []

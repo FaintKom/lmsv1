@@ -636,6 +636,10 @@ async def admin_enroll_endpoint(
     course_q = select(Course).where(Course.id == course_id)
     if admin.role != UserRole.super_admin:
         course_q = course_q.where(Course.org_id == admin.org_id)
+    # A class teacher enrols into their own courses only (specs/063). Same 404
+    # as a missing course: the code must not tell whose it is.
+    if not _is_org_wide(admin):
+        course_q = course_q.where(Course.id.in_(await teacher_course_ids(db, admin)))
     result = await db.execute(course_q)
     course = result.scalar_one_or_none()
     if not course:
@@ -741,6 +745,8 @@ async def admin_bulk_enroll_endpoint(
     course_q = select(Course).where(Course.id == course_id)
     if admin.role != _UserRole.super_admin:
         course_q = course_q.where(Course.org_id == admin.org_id)
+    if not _is_org_wide(admin):
+        course_q = course_q.where(Course.id.in_(await teacher_course_ids(db, admin)))
     course = (await db.execute(course_q)).scalar_one_or_none()
     if not course:
         raise NotFoundError("Course not found")
@@ -918,6 +924,8 @@ async def bulk_import_students(
         query = select(StudentGroup).where(StudentGroup.id == group_uuid)
         if user.role != UserRole.super_admin:
             query = query.where(StudentGroup.org_id == user.org_id)
+        if not _is_org_wide(user):
+            query = query.where(StudentGroup.teacher_id == user.id)
         group = (await db.execute(query)).scalar_one_or_none()
         if not group:
             raise HTTPException(404, "Group not found")
@@ -1089,6 +1097,8 @@ async def admin_unenroll_endpoint(
     )
     if admin.role != UserRole.super_admin:
         query = query.where(Course.org_id == admin.org_id)
+    if not _is_org_wide(admin):
+        query = query.where(Course.id.in_(await teacher_course_ids(db, admin)))
     result = await db.execute(query)
     enrollment = result.scalar_one_or_none()
     if not enrollment:
@@ -1695,7 +1705,8 @@ async def student_profile_endpoint(
     badges), and certificates.
 
     RBAC (enforced in ``student_profile_service._authorize_student``):
-      - teacher → only students enrolled in one of the teacher's own courses
+      - teacher → only students in a course they lead (owned, or led through
+        a group — see app/common/teacher_scope.py)
       - methodist / admin → any student in their org
       - super_admin → any student, any org
       - cross-org (non-super) → 404 (existence hidden)
@@ -2050,7 +2061,13 @@ async def review_queue_count(
     user: User = Depends(require_role(UserRole.admin, UserRole.teacher)),
     db: AsyncSession = Depends(get_db),
 ):
-    """Count of ungraded assignment submissions for sidebar badge."""
+    """Count of ungraded assignment submissions for sidebar badge.
+
+    Counted over the courses the teacher leads, not the assignments they
+    authored — the same arithmetic as ``/teacher-stats``. Keyed on authorship
+    the badge read 0 while the panel above it named a number: a teacher who
+    leads somebody else's course through a group authors nothing there.
+    """
     from sqlalchemy import func
 
     from app.assignments.models import Assignment, AssignmentStatus, AssignmentSubmission
@@ -2065,8 +2082,8 @@ async def review_queue_count(
     )
     if user.role != UserRole.super_admin:
         query = query.where(Assignment.org_id == user.org_id)
-    if user.role == UserRole.teacher:
-        query = query.where(Assignment.created_by == user.id)
+    if not _is_org_wide(user):
+        query = query.where(Assignment.course_id.in_(await teacher_course_ids(db, user)))
 
     result = await db.execute(query)
     return {"count": result.scalar() or 0}
@@ -2077,7 +2094,7 @@ async def review_queue_list(
     user: User = Depends(require_role(UserRole.admin, UserRole.teacher)),
     db: AsyncSession = Depends(get_db),
 ):
-    """List all ungraded assignment submissions for the teacher/admin."""
+    """Ungraded assignment submissions, scoped the same way as the badge above."""
     from app.assignments.models import Assignment, AssignmentStatus, AssignmentSubmission
 
     query = (
@@ -2096,8 +2113,8 @@ async def review_queue_list(
     )
     if user.role != UserRole.super_admin:
         query = query.where(Assignment.org_id == user.org_id)
-    if user.role == UserRole.teacher:
-        query = query.where(Assignment.created_by == user.id)
+    if not _is_org_wide(user):
+        query = query.where(Assignment.course_id.in_(await teacher_course_ids(db, user)))
 
     result = await db.execute(query.order_by(AssignmentSubmission.submitted_at.asc()))
     rows = result.all()
