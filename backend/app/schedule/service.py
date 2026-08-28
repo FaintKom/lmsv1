@@ -3,7 +3,8 @@
 Reuses the analytics task-stats RBAC helpers so authorization is identical to
 the rest of the staff-facing surface:
 
-  - teacher                      → only their own courses (Course.teacher_id == user.id)
+  - teacher                      → only courses they lead: owned outright, or
+                                   led through a group (app.common.teacher_scope)
   - is_methodist (any non-super) → all courses in their org
   - admin                        → all courses in their org
   - super_admin                  → all courses, all orgs (global)
@@ -12,6 +13,7 @@ the rest of the staff-facing surface:
 Times are stored as ``time`` and serialized as ``"HH:MM"`` strings. The week
 and "my" queries JOIN the course title in a single statement (no N+1).
 """
+
 from __future__ import annotations
 
 import logging
@@ -128,9 +130,7 @@ async def _resolve_room(
     return room
 
 
-async def _resolve_group(
-    db: AsyncSession, user: User, group_id: uuid.UUID
-) -> StudentGroup:
+async def _resolve_group(db: AsyncSession, user: User, group_id: uuid.UUID) -> StudentGroup:
     """Validate a group + authorize the caller via its course (Phase B).
 
     A group must carry a ``course_id`` to be schedulable (the slot's course is
@@ -237,15 +237,11 @@ async def find_teacher_conflicts(
     ]
 
 
-async def _slot_teacher_id(
-    db: AsyncSession, group_id: uuid.UUID | None
-) -> uuid.UUID | None:
+async def _slot_teacher_id(db: AsyncSession, group_id: uuid.UUID | None) -> uuid.UUID | None:
     """Resolve the teacher for a slot from its group (None when unlinked)."""
     if group_id is None:
         return None
-    return await db.scalar(
-        select(StudentGroup.teacher_id).where(StudentGroup.id == group_id)
-    )
+    return await db.scalar(select(StudentGroup.teacher_id).where(StudentGroup.id == group_id))
 
 
 async def _capacity_warning(
@@ -302,9 +298,7 @@ def _build_warnings(
 # ── Reads ────────────────────────────────────────────────────────────────
 
 
-async def list_course_slots(
-    db: AsyncSession, user: User, course_id: uuid.UUID
-) -> list[dict]:
+async def list_course_slots(db: AsyncSession, user: User, course_id: uuid.UUID) -> list[dict]:
     """All slots of a single course (staff only, authorized)."""
     require_stats_role(user)
     course = await _authorize_course(db, user, course_id)
@@ -354,9 +348,8 @@ async def my_schedule(db: AsyncSession, user: User) -> list[dict]:
     )
 
     if user.role == UserRole.student:
-        stmt = (
-            stmt.join(Enrollment, Enrollment.course_id == Course.id)
-            .where(Enrollment.student_id == user.id)
+        stmt = stmt.join(Enrollment, Enrollment.course_id == Course.id).where(
+            Enrollment.student_id == user.id
         )
     elif user.role == UserRole.parent:
         # Parents have no enrolled courses of their own; empty schedule.
@@ -421,9 +414,7 @@ async def _notify_schedule_change(db: AsyncSession, course: Course, change: str)
             try:
                 queue_email(send_schedule_change, email, full_name or "", course.title)
             except Exception:  # pragma: no cover - defensive, queue is non-throwing
-                logger.warning(
-                    "Failed to queue schedule-change email for %s", email
-                )
+                logger.warning("Failed to queue schedule-change email for %s", email)
 
 
 # ── Writes ───────────────────────────────────────────────────────────────
@@ -452,9 +443,7 @@ async def create_slot(
     if group_id is not None:
         group = await _resolve_group(db, user, group_id)
         if course_id is not None and course_id != group.course_id:
-            raise TaskStatsError(
-                "bad_request", "course_id does not match the group's course"
-            )
+            raise TaskStatsError("bad_request", "course_id does not match the group's course")
         course_id = group.course_id
     if course_id is None:
         raise TaskStatsError("bad_request", "course_id or group_id is required")
@@ -512,9 +501,7 @@ async def create_slot(
     return result
 
 
-async def _get_authorized_slot(
-    db: AsyncSession, user: User, slot_id: uuid.UUID
-) -> ScheduleSlot:
+async def _get_authorized_slot(db: AsyncSession, user: User, slot_id: uuid.UUID) -> ScheduleSlot:
     slot = await db.scalar(select(ScheduleSlot).where(ScheduleSlot.id == slot_id))
     if slot is None:
         raise TaskStatsError("not_found", "Schedule slot not found")
@@ -616,9 +603,7 @@ async def update_slot(
     await db.flush()
 
     course = await db.scalar(select(Course).where(Course.id == slot.course_id))
-    result = _slot_to_dict(
-        slot, course.title if course else None, room.name if room else None
-    )
+    result = _slot_to_dict(slot, course.title if course else None, room.name if room else None)
     warnings = _build_warnings(
         room_conflicts if force else [],
         teacher_conflicts if force else [],
