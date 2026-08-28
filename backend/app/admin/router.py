@@ -36,7 +36,7 @@ from app.analytics.task_stats_service import _is_org_wide
 from app.auth.dependencies import require_role
 from app.auth.models import Organization, User, UserRole
 from app.auth.schemas import UserResponse
-from app.common.exceptions import BadRequestError, NotFoundError
+from app.common.exceptions import BadRequestError, ForbiddenError, NotFoundError
 from app.common.teacher_scope import teacher_course_ids, teacher_student_ids
 from app.db.session import get_db
 
@@ -223,9 +223,29 @@ def _user_org_filter(admin: User):
     return [User.org_id == admin.org_id]
 
 
+def require_org_wide(
+    user: User = Depends(require_role(UserRole.admin, UserRole.teacher)),
+) -> User:
+    """School-wide instruments: admin, super admin, methodist — not a plain teacher.
+
+    Everything behind this reads the school as a whole and cannot be narrowed
+    without rewriting eleven queries: ``_org_filter`` scopes by org and knows
+    nothing of roles. Measured on the QA stack 2026-08-24 — a teacher who owned
+    no course and led no group read back another teacher's pupil by name in
+    ``analytics/v2/student-risks``.
+
+    The owner's call of the same day: close the door rather than narrow the
+    data. A teacher already has a scoped view of who is slipping — the
+    "needs attention" block on their own dashboard (specs/061).
+    """
+    if not _is_org_wide(user):
+        raise ForbiddenError("School-wide analytics is for administrators and methodists")
+    return user
+
+
 @router.get("/dashboard", response_model=DashboardStats)
 async def dashboard_endpoint(
-    user: User = Depends(require_role(UserRole.admin, UserRole.teacher)),
+    user: User = Depends(require_org_wide),
     db: AsyncSession = Depends(get_db),
 ):
     return await get_dashboard_stats(db, user)
@@ -340,7 +360,7 @@ async def teacher_stats_endpoint(
 
 @router.get("/analytics/detailed", response_model=DetailedAnalytics)
 async def detailed_analytics_endpoint(
-    user: User = Depends(require_role(UserRole.admin, UserRole.teacher)),
+    user: User = Depends(require_org_wide),
     db: AsyncSession = Depends(get_db),
 ):
     return await get_detailed_analytics(db, user)
@@ -1600,7 +1620,7 @@ async def enroll_group_endpoint(
 
 @router.get("/analytics/export-csv")
 async def export_analytics_csv(
-    user: User = Depends(require_role(UserRole.admin, UserRole.teacher)),
+    user: User = Depends(require_org_wide),
     db: AsyncSession = Depends(get_db),
 ):
     """Export enrollment analytics as a CSV file."""
@@ -2106,7 +2126,7 @@ async def review_queue_list(
 
 @router.get("/analytics/v2/overview")
 async def analytics_overview(
-    user: User = Depends(require_role(UserRole.admin, UserRole.teacher)),
+    user: User = Depends(require_org_wide),
     db: AsyncSession = Depends(get_db),
 ):
     return await get_overview_kpis(db, user)
@@ -2115,7 +2135,7 @@ async def analytics_overview(
 @router.get("/analytics/v2/student-risks")
 async def analytics_student_risks(
     course_id: uuid.UUID | None = Query(None),
-    user: User = Depends(require_role(UserRole.admin, UserRole.teacher)),
+    user: User = Depends(require_org_wide),
     db: AsyncSession = Depends(get_db),
 ):
     return await get_student_risks(db, user, course_id=course_id)
@@ -2123,7 +2143,7 @@ async def analytics_student_risks(
 
 @router.get("/analytics/v2/course-effectiveness")
 async def analytics_course_effectiveness(
-    user: User = Depends(require_role(UserRole.admin, UserRole.teacher)),
+    user: User = Depends(require_org_wide),
     db: AsyncSession = Depends(get_db),
 ):
     return await get_course_effectiveness(db, user)
@@ -2132,7 +2152,7 @@ async def analytics_course_effectiveness(
 @router.get("/analytics/v2/courses/{course_id}/funnel")
 async def analytics_lesson_funnel(
     course_id: uuid.UUID,
-    user: User = Depends(require_role(UserRole.admin, UserRole.teacher)),
+    user: User = Depends(require_org_wide),
     db: AsyncSession = Depends(get_db),
 ):
     return await get_lesson_funnel(db, user, course_id)
@@ -2141,7 +2161,7 @@ async def analytics_lesson_funnel(
 @router.get("/analytics/v2/exercise-difficulty")
 async def analytics_exercise_difficulty(
     course_id: uuid.UUID | None = Query(None),
-    user: User = Depends(require_role(UserRole.admin, UserRole.teacher)),
+    user: User = Depends(require_org_wide),
     db: AsyncSession = Depends(get_db),
 ):
     return await get_exercise_difficulty(db, user, course_id=course_id)
@@ -2150,7 +2170,7 @@ async def analytics_exercise_difficulty(
 @router.get("/analytics/v2/activity-timeline")
 async def analytics_activity_timeline(
     days: int = Query(30, ge=7, le=90),
-    user: User = Depends(require_role(UserRole.admin, UserRole.teacher)),
+    user: User = Depends(require_org_wide),
     db: AsyncSession = Depends(get_db),
 ):
     return await get_activity_timeline(db, user, days=days)
@@ -2158,7 +2178,7 @@ async def analytics_activity_timeline(
 
 @router.get("/analytics/v2/attendance-impact")
 async def analytics_attendance_impact(
-    user: User = Depends(require_role(UserRole.admin, UserRole.teacher)),
+    user: User = Depends(require_org_wide),
     db: AsyncSession = Depends(get_db),
 ):
     return await get_attendance_impact(db, user)
@@ -2170,7 +2190,7 @@ async def analytics_attendance_impact(
 @router.get("/analytics/v2/kpi-deltas")
 async def analytics_kpi_deltas(
     days: int = Query(7, ge=1, le=90),
-    user: User = Depends(require_role(UserRole.admin, UserRole.teacher)),
+    user: User = Depends(require_org_wide),
     db: AsyncSession = Depends(get_db),
 ):
     """Snapshot current window vs the equal-length prior window."""
@@ -2181,7 +2201,7 @@ async def analytics_kpi_deltas(
 async def analytics_xp_movers(
     window_days: int = Query(7, ge=1, le=90),
     limit: int = Query(10, ge=1, le=100),
-    user: User = Depends(require_role(UserRole.admin, UserRole.teacher)),
+    user: User = Depends(require_org_wide),
     db: AsyncSession = Depends(get_db),
 ):
     """Top students by activity in window + decliners (active prior, silent now)."""
@@ -2192,7 +2212,7 @@ async def analytics_xp_movers(
 async def analytics_report(
     window_days: int = Query(30, ge=1, le=90),
     format: str = Query("csv", pattern="^(csv|pdf)$"),
-    user: User = Depends(require_role(UserRole.admin, UserRole.teacher)),
+    user: User = Depends(require_org_wide),
     db: AsyncSession = Depends(get_db),
 ):
     """Multi-section analytics report. Built on-demand, no scheduling."""

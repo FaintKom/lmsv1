@@ -77,6 +77,12 @@ export interface NavTreeInput {
   role: string | undefined;
   /** The school's hidden-item settings. A missing key means "show it". */
   menuVisibility: Record<string, boolean>;
+  /**
+   * A methodist carries role "teacher" and sees the school anyway. Without
+   * this the analytics gate cannot tell them from a class teacher, and one of
+   * the two ends up with the wrong menu (specs/061).
+   */
+  isMethodist?: boolean;
   reviewCount: number;
   /** Where "Support" should go. Empty or unusable falls back to our own page. */
   supportHref?: string | null;
@@ -137,6 +143,7 @@ export const MENU_ITEM_KEYS: {
 export function buildNavTree({
   role,
   menuVisibility,
+  isMethodist,
   supportHref,
   reviewCount,
   t,
@@ -144,6 +151,8 @@ export function buildNavTree({
   const isAdminOrTeacher =
     role === "super_admin" || role === "admin" || role === "teacher";
   const isAdminOnly = role === "super_admin" || role === "admin";
+  // Mirrors the backend's _is_org_wide: sees the school, not just their own.
+  const isOrgWide = isAdminOnly || Boolean(isMethodist);
   const isSuperAdmin = role === "super_admin";
   const isParent = role === "parent";
   const visible = (key: string) => menuVisibility[key] !== false;
@@ -276,7 +285,12 @@ export function buildNavTree({
         ...(visible("gradebook")
           ? [{ href: "/admin/gradebook", label: t("nav.gradebook"), icon: Table2 }]
           : []),
-        ...(visible("analytics")
+        // School-wide analytics is a methodist's and an administrator's
+        // instrument: it names other teachers' pupils. A class teacher has
+        // their own, scoped view of who is slipping, on their dashboard
+        // (specs/061). The API refuses them either way — this keeps them from
+        // clicking into the refusal.
+        ...(visible("analytics") && isOrgWide
           ? [{ href: "/admin/analytics", label: t("nav.analytics"), icon: BarChart3 }]
           : []),
       ],

@@ -73,6 +73,7 @@ export function Sidebar({ open, onClose }: SidebarProps) {
  // be fetched from the settings endpoint, which is admin-only — so a teacher
  // got an empty map and saw every item the school had hidden (specs/034).
  menuVisibility: branding?.menu_visibility ?? {},
+ isMethodist: Boolean(user?.is_methodist),
  reviewCount,
  supportHref: branding?.support_url || branding?.support_email
  ? branding.support_url || `mailto:${branding.support_email}`

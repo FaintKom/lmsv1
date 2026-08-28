@@ -83,7 +83,9 @@ const BEFORE: Record<string, string[]> = {
     "/admin/recordings",
     "/admin/calendar",
     "/admin/meetings",
-    "/admin/analytics",
+    // No "/admin/analytics": school-wide analytics names other teachers'
+    // pupils, so it belongs to methodists and administrators. A class teacher
+    // has the scoped "needs attention" block on their dashboard (specs/061).
     "/support",
   ],
   student: [
@@ -178,6 +180,30 @@ describe("buildNavTree — shape", () => {
     });
     const biggest = Math.max(...tree.groups.map((g) => g.items.length));
     expect(biggest).toBeLessThanOrEqual(8);
+  });
+
+  it("gives a methodist the analytics a class teacher does not get", () => {
+    const plain = buildNavTree({
+      role: "teacher",
+      menuVisibility: {},
+      reviewCount: 0,
+      t,
+    });
+    const methodist = buildNavTree({
+      role: "teacher",
+      menuVisibility: {},
+      isMethodist: true,
+      reviewCount: 0,
+      t,
+    });
+
+    const hrefs = (tree: ReturnType<typeof buildNavTree>) =>
+      tree.flatMap((g) => ("items" in g ? g.items : [g])).map((i) => i.href);
+
+    // Positive control: the same role and the same school settings, so the
+    // only difference between these two menus is the flag.
+    expect(hrefs(methodist)).toContain("/admin/analytics");
+    expect(hrefs(plain)).not.toContain("/admin/analytics");
   });
 
   it("drops a category once the school has hidden everything in it", () => {
