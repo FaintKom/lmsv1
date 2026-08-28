@@ -165,6 +165,27 @@ test.describe("phone: what the audit fixed", () => {
     await expect(tab).toHaveAttribute("class", /text-green-700/);
   });
 
+  test("the button that makes a course is on the screen", async ({ page }) => {
+    // The header was one non-wrapping row: at 375px "New course" sat 67px past
+    // the right edge, and because the container clips rather than scrolls the
+    // page reported no overflow at all. The audit called the page clean; the
+    // owner opened it on a phone and the button was not there (specs/067).
+    await new LoginPage(page).loginViaUi("admin");
+    await page.goto("/admin/courses");
+
+    const button = page.getByRole("button", { name: /new course/i }).first();
+    await expect(button).toBeVisible({ timeout: 20_000 });
+
+    const box = await button.boundingBox();
+    const viewport = page.viewportSize();
+    expect(box, "the New course button is not rendered").not.toBeNull();
+    expect(viewport).not.toBeNull();
+    expect(
+      Math.round(box!.x + box!.width),
+      "right edge of the New course button, against the viewport width",
+    ).toBeLessThanOrEqual(viewport!.width);
+  });
+
   test("no tap target under 24px on the landing page", async ({ page }) => {
     await page.goto("/");
     const offenders = await page.evaluate(() => {

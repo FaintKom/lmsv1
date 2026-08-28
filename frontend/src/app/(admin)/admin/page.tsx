@@ -557,7 +557,7 @@ export default function AdminDashboardPage() {
       <OnboardingTour />
 
       {/* ── Page header ───────────────────────────────────────── */}
-      <div className="mb-7 flex items-start justify-between border-b border-border pb-5">
+      <div className="mb-7 flex flex-wrap items-start justify-between gap-4 border-b border-border pb-5">
         <div>
           <p className="mb-1.5 font-mono text-2xs font-bold uppercase tracking-widest text-success-fg">
             {t("admin.dashboard.adminCrumb")}

@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState, useCallback } from "react";
+import { useEffect, useRef, useState, useCallback } from "react";
 import FullCalendar from "@fullcalendar/react";
 import dayGridPlugin from "@fullcalendar/daygrid";
 import timeGridPlugin from "@fullcalendar/timegrid";
@@ -29,6 +29,20 @@ export function CalendarView({ canCreate = false }: Props) {
  const [submitting, setSubmitting] = useState(false);
  const [selectedEvent, setSelectedEvent] = useState<CalendarEvent | null>(null);
  const user = useAuthStore((s) => s.user);
+ const calendarRef = useRef<FullCalendar | null>(null);
+
+ // A month grid needs seven columns. At 375px each day is about 60px wide and
+ // an event title shows 6 of its 87 pixels — no layout fixes that, the columns
+ // do not fit. So a phone opens on the day view: one column, names readable,
+ // and the month button is still there for anyone who wants the overview.
+ //
+ // Applied once, on mount: after that the choice belongs to whoever is
+ // looking, and a resize should not overrule them.
+ useEffect(() => {
+ if (typeof window === "undefined") return;
+ if (!window.matchMedia("(max-width: 640px)").matches) return;
+ calendarRef.current?.getApi().changeView("timeGridDay");
+ }, []);
 
  const [form, setForm] = useState({
  title: "",
@@ -252,8 +266,9 @@ export function CalendarView({ canCreate = false }: Props) {
  )}
 
  {/* Calendar */}
- <div className="rounded-lg border border-border-strong bg-surface p-2 shadow-sm [&_.fc]:text-sm [&_.fc-button]:!rounded-lg [&_.fc-button]:!border-0 [&_.fc-button]:!bg-primary [&_.fc-button]:!text-primary-fg [&_.fc-button]:!shadow-none [&_.fc-button-active]:!bg-primary-hover [&_.fc-button:hover]:!bg-primary-hover [&_.fc-daygrid-day]: [&_.fc-day-today]:!bg-success-soft [&_.fc-day-today]: [&_.fc-theme-standard_td]:!border-border [&_.fc-theme-standard_td]: [&_.fc-theme-standard_th]:!border-border [&_.fc-theme-standard_th]:!bg-transparent [&_.fc-col-header-cell-cushion]:!text-text-muted [&_.fc-col-header-cell-cushion]: [&_.fc-daygrid-day-number]:!text-text-muted [&_.fc-daygrid-day-number]: [&_.fc-toolbar-title]:!text-lg [&_.fc-toolbar-title]:!font-semibold [&_.fc-toolbar-title]:!text-text [&_.fc-toolbar-title]:">
+ <div className="rounded-lg border border-border-strong bg-surface p-2 shadow-sm [&_.fc]:text-sm [&_.fc-toolbar]:!flex-wrap [&_.fc-toolbar]:!gap-2 [&_.fc-button]:!rounded-lg [&_.fc-button]:!border-0 [&_.fc-button]:!bg-primary [&_.fc-button]:!text-primary-fg [&_.fc-button]:!shadow-none [&_.fc-button-active]:!bg-primary-hover [&_.fc-button:hover]:!bg-primary-hover [&_.fc-daygrid-day]: [&_.fc-day-today]:!bg-success-soft [&_.fc-day-today]: [&_.fc-theme-standard_td]:!border-border [&_.fc-theme-standard_td]: [&_.fc-theme-standard_th]:!border-border [&_.fc-theme-standard_th]:!bg-transparent [&_.fc-col-header-cell-cushion]:!text-text-muted [&_.fc-col-header-cell-cushion]: [&_.fc-daygrid-day-number]:!text-text-muted [&_.fc-daygrid-day-number]: [&_.fc-toolbar-title]:!text-lg [&_.fc-toolbar-title]:!font-semibold [&_.fc-toolbar-title]:!text-text [&_.fc-toolbar-title]:">
  <FullCalendar
+ ref={calendarRef}
  plugins={[dayGridPlugin, timeGridPlugin, interactionPlugin]}
  initialView="dayGridMonth"
  headerToolbar={{

@@ -314,7 +314,7 @@ export default function GroupsPage() {
  {groups.map((g) => (
  <Card key={g.id} className="overflow-hidden">
  <div
- className="flex cursor-pointer items-center justify-between p-5 hover:bg-surface-2 "
+ className="flex cursor-pointer flex-wrap items-center justify-between gap-3 p-5 hover:bg-surface-2 "
  onClick={() => toggleExpand(g.id)}
  >
  <div className="flex items-center gap-3">

@@ -102,7 +102,7 @@ function SortableLessonItem({
 
  return (
  <li ref={setNodeRef} style={style} {...attributes}>
- <div className="flex items-start">
+ <div className="flex min-w-0 flex-wrap items-start gap-2">
  <button
  type="button"
  className="mt-2.5 cursor-grab touch-none p-1 text-text-subtle hover:text-text-muted active:cursor-grabbing"
@@ -612,7 +612,7 @@ export default function CourseEditorPage() {
  return (
  <div className="mx-auto max-w-4xl pb-12">
  {/* Header */}
- <div className="mb-6 flex items-center justify-between">
+ <div className="mb-6 flex flex-wrap items-center justify-between gap-3">
  <button
  onClick={() => router.push("/admin/courses")}
  className="inline-flex items-center gap-1.5 text-sm font-medium text-text-muted hover:text-text "
@@ -620,7 +620,7 @@ export default function CourseEditorPage() {
  <ArrowLeft className="h-4 w-4" />
  Back to Courses
  </button>
- <div className="flex items-center gap-2">
+ <div className="flex flex-wrap items-center gap-2">
  <Button
  variant="outline"
  onClick={() => window.open(`/courses/${courseId}?preview=true`, "_blank")}
