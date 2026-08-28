@@ -540,6 +540,47 @@ button { font-family: inherit; }
 .tabular-nums { font-variant-numeric: tabular-nums; }
 
 /* =================================================================
+   Finger-sized hit area without a finger-sized element.
+
+   The audit of 2026-08-28 (specs/065) found 76 controls under the WCAG 2.2
+   minimum of 24x24: gallery dots 6px across, table pills 18px tall, icon
+   buttons at 22. Padding them to size would move the layout around them —
+   a 6px dot padded to 24 is no longer a dot.
+
+   So the box stays and the target grows: a centred pseudo-element at least
+   24x24, invisible, inside the control, so a tap on it lands on the control.
+   `position: relative` is set here rather than asked of every callsite.
+
+   Does nothing to a control that is already big enough: the pseudo-element
+   never shrinks below the element's own size.
+   ================================================================= */
+.tap-target {
+  position: relative;
+}
+.tap-target::after {
+  content: "";
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  translate: -50% -50%;
+  width: max(100%, 24px);
+  height: max(100%, 24px);
+}
+
+/* Sonner's close button is 20x20 — under the 24px floor, and the control
+   people reach for most, since a toast covers what they were reading
+   (specs/065).
+
+   `!important` because the library injects its stylesheet into <head> at
+   runtime, after ours, and a utility class passed through
+   `toastOptions.classNames` loses to it: measured on the stand, the button
+   carried `class="h-6 w-6"` and still rendered at 20px. */
+[data-close-button] {
+  width: 24px !important;
+  height: 24px !important;
+}
+
+/* =================================================================
    Button physics — signature shadow-pop with translate state machine.
    ================================================================= */
 .btn-pop {

@@ -807,7 +807,7 @@ export default function CourseEditorPage() {
  setEditingModuleId(module.id);
  setEditingModuleTitle(module.title);
  }}
- className="rounded p-1 text-text-subtle hover:bg-surface-2 hover:text-text-muted "
+ className="rounded p-1.5 text-text-subtle hover:bg-surface-2 hover:text-text-muted "
  >
  <Pencil className="h-3.5 w-3.5" />
  </button>
@@ -816,7 +816,7 @@ export default function CourseEditorPage() {
  e.stopPropagation();
  handleDeleteModule(module.id);
  }}
- className="rounded p-1 text-text-subtle hover:bg-danger-soft hover:text-danger-fg"
+ className="rounded p-1.5 text-text-subtle hover:bg-danger-soft hover:text-danger-fg"
  >
  <Trash2 className="h-3.5 w-3.5" />
  </button>
@@ -866,7 +866,7 @@ export default function CourseEditorPage() {
  e.stopPropagation();
  toggleLesson(lesson.id);
  }}
- className="shrink-0 rounded p-1 text-text-subtle hover:bg-surface-2 hover:text-text focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
+ className="shrink-0 rounded p-1.5 text-text-subtle hover:bg-surface-2 hover:text-text focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
  >
  <ChevronDown
  className={`h-3.5 w-3.5 transition-transform ${openLessons.has(lesson.id) ? "rotate-180" : ""}`}
@@ -891,7 +891,7 @@ export default function CourseEditorPage() {
  <a
  href={editHref}
  onClick={(e) => e.stopPropagation()}
- className="shrink-0 rounded border border-primary-soft bg-primary-soft/40 px-2 py-0.5 text-3xs font-semibold text-primary hover:bg-primary-soft"
+ className="shrink-0 rounded border border-primary-soft bg-primary-soft/40 px-2 py-1 text-3xs font-semibold text-primary hover:bg-primary-soft"
  >
  Edit
  </a>
@@ -900,7 +900,7 @@ export default function CourseEditorPage() {
  e.stopPropagation();
  handleDeleteLesson(module.id, lesson.id);
  }}
- className="shrink-0 rounded p-1 text-text-subtle hover:bg-danger-soft hover:text-danger-fg"
+ className="shrink-0 rounded p-1.5 text-text-subtle hover:bg-danger-soft hover:text-danger-fg"
  >
  <Trash2 className="h-3.5 w-3.5" />
  </button>
@@ -1077,7 +1077,7 @@ export default function CourseEditorPage() {
  </div>
  <button
  onClick={() => handleUnenroll(student.enrollment_id)}
- className="invisible rounded p-1 text-text-subtle hover:bg-danger-soft hover:text-danger-fg group-hover:visible"
+ className="invisible rounded p-1.5 text-text-subtle hover:bg-danger-soft hover:text-danger-fg group-hover:visible"
  title="Remove from course"
  >
  <Trash2 className="h-3.5 w-3.5" />

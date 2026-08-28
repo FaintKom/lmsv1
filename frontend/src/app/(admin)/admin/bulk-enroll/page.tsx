@@ -436,7 +436,7 @@ export default function BulkEnrollPage() {
 
  {/* Manual textarea */}
  <details className="group">
- <summary className="cursor-pointer text-xs font-medium text-text-muted hover:text-text ">
+ <summary className="cursor-pointer py-1 text-xs font-medium text-text-muted hover:text-text ">
  {t("admin.bulkEnroll.pasteManually")}
  </summary>
  <textarea
@@ -459,7 +459,7 @@ export default function BulkEnrollPage() {
  setCsvText(CSV_TEMPLATE);
  setCsvFile(null);
  }}
- className="text-xs font-medium text-primary hover:underline "
+ className="py-1 text-xs font-medium text-primary hover:underline "
  >
  {t("admin.bulkEnroll.useSample")}
  </button>

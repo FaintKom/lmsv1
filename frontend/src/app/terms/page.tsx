@@ -6,7 +6,7 @@ export default function TermsOfServicePage() {
  <div className="mx-auto max-w-3xl px-6 py-12">
  <Link
  href="/login"
- className="mb-8 inline-flex items-center gap-1.5 text-sm font-medium text-primary hover:text-success-fg"
+ className="tap-target mb-8 inline-flex items-center gap-1.5 text-sm font-medium text-primary hover:text-success-fg"
  >
  <ArrowLeft className="h-4 w-4" />
  Back to Login

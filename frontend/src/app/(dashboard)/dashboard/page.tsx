@@ -207,7 +207,7 @@ export default function DashboardPage() {
  <div className="mb-8">
  <div className="mb-4 flex items-center justify-between">
  <h2 className="text-md font-bold text-text">{t("dash.continue")}</h2>
- <Link href="/progress" className="flex items-center gap-1 text-sm font-semibold text-primary hover:text-primary-hover">
+ <Link href="/progress" className="flex items-center gap-1 py-1 text-sm font-semibold text-primary hover:text-primary-hover">
  View all <ArrowRight className="h-3.5 w-3.5" />
  </Link>
  </div>
