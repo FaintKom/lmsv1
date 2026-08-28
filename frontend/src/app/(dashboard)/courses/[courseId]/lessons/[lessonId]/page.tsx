@@ -334,7 +334,7 @@ export default function LessonViewerPage() {
      <div className="flex items-center justify-between mb-2.5">
       <Link
        href={`/courses/${courseId}`}
-       className="inline-flex items-center gap-1.5 text-xs font-semibold text-text-muted hover:text-text"
+       className="inline-flex items-center gap-1.5 py-1 text-xs font-semibold text-text-muted hover:text-text"
       >
        <ArrowLeft className="h-3.5 w-3.5" />
        {t("courses.backToCourse")}

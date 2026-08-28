@@ -133,6 +133,62 @@ test.describe("phone layout", () => {
   });
 });
 
+/**
+ * What the audit of 2026-08-28 found, pinned so it cannot come back.
+ *
+ * Full results and method: specs/065. The sweep itself lives in
+ * `e2e/mobile-audit.mjs` and is not a spec on purpose — it walks 85 pages and
+ * belongs in a report, not in a gate. These two are the gate.
+ */
+test.describe("phone: what the audit fixed", () => {
+  test.beforeEach(async ({ page }) => {
+    await page.addInitScript(() => localStorage.setItem("cookie-consent", "accepted"));
+  });
+
+  test("the avatar builder is usable, not a 1px sliver", async ({ page }) => {
+    // The grid held `h-[calc(100vh-12rem)]` at every width. In one column the
+    // canvas asked for 400px of a 475px box and the panel got what was left:
+    // one pixel. Tabs and items were in the DOM, and the avatar could be
+    // looked at but not built.
+    await new LoginPage(page).loginViaUi("student");
+    await page.goto("/achievements?tab=avatar");
+
+    const tab = page.getByRole("button", { name: /^body$/i }).first();
+    await expect(tab).toBeVisible({ timeout: 20_000 });
+
+    const box = await tab.boundingBox();
+    expect(box, "the Body tab is not rendered").not.toBeNull();
+    expect(Math.round(box!.height), "tab height in px").toBeGreaterThanOrEqual(24);
+
+    // Visible is not the same as reachable: prove the tap lands.
+    await tab.click();
+    await expect(tab).toHaveAttribute("class", /text-green-700/);
+  });
+
+  test("no tap target under 24px on the landing page", async ({ page }) => {
+    await page.goto("/");
+    const offenders = await page.evaluate(() => {
+      const out: string[] = [];
+      const sel = 'a[href], button, [role="button"], summary';
+      for (const el of Array.from(document.querySelectorAll(sel))) {
+        const r = el.getBoundingClientRect();
+        if (r.width < 1 || r.height < 1) continue;
+        const cls = typeof el.className === "string" ? el.className : "";
+        if (/\bsr-only\b/.test(cls)) continue;
+        // WCAG 2.2 exempts a link sitting inside a sentence.
+        if (el.tagName === "A" && getComputedStyle(el).display === "inline") continue;
+        if (r.width >= 24 && r.height >= 24) continue;
+        out.push(
+          `${el.tagName.toLowerCase()} ${Math.round(r.width)}x${Math.round(r.height)} ` +
+            `"${(el.textContent || el.getAttribute("aria-label") || "").trim().slice(0, 30)}"`,
+        );
+      }
+      return out;
+    });
+    expect(offenders, "controls below the WCAG 2.2 minimum of 24x24").toEqual([]);
+  });
+});
+
 test.describe("desktop chrome", () => {
   test("the notifications panel opens inside the window", async ({ page }) => {
     // Widen the same context rather than declaring a second device: what this

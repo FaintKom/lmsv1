@@ -252,7 +252,7 @@ export default function Home() {
                 { href: "/copyright", label: t("landing.footerCopyright") },
                 { href: "/acceptable-use", label: t("landing.footerAcceptableUse") },
               ].map((link) => (
-                <Link key={link.href} href={link.href} className="hover:text-text-muted">
+                <Link key={link.href} href={link.href} className="inline-block py-1 hover:text-text-muted">
                   {link.label}
                 </Link>
               ))}

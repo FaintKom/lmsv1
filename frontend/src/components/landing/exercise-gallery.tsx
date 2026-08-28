@@ -170,7 +170,13 @@ export function ExerciseGallery() {
               <current.icon className="h-4 w-4 text-primary" aria-hidden="true" />
               {t(current.label)}
             </span>
-            <span className="flex items-center gap-1.5">
+            {/* The dot is 6px; the button around it is 24, which is what a
+                finger has to find (WCAG 2.2 SC 2.5.8, specs/065). Sizing the
+                button rather than padding the dot keeps the dot a dot — and
+                keeps neighbouring targets apart: these sit side by side, so an
+                invisible 24px halo on a 6px dot would overlap its neighbour
+                and make every tap ambiguous. */}
+            <span className="flex items-center gap-1">
               {SLIDES.map((slide, i) => (
                 <button
                   key={slide.id}
@@ -178,10 +184,15 @@ export function ExerciseGallery() {
                   onClick={() => setIndex(i)}
                   aria-label={t(slide.label)}
                   aria-current={i === index}
-                  className={`h-1.5 rounded-pill transition-all ${
-                    i === index ? "w-6 bg-primary" : "w-1.5 bg-border-strong hover:bg-text-subtle"
-                  }`}
-                />
+                  className="inline-flex h-6 min-w-6 items-center justify-center px-1"
+                >
+                  <span
+                    aria-hidden="true"
+                    className={`block h-1.5 rounded-pill transition-all ${
+                      i === index ? "w-6 bg-primary" : "w-1.5 bg-border-strong hover:bg-text-subtle"
+                    }`}
+                  />
+                </button>
               ))}
             </span>
           </div>

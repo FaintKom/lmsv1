@@ -259,7 +259,7 @@ function AvatarTab() {
  }
 
  return (
- <div className="grid h-[calc(100vh-12rem)] grid-cols-1 gap-0 lg:grid-cols-[1fr_380px]">
+ <div className="grid grid-cols-1 gap-0 lg:h-[calc(100vh-12rem)] lg:grid-cols-[1fr_380px]">
  <div className="relative h-[60vh] min-h-[400px] overflow-hidden lg:h-full">
  <AvatarCanvas state={state} />
  <div className="pointer-events-none absolute left-6 top-6 max-w-md">

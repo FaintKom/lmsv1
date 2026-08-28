@@ -119,8 +119,13 @@ export function RoomEditor({ state }: { state: RoomState }) {
     { id: "floor", label: t("room.tab.floor") || "Floor" },
   ];
 
+  // The viewport height is a desktop rule only (specs/065). In one column the
+  // canvas asks for 400px of a 475px box and the panel is left with a 1px
+  // sliver — measured on a 375px screen: the tabs and the whole item list were
+  // in the DOM and invisible, so the room could be looked at and not edited.
+  // On a phone the page scrolls instead.
   return (
-    <div className="grid h-[calc(100vh-12rem)] grid-cols-1 gap-0 lg:grid-cols-[1fr_380px]">
+    <div className="grid grid-cols-1 gap-0 lg:h-[calc(100vh-12rem)] lg:grid-cols-[1fr_380px]">
       <div className="relative h-[60vh] min-h-[400px] overflow-hidden lg:h-full">
         <RoomCanvas ref={canvasRef} state={state} editable onSelect={setSelectedId} />
         <SceneHud
@@ -130,7 +135,7 @@ export function RoomEditor({ state }: { state: RoomState }) {
         />
       </div>
 
-      <aside className="flex h-full flex-col gap-3 overflow-y-auto border-t border-border bg-surface p-4 lg:border-l lg:border-t-0">
+      <aside className="flex flex-col gap-3 overflow-y-auto border-t border-border bg-surface p-4 lg:h-full lg:border-l lg:border-t-0">
         {/* Tabs */}
         <div className="flex gap-0 border-b border-border">
           {tabs.map((tb) => (

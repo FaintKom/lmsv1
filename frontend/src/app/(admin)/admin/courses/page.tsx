@@ -272,7 +272,7 @@ export default function AdminCoursesPage() {
  <button
  type="button"
  onClick={() => router.push(`/admin/courses/${course.id}/edit`)}
- className="text-left hover:text-primary focus:text-primary focus:outline-none"
+ className="tap-target text-left hover:text-primary focus:text-primary focus:outline-none"
  >
  {course.title}
  </button>
