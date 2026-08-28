@@ -1134,7 +1134,7 @@ const es: TranslationMap = {
 
  // Admin courses
  "admin.courses.title": "Cursos",
- "admin.courses.countAcross": "cursos en todas las organizaciones",
+ "admin.courses.countAcross": "Cursos en todas las organizaciones",
  "admin.courses.newCourse": "Nuevo curso",
  "admin.courses.filterPlaceholder": "Filtrar cursos",
  "admin.courses.filterNoMatch": "Ningún curso coincide",
@@ -1628,7 +1628,7 @@ const es: TranslationMap = {
  "admin.paths.unknownCourse": "Desconocido",
  "admin.paths.noPaths": "No hay rutas de aprendizaje aún",
  "admin.paths.noPathsHint": "Crea una secuencia estructurada de cursos para tus estudiantes.",
- "admin.paths.coursesCount": "cursos",
+ "admin.paths.coursesCount": "Cursos",
  "admin.paths.addOneCourse": "Añade al menos un curso a la ruta",
  "admin.paths.pathCreated": "Ruta de aprendizaje creada",
  "admin.paths.pathDeleted": "Ruta eliminada",

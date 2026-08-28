@@ -1196,7 +1196,7 @@ const uk: TranslationMap = {
 
  // Admin courses
  "admin.courses.title": "Курси",
- "admin.courses.countAcross": "курсів у всіх організаціях",
+ "admin.courses.countAcross": "Курси в усіх організаціях",
  "admin.courses.newCourse": "Новий курс",
  "admin.courses.filterPlaceholder": "Фільтр курсів",
  "admin.courses.filterNoMatch": "Жоден курс не підходить",
@@ -1690,7 +1690,7 @@ const uk: TranslationMap = {
  "admin.paths.unknownCourse": "Невідомо",
  "admin.paths.noPaths": "Навчальних траєкторій поки немає",
  "admin.paths.noPathsHint": "Створіть структуровану послідовність курсів для своїх учнів.",
- "admin.paths.coursesCount": "курсів",
+ "admin.paths.coursesCount": "Курси",
  "admin.paths.addOneCourse": "Додайте хоча б один курс до траєкторії",
  "admin.paths.pathCreated": "Навчальну траєкторію створено",
  "admin.paths.pathDeleted": "Траєкторію видалено",
@@ -2997,7 +2997,7 @@ const uk: TranslationMap = {
  "journal.topicSaved": "Тему збережено",
  "journal.close": "Закрити",
  "journal.cancel": "Скасувати",
- "journal.lessonsShort": "уроків",
+ "journal.lessonsShort": "уроки",
  "journal.exercisesShort": "впр",
  "journal.quizzesShort": "тестів",
  "journal.assignmentsShort": "завдань",

@@ -363,9 +363,9 @@ export function SessionDetail({
                       {row.student_name}
                     </span>
                     <span className="font-mono text-2xs font-semibold text-text-subtle">
-                      {exTotal} {t("journal.exercisesShort")}
+                      {t("journal.exercisesShort")}: {exTotal}
                       {row.lessons_completed.length
-                        ? ` · ${row.lessons_completed.length} ${t("journal.lessonsShort")}`
+                        ? ` · ${t("journal.lessonsShort")}: ${row.lessons_completed.length}`
                         : ""}
                     </span>
                     <ChevronRight className="h-3.5 w-3.5 shrink-0 text-text-subtle" />
