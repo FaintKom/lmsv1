@@ -281,3 +281,81 @@ async def test_bulk_import_into_a_strangers_group_is_refused(client, org, db):
         headers=auth_header(owner),
     )
     assert mine.status_code != 404, mine.text
+
+
+# ── Attendance: the one that stopped a teacher marking their own class ────
+
+
+async def test_roster_opens_for_the_course_i_lead_through_a_group(client, org, db):
+    """Measured in prod 2026-08-28, as Игорь Соколов.
+
+    The course roster and the group membership each named two pupils, and
+    ``/attendance/roster`` on that same course answered 403. The journal drew
+    the refusal as «0/0 · No students enrolled in this course», so the teacher
+    could not mark their own group and the screen blamed an empty school.
+    """
+    owner = await _staff(db, org, "Course Owner")
+    course = await make_course(db, org, owner)
+    pupil = await _pupil(db, org, "Group Pupil")
+    await make_enrollment(db, course.id, pupil.id)
+
+    leader = await _staff(db, org, "Group Leader")
+    await _lead_through_group(db, org, leader, course)
+
+    resp = await client.get(
+        f"/api/v1/attendance/roster?course_id={course.id}&session_date=2026-08-27",
+        headers=auth_header(leader),
+    )
+    assert resp.status_code == 200, resp.text
+
+
+async def test_roster_stays_shut_for_a_stranger(client, org, db):
+    owner = await _staff(db, org, "Course Owner")
+    course = await make_course(db, org, owner)
+    pupil = await _pupil(db, org, "Owners Pupil")
+    await make_enrollment(db, course.id, pupil.id)
+
+    # Positive control: the owner reads their own roster.
+    mine = await client.get(
+        f"/api/v1/attendance/roster?course_id={course.id}&session_date=2026-08-27",
+        headers=auth_header(owner),
+    )
+    assert mine.status_code == 200, mine.text
+
+    stranger = await _staff(db, org, "Stranger")
+    resp = await client.get(
+        f"/api/v1/attendance/roster?course_id={course.id}&session_date=2026-08-27",
+        headers=auth_header(stranger),
+    )
+    assert resp.status_code == 403, resp.text
+
+
+async def test_marking_attendance_on_a_strangers_course_is_refused(client, org, db):
+    """Reading a colleague's roster was refused; writing to it was not.
+
+    ``POST /attendance`` filtered by ``org_id`` and never asked whose course the
+    record named.
+    """
+    owner = await _staff(db, org, "Course Owner")
+    course = await make_course(db, org, owner)
+    pupil = await _pupil(db, org, "Owners Pupil")
+    await make_enrollment(db, course.id, pupil.id)
+
+    body = {
+        "records": [
+            {
+                "student_id": str(pupil.id),
+                "course_id": str(course.id),
+                "session_date": "2026-08-27",
+                "status": "present",
+            }
+        ]
+    }
+
+    stranger = await _staff(db, org, "Stranger")
+    resp = await client.post("/api/v1/attendance", json=body, headers=auth_header(stranger))
+    assert resp.status_code == 403, resp.text
+
+    # Positive control: the owner writes the very same record.
+    mine = await client.post("/api/v1/attendance", json=body, headers=auth_header(owner))
+    assert mine.status_code in (200, 201), mine.text
