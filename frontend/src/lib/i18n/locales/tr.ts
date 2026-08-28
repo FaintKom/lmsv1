@@ -1137,7 +1137,7 @@ const tr: TranslationMap = {
 
  // Admin courses
  "admin.courses.title": "Kurslar",
- "admin.courses.countAcross": "tüm organizasyonlarda kurs",
+ "admin.courses.countAcross": "Tüm organizasyonlardaki kurslar",
  "admin.courses.newCourse": "Yeni kurs",
  "admin.courses.filterPlaceholder": "Kursları süz",
  "admin.courses.filterNoMatch": "Eşleşen kurs yok",
@@ -1631,7 +1631,7 @@ const tr: TranslationMap = {
  "admin.paths.unknownCourse": "Bilinmiyor",
  "admin.paths.noPaths": "Henüz öğrenme yolu yok",
  "admin.paths.noPathsHint": "Öğrencileriniz için yapılandırılmış bir kurs dizisi oluşturun.",
- "admin.paths.coursesCount": "kurs",
+ "admin.paths.coursesCount": "Kurs",
  "admin.paths.addOneCourse": "Yola en az bir kurs ekleyin",
  "admin.paths.pathCreated": "Öğrenme yolu oluşturuldu",
  "admin.paths.pathDeleted": "Yol silindi",

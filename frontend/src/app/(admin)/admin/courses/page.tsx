@@ -362,7 +362,7 @@ export default function AdminCoursesPage() {
  <div>
  <h1 className="text-2xl font-bold text-text ">{t("admin.courses.title")}</h1>
  {isSuperAdmin && (
- <p className="mt-1 text-sm text-text-muted ">{courses.length} {t("admin.courses.countAcross")}</p>
+ <p className="mt-1 text-sm text-text-muted ">{t("admin.courses.countAcross")}: {courses.length}</p>
  )}
  </div>
  <div className="flex items-center gap-3">

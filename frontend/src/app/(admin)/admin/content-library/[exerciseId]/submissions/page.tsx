@@ -117,7 +117,7 @@ export default function SubmissionsViewerPage() {
  )}
  </div>
  <p className="text-sm text-text-muted ">
- {exercise?.title} · {total} {t("admin.submissionsViewer.title").toLowerCase()}
+ {exercise?.title} · {t("admin.submissionsViewer.title")}: {total}
  </p>
  </div>
  </div>

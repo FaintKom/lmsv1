@@ -1144,7 +1144,7 @@ const ru: TranslationMap = {
 
  // Admin courses
  "admin.courses.title": "Курсы",
- "admin.courses.countAcross": "курсов во всех организациях",
+ "admin.courses.countAcross": "Курсы во всех организациях",
  "admin.courses.newCourse": "Новый курс",
  "admin.courses.filterPlaceholder": "Фильтр курсов",
  "admin.courses.filterNoMatch": "Ни один курс не подходит",
@@ -1638,7 +1638,7 @@ const ru: TranslationMap = {
  "admin.paths.unknownCourse": "Неизвестно",
  "admin.paths.noPaths": "Учебных траекторий пока нет",
  "admin.paths.noPathsHint": "Создайте структурированную последовательность курсов для своих учеников.",
- "admin.paths.coursesCount": "курсов",
+ "admin.paths.coursesCount": "Курсы",
  "admin.paths.addOneCourse": "Добавьте хотя бы один курс в траекторию",
  "admin.paths.pathCreated": "Учебная траектория создана",
  "admin.paths.pathDeleted": "Траектория удалена",
@@ -2945,7 +2945,7 @@ const ru: TranslationMap = {
  "journal.topicSaved": "Тема сохранена",
  "journal.close": "Закрыть",
  "journal.cancel": "Отмена",
- "journal.lessonsShort": "уроков",
+ "journal.lessonsShort": "уроки",
  "journal.exercisesShort": "упр",
  "journal.quizzesShort": "тестов",
  "journal.assignmentsShort": "заданий",
