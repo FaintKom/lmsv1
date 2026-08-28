@@ -21,6 +21,7 @@ Badge thresholds:
 Everything is computed with a handful of grouped queries over the caller's
 in-scope groups — no per-group round-trip (no N+1).
 """
+
 from __future__ import annotations
 
 import uuid
@@ -37,6 +38,7 @@ from app.analytics.task_stats_service import (
     require_stats_role,
 )
 from app.auth.models import User, UserRole
+from app.common.teacher_scope import teacher_course_ids
 from app.courses.models import Course
 from app.curriculum.models import CurriculumTopic
 from app.journal.models import ClassSession
@@ -78,12 +80,16 @@ async def get_pacing_board(db: AsyncSession, user: User) -> dict:
 
     # Groups of those courses.
     groups = (
-        await db.execute(
-            select(StudentGroup)
-            .where(StudentGroup.course_id.in_(course_ids))
-            .order_by(StudentGroup.name)
+        (
+            await db.execute(
+                select(StudentGroup)
+                .where(StudentGroup.course_id.in_(course_ids))
+                .order_by(StudentGroup.name)
+            )
         )
-    ).scalars().all()
+        .scalars()
+        .all()
+    )
     if not groups:
         return {"groups": [], "kpis": {"ontrack": 0, "behind": 0, "ahead": 0}}
 
@@ -161,9 +167,7 @@ async def get_pacing_board(db: AsyncSession, user: User) -> dict:
     teacher_names: dict[uuid.UUID, str] = {}
     if teacher_ids:
         for tid, name in (
-            await db.execute(
-                select(User.id, User.full_name).where(User.id.in_(teacher_ids))
-            )
+            await db.execute(select(User.id, User.full_name).where(User.id.in_(teacher_ids)))
         ).all():
             teacher_names[tid] = name or ""
     room_ids = {g.default_room_id for g in groups if g.default_room_id}
@@ -194,9 +198,7 @@ async def get_pacing_board(db: AsyncSession, user: User) -> dict:
                 break
 
         # Mode A delta.
-        covered_lessons_actual = sum(
-            lessons_by_topic.get(tid, 1) for tid in covered_ids
-        )
+        covered_lessons_actual = sum(lessons_by_topic.get(tid, 1) for tid in covered_ids)
         expected_lessons = held
         delta = covered_lessons_actual - expected_lessons
         badge = _badge(delta) if total else "ontrack"
@@ -234,9 +236,7 @@ async def get_pacing_board(db: AsyncSession, user: User) -> dict:
                 "next_topic_title": next_title,
                 "next_topic_position": next_pos,
                 "current_topic_id": (
-                    str(current_topic_by_group[g.id])
-                    if g.id in current_topic_by_group
-                    else None
+                    str(current_topic_by_group[g.id]) if g.id in current_topic_by_group else None
                 ),
             }
         )
@@ -247,9 +247,7 @@ async def get_pacing_board(db: AsyncSession, user: User) -> dict:
 # ── Timeline (one group) ─────────────────────────────────────────────────────
 
 
-async def get_pacing_timeline(
-    db: AsyncSession, user: User, group_id: uuid.UUID
-) -> dict:
+async def get_pacing_timeline(db: AsyncSession, user: User, group_id: uuid.UUID) -> dict:
     """Course scope & sequence with this group's coverage + a drift note."""
     require_stats_role(user)
 
@@ -257,23 +255,28 @@ async def get_pacing_timeline(
     if group is None or group.course_id is None:
         raise TaskStatsError("not_found", "Group not found")
 
-    # Org isolation + own-course scoping (mirror _authorize_course semantics).
+    # Org isolation + own-course scoping, on the same definition of "own" as
+    # _authorize_course: owned outright, or led through a group (specs/064).
     course = await db.scalar(select(Course).where(Course.id == group.course_id))
     if course is None:
         raise TaskStatsError("not_found", "Course not found")
     if user.role != UserRole.super_admin:
         if course.org_id != user.org_id:
             raise TaskStatsError("not_found", "Group not found")
-        if not _is_org_wide(user) and course.teacher_id != user.id:
+        if not _is_org_wide(user) and course.id not in await teacher_course_ids(db, user):
             raise TaskStatsError("forbidden", "You can only view your own courses")
 
     topics = (
-        await db.execute(
-            select(CurriculumTopic)
-            .where(CurriculumTopic.course_id == group.course_id)
-            .order_by(CurriculumTopic.position, CurriculumTopic.created_at)
+        (
+            await db.execute(
+                select(CurriculumTopic)
+                .where(CurriculumTopic.course_id == group.course_id)
+                .order_by(CurriculumTopic.position, CurriculumTopic.created_at)
+            )
         )
-    ).scalars().all()
+        .scalars()
+        .all()
+    )
 
     # Held sessions of this group that carry an actual topic — for covered date
     # (earliest held date per topic) + current topic.
@@ -297,20 +300,21 @@ async def get_pacing_timeline(
         covered_date_by_topic.setdefault(tid, sdate)
         last_topic = tid  # rows ordered by date asc → last is most recent
 
-    held_count = await db.scalar(
-        select(func.count()).where(
-            ClassSession.group_id == group_id,
-            ClassSession.held.is_(True),
+    held_count = (
+        await db.scalar(
+            select(func.count()).where(
+                ClassSession.group_id == group_id,
+                ClassSession.held.is_(True),
+            )
         )
-    ) or 0
+        or 0
+    )
 
     covered_ids = set(covered_date_by_topic.keys())
     total = len(topics)
     covered = len(covered_ids)
     total_lessons = sum(t.planned_lessons for t in topics)
-    covered_lessons_actual = sum(
-        t.planned_lessons for t in topics if t.id in covered_ids
-    )
+    covered_lessons_actual = sum(t.planned_lessons for t in topics if t.id in covered_ids)
     delta = covered_lessons_actual - held_count
     badge = _badge(delta) if total else "ontrack"
 

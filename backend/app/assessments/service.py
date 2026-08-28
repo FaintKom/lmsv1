@@ -11,6 +11,7 @@ from app.assessments.models import Question, Quiz, QuizSubmission
 from app.auth.models import User, UserRole
 from app.common.auth import lesson_in_user_org
 from app.common.exceptions import ForbiddenError, NotFoundError
+from app.common.teacher_scope import teacher_course_ids
 from app.common.timing import normalize_elapsed
 from app.courses.models import Course, Lesson, Module
 
@@ -24,7 +25,10 @@ async def create_quiz(db: AsyncSession, data: dict) -> Quiz:
     await db.flush()
 
     for i, q in enumerate(questions_data):
-        options = [{"id": j, "text": opt, "is_correct": j == q["correct"]} for j, opt in enumerate(q["options"])]
+        options = [
+            {"id": j, "text": opt, "is_correct": j == q["correct"]}
+            for j, opt in enumerate(q["options"])
+        ]
         question = Question(
             quiz_id=quiz.id,
             question_text=q["text"],
@@ -44,9 +48,7 @@ async def create_quiz(db: AsyncSession, data: dict) -> Quiz:
 
 async def get_quiz(db: AsyncSession, quiz_id: uuid.UUID, user: User) -> Quiz:
     result = await db.execute(
-        select(Quiz)
-        .where(Quiz.id == quiz_id)
-        .options(selectinload(Quiz.questions))
+        select(Quiz).where(Quiz.id == quiz_id).options(selectinload(Quiz.questions))
     )
     quiz = result.scalar_one_or_none()
     if not quiz:
@@ -59,9 +61,7 @@ async def get_quiz(db: AsyncSession, quiz_id: uuid.UUID, user: User) -> Quiz:
 async def get_quiz_by_lesson(db: AsyncSession, lesson_id: uuid.UUID, user: User) -> Quiz:
     await lesson_in_user_org(db, lesson_id, user)
     result = await db.execute(
-        select(Quiz)
-        .where(Quiz.lesson_id == lesson_id)
-        .options(selectinload(Quiz.questions))
+        select(Quiz).where(Quiz.lesson_id == lesson_id).options(selectinload(Quiz.questions))
     )
     quiz = result.scalar_one_or_none()
     if not quiz:
@@ -165,6 +165,7 @@ async def submit_quiz(
     if passed:
         try:
             from app.gamification.service import XP_QUIZ_PASSED, award_xp
+
             await award_xp(db, user.id, XP_QUIZ_PASSED, "quiz_passed")
         except Exception:
             logger.warning("XP award failed for user %s (quiz_passed)", user.id, exc_info=True)
@@ -172,11 +173,15 @@ async def submit_quiz(
     return submission
 
 
-def _can_review_course(user: User, course: Course) -> bool:
+async def _can_review_course(db: AsyncSession, user: User, course: Course) -> bool:
     """Whether a staff user may review submissions in this course.
 
     Mirrors the task-stats RBAC: super_admin → any org; admin/methodist →
-    own org; plain teacher → only courses they own. Students/parents never.
+    own org; plain teacher → courses they lead. Students/parents never.
+
+    "Lead" means owned outright or led through a group (specs/061). Asking
+    ``Course.teacher_id`` alone shut a teacher out of marking work set on the
+    course their own group studies.
     """
     if user.role == UserRole.super_admin:
         return True
@@ -187,8 +192,7 @@ def _can_review_course(user: User, course: Course) -> bool:
     org_wide = user.role == UserRole.admin or bool(user.is_methodist)
     if org_wide:
         return True
-    # Plain teacher: only their own course.
-    return user.role == UserRole.teacher and course.teacher_id == user.id
+    return user.role == UserRole.teacher and course.id in await teacher_course_ids(db, user)
 
 
 async def get_latest_submission_breakdown(
@@ -215,9 +219,7 @@ async def get_latest_submission_breakdown(
     return await get_submission_breakdown(db, submission_id, user)
 
 
-async def get_submission_breakdown(
-    db: AsyncSession, submission_id: uuid.UUID, user: User
-) -> dict:
+async def get_submission_breakdown(db: AsyncSession, submission_id: uuid.UUID, user: User) -> dict:
     """Teacher-facing per-question breakdown of a single quiz submission.
 
     RBAC: only staff who own/oversee the course (see :func:`_can_review_course`).
@@ -227,9 +229,7 @@ async def get_submission_breakdown(
     if user.role in (UserRole.student, UserRole.parent):
         raise ForbiddenError("You cannot review quiz submissions")
 
-    result = await db.execute(
-        select(QuizSubmission).where(QuizSubmission.id == submission_id)
-    )
+    result = await db.execute(select(QuizSubmission).where(QuizSubmission.id == submission_id))
     submission = result.scalar_one_or_none()
     if not submission:
         raise NotFoundError("Submission not found")
@@ -249,7 +249,7 @@ async def get_submission_breakdown(
     if not course:
         raise NotFoundError("Submission not found")
 
-    if not _can_review_course(user, course):
+    if not await _can_review_course(db, user, course):
         # Hide existence across orgs; surface a clear 403 for same-org denials.
         if course.org_id != user.org_id and user.role != UserRole.super_admin:
             raise NotFoundError("Submission not found")
