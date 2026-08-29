@@ -45,6 +45,11 @@ export function CalendarView({ canCreate = false }: Props) {
  useEffect(() => {
  if (loading || narrowedOnce.current) return;
  if (typeof window === "undefined") return;
+ // A minimised or hidden window reports 0, and `(max-width: 640px)` is
+ // perfectly happy with 0 — caught on a desktop browser whose window was
+ // minimised: the calendar switched to the day view and, since this fires
+ // once, stayed there. Only narrow when the width is actually known.
+ if (window.innerWidth < 1) return;
  if (!window.matchMedia("(max-width: 640px)").matches) return;
  const api = calendarRef.current?.getApi();
  if (!api) return;

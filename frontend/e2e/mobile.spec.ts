@@ -210,6 +210,26 @@ test.describe("phone: what the audit fixed", () => {
     expect(lost, "calendar toolbar overflow in px").toBeLessThanOrEqual(0);
   });
 
+  test("a window that reports no width is not treated as a phone", async ({ browser }) => {
+    // A minimised or hidden window reports innerWidth 0, and `(max-width:
+    // 640px)` matches it. Found by accident on a desktop browser whose window
+    // was minimised: the calendar switched to the day view and stayed there,
+    // because the switch happens once (specs/067).
+    const context = await browser.newContext({ viewport: { width: 1280, height: 800 } });
+    await context.addInitScript(() => {
+      localStorage.setItem("cookie-consent", "accepted");
+      Object.defineProperty(window, "innerWidth", { get: () => 0 });
+    });
+    const page = await context.newPage();
+    await new LoginPage(page).loginViaUi("teacher");
+    await page.goto("/admin/calendar");
+
+    const view = page.locator(".fc-view");
+    await expect(view).toBeVisible({ timeout: 20_000 });
+    await expect(view).toHaveClass(/fc-dayGridMonth-view/);
+    await context.close();
+  });
+
   test("no tap target under 24px on the landing page", async ({ page }) => {
     await page.goto("/");
     const offenders = await page.evaluate(() => {
