@@ -142,6 +142,7 @@ MODULE_PLAN: list[dict] = [
             "sentence_builder",
             "dialogue",
             "conjugation",
+            "listening",
             "srs_flashcard",
             "crossword",
             "word_search",

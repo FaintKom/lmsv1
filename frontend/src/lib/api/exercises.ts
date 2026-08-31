@@ -11,6 +11,7 @@ import {
  FolderOpen,
  Globe,
  Grid3x3,
+ Headphones,
  Languages,
  Layers,
  MapPin,
@@ -44,6 +45,7 @@ export type ExerciseType =
  | "dialogue"
  | "conjugation"
  | "reading"
+ | "listening"
  | "web_editor"
  | "scorm_package"
  | "math_stepwise"
@@ -153,6 +155,7 @@ export const EXERCISE_TYPE_LABELS: Record<ExerciseType, string> = {
  dialogue: "Dialogue",
  conjugation: "Conjugation",
  reading: "Reading",
+ listening: "Listening",
  web_editor: "Web Editor",
  scorm_package: "SCORM / xAPI",
  math_stepwise: "Math Step-by-Step",
@@ -182,6 +185,7 @@ export const EXERCISE_TYPE_COLORS: Record<ExerciseType, string> = {
  dialogue: "bg-lagoon-200 text-lagoon-800 ",
  conjugation: " text-text ",
  reading: "bg-primary-soft text-success-fg ",
+ listening: "bg-lagoon-200 text-lagoon-800 ",
  web_editor: "bg-ink-100 text-ink-700 ",
  scorm_package: "bg-info-soft text-info-fg ",
  math_stepwise: "bg-primary-soft text-info-fg ",
@@ -227,6 +231,7 @@ export const EXERCISE_TYPES_META: ExerciseTypeMeta[] = [
  { value: "dialogue", label: "Dialogue", Icon: MessageCircle, group: "languages" },
  { value: "conjugation", label: "Conjugation", Icon: Table, group: "languages" },
  { value: "reading", label: "Reading", Icon: BookOpenText, group: "languages" },
+ { value: "listening", label: "Listening", Icon: Headphones, group: "languages" },
  { value: "web_editor", label: "Web Editor", Icon: Globe, group: "programming" },
  { value: "scorm_package", label: "SCORM / xAPI", Icon: Package, group: "scorm" },
  { value: "srs_flashcard", label: "Flashcards (SRS)", Icon: Layers, group: "languages" },
@@ -463,6 +468,11 @@ export const exercisesApi = {
  headers: { "Content-Type": "multipart/form-data" },
  });
  },
+
+ /** The recording's text for a listening exercise (specs/068). 404 until the
+  * student has finished the task — the gate is the server's, not this call's. */
+ getTranscript: (id: string) =>
+ apiClient.get<{ transcript: string }>(`/exercises/${id}/transcript`),
 
  listSubmissions: (id: string, params?: { page?: number; per_page?: number }) =>
  apiClient.get<SubmissionListResponse>(`/exercises/${id}/submissions`, { params }),

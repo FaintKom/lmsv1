@@ -36,6 +36,7 @@ const CONTENT_FIELD_BY_TYPE: Record<string, string> = {
   ordering: "correct_order",
   sentence_builder: "correct_order",
   reading: "questions",
+  listening: "questions",
   bubble_sheet: "questions",
   dialogue: "messages",
   translation: "accepted_answers",

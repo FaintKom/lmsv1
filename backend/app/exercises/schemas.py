@@ -176,6 +176,20 @@ class ReadingConfig(BaseModel):
     questions: list[dict] = []  # [{question, type, options?, correct_answer?}]
 
 
+class ListeningConfig(BaseModel):
+    """Reading with a recording where the passage goes (specs/068).
+
+    `questions` is the same list, checked by the same grader. `transcript` is
+    an answer key in prose — `_strip_answers` drops it, and
+    `GET /exercises/{id}/transcript` hands it over once the work is done.
+    """
+
+    audio_url: str = ""
+    questions: list[dict] = []  # [{question, type, options?, correct_answer?}]
+    max_plays: int = 0  # 0 = unlimited; counted in the browser, not enforceable
+    transcript: str = ""
+
+
 class MapPinDropConfig(BaseModel):
     """Written after the fixture spent months naming this field `map_url`.
 

@@ -95,6 +95,12 @@ export function V2ExerciseLive({
   const { t } = useTranslation();
   const [status, setStatus] = useState<AttemptStatus | null>(null);
   const [retrying, setRetrying] = useState(false);
+  /** Listening (specs/068): the recording's text, fetched after the task is
+   *  recorded. The server decides whether there is anything to fetch. */
+  const [transcript, setTranscript] = useState<string | null>(null);
+  /** The last answers a widget reported, so a task that ends unsolved can
+   *  still be submitted once — see the listening branch. */
+  const lastAnswersRef = useRef<Record<string, unknown>>({});
   // Time-on-task clock — armed once when this live exercise mounts.
   const timerRef = useRef<ExerciseTimer>(startExerciseTimer());
 
@@ -178,6 +184,13 @@ export function V2ExerciseLive({
     if (d.max_attempts_reached) {
       result.correctAnswer = formatCorrect(d.correct_answer);
     }
+    if (exercise.exercise_type === "listening") {
+      // 404 while the work is unfinished is the normal answer, not an error.
+      apiClient
+        .get(`/exercises/${exercise.id}/transcript`)
+        .then((r) => setTranscript(r.data?.transcript ?? null))
+        .catch(() => {});
+    }
     return result;
   };
 
@@ -232,10 +245,15 @@ export function V2ExerciseLive({
   // the server's `attempts_remaining` after every submit.
   const remaining = Math.max(1, status.max_attempts - status.attempt_count);
   const cfg = exercise.config ?? {};
+  const trackAnswers = (answers: Record<string, unknown>) => {
+    lastAnswersRef.current = answers;
+    onAnswersChange?.(answers);
+  };
+
   const shared = {
     maxAttemptsPerTask: remaining,
     onGrade,
-    onAnswersChange,
+    onAnswersChange: trackAnswers,
     onFinish,
     onQuit,
   } as const;
@@ -369,7 +387,10 @@ export function V2ExerciseLive({
       }));
       return <QuizV2 questions={qs} onCheck={onCheck} onGrade={onGrade} onQuit={onQuit} />;
     }
-    case "reading": {
+    case "reading":
+    // Listening is reading with a recording where the passage goes (specs/068):
+    // the same question shapes, the same server checking, the same stepper.
+    case "listening": {
       // config questions carry either dict options ({id,label,is_correct})
       // or plain strings; the grader wants the id in the first case
       const raw = (cfg.questions as {
@@ -395,12 +416,26 @@ export function V2ExerciseLive({
           textMode: q.type === "text",
         };
       });
+      const listening = exercise.exercise_type === "listening";
       return (
         <ReadingV2
           passage={(cfg.passage as string) ?? ""}
           questions={questions}
+          audioUrl={listening ? ((cfg.audio_url as string) || undefined) : undefined}
+          maxPlays={listening ? Number(cfg.max_plays) || 0 : 0}
+          transcript={listening ? (transcript ?? undefined) : undefined}
           onCheck={onCheck}
           {...shared}
+          onFinish={(r) => {
+            // A listening task the student could not finish still records one
+            // attempt. Without it nothing reaches the journal, and the
+            // transcript — the thing that helps most after a miss — waits on a
+            // submission that never happens.
+            if (listening && !r.correct) {
+              void onGrade(lastAnswersRef.current).catch(() => {});
+            }
+            onFinish?.(r);
+          }}
         />
       );
     }

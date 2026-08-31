@@ -54,6 +54,14 @@ export interface ReadingV2Props {
   hint?: string;
   /** RD-03: multi-question flow over the same passage (takes precedence). */
   questions?: ReadingQuestion[];
+  /** Listening (specs/068): a recording takes the passage panel's place. The
+   *  rest of the task — stepper, hearts, server checking — is unchanged. */
+  audioUrl?: string;
+  /** 0 or absent means no limit. Counted in the browser and reset by a
+   *  reload: the file is a URL, so nothing here is enforceable. */
+  maxPlays?: number;
+  /** The recording's text, once the server has let the student have it. */
+  transcript?: string;
   /** Non-persisting per-question check (POST /exercises/:id/check). */
   onCheck?: V2GradeFn;
   /** Records the submission when the last question is solved. */
@@ -79,6 +87,9 @@ export function ReadingV2({
   correct,
   hint,
   questions,
+  audioUrl,
+  maxPlays = 0,
+  transcript,
   onCheck,
   onGrade,
   onAnswersChange,
@@ -102,6 +113,13 @@ export function ReadingV2({
       },
     ];
   }, [questions, question, options, correct, hint]);
+
+  /** Listening: a play is counted when the recording starts from the top, so
+   *  pausing to think is free and starting over is not. */
+  const [plays, setPlays] = useState(0);
+  const [playing, setPlaying] = useState(false);
+  const [broken, setBroken] = useState(false);
+  const audioRef = useRef<HTMLAudioElement>(null);
 
   const [qIdx, setQIdx] = useState(0);
   const [pick, setPick] = useState<number | null>(null);
@@ -136,6 +154,17 @@ export function ReadingV2({
   const isTextQ = !!q?.textMode;
   const isMultiQ = !isTextQ && !!q?.multiSelect;
   const canCheck = isTextQ ? textInput.trim().length > 0 : isMultiQ ? picks.length > 0 : pick !== null;
+
+  const playsLeft = maxPlays > 0 ? Math.max(0, maxPlays - plays) : 0;
+  const playsSpent = maxPlays > 0 && plays >= maxPlays;
+  const handlePlay = () => {
+    setPlaying(true);
+    const el = audioRef.current;
+    // Resuming after a pause is the same listen; starting from the top is a
+    // new one. None of this is a control — the file is a URL, and the editor
+    // says so to the teacher.
+    if (!el || el.currentTime < 0.5) setPlays((n) => n + 1);
+  };
 
   const handleCheck = async () => {
     if (checking || !canCheck) return;
@@ -207,8 +236,8 @@ export function ReadingV2({
       setFeedback({
         kind: "no",
         msg: (remaining === 1
-          ? t("exercise.reading.lookBackAttempt")
-          : t("exercise.reading.lookBackAttempts")
+          ? t(audioUrl ? "exercise.listening.listenAgainAttempt" : "exercise.reading.lookBackAttempt")
+          : t(audioUrl ? "exercise.listening.listenAgainAttempts" : "exercise.reading.lookBackAttempts")
         ).replace("{n}", String(remaining)),
         explain: q.hint,
       });
@@ -257,7 +286,7 @@ export function ReadingV2({
         step={multi ? qIdx + 1 : undefined}
         totalSteps={multi ? qs.length : undefined}
         eyebrow={eyebrow}
-        title={title ?? t("exercise.reading.title")}
+        title={title ?? t(audioUrl ? "exercise.listening.title" : "exercise.reading.title")}
         feedback={feedback}
         canCheck={canCheck}
         onCheck={handleCheck}
@@ -282,11 +311,64 @@ export function ReadingV2({
             }}
           >
             <div className="gp-eyebrow" style={{ marginBottom: 8 }}>
-              {passageLabel ?? t("exercise.passage")}
+              {passageLabel ?? t(audioUrl ? "exercise.listening.recording" : "exercise.passage")}
             </div>
             {/* specs/019 US3: passages may carry inline images as HTML —
-                rendered through the same ContentRenderer lesson HTML uses */}
-            {/<img|<p|<br|<h\d/i.test(passage) ? (
+                rendered through the same ContentRenderer lesson HTML uses.
+                specs/068: a recording stands in the same panel instead. */}
+            {audioUrl ? (
+              <>
+                {broken ? (
+                  <p style={{ margin: 0, fontSize: 13.5 }}>
+                    {t("exercise.listening.unavailable")}
+                  </p>
+                ) : playsSpent && !playing ? (
+                  <p style={{ margin: 0, fontSize: 13.5 }}>
+                    {t("exercise.listening.noPlaysLeft")}
+                  </p>
+                ) : (
+                  /* Native controls: keyboard and screen readers get them for
+                     free, and there is no player here worth writing. */
+                  // eslint-disable-next-line jsx-a11y/media-has-caption
+                  <audio
+                    ref={audioRef}
+                    src={audioUrl}
+                    controls
+                    preload="metadata"
+                    style={{ width: "100%" }}
+                    onPlay={handlePlay}
+                    onPause={() => setPlaying(false)}
+                    onEnded={() => setPlaying(false)}
+                    onError={() => setBroken(true)}
+                  />
+                )}
+                {maxPlays > 0 && !broken && (
+                  <p
+                    style={{
+                      margin: "10px 0 0",
+                      fontSize: 12,
+                      color: "var(--color-text-muted)",
+                    }}
+                  >
+                    {t("exercise.listening.playsLeft").replace("{n}", String(playsLeft))}
+                  </p>
+                )}
+                {transcript && (
+                  <div
+                    style={{
+                      marginTop: 14,
+                      paddingTop: 12,
+                      borderTop: "1px solid var(--color-border)",
+                    }}
+                  >
+                    <div className="gp-eyebrow" style={{ marginBottom: 6 }}>
+                      {t("exercise.listening.transcript")}
+                    </div>
+                    <p style={{ margin: 0, whiteSpace: "pre-wrap" }}>{transcript}</p>
+                  </div>
+                )}
+              </>
+            ) : /<img|<p|<br|<h\d/i.test(passage) ? (
               <div className="prose prose-sm max-w-none">
                 <ContentRenderer body={passage} format="html" />
               </div>

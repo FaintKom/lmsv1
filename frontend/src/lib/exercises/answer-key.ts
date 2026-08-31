@@ -26,6 +26,7 @@ export const ANSWER_KEY_BY_TYPE: Record<string, string> = {
   word_search: "words",
   srs_flashcard: "cards",
   reading: "questions",
+  listening: "questions",
   conjugation: "table",
   bubble_sheet: "questions",
   dialogue: "messages",

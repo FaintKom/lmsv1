@@ -232,7 +232,7 @@ function AddExercise({
   const { t } = useTranslation();
   const [open, setOpen] = useState(false);
   const [query, setQuery] = useState("");
-  // «Новое» — 26 типов; «Из библиотеки» — то, что школа уже завела. Второй
+  // «Новое» — 27 типов; «Из библиотеки» — то, что школа уже завела. Второй
   // режим и есть библиотека (specs/030): задание из одного курса ставится в
   // другой, не создаваясь заново.
   const [mode, setMode] = useState<"new" | "existing">("new");

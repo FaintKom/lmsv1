@@ -36,6 +36,7 @@ import {
  SentenceBuilderConfigEditor,
  DialogueConfigEditor,
  ConjugationConfigEditor,
+ ListeningConfigEditor,
  ReadingConfigEditor,
  WebEditorConfigEditor,
  SRSFlashcardConfigEditor,
@@ -108,6 +109,7 @@ export default function ExerciseEditorPage() {
  dialogue: { messages: [] },
  conjugation: { verb: "", language: "", tense: "", table: [] },
  reading: { passage: "", questions: [] },
+ listening: { audio_url: "", questions: [], max_plays: 0, transcript: "" },
  web_editor: { instructions: "", starter_html: "", starter_css: "", starter_js: "" },
  scorm_package: { package_id: "", launch_url: "", format: "scorm12", title: "" },
  math_stepwise: { problem: "", final_answer: "", validate_steps: true, hints: [], max_steps: 10 },
@@ -312,6 +314,10 @@ export default function ExerciseEditorPage() {
      {exercise.exercise_type === "reading" && (
        <Card><CardHeader><CardTitle>{t("admin.exerciseEditor.exerciseConfiguration")}</CardTitle></CardHeader>
        <CardContent><ReadingConfigEditor config={config} onChange={setConfig} /></CardContent></Card>
+     )}
+     {exercise.exercise_type === "listening" && (
+       <Card><CardHeader><CardTitle>{t("admin.exerciseEditor.exerciseConfiguration")}</CardTitle></CardHeader>
+       <CardContent><ListeningConfigEditor config={config} onChange={setConfig} /></CardContent></Card>
      )}
      {exercise.exercise_type === "web_editor" && (
        <Card><CardHeader><CardTitle>{t("admin.exerciseEditor.exerciseConfiguration")}</CardTitle></CardHeader>
