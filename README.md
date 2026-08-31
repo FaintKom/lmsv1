@@ -22,7 +22,7 @@ class follows: everyone on the same task, a shared board, hands raised, polls,
 and a panel showing who is stuck right now. State travels over SSE with Redis
 pub/sub, so a reload mid-lesson picks up where the tab left off.
 
-**Marks the work.** 26 exercise types, from multiple choice through matching,
+**Marks the work.** 27 exercise types, from multiple choice through matching,
 ordering and cloze to code challenges, systems of equations and solids. Student
 code runs in an isolated container — no network, read-only filesystem, CPU and
 memory capped — across Python, JavaScript, Java, C++ and Go.
@@ -46,7 +46,7 @@ test that fails if the exercise count drifts from the code.
 
 | | |
 |---|---|
-| Exercise types | 26 (`frontend/src/lib/api/exercises.ts`) |
+| Exercise types | 27 (`frontend/src/lib/api/exercises.ts`) |
 | API endpoints | 362 across 45 backend modules |
 | Interface languages | 6, with a key-parity test as a CI gate |
 | Sandbox languages | 5 |

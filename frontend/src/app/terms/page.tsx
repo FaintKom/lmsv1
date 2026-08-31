@@ -53,7 +53,7 @@ export default function TermsOfServicePage() {
  <ul className="mt-2 list-disc space-y-1 pl-5">
  <li>10 lesson content types</li>
  <li>
- 26 exercise formats including code editors, quizzes, and assignments
+ 27 exercise formats including code editors, quizzes, and assignments
  </li>
  <li>
  Sandboxed code execution in Python, JavaScript, Java, C++, and Go

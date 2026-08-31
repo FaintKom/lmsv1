@@ -414,6 +414,7 @@ def test_every_watched_type_names_a_key_its_grader_reads():
         "word_search": ["cat"],
         "srs_flashcard": [{"front": "a", "back": "b"}],
         "reading": [{"question": "q", "type": "text", "correct_answer": "a"}],
+        "listening": [{"question": "q", "type": "text", "correct_answer": "a"}],
         "conjugation": [{"pronoun": "I", "correct": "am"}],
         "bubble_sheet": [{"number": 1, "correct": "A"}],
         "dialogue": [{"speaker": "a", "text": "", "options": ["x"]}],

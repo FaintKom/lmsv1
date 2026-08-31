@@ -641,9 +641,38 @@ interface ReadingQuestion {
  ignore_punctuation?: boolean;
 }
 
-export function ReadingConfigEditor({ config, onChange }: EditorProps) {
+/** Listening (specs/068) is this editor with a recording where the passage
+ *  goes. Everything below it — the questions and their checking rules — is
+ *  the same content, so it is the same editor. */
+export function ReadingConfigEditor({
+ config,
+ onChange,
+ audio = false,
+}: EditorProps & { audio?: boolean }) {
  const passage = (config.passage as string) || "";
  const questions = (config.questions as ReadingQuestion[]) || [];
+ const audioUrl = (config.audio_url as string) || "";
+ const maxPlays = Number(config.max_plays) || 0;
+ const transcript = (config.transcript as string) || "";
+ const audioFileRef = useRef<HTMLInputElement>(null);
+ const [uploadingAudio, setUploadingAudio] = useState(false);
+
+ const uploadAudio = async (file: File) => {
+   setUploadingAudio(true);
+   const formData = new FormData();
+   formData.append("file", file);
+   try {
+     const { data } = await apiClient.post<{ url: string }>("/courses/upload-audio", formData, {
+       headers: { "Content-Type": "multipart/form-data" },
+     });
+     onChange({ ...config, audio_url: data.url });
+   } catch {
+     /* the api-client interceptor reports it; the field keeps what it had */
+   } finally {
+     setUploadingAudio(false);
+     if (audioFileRef.current) audioFileRef.current.value = "";
+   }
+ };
 
  const updateQuestion = (i: number, field: string, val: unknown) => {
    const next = questions.map((q, j) => (j === i ? { ...q, [field]: val } : q));
@@ -706,6 +735,79 @@ export function ReadingConfigEditor({ config, onChange }: EditorProps) {
 
  return (
    <div className="space-y-5">
+     {audio ? (
+       <>
+         <div>
+           <label className={labelCls}>Recording</label>
+           <div className="flex gap-2">
+             <input
+               type="text"
+               value={audioUrl}
+               onChange={(e) => onChange({ ...config, audio_url: e.target.value })}
+               placeholder="https://example.com/lesson-1.mp3"
+               className={`flex-1 ${inputBase}`}
+             />
+             <Button
+               variant="outline"
+               size="sm"
+               disabled={uploadingAudio}
+               onClick={() => audioFileRef.current?.click()}
+             >
+               <Upload className="mr-1 h-3.5 w-3.5" />
+               {uploadingAudio ? "Uploading…" : "Upload"}
+             </Button>
+             <input
+               ref={audioFileRef}
+               type="file"
+               accept="audio/*"
+               className="hidden"
+               onChange={(e) => {
+                 const f = e.target.files?.[0];
+                 if (f) uploadAudio(f);
+               }}
+             />
+           </div>
+           {audioUrl && (
+             // eslint-disable-next-line jsx-a11y/media-has-caption
+             <audio src={audioUrl} controls preload="metadata" className="mt-2 w-full" />
+           )}
+           <p className={hintCls}>mp3, m4a, ogg or wav, up to 25 MB.</p>
+         </div>
+
+         <div>
+           <label className={labelCls}>Listens allowed</label>
+           <input
+             type="number"
+             min={0}
+             value={maxPlays}
+             onChange={(e) =>
+               onChange({ ...config, max_plays: parseInt(e.target.value) || 0 })
+             }
+             className={inputCls}
+           />
+           <p className={hintCls}>
+             0 means no limit. The count lives in the student&apos;s browser and a reload
+             clears it — the recording is a link, so this is an agreement with the class,
+             not a lock.
+           </p>
+         </div>
+
+         <div>
+           <label className={labelCls}>Transcript (optional)</label>
+           <textarea
+             value={transcript}
+             onChange={(e) => onChange({ ...config, transcript: e.target.value })}
+             rows={4}
+             placeholder="What is said in the recording…"
+             className={inputCls}
+           />
+           <p className={hintCls}>
+             Shown to the student once the task is over — solved, or out of tries. It is
+             never sent along with the task.
+           </p>
+         </div>
+       </>
+     ) : (
      <div>
        <div className="flex items-center justify-between">
          <label className={labelCls}>Reading Passage</label>
@@ -727,6 +829,7 @@ export function ReadingConfigEditor({ config, onChange }: EditorProps) {
        </div>
        <textarea value={passage} onChange={(e) => onChange({ ...config, passage: e.target.value })} placeholder="Enter the reading passage that students will analyze... (HTML and images supported)" rows={6} className={inputCls} />
      </div>
+     )}
 
      <div>
        <div className="flex items-center justify-between mb-3">
@@ -793,6 +896,10 @@ export function ReadingConfigEditor({ config, onChange }: EditorProps) {
      </div>
    </div>
  );
+}
+
+export function ListeningConfigEditor(props: EditorProps) {
+ return <ReadingConfigEditor {...props} audio />;
 }
 
 // ─── SRS Flashcard ──────────────────────────────────────────────────

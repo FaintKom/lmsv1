@@ -90,6 +90,7 @@ interface Exercise {
  | "dialogue"
  | "conjugation"
  | "reading"
+ | "listening"
  | "web_editor"
  | "scorm_package"
  | "math_stepwise"

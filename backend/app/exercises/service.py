@@ -721,6 +721,51 @@ async def get_attempt_status(
     }
 
 
+async def get_listening_transcript(
+    db: AsyncSession,
+    exercise_id: uuid.UUID,
+    user: User,
+) -> str | None:
+    """The recording's text, once the student is done with the task.
+
+    A transcript spells out every answer, so it never rides along in the config
+    a student receives (specs/004) — `_strip_answers` drops it. It is handed
+    over here instead, and only when the work is over: solved, or out of
+    attempts. Staff read it whenever they like; they wrote it.
+
+    A parent takes the student path and gets nothing, for the reason
+    `_may_see_answers` exists — they are linked to a child whose homework this
+    is.
+
+    Returns None wherever the answer is "no", including a non-listening
+    exercise and an empty transcript: the endpoint turns that into 404, so
+    whether a transcript exists at all stays unsaid.
+    """
+    exercise = await _get_exercise_with_relations(db, exercise_id, user)
+    if exercise.exercise_type != ExerciseType.listening:
+        return None
+    transcript = (exercise.config or {}).get("transcript")
+    if not isinstance(transcript, str) or not transcript.strip():
+        return None
+    if user.role not in (UserRole.student, UserRole.parent):
+        return transcript
+
+    max_att = exercise.max_attempts if exercise.max_attempts is not None else 100
+    if await _count_attempts(db, exercise_id, user.id) >= max_att:
+        return transcript
+
+    result = await db.execute(
+        select(ExerciseSubmission.id)
+        .where(
+            ExerciseSubmission.exercise_id == exercise_id,
+            ExerciseSubmission.student_id == user.id,
+            ExerciseSubmission.passed.is_(True),
+        )
+        .limit(1)
+    )
+    return transcript if result.scalar_one_or_none() else None
+
+
 # ─── Unified submission handler ─────────────────────────────────────
 
 
@@ -815,6 +860,7 @@ async def submit_exercise(
         ExerciseType.dialogue,
         ExerciseType.conjugation,
         ExerciseType.reading,
+        ExerciseType.listening,
     ):
         return await _submit_interactive(db, exercise, user, data, now)
     else:

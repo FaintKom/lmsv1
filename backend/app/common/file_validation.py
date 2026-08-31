@@ -98,6 +98,25 @@ _EXT_SPECS: dict[str, tuple[str, tuple | None, str]] = {
         ((0, b"\xd0\xcf\x11\xe0\xa1\xb1\x1a\xe1"),),
         "application/vnd.ms-powerpoint",
     ),
+    # Audio — listening exercises (specs/068). Signatures are OR-matched, which
+    # suits mp3: a file either opens with an ID3 tag or straight with a frame
+    # sync, and both are ordinary.
+    ".mp3": (
+        FileCategory.AUDIO,
+        (
+            (0, b"ID3"),
+            (0, b"\xff\xfb"),
+            (0, b"\xff\xf3"),
+            (0, b"\xff\xf2"),
+            (0, b"\xff\xe3"),
+        ),
+        "audio/mpeg",
+    ),
+    # MPEG-4 audio: the box length comes first, so `ftyp` sits at offset 4.
+    ".m4a": (FileCategory.AUDIO, ((4, b"ftyp"),), "audio/mp4"),
+    ".ogg": (FileCategory.AUDIO, ((0, b"OggS"),), "audio/ogg"),
+    # RIFF container, like .webp above — the check stops at the container.
+    ".wav": (FileCategory.AUDIO, ((0, b"RIFF"),), "audio/wav"),
     # Archives
     ".zip": (FileCategory.ARCHIVE, ((0, b"PK\x03\x04"),), "application/zip"),
 }
@@ -224,6 +243,7 @@ def validate_upload(
 
 # Convenience allowlists for common endpoints — use these instead of ad-hoc sets.
 IMAGE_EXTENSIONS = {".png", ".jpg", ".jpeg", ".gif", ".webp", ".svg"}
+AUDIO_EXTENSIONS = {".mp3", ".m4a", ".ogg", ".wav"}
 DOCUMENT_EXTENSIONS = {".pdf", ".doc", ".docx", ".ppt", ".pptx", ".xlsx"}
 # What a pupil hands in for a programming course. Stored, never executed.
 CODE_EXTENSIONS = {

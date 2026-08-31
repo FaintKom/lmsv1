@@ -46,6 +46,7 @@ import {
  Sigma,
  Layers,
  Grid3X3,
+ Headphones,
  MapPin,
  CircleDot,
 } from "lucide-react";
@@ -80,6 +81,7 @@ const TYPE_ICONS: Record<ExerciseType, typeof FileText> = {
  dialogue: MessageCircle,
  conjugation: Table,
  reading: BookOpenText,
+ listening: Headphones,
  web_editor: Globe,
  scorm_package: Package,
  math_stepwise: Sigma,

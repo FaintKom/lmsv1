@@ -58,6 +58,8 @@ export const V2_LIVE_TYPES = [
   "categorize",
   // stepper types (PR-3): per-question verdicts through /check
   "reading",
+  // listening (specs/068): the same stepper, a recording instead of a passage
+  "listening",
   "dialogue",
   "quiz",
   "crossword",

@@ -105,7 +105,7 @@ def test_fixture_configs_only_use_keys_the_product_declares():
     nothing anywhere reads, next to an instruction that contradicted what the
     template actually asks.
 
-    All twenty-six types declare a `*Config` model in `app/exercises/schemas.py`. Where one exists it is the closest thing to a
+    All twenty-seven types declare a `*Config` model in `app/exercises/schemas.py`. Where one exists it is the closest thing to a
     written contract, so a fixture key outside it is either a typo or a field the
     product forgot to implement. A type that loses its model fails here rather than
     quietly dropping out of the check.

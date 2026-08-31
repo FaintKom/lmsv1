@@ -48,6 +48,7 @@ from app.exercises.service import (
     get_attempt_status,
     get_exercise,
     get_exercises_by_lesson,
+    get_listening_transcript,
     list_exercises,
     list_submissions,
     placed_exercise_ids,
@@ -265,6 +266,26 @@ async def get_attempts_endpoint(
     db: AsyncSession = Depends(get_db),
 ):
     return await get_attempt_status(db, exercise_id, user)
+
+
+@router.get("/{exercise_id}/transcript")
+async def get_transcript_endpoint(
+    exercise_id: uuid.UUID,
+    user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db),
+):
+    """Listening transcript, once the student is done with the task (specs/068).
+
+    404 while the work is unfinished — and equally when the exercise has no
+    transcript, or is not a listening exercise at all. One answer for every
+    "no" keeps the reply from confirming that a transcript is there to wait for.
+    """
+    from app.common.exceptions import NotFoundError
+
+    transcript = await get_listening_transcript(db, exercise_id, user)
+    if transcript is None:
+        raise NotFoundError("Transcript not available")
+    return {"transcript": transcript}
 
 
 @router.post("/{exercise_id}/check", response_model=CheckExerciseResponse)
@@ -787,6 +808,10 @@ def _strip_answers(resp: ExerciseResponse) -> ExerciseResponse:
                 "correct_answer",
                 "accepted_answers",  # translation
                 "distractors",
+                # listening (specs/068): the recording's text spells out every
+                # answer, so it is served by /transcript once the work is over,
+                # never alongside the task.
+                "transcript",
             )
             # `words` is the sentence_builder duplicate of correct_order —
             # drop it only there. Crossword uses `words` for its grid entries

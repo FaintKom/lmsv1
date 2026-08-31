@@ -45,6 +45,7 @@ import {
   SentenceBuilderConfigEditor,
   DialogueConfigEditor,
   ConjugationConfigEditor,
+  ListeningConfigEditor,
   ReadingConfigEditor,
   WebEditorConfigEditor,
   SRSFlashcardConfigEditor,
@@ -100,6 +101,7 @@ const TYPE_DEFAULTS: Partial<Record<ExerciseType, Record<string, unknown>>> = {
   dialogue: { messages: [] },
   conjugation: { verb: "", language: "", tense: "", table: [] },
   reading: { passage: "", questions: [] },
+  listening: { audio_url: "", questions: [], max_plays: 0, transcript: "" },
   web_editor: { instructions: "", starter_html: "", starter_css: "", starter_js: "" },
   scorm_package: { package_id: "", launch_url: "", format: "scorm12", title: "" },
   math_stepwise: { problem: "", final_answer: "", validate_steps: true, hints: [], max_steps: 10 },
@@ -230,6 +232,7 @@ export function ExerciseConfigPanel({ exerciseId, hideTitle, onSaved }: Exercise
       {type === "dialogue" && <DialogueConfigEditor config={config} onChange={setConfig} />}
       {type === "conjugation" && <ConjugationConfigEditor config={config} onChange={setConfig} />}
       {type === "reading" && <ReadingConfigEditor config={config} onChange={setConfig} />}
+      {type === "listening" && <ListeningConfigEditor config={config} onChange={setConfig} />}
       {type === "web_editor" && <WebEditorConfigEditor config={config} onChange={setConfig} />}
       {type === "srs_flashcard" && <SRSFlashcardConfigEditor config={config} onChange={setConfig} />}
       {type === "crossword" && <CrosswordConfigEditor config={config} onChange={setConfig} />}

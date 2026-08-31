@@ -202,6 +202,23 @@
       }
     },
     {
+      "type": "listening",
+      "label": "Listening",
+      "config": {
+        "audio_url": "/api/v1/courses/audio/00000000000000000000000000000000.mp3",
+        "max_plays": 2,
+        "transcript": "The cat sat on the mat.",
+        "questions": [
+          {
+            "question": "Where did the cat sit?",
+            "type": "multiple_choice",
+            "options": ["mat", "chair"],
+            "correct_answer": "mat"
+          }
+        ]
+      }
+    },
+    {
       "type": "web_editor",
       "label": "Web editor",
       "config": {
