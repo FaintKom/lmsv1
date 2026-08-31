@@ -114,10 +114,12 @@ export function ReadingV2({
     ];
   }, [questions, question, options, correct, hint]);
 
-  /** Listening: a play is counted when the recording starts from the top, so
-   *  pausing to think is free and starting over is not. */
+  /** Listening: one listen runs from pressing play to the recording ending.
+   *  Pausing to think, resuming and scrubbing all stay inside it — a time
+   *  threshold looked simpler and charged a second listen to anyone who
+   *  paused in the first half-second. */
   const [plays, setPlays] = useState(0);
-  const [playing, setPlaying] = useState(false);
+  const [inListen, setInListen] = useState(false);
   const [broken, setBroken] = useState(false);
   const audioRef = useRef<HTMLAudioElement>(null);
 
@@ -156,14 +158,13 @@ export function ReadingV2({
   const canCheck = isTextQ ? textInput.trim().length > 0 : isMultiQ ? picks.length > 0 : pick !== null;
 
   const playsLeft = maxPlays > 0 ? Math.max(0, maxPlays - plays) : 0;
-  const playsSpent = maxPlays > 0 && plays >= maxPlays;
+  /** Spent, and not in the middle of the last one — the player is never taken
+   *  away from a recording that is still going. */
+  const playsSpent = maxPlays > 0 && plays >= maxPlays && !inListen;
   const handlePlay = () => {
-    setPlaying(true);
-    const el = audioRef.current;
-    // Resuming after a pause is the same listen; starting from the top is a
-    // new one. None of this is a control — the file is a URL, and the editor
-    // says so to the teacher.
-    if (!el || el.currentTime < 0.5) setPlays((n) => n + 1);
+    if (inListen) return;
+    setInListen(true);
+    setPlays((n) => n + 1);
   };
 
   const handleCheck = async () => {
@@ -322,7 +323,7 @@ export function ReadingV2({
                   <p style={{ margin: 0, fontSize: 13.5 }}>
                     {t("exercise.listening.unavailable")}
                   </p>
-                ) : playsSpent && !playing ? (
+                ) : playsSpent ? (
                   <p style={{ margin: 0, fontSize: 13.5 }}>
                     {t("exercise.listening.noPlaysLeft")}
                   </p>
@@ -337,12 +338,11 @@ export function ReadingV2({
                     preload="metadata"
                     style={{ width: "100%" }}
                     onPlay={handlePlay}
-                    onPause={() => setPlaying(false)}
-                    onEnded={() => setPlaying(false)}
+                    onEnded={() => setInListen(false)}
                     onError={() => setBroken(true)}
                   />
                 )}
-                {maxPlays > 0 && !broken && (
+                {maxPlays > 0 && !broken && !playsSpent && (
                   <p
                     style={{
                       margin: "10px 0 0",
