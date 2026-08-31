@@ -1,6 +1,11 @@
 import { describe, expect, it } from "vitest";
 
-import { countBlanks, toBlankMarkers, toBubbleQuestions } from "./v2-adapter";
+import {
+  countBlanks,
+  toBlankMarkers,
+  toBubbleQuestions,
+  toReadingQuestions,
+} from "./v2-adapter";
 
 /**
  * Учитель отмечает пропуск подчёркиваниями, виджет ищет `{{blank}}`.
@@ -72,5 +77,63 @@ describe("bubble sheet: разбор вопросов", () => {
 
   it("без ключа ответа вопрос остаётся непроверяемым, а не «верно A»", () => {
     expect(toBubbleQuestions({ questions: [{ correct: "" }] })[0].correct).toBeUndefined();
+  });
+});
+
+/**
+ * Вопрос, набранный в редакторе, доезжал до ученика пустым.
+ *
+ * Фикстуры и сиды пишут `question`, редактор писал `text`, а виджет читал
+ * только `question` — ученик видел варианты ответа и ничего над ними. На
+ * проде так лежало задание `system-RD007`, и каждое аудирование, заведённое
+ * в первый день, получило бы то же самое.
+ */
+describe("вопросы чтения и аудирования", () => {
+  it("читает ключ, который пишет редактор", () => {
+    const [q] = toReadingQuestions({
+      questions: [{ text: "Сколько нот в записи?", type: "multiple_choice" }],
+    });
+    expect(q.question).toBe("Сколько нот в записи?");
+  });
+
+  it("читает ключ, который пишут фикстуры и сиды", () => {
+    const [q] = toReadingQuestions({
+      questions: [{ question: "Where did the cat sit?", type: "multiple_choice" }],
+    });
+    expect(q.question).toBe("Where did the cat sit?");
+  });
+
+  it("при обоих ключах побеждает канонический", () => {
+    const [q] = toReadingQuestions({
+      questions: [{ question: "канонический", text: "старый", type: "text" }],
+    });
+    expect(q.question).toBe("канонический");
+    expect(q.textMode).toBe(true);
+  });
+
+  it("держит подпись и идентификатор варианта врозь — сервер сверяет по id", () => {
+    const [q] = toReadingQuestions({
+      questions: [
+        {
+          question: "?",
+          options: [
+            { id: "a", text: "Три", is_correct: true },
+            { id: "b", text: "Пять" },
+          ],
+        },
+      ],
+    });
+    expect(q.options).toEqual(["Три", "Пять"]);
+    expect(q.optionIds).toEqual(["a", "b"]);
+  });
+
+  it("варианты строками остаются собой", () => {
+    const [q] = toReadingQuestions({ questions: [{ question: "?", options: ["mat", "chair"] }] });
+    expect(q.options).toEqual(["mat", "chair"]);
+    expect(q.optionIds).toEqual(["mat", "chair"]);
+  });
+
+  it("без вопросов — пустой список, а не падение", () => {
+    expect(toReadingQuestions({})).toEqual([]);
   });
 });

@@ -93,6 +93,55 @@ export function toBlankMarkers(text: string): string {
   return text.replace(/___?/g, "{{blank}}");
 }
 
+/** One reading/listening question as the widget wants it. */
+export interface ReadingQuestionView {
+  question: string;
+  options: string[];
+  optionIds: string[];
+  hint?: string;
+  multiSelect?: boolean;
+  textMode?: boolean;
+}
+
+/**
+ * Read the questions of a reading or listening exercise out of its config.
+ *
+ * Two spellings exist for the same field, and this is where they meet. The
+ * fixtures and the seeds write `question`; the config editor wrote `text`
+ * until 2026-08-31, so a question a teacher typed reached the student as bare
+ * options with nothing above them. Prod carried one such exercise
+ * (`system-RD007`) and every listening task authored on day one would have
+ * carried the same. Both are read here, `question` first.
+ *
+ * Options come as plain strings or as dicts; the server grades the dict form
+ * by id, so the label and the id are kept apart.
+ */
+export function toReadingQuestions(config: Record<string, unknown>): ReadingQuestionView[] {
+  const raw =
+    (config.questions as {
+      question?: string;
+      text?: string;
+      type?: string;
+      options?: (string | { id?: string; text?: string; label?: string })[];
+      hint?: string;
+      multi?: boolean;
+    }[]) ?? [];
+  return raw.map((q) => {
+    const opts = q.options ?? [];
+    return {
+      question: q.question ?? q.text ?? "",
+      options: opts.map((o) => (typeof o === "string" ? o : (o.label ?? o.text ?? ""))),
+      optionIds: opts.map((o) =>
+        typeof o === "string" ? o : (o.id ?? o.label ?? o.text ?? ""),
+      ),
+      hint: q.hint,
+      // specs/019: adaptive multi + free-text questions
+      multiSelect: q.multi,
+      textMode: q.type === "text",
+    };
+  });
+}
+
 /** One bubble-sheet row as the widget wants it. */
 export interface BubbleQuestionView {
   n: number;
