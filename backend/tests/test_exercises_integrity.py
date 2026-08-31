@@ -753,3 +753,108 @@ async def test_parent_never_reads_the_answer_key(
     body = await _read_via(client, parent, ex, path)
     assert "solution_code" not in body["config"]
     assert [tc["expected_output"] for tc in body["test_cases"]] == ["3"]
+
+
+# ─── Listening (specs/068) ───────────────────────────────────────────────
+
+# One recording, one question, one transcript that gives the answer away.
+LISTENING_CONFIG = {
+    "audio_url": "/api/v1/courses/audio/" + "0" * 32 + ".mp3",
+    "max_plays": 2,
+    "transcript": "Marta vive en Madrid.",
+    "questions": [
+        {"question": "Donde vive Marta?", "type": "text", "correct_answer": "Madrid"},
+    ],
+}
+
+
+async def test_listening_strips_the_transcript_and_the_key(
+    client: AsyncClient, student, teacher, org, db
+):
+    ex = await _make_typed(db, org, teacher, ExerciseType.listening, LISTENING_CONFIG)
+
+    # Positive control: without this, the assertions below pass against a
+    # config that never held a transcript in the first place.
+    staff = await _read_via(client, teacher, ex, "detail")
+    assert staff["config"]["transcript"] == "Marta vive en Madrid."
+    assert staff["config"]["questions"][0]["correct_answer"] == "Madrid"
+
+    cfg = await _student_config(client, student, ex)
+    assert "transcript" not in cfg
+    assert "correct_answer" not in cfg["questions"][0]
+    # What the student needs to do the task survives.
+    assert cfg["audio_url"].endswith(".mp3")
+    assert cfg["max_plays"] == 2
+    assert cfg["questions"][0]["question"] == "Donde vive Marta?"
+
+
+async def test_listening_is_graded_by_the_reading_rules(
+    client: AsyncClient, student, teacher, org, db
+):
+    ex = await _make_typed(db, org, teacher, ExerciseType.listening, LISTENING_CONFIG)
+    right = await client.post(
+        f"/api/v1/exercises/{ex.id}/check",
+        json={"interactive_answers": {"answers": {"0": "Madrid"}}},
+        headers=auth_header(student),
+    )
+    assert right.status_code == 200
+    assert right.json()["per_item"] == {"0": True}
+
+    wrong = await client.post(
+        f"/api/v1/exercises/{ex.id}/check",
+        json={"interactive_answers": {"answers": {"0": "Barcelona"}}},
+        headers=auth_header(student),
+    )
+    assert wrong.json()["per_item"] == {"0": False}
+
+
+async def test_transcript_waits_until_the_task_is_over(
+    client: AsyncClient, student, parent, teacher, org, db
+):
+    ex = await _make_typed(db, org, teacher, ExerciseType.listening, LISTENING_CONFIG)
+    url = f"/api/v1/exercises/{ex.id}/transcript"
+
+    # Positive control: the person who wrote it reads it whenever.
+    staff = await client.get(url, headers=auth_header(teacher))
+    assert staff.status_code == 200
+    assert staff.json()["transcript"] == "Marta vive en Madrid."
+
+    early = await client.get(url, headers=auth_header(student))
+    assert early.status_code == 404
+
+    done = await client.post(
+        f"/api/v1/exercises/{ex.id}/submit",
+        json={"interactive_answers": {"answers": {"0": "Madrid"}}},
+        headers=auth_header(student),
+    )
+    assert done.status_code == 200
+    assert done.json()["passed"] is True
+
+    after = await client.get(url, headers=auth_header(student))
+    assert after.status_code == 200
+    assert after.json()["transcript"] == "Marta vive en Madrid."
+
+    # A parent is linked to the child whose homework this is, and holds no
+    # answers of their own — the reason `_may_see_answers` exists.
+    assert (await client.get(url, headers=auth_header(parent))).status_code == 404
+
+
+async def test_transcript_is_not_readable_from_another_school(
+    client: AsyncClient, admin2, teacher, org, db
+):
+    ex = await _make_typed(db, org, teacher, ExerciseType.listening, LISTENING_CONFIG)
+    url = f"/api/v1/exercises/{ex.id}/transcript"
+
+    assert (await client.get(url, headers=auth_header(teacher))).status_code == 200
+    assert (await client.get(url, headers=auth_header(admin2))).status_code == 404
+
+
+async def test_an_exercise_without_a_transcript_says_nothing_extra(
+    client: AsyncClient, teacher, org, db
+):
+    """Absent transcript reads the same as a locked one — 404 either way, so
+    the reply never confirms there is something to wait for."""
+    config = {k: v for k, v in LISTENING_CONFIG.items() if k != "transcript"}
+    ex = await _make_typed(db, org, teacher, ExerciseType.listening, config)
+    resp = await client.get(f"/api/v1/exercises/{ex.id}/transcript", headers=auth_header(teacher))
+    assert resp.status_code == 404

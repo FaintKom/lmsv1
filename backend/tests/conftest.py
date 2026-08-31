@@ -153,6 +153,11 @@ async def db():
                 "ALTER TABLE recordings ADD COLUMN IF NOT EXISTS live_lesson_id uuid REFERENCES live_lessons(id) ON DELETE SET NULL",
                 "ALTER TABLE recordings ADD COLUMN IF NOT EXISTS shared_with_group boolean NOT NULL DEFAULT false",
                 "ALTER TABLE recordings ADD COLUMN IF NOT EXISTS expires_at timestamptz",
+                # New exercise types: create_all builds the enum only when the
+                # type is absent, so a reused local database keeps yesterday's
+                # values and every insert of a new one fails on the enum, not
+                # on anything the test is about (specs/068).
+                "ALTER TYPE exercisetype ADD VALUE IF NOT EXISTS 'listening'",
             ):
                 await conn.execute(_text(_stmt))
         _tables_created = True

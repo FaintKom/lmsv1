@@ -11,6 +11,7 @@ from app.auth.dependencies import get_current_user, require_role
 from app.auth.models import User, UserRole
 from app.common.exceptions import NotFoundError
 from app.common.file_validation import (
+    AUDIO_EXTENSIONS,
     IMAGE_EXTENSIONS,
     FileCategory,
     UploadValidationError,
@@ -100,6 +101,55 @@ async def serve_image(filename: str):
     filepath = os.path.join(settings.upload_dir, "images", filename)
     if not os.path.exists(filepath):
         raise HTTPException(404, "Image not found")
+
+    return FileResponse(filepath)
+
+
+@router.post("/upload-audio")
+async def upload_audio(
+    file: UploadFile = File(...),
+    user: User = Depends(require_role(UserRole.admin, UserRole.teacher)),
+):
+    """Upload a recording for a listening exercise (specs/068).
+
+    25 MB is about twenty-five minutes of speech at a sane bitrate, and well
+    under nginx's 50 MB body cap — a listening task that needs more than that
+    is a lesson, not an exercise.
+    """
+    raw = await file.read()
+    try:
+        validated = validate_upload(
+            filename=file.filename,
+            data=raw,
+            allowed_extensions=AUDIO_EXTENSIONS,
+            max_size_mb=25,
+            category=FileCategory.AUDIO,
+        )
+    except UploadValidationError as e:
+        raise HTTPException(400, str(e)) from e
+
+    upload_dir = os.path.join(settings.upload_dir, "audio")
+    os.makedirs(upload_dir, exist_ok=True)
+    filepath = os.path.join(upload_dir, validated.safe_name)
+
+    with open(filepath, "wb") as f:
+        f.write(validated.data)
+
+    url = f"/api/v1/courses/audio/{validated.safe_name}"
+    return {"url": url}
+
+
+@router.get("/audio/{filename}")
+async def serve_audio(filename: str):
+    """Serve an uploaded recording."""
+    # Same shape as serve_image: only a name this server generated can match,
+    # so no traversal survives the regex.
+    if not re.match(r"^[a-f0-9]{32}\.(mp3|m4a|ogg|wav)$", filename):
+        raise HTTPException(404, "Not found")
+
+    filepath = os.path.join(settings.upload_dir, "audio", filename)
+    if not os.path.exists(filepath):
+        raise HTTPException(404, "Audio not found")
 
     return FileResponse(filepath)
 

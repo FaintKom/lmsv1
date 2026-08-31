@@ -152,6 +152,7 @@ _ANSWER_KEY_BY_TYPE = {
     "word_search": "words",
     "srs_flashcard": "cards",
     "reading": "questions",
+    "listening": "questions",
     "conjugation": "table",
     "bubble_sheet": "questions",
     "dialogue": "messages",
@@ -218,7 +219,7 @@ def grade_interactive_detail(
         return score, passed, None
     if exercise_type == "matching":
         return _grade_matching_detail(content, answers)
-    if exercise_type == "reading":
+    if exercise_type in ("reading", "listening"):
         return _grade_reading_detail(content, answers)
     if exercise_type == "dialogue":
         return _grade_dialogue_detail(content, answers)
@@ -267,7 +268,7 @@ def grade_interactive(content: dict, exercise_type: str, answers: dict) -> tuple
         return _grade_dialogue(content, answers)
     elif exercise_type == "conjugation":
         return _grade_conjugation(content, answers)
-    elif exercise_type == "reading":
+    elif exercise_type in ("reading", "listening"):
         return _grade_reading(content, answers)
     elif exercise_type == "srs_flashcard":
         return _grade_srs_flashcard(content, answers)
@@ -587,6 +588,10 @@ def _grade_reading(content: dict, answers: dict) -> tuple[float, bool]:
 
 def _grade_reading_detail(content: dict, answers: dict) -> tuple[float, bool, PerItem]:
     """Grade reading comprehension. per_item = {question index: verdict}.
+
+    Listening (specs/068) shares this grader: the questions carry the same
+    shape and the same rules, only the stimulus differs — a recording
+    instead of a passage.
 
     Each question may have `options` as either:
       - a list of strings (compare student answer directly to
