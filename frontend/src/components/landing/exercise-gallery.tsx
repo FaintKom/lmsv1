@@ -200,13 +200,6 @@ export function ExerciseGallery() {
 
           {arrow(1, "inline-flex h-12 w-12 md:hidden")}
         </div>
-
-        {/* Only true for the three locally-graded slides. The code slide is
-            marked by the server, and saying otherwise there would be a lie on
-            the one slide that proves the opposite. */}
-        {current.id !== "code" && (
-          <p className="mt-6 text-center text-sm text-text-subtle">{t("landing.gallery.note")}</p>
-        )}
       </div>
     </section>
   );

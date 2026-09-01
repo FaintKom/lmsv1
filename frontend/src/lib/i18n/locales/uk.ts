@@ -2678,7 +2678,6 @@ const uk: TranslationMap = {
  // Landing page
  "landing.gallery.title": "Приклади завдань",
  "landing.gallery.eyebrow": "Приклад завдання",
- "landing.gallery.note": "У справжньому курсі правильні відповіді лишаються на сервері. Тут вони їдуть зі сторінкою, щоб демо працювало без акаунта.",
  "landing.gallery.prev": "Попереднє завдання",
  "landing.gallery.next": "Наступне завдання",
  "landing.gallery.tabCode": "Код",

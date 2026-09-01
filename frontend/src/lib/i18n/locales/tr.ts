@@ -2619,7 +2619,6 @@ const tr: TranslationMap = {
  // Landing page
  "landing.gallery.title": "Örnek alıştırmalar",
  "landing.gallery.eyebrow": "Örnek alıştırma",
- "landing.gallery.note": "Gerçek bir kursta cevap anahtarı sunucuda kalır. Burada demo hesapsız çalışsın diye sayfayla birlikte geliyor.",
  "landing.gallery.prev": "Önceki alıştırma",
  "landing.gallery.next": "Sonraki alıştırma",
  "landing.gallery.tabCode": "Kod",
