@@ -128,7 +128,7 @@ jobs:
       # so most runs skip the download entirely, and give the download that
       # does happen a timeout that fails fast instead of eating the ceiling.
       - name: Cache Playwright browser
-        uses: actions/cache@v4
+        uses: actions/cache@v6
         with:
           path: ~/.cache/ms-playwright
           key: playwright-${{ runner.os }}-${{ hashFiles('frontend/package-lock.json') }}
