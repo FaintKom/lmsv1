@@ -2678,7 +2678,6 @@ const de: TranslationMap = {
  // Landing page
  "landing.gallery.title": "Beispielaufgaben",
  "landing.gallery.eyebrow": "Beispielaufgabe",
- "landing.gallery.note": "In einem echten Kurs bleibt der Lösungsschlüssel auf dem Server. Hier kommt er mit der Seite, damit die Demo ohne Konto funktioniert.",
  "landing.gallery.prev": "Vorherige Aufgabe",
  "landing.gallery.next": "Nächste Aufgabe",
  "landing.gallery.tabCode": "Code",

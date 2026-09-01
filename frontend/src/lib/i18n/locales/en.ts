@@ -2681,7 +2681,6 @@ const en: TranslationMap = {
  "landing.platformBadge": "Platform for modern education",
  "landing.gallery.title": "Example exercises",
  "landing.gallery.eyebrow": "Sample exercise",
- "landing.gallery.note": "In a real course the answer key stays on the server. Here it ships with the page so the demo works without an account.",
  "landing.gallery.prev": "Previous exercise",
  "landing.gallery.next": "Next exercise",
  "landing.gallery.tabCode": "Code",

@@ -2628,7 +2628,6 @@ const ru: TranslationMap = {
  // Landing page
  "landing.gallery.title": "Примеры заданий",
  "landing.gallery.eyebrow": "Пример задания",
- "landing.gallery.note": "В настоящем курсе правильные ответы остаются на сервере. Здесь они лежат в странице, чтобы демо работало без аккаунта.",
  "landing.gallery.prev": "Предыдущее задание",
  "landing.gallery.next": "Следующее задание",
  "landing.gallery.tabCode": "Код",
