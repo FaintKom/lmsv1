@@ -6,9 +6,9 @@
  * Rule for this file: every claim on it is checkable in the product. There are
  * no customers yet, so there are no logos, testimonials or growth numbers —
  * inventing them was never an option. What carries the page instead is the
- * product itself: a code task the server grades, three real exercise
- * components, and four numbers that come from the code
- * (EXERCISE_TYPES_META = 24, SUPPORTED_LANGUAGES = 5, LOCALES = 6).
+ * product itself: a code task the server grades and three real exercise
+ * components. (The strip of counted facts lived here until 2026-09-01, when
+ * the owner cut it.)
  */
 
 import Link from "next/link";
@@ -23,13 +23,6 @@ import { useTranslation } from "@/lib/i18n/context";
 
 export default function Home() {
   const { t } = useTranslation();
-
-  const facts = [
-    { value: t("landing.facts.typesValue"), label: t("landing.facts.typesLabel") },
-    { value: t("landing.facts.langsValue"), label: t("landing.facts.langsLabel") },
-    { value: t("landing.facts.localesValue"), label: t("landing.facts.localesLabel") },
-    { value: t("landing.facts.answersValue"), label: t("landing.facts.answersLabel") },
-  ];
 
   const roster = [
     { initial: "A", icon: CheckCircle2, tone: "success" as const, label: t("landing.live.chipOk") },
@@ -78,34 +71,6 @@ export default function Home() {
                 </Button>
               </Link>
             </div>
-            <div className="mt-4 flex flex-col items-center justify-center gap-2 sm:flex-row sm:gap-3">
-              <span className="text-sm text-text-subtle">{t("landing.hero.demoHint")}</span>
-              <Link href="/demo?role=student">
-                <Button variant="ghost" size="sm">
-                  {t("landing.ctaTryDemo")}
-                </Button>
-              </Link>
-            </div>
-          </div>
-        </section>
-
-        {/* Facts strip — numbers that come from the code, not from marketing */}
-        <section className="border-t border-border bg-surface py-14">
-          <div className="mx-auto max-w-5xl px-6">
-            {/* break-words + a smaller gap on phones: at 320px each column is
-                about 120px, and a single long word ("Programmiersprachen",
-                "программирования") pushed the whole document to 367px. */}
-            <div className="grid grid-cols-2 gap-x-4 gap-y-8 sm:gap-x-8 md:grid-cols-4">
-              {facts.map((f) => (
-                <div key={f.label} className="min-w-0 text-center">
-                  <p className="text-4xl font-extrabold text-primary md:text-5xl">{f.value}</p>
-                  <p className="mt-2 break-words text-sm font-medium leading-snug text-text-muted">
-                    {f.label}
-                  </p>
-                </div>
-              ))}
-            </div>
-            <p className="mt-8 text-center text-sm text-text-subtle">{t("landing.facts.note")}</p>
           </div>
         </section>
 

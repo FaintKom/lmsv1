@@ -101,9 +101,9 @@ test.describe("landing code demo", () => {
   });
 
   test("the exercise gallery grades a right and a wrong answer", async ({ page }) => {
-    // Matched on the tail of the heading: the count at the front changes with
-    // the number of slides, and it already has once.
-    const gallery = page.locator("section").filter({ hasText: "exercise types you can set" });
+    // By testid, not by heading text: this locator matched the copy and broke
+    // twice when the heading was rewritten.
+    const gallery = page.getByTestId("exercise-gallery");
 
     // Options are radio tiles, not plain buttons.
     await gallery.getByRole("radio", { name: /63/ }).first().click();
