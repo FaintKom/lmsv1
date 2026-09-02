@@ -24,6 +24,7 @@ import { startExerciseTimer, type ExerciseTimer } from "@/lib/api/exercises";
 import { useTranslation } from "@/lib/i18n/context";
 import {
   toBubbleQuestions,
+  toReadingQuestions,
   type V2GradeFn,
   type V2GradeResult,
   type V2LiveType,
@@ -391,31 +392,7 @@ export function V2ExerciseLive({
     // Listening is reading with a recording where the passage goes (specs/068):
     // the same question shapes, the same server checking, the same stepper.
     case "listening": {
-      // config questions carry either dict options ({id,label,is_correct})
-      // or plain strings; the grader wants the id in the first case
-      const raw = (cfg.questions as {
-        question?: string;
-        type?: string;
-        options?: (string | { id?: string; text?: string; label?: string })[];
-        hint?: string;
-        multi?: boolean;
-      }[]) ?? [];
-      const questions = raw.map((q) => {
-        const opts = q.options ?? [];
-        return {
-          question: q.question ?? "",
-          options: opts.map((o) =>
-            typeof o === "string" ? o : (o.label ?? o.text ?? ""),
-          ),
-          optionIds: opts.map((o) =>
-            typeof o === "string" ? o : (o.id ?? o.label ?? o.text ?? ""),
-          ),
-          hint: q.hint,
-          // specs/019: adaptive multi + free-text reading questions
-          multiSelect: q.multi,
-          textMode: q.type === "text",
-        };
-      });
+      const questions = toReadingQuestions(cfg);
       const listening = exercise.exercise_type === "listening";
       return (
         <ReadingV2

@@ -631,7 +631,13 @@ export function ConjugationConfigEditor({ config, onChange }: EditorProps) {
 // ─── Reading Comprehension ───────────────────────────────────────────
 
 interface ReadingQuestion {
- text: string;
+ /** The question a student reads. Every widget and fixture calls this
+  *  `question`; this editor called it `text` and wrote a key nothing renders,
+  *  so a question authored here reached the student as bare options with
+  *  nothing above them. `text` is still read, because content written before
+  *  the fix exists. */
+ question?: string;
+ text?: string;
  type: "multiple_choice" | "text";
  options?: { id: string; text: string; is_correct: boolean }[];
  correct_answer?: string;
@@ -680,7 +686,7 @@ export function ReadingConfigEditor({
  };
 
  const addQuestion = (type: "multiple_choice" | "text") => {
-   const q: ReadingQuestion = { text: "", type };
+   const q: ReadingQuestion = { question: "", type };
    if (type === "multiple_choice") {
      q.options = [{ id: `opt_${Date.now()}_1`, text: "", is_correct: true }, { id: `opt_${Date.now()}_2`, text: "", is_correct: false }];
    } else {
@@ -845,7 +851,7 @@ export function ReadingConfigEditor({
            <div key={qi} className="rounded-lg border border-border-strong p-4 space-y-3">
              <div className="flex items-center gap-2">
                <span className="flex-shrink-0 w-7 h-7 rounded-full bg-primary-soft flex items-center justify-center text-xs font-bold text-primary">{qi + 1}</span>
-               <input type="text" value={q.text} onChange={(e) => updateQuestion(qi, "text", e.target.value)} placeholder="Question text..." className={`flex-1 ${inputBase}`} />
+               <input type="text" value={q.question ?? q.text ?? ""} onChange={(e) => updateQuestion(qi, "question", e.target.value)} placeholder="Question text..." className={`flex-1 ${inputBase}`} />
                <span className="text-xs text-text-muted px-2 py-1 rounded bg-surface-2">{q.type === "multiple_choice" ? "MC" : "Text"}</span>
                <Button variant="ghost" size="sm" onClick={() => removeQuestion(qi)} className="text-danger-fg"><Trash2 className="h-3.5 w-3.5" /></Button>
              </div>
