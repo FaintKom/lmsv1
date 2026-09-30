@@ -282,7 +282,7 @@ export default function ProfilePage() {
  <h2 className="text-xl font-bold text-text ">
  {user?.full_name}
  </h2>
- <p className="text-sm text-text-muted ">{user?.email}</p>
+ <p className="break-all text-sm text-text-muted">{user?.email}</p>
  <div className="mt-1.5 flex items-center gap-2">
  <span className="inline-flex items-center gap-1 rounded-pill bg-success-soft px-2.5 py-0.5 text-xs font-medium capitalize text-primary ">
  <Shield className="h-3 w-3" />
@@ -406,7 +406,7 @@ export default function ProfilePage() {
  <Mail className="mt-0.5 h-4 w-4 text-text-subtle " />
  <div>
  <p className="text-xs font-medium text-text-subtle ">Email</p>
- <p className="text-sm text-text ">{user?.email}</p>
+ <p className="break-all text-sm text-text">{user?.email}</p>
  </div>
  </div>
  <div className="flex items-start gap-3">
@@ -642,7 +642,7 @@ export default function ProfilePage() {
  </CardTitle>
  </CardHeader>
  <CardContent>
- <div className="grid grid-cols-2 gap-2 sm:grid-cols-4">
+ <div className="grid grid-cols-1 gap-2 min-[380px]:grid-cols-2 sm:grid-cols-4">
  {LOCALES.map((l) => (
  <LangCode
  key={l.code}

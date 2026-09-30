@@ -131,11 +131,10 @@ export function Sidebar({ open, onClose }: SidebarProps) {
  className={cn(
  "relative flex items-center rounded-sm text-sm font-semibold transition-colors duration-150",
  railMode ? "h-10 w-10 justify-center" : "gap-[11px] px-[10px] py-[9px]",
- // v2 rail rule: active = reward on a sun tint — green disappears on
- // the dark rail
+ // v3 (specs/071): the rail sits on the page, active = primary tint
  isActive
- ? "bg-reward/16 text-reward"
- : "text-white/65 hover:bg-white/[0.05] hover:text-white"
+ ? "bg-primary-soft text-success-fg"
+ : "text-text-muted hover:bg-surface-2 hover:text-text"
  )}
  >
  <item.icon className="h-[18px] w-[18px] shrink-0" aria-hidden="true" />
@@ -145,7 +144,7 @@ export function Sidebar({ open, onClose }: SidebarProps) {
  {item.badge ? (
  <span
  className={cn(
- "rounded-pill bg-clay-600 px-1.5 py-0.5 font-mono text-3xs font-extrabold leading-none text-white",
+ "rounded-pill bg-clay-600 px-1.5 py-0.5 text-2xs font-bold tabular-nums leading-none text-white",
  // No row to sit at the end of once the label is gone, so the count
  // rides the icon's corner instead.
  railMode ? "absolute -right-1 -top-1" : "ml-auto"
@@ -199,7 +198,7 @@ export function Sidebar({ open, onClose }: SidebarProps) {
  // desktop and a slide on mobile, and both want the same 200ms. The global
  // prefers-reduced-motion rule in globals.css flattens either one to 0.01ms,
  // so there is nothing to repeat per-component here.
- "rail-dark fixed inset-y-0 left-0 z-[60] flex h-dvh flex-col bg-ink-900 md:static md:h-screen md:translate-x-0",
+ "fixed inset-y-0 left-0 z-[60] flex h-dvh flex-col border-r border-border bg-bg md:static md:h-screen md:translate-x-0",
  // Not before the saved preference is back: the first correction after
  // hydration is not a gesture the user made, and animating it turns
  // "it remembered" into "it is closing on me again".
@@ -211,7 +210,7 @@ export function Sidebar({ open, onClose }: SidebarProps) {
  {/* Logo */}
  <div
  className={cn(
- "flex border-b border-white/[0.08] pb-[18px] pt-[18px]",
+ "flex border-b border-border pb-[18px] pt-[18px]",
  railMode ? "flex-col items-center gap-2 px-2" : "items-center gap-2.5 px-4"
  )}
  >
@@ -222,7 +221,7 @@ export function Sidebar({ open, onClose }: SidebarProps) {
  className="h-8 w-8 shrink-0 rounded-sm object-cover"
  />
  ) : (
- <div className="relative flex h-8 w-8 shrink-0 items-center justify-center rounded-sm bg-green-500 text-lg font-extrabold text-white">
+ <div className="relative flex h-8 w-8 shrink-0 items-center justify-center rounded-sm bg-primary text-lg font-extrabold text-primary-fg">
  g
  <span className="absolute bottom-[4px] right-[5px] h-[5px] w-[5px] rounded-full bg-sun-400" />
  </div>
@@ -235,16 +234,16 @@ export function Sidebar({ open, onClose }: SidebarProps) {
  // duplicating the same string into the accessibility tree.
  <span
  title={branding.display_name}
- className="line-clamp-2 text-center text-3xs font-bold leading-tight text-white"
+ className="line-clamp-2 text-center text-2xs font-bold leading-tight text-text"
  >
  {branding.display_name}
  </span>
  ) : (
  <div className="min-w-0">
- <span className="block truncate text-base font-extrabold tracking-tight text-white">
+ <span className="block truncate text-base font-bold text-text">
  {branding.display_name}
  </span>
- <span className="block font-mono text-3xs font-medium uppercase tracking-widest text-white/50">
+ <span className="block text-xs font-medium text-text-subtle">
  Learning Platform
  </span>
  </div>
@@ -255,7 +254,7 @@ export function Sidebar({ open, onClose }: SidebarProps) {
  aria-label={collapsed ? t("nav.expandMenu") : t("nav.collapseMenu")}
  className={cn(
  // Desktop only: on mobile the hamburger already does this job.
- "hidden shrink-0 cursor-pointer rounded-sm p-1.5 text-white/50 transition-colors hover:bg-white/[0.05] hover:text-white md:inline-flex",
+ "hidden shrink-0 cursor-pointer rounded-sm p-1.5 text-text-subtle transition-colors hover:bg-surface-2 hover:text-text md:inline-flex",
  !railMode && "ml-auto"
  )}
  >
@@ -298,7 +297,7 @@ export function Sidebar({ open, onClose }: SidebarProps) {
  aria-expanded={open}
  aria-controls={listId}
  onClick={() => setGroupOpen(group.key, !open)}
- className="flex w-full cursor-pointer items-center gap-1 rounded-sm px-2.5 py-1 font-mono text-3xs font-medium uppercase tracking-widest text-white/50 transition-colors hover:text-white/80"
+ className="flex w-full cursor-pointer items-center gap-1 rounded-sm px-2.5 py-1 text-xs font-medium text-text-subtle transition-colors hover:text-text"
  >
  <ChevronRight
  className={cn(
@@ -330,7 +329,7 @@ export function Sidebar({ open, onClose }: SidebarProps) {
  {/* Footer */}
  <div
  className={cn(
- "border-t border-white/[0.08]",
+ "border-t border-border",
  railMode ? "flex flex-col items-center gap-1 p-2" : "p-3"
  )}
  >
@@ -352,19 +351,19 @@ export function Sidebar({ open, onClose }: SidebarProps) {
  href="/profile"
  aria-label={railMode ? user?.full_name || undefined : undefined}
  className={cn(
- "mb-1 flex items-center rounded-sm transition-colors hover:bg-white/[0.05]",
+ "mb-1 flex items-center rounded-sm transition-colors hover:bg-surface-2",
  railMode ? "justify-center p-1" : "gap-[10px] px-2.5 py-2"
  )}
  >
- <div className="flex h-[30px] w-[30px] shrink-0 items-center justify-center rounded-full bg-green-400 text-sm font-extrabold text-ink-900">
+ <div className="flex h-[30px] w-[30px] shrink-0 items-center justify-center rounded-full bg-primary-soft text-sm font-bold text-success-fg">
  {user?.full_name?.charAt(0)?.toUpperCase() || "?"}
  </div>
  {!railMode && (
  <div className="min-w-0 flex-1">
- <p className="truncate text-sm font-bold text-white">
+ <p className="truncate text-sm font-semibold text-text">
  {user?.full_name}
  </p>
- <p className="truncate font-mono text-3xs tracking-wide text-white/50">
+ <p className="truncate text-xs text-text-subtle">
  {user?.email}
  </p>
  </div>
@@ -374,7 +373,7 @@ export function Sidebar({ open, onClose }: SidebarProps) {
  onClick={handleLogout}
  aria-label={railMode ? t("nav.signOut") : undefined}
  className={cn(
- "flex cursor-pointer items-center rounded-sm text-sm font-semibold text-white/50 transition-colors hover:bg-white/[0.05] hover:text-white/80",
+ "flex cursor-pointer items-center rounded-sm text-sm font-semibold text-text-subtle transition-colors hover:bg-surface-2 hover:text-text",
  railMode
  ? "h-10 w-10 justify-center"
  : "w-full gap-[11px] px-[10px] py-[9px]"

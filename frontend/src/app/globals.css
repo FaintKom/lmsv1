@@ -296,6 +296,9 @@
  /* MOTION.md additions: strong entrance + drawer curves */
  --motion-ease-out-strong: cubic-bezier(0.23, 1, 0.32, 1);
  --motion-ease-drawer: cubic-bezier(0.32, 0.72, 0, 1);
+ /* Feedback grammar (fb-*): the overshoot pop and the sheet's settle. */
+ --motion-ease-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
+ --motion-ease-sheet: cubic-bezier(0.2, 0.9, 0.3, 1.2);
 }
 
 /* =================================================================
@@ -619,25 +622,6 @@ button { font-family: inherit; }
   height: 24px !important;
 }
 
-/* Dark rail — override semantic tokens so child components auto-adapt */
-.rail-dark {
-  --color-text: #ffffff;
-  --color-text-muted: rgba(255,255,255,0.65);
-  --color-text-subtle: rgba(255,255,255,0.4);
-  --color-border: rgba(255,255,255,0.08);
-  --color-border-strong: rgba(255,255,255,0.12);
-  --color-surface: var(--ink-900);
-  --color-surface-2: rgba(255,255,255,0.06);
-  --color-bg: var(--ink-900);
-  --ink-100: rgba(255,255,255,0.08);
-  --ink-300: rgba(255,255,255,0.2);
-  --ink-700: rgba(255,255,255,0.85);
-  /* Solid elevated tone — overlays (dropdowns, popovers) need opacity
-     to be readable on top of the dark sidebar; previously translucent 0.06
-     made the locale switcher invisible. */
-  --paper-2: #142319;
-}
-
 /* Skeleton shimmer */
 @keyframes lms-skeleton-shimmer {
   0%   { background-position: -200% 0; }
@@ -717,18 +701,6 @@ button { font-family: inherit; }
 
 
 
-/* Sun marker — typographic accent on hero headings */
-.sun-mark {
-  background: var(--sun-300);
-  /* Background is always sun, so the text must always be ink. The flipping
-     token turned this into white-on-yellow (1.12:1) in dark. */
-  color: var(--ink-900);
-  padding: 0 8px;
-  border-radius: var(--radius-xs);
-  display: inline-block;
-  transform: rotate(-1deg);
-  font-style: normal;
-}
 
 @media (hover: none) and (pointer: coarse) {
  button, a, [role="button"], input, select, textarea {
@@ -1077,7 +1049,7 @@ button { font-family: inherit; }
  background: var(--ink-900); color: #fff;
  font-size: 13px; font-weight: 600; padding: 8px 13px; border-radius: 10px;
  white-space: nowrap; pointer-events: none; z-index: 30;
- animation: fb-pop calc(0.3s * var(--mdur)) cubic-bezier(0.34, 1.56, 0.64, 1) both;
+ animation: fb-pop calc(0.3s * var(--mdur)) var(--motion-ease-spring) both;
 }
 .gp-checkhint::after {
  content: ''; position: absolute; top: 100%; right: 24px;
@@ -1180,7 +1152,7 @@ button { font-family: inherit; }
  letter-spacing: 0.08em;
  padding: 3px 8px;
  border-radius: 999px;
- animation: fb-pop calc(0.36s * var(--mdur)) cubic-bezier(0.34, 1.56, 0.64, 1) both;
+ animation: fb-pop calc(0.36s * var(--mdur)) var(--motion-ease-spring) both;
 }
 .gp-tile .tile-chip.ok { background: var(--green-600); color: #fff; }
 .gp-tile .tile-chip.no { background: var(--err-border); color: #fff; }
@@ -1295,9 +1267,16 @@ button { font-family: inherit; }
  --err-fg: var(--clay-700);
 }
 
+/* Reduced motion: every fb-* shake, lift and tilt is multiplied by --mamp,
+   so zero amplitude stops them all while colour and text still change
+   (specs/071 FR-016, MOTION.md M4). */
+@media (prefers-reduced-motion: reduce) {
+ :root { --mamp: 0; }
+}
+
 /* feedback sheet entrance + icon pop */
-.lf-bottom.sheet { animation: fb-slide-up calc(0.32s * var(--mdur)) cubic-bezier(0.2, 0.9, 0.3, 1.2) both; }
-.lf-fb-icon { animation: fb-pop calc(0.4s * var(--mdur)) cubic-bezier(0.34, 1.56, 0.64, 1) both; }
+.lf-bottom.sheet { animation: fb-slide-up calc(0.32s * var(--mdur)) var(--motion-ease-sheet) both; }
+.lf-fb-icon { animation: fb-pop calc(0.4s * var(--mdur)) var(--motion-ease-spring) both; }
 
 /* ---------- Connection lines (matching) ---------- */
 .fb-linkwrap { position: relative; }
@@ -1443,8 +1422,8 @@ button { font-family: inherit; }
  transform: scale(1.015);
 }
 .fb-bucket.target { border-color: var(--green-400); border-style: solid; cursor: pointer; animation: fb-halo calc(1.6s * var(--mdur)) ease-in-out infinite; }
-.fb-bucket.gotcha { animation: fb-bucket-pop calc(0.4s * var(--mdur)) cubic-bezier(0.34, 1.56, 0.64, 1) both; border-color: var(--green-500); border-style: solid; }
-.fb-bucket.catch { animation: fb-bucket-pop calc(0.4s * var(--mdur)) cubic-bezier(0.34, 1.56, 0.64, 1) both; border-color: var(--link-color); border-style: solid; }
+.fb-bucket.gotcha { animation: fb-bucket-pop calc(0.4s * var(--mdur)) var(--motion-ease-spring) both; border-color: var(--green-500); border-style: solid; }
+.fb-bucket.catch { animation: fb-bucket-pop calc(0.4s * var(--mdur)) var(--motion-ease-spring) both; border-color: var(--link-color); border-style: solid; }
 .fb-bucket.reject { animation: fb-shake calc(0.4s * var(--mdur)) ease both; border-color: var(--err-border); border-style: solid; background: var(--err-bg); }
 .fb-bucket-title {
  font-family: var(--font-mono);
@@ -1458,7 +1437,7 @@ button { font-family: inherit; }
  transition: background 150ms, color 150ms;
 }
 .fb-bucket.over .fb-bucket-title .cnt { background: var(--link-color); color: #fff; }
-.fb-bucket .landed { animation: fb-pop calc(0.35s * var(--mdur)) cubic-bezier(0.34, 1.56, 0.64, 1) both; }
+.fb-bucket .landed { animation: fb-pop calc(0.35s * var(--mdur)) var(--motion-ease-spring) both; }
 
 /* ---------- Number line ---------- */
 .fb-marker {
@@ -1476,7 +1455,7 @@ button { font-family: inherit; }
  transition: box-shadow 100ms, transform 120ms, background 150ms, left 140ms ease;
 }
 .fb-marker.grabbed { cursor: grabbing; box-shadow: 0 1px 0 0 var(--green-700); transform: scale(1.08) translateY(3px); transition: box-shadow 100ms, transform 120ms, background 150ms; }
-.fb-marker.ok { background: var(--green-600); animation: fb-bump calc(0.5s * var(--mdur)) cubic-bezier(0.34, 1.56, 0.64, 1) both; }
+.fb-marker.ok { background: var(--green-600); animation: fb-bump calc(0.5s * var(--mdur)) var(--motion-ease-spring) both; }
 .fb-marker.no { background: var(--err-border); box-shadow: 0 4px 0 0 var(--err-fg); animation: fb-shake calc(0.4s * var(--mdur)) ease both; }
 .fb-marker-bubble {
  position: absolute;
@@ -1655,7 +1634,7 @@ button { font-family: inherit; }
 /* ---------- Balance scales ---------- */
 .fb-beam-wrap { position: relative; }
 .fb-beam {
- transition: transform calc(0.5s * var(--mdur)) cubic-bezier(0.34, 1.56, 0.64, 1);
+ transition: transform calc(0.5s * var(--mdur)) var(--motion-ease-spring);
  transform-origin: 50% 100%;
 }
 .fb-beam.wobble { animation: fb-wobble calc(0.6s * var(--mdur)) ease both; }
@@ -1666,16 +1645,16 @@ button { font-family: inherit; }
  display: flex; flex-direction: column;
  justify-content: center; align-items: center;
  gap: 5px;
- transition: transform calc(0.5s * var(--mdur)) cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 200ms;
+ transition: transform calc(0.5s * var(--mdur)) var(--motion-ease-spring), box-shadow 200ms;
 }
 .fb-pan.glow { box-shadow: 0 0 0 4px var(--green-100); }
-.fb-witem { animation: fb-pop calc(0.3s * var(--mdur)) cubic-bezier(0.34, 1.56, 0.64, 1) both; }
+.fb-witem { animation: fb-pop calc(0.3s * var(--mdur)) var(--motion-ease-spring) both; }
 .fb-move-chip {
  font-family: var(--font-mono);
  font-size: 11px; font-weight: 700;
  background: var(--color-surface-2); color: var(--color-text-muted);
  border-radius: 999px; padding: 3px 10px;
- animation: fb-pop calc(0.3s * var(--mdur)) cubic-bezier(0.34, 1.56, 0.64, 1) both;
+ animation: fb-pop calc(0.3s * var(--mdur)) var(--motion-ease-spring) both;
 }
 .fb-op:disabled { opacity: 0.3; }
 
@@ -1685,7 +1664,7 @@ button { font-family: inherit; }
 .fb-pt circle { transition: r 120ms, fill 200ms; }
 .fb-pt:hover circle.body { r: 16; }
 .fb-pt.grabbed circle.body { r: 17; }
-.fb-pt.ok { animation: fb-pop calc(0.4s * var(--mdur)) cubic-bezier(0.34, 1.56, 0.64, 1) both; }
+.fb-pt.ok { animation: fb-pop calc(0.4s * var(--mdur)) var(--motion-ease-spring) both; }
 .fb-pt:focus { outline: none; }
 .fb-pt:focus-visible circle.body { stroke: var(--sun-400); stroke-width: 4; }
 
@@ -1722,7 +1701,7 @@ button { font-family: inherit; }
 /* RB-01: wall-bump shake on the robot grid */
 .rb-bonk { animation: fb-shake calc(0.5s * var(--mdur)) ease both; }
 .fb-crosshair { pointer-events: none; }
-.fb-target-ring { animation: fb-pop calc(0.4s * var(--mdur)) cubic-bezier(0.34, 1.56, 0.64, 1) both; }
+.fb-target-ring { animation: fb-pop calc(0.4s * var(--mdur)) var(--motion-ease-spring) both; }
 
 /* ---------- Stepwise ---------- */
 .fb-step-row { display: flex; align-items: center; gap: 12px; }
@@ -1873,7 +1852,7 @@ button { font-family: inherit; }
  border-radius: 10px;
  padding: 4px;
  box-shadow: var(--shadow-lg);
- animation: fb-pop calc(0.25s * var(--mdur)) cubic-bezier(0.34, 1.56, 0.64, 1) both;
+ animation: fb-pop calc(0.25s * var(--mdur)) var(--motion-ease-spring) both;
 }
 .th-seltool button {
  border: none;

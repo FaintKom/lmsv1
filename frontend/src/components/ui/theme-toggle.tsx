@@ -73,7 +73,7 @@ export function ThemeToggle({ className }: { className?: string }) {
       role="radiogroup"
       aria-label={t("profile.theme")}
       className={cn(
-        "inline-flex items-center gap-1 rounded-pill border border-border bg-surface-2 p-1",
+        "grid w-full grid-cols-3 items-center gap-1 rounded-pill border border-border bg-surface-2 p-1 sm:inline-flex sm:w-auto",
         className,
       )}
     >
@@ -87,7 +87,7 @@ export function ThemeToggle({ className }: { className?: string }) {
             aria-checked={active}
             onClick={() => pick(value)}
             className={cn(
-              "inline-flex min-h-[36px] items-center gap-1.5 rounded-pill px-3 py-1.5 text-sm font-semibold transition-colors",
+              "inline-flex min-h-[36px] items-center justify-center gap-1.5 rounded-pill px-2 py-1.5 text-sm font-semibold transition-colors sm:px-3",
               active
                 ? "bg-surface text-text shadow-xs"
                 : "text-text-muted hover:text-text",

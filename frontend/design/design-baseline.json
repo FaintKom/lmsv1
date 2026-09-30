@@ -45,9 +45,6 @@
   "app/(admin)/admin/users/page.tsx": {
     "raw-palette": 5
   },
-  "app/(admin)/layout.tsx": {
-    "raw-palette": 2
-  },
   "app/(auth)/layout.tsx": {
     "gradient": 1,
     "raw-palette": 2
@@ -55,50 +52,11 @@
   "app/(auth)/register/page.tsx": {
     "raw-palette": 2
   },
-  "app/(dashboard)/achievements/page.tsx": {
-    "gradient": 1,
-    "mono-eyebrow": 1,
-    "raw-hex": 6
-  },
   "app/(dashboard)/assignments/[assignmentId]/page.tsx": {
-    "raw-palette": 1
-  },
-  "app/(dashboard)/certificates/page.tsx": {
-    "gradient": 1
-  },
-  "app/(dashboard)/courses/[courseId]/lessons/[lessonId]/page.tsx": {
-    "gradient": 1,
-    "mono-eyebrow": 3,
-    "raw-palette": 10
-  },
-  "app/(dashboard)/courses/[courseId]/page.tsx": {
-    "gradient": 11,
-    "mono-eyebrow": 1,
-    "raw-hex": 2,
-    "raw-palette": 1
-  },
-  "app/(dashboard)/dashboard/page.tsx": {
-    "mono-eyebrow": 1,
-    "raw-palette": 2
-  },
-  "app/(dashboard)/layout.tsx": {
-    "raw-palette": 2
-  },
-  "app/(dashboard)/leaderboard/page.tsx": {
-    "gradient": 3
-  },
-  "app/(dashboard)/lesson/[lessonId]/page.tsx": {
-    "mono-eyebrow": 2,
     "raw-palette": 1
   },
   "app/(dashboard)/paths/[pathId]/page.tsx": {
     "layout-anim": 1
-  },
-  "app/(dashboard)/progress/page.tsx": {
-    "layout-anim": 1
-  },
-  "app/(dashboard)/skills/page.tsx": {
-    "raw-hex": 5
   },
   "app/demo/page.tsx": {
     "glass": 1,
@@ -106,7 +64,7 @@
     "raw-palette": 1
   },
   "app/globals.css": {
-    "bezier-literal": 20,
+    "bezier-literal": 5,
     "gradient": 3,
     "layout-anim": 2,
     "ms-literal": 86,
@@ -167,19 +125,6 @@
   "components/exercises/v2/solid-view.tsx": {
     "raw-hex": 1
   },
-  "components/gamification/badge-icon.tsx": {
-    "raw-palette": 4
-  },
-  "components/gamification/lang-code.tsx": {
-    "mono-eyebrow": 1,
-    "raw-palette": 1
-  },
-  "components/gamification/league-mark.tsx": {
-    "raw-hex": 21
-  },
-  "components/gamification/rank-medal.tsx": {
-    "raw-hex": 9
-  },
   "components/journal/pacing-flow.tsx": {
     "mono-eyebrow": 1,
     "raw-palette": 14
@@ -205,9 +150,7 @@
     "raw-hex": 2
   },
   "components/layout/sidebar.tsx": {
-    "layout-anim": 1,
-    "mono-eyebrow": 2,
-    "raw-palette": 2
+    "layout-anim": 1
   },
   "components/lesson/fb-motion.ts": {
     "bezier-literal": 1
@@ -288,9 +231,6 @@
   },
   "components/submissions/exercises/srs-flashcard.tsx": {
     "mono-eyebrow": 1
-  },
-  "components/theory/theory-viewer.tsx": {
-    "mono-eyebrow": 3
   },
   "components/widgets/interactive-widgets.ts": {
     "gradient": 16,

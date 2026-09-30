@@ -46,9 +46,9 @@ function getLeagueStyle(league: LeagueInfo | null) {
 }
 
 function getRankStyle(rank: number) {
- if (rank === 1) return "bg-gradient-to-r from-sun-300 to-sun-500 text-ink-900 shadow-lg shadow-sun-100/50 ";
- if (rank === 2) return "bg-gradient-to-r from-ink-200 to-ink-300 text-ink-900 shadow-lg shadow-ink-200/50 ";
- if (rank === 3) return "bg-gradient-to-r from-clay-500 to-clay-700 text-white shadow-lg ";
+ if (rank === 1) return "bg-reward text-ink-900 ";
+ if (rank === 2) return "bg-ink-200 text-ink-900 ";
+ if (rank === 3) return "bg-danger text-ink-900 ";
  return "bg-surface-2 text-text-muted ";
 }
 
@@ -92,7 +92,7 @@ export default function LeaderboardPage() {
 
  {/* Top 3 Podium */}
  {entries.length >= 3 && (
- <div className="mb-8 flex items-end justify-center gap-4">
+ <div className="mb-8 flex items-end justify-center gap-2 sm:gap-4">
  {/* 2nd place */}
  <PodiumCard entry={entries[1]} rank={2} />
  {/* 1st place */}
@@ -125,7 +125,7 @@ export default function LeaderboardPage() {
  return (
  <div
  key={entry.user_id}
- className={`flex items-center gap-4 px-4 py-3 transition-colors ${
+ className={`flex items-center gap-3 px-4 py-3 transition-colors sm:gap-4 ${
  isCurrentUser
  ? "bg-success-soft "
  : "hover:bg-surface-2 "
@@ -139,7 +139,7 @@ export default function LeaderboardPage() {
  </div>
 
  {/* Avatar */}
- <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-pill bg-primary text-sm font-semibold text-primary-fg shadow-sm">
+ <div className="hidden h-10 w-10 shrink-0 items-center justify-center rounded-pill bg-primary text-sm font-semibold text-primary-fg sm:flex">
  {entry.user_name?.charAt(0)?.toUpperCase() || "?"}
  </div>
 
@@ -153,7 +153,7 @@ export default function LeaderboardPage() {
  )}
  </p>
  </div>
- <div className="flex items-center gap-2 mt-0.5">
+ <div className="mt-0.5 flex flex-wrap items-center gap-x-2 gap-y-1">
  {entry.league && (
  <span
  className={`inline-flex items-center gap-1 rounded-pill border px-2 py-0.5 text-3xs font-semibold ${leagueStyle.bg} ${leagueStyle.text} ${leagueStyle.border}`}
@@ -205,7 +205,7 @@ function PodiumCard({
  const heights = { 1: "h-36", 2: "h-28", 3: "h-24" };
 
  return (
- <div className={`flex flex-col items-center ${isFirst ? "mb-4" : ""}`}>
+ <div className={`flex min-w-0 flex-1 flex-col items-center ${isFirst ? "mb-4" : ""}`}>
  <div className="relative mb-2">
  <div
  className={`flex items-center justify-center rounded-pill bg-primary text-primary-fg font-bold shadow-lg ${
@@ -218,7 +218,7 @@ function PodiumCard({
  <RankMedal rank={rank as 1 | 2 | 3} size={22} />
  </span>
  </div>
- <p className="max-w-[100px] truncate text-center text-xs font-semibold text-text ">
+ <p className="max-w-full truncate text-center text-xs font-semibold text-text">
  {entry.user_name}
  </p>
  {entry.league && (

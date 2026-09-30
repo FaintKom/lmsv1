@@ -1,5 +1,6 @@
 "use client";
 
+import { ProgressBar } from "@/components/ui/progress-bar";
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import apiClient from "@/lib/api-client";
@@ -112,8 +113,8 @@ export default function ProgressPage() {
  <Link key={e.id} href={`/courses/${e.course_id}`}>
  <Card className="transition-shadow hover:shadow-md">
  <CardContent className="flex items-center gap-4 p-5">
- <div className="rounded-lg bg-success-soft p-3">
- <BookOpen className="h-6 w-6 text-primary" />
+ <div className="hidden rounded-lg bg-success-soft p-3 sm:block">
+ <BookOpen className="h-6 w-6 text-primary" aria-hidden />
  </div>
  <div className="min-w-0 flex-1">
  <p className="font-medium text-text ">
@@ -123,22 +124,17 @@ export default function ProgressPage() {
  {t("progress.enrolledLabel")}{" "}
  {new Date(e.enrolled_at).toLocaleDateString()}
  {course?.category && (
- <span className="ml-2 rounded bg-surface-2 px-1.5 py-0.5 text-xs uppercase">
+ <span className="ml-2 rounded-pill bg-surface-2 px-2 py-0.5 text-xs">
  {course.category}
  </span>
  )}
  </p>
  </div>
- <div className="text-right">
- <p className="text-xl font-bold text-primary">
+ <div className="w-16 shrink-0 text-right sm:w-24">
+ <p className="text-xl font-semibold tabular-nums text-primary">
  {Math.round(e.progress_percent)}%
  </p>
- <div className="mt-1 h-2 w-24 overflow-hidden rounded-pill bg-surface-2 ">
- <div
- className="h-full rounded-pill bg-primary transition-[width] duration-500"
- style={{ width: `${e.progress_percent}%` }}
- />
- </div>
+ <ProgressBar value={e.progress_percent} size="sm" className="mt-1" />
  </div>
  </CardContent>
  </Card>

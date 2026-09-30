@@ -106,7 +106,7 @@ export function TheoryViewer({
       {/* notes */}
       {showNotes && notes.length > 0 && (
         <div className="mt-3 rounded-sm border-2 border-warning bg-warning-soft p-3 text-sm leading-relaxed text-text">
-          <div className="mb-1.5 inline-flex items-center gap-1.5 font-mono text-3xs font-extrabold uppercase tracking-wider text-warning-fg">
+          <div className="mb-1.5 inline-flex items-center gap-1.5 text-xs font-extrabold text-warning-fg">
             <StickyNote className="h-3 w-3" />
             {t("theory.speakerNotes")}
           </div>
@@ -212,7 +212,7 @@ function TheoryFullscreen({
           <X className="h-4 w-4" />
         </button>
         <div className="min-w-0 flex-1">
-          <div className="font-mono text-3xs font-bold uppercase tracking-wider text-white/50">
+          <div className="text-xs font-bold text-white/50">
             {t("theory.badge")}
           </div>
           {title && <div className="truncate text-sm font-bold">{title}</div>}
@@ -257,7 +257,7 @@ function TheoryFullscreen({
         </div>
         {showNotes && notes.length > 0 && (
           <div className="w-[300px] flex-shrink-0 overflow-y-auto border-l border-sun-400 bg-sun-400/10 p-4 text-white/85">
-            <div className="mb-2 inline-flex items-center gap-1.5 font-mono text-3xs font-extrabold uppercase tracking-wider text-sun-400">
+            <div className="mb-2 inline-flex items-center gap-1.5 text-xs font-extrabold text-sun-400">
               <StickyNote className="h-3 w-3" />
               {t("theory.speakerNotes")}
             </div>
