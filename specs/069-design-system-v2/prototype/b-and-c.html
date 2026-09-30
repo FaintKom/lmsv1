@@ -307,6 +307,8 @@ main{padding:32px clamp(16px,4vw,48px) 96px;min-width:0}
 .mnote b{color:var(--text-muted);font-weight:600}
 
 /* M1 screen/theme switch via View Transitions */
+/* The transition overlay covers the page for 200ms; let clicks fall through to the already-updated DOM */
+::view-transition{pointer-events:none}
 ::view-transition-old(root),::view-transition-new(root){animation-duration:var(--motion-base);animation-timing-function:var(--motion-ease-out)}
 
 /* ---------- small screens ---------- */
@@ -387,7 +389,14 @@ const S={screen:'home',filter:'all',picked:null,checked:false,xp:540,seen:{}};
 const $=s=>document.querySelector(s);
 const bar=(p,pre)=>`<div class="bar${pre?' pre':''}" role="progressbar" aria-label="Progress" aria-valuenow="${p}" aria-valuemin="0" aria-valuemax="100" style="--p:${p/100}"><i></i></div>`;
 const reduced=()=>matchMedia('(prefers-reduced-motion: reduce)').matches;
-const vt=fn=>{if(document.startViewTransition&&!reduced())document.startViewTransition(fn);else fn();};
+// A hidden tab renders no frames, so a view transition there would never run its update. Skip it.
+// A second action during a running transition finishes the first one at once instead of queueing behind it.
+let curVT=null;
+const vt=fn=>{
+  if(curVT){curVT.skipTransition();curVT=null;fn();return}
+  if(!document.startViewTransition||reduced()||document.hidden){fn();return}
+  curVT=document.startViewTransition(fn);curVT.finished.finally(()=>{curVT=null});
+};
 const store={get(k){try{return localStorage.getItem(k)}catch(e){return null}},set(k,v){try{localStorage.setItem(k,v)}catch(e){}}};
 const note=t=>`<p class="mnote"><b>Движение на экране.</b> ${t}</p>`;
 
@@ -509,9 +518,10 @@ function render(){
   S.seen[S.screen]=true;
   requestAnimationFrame(()=>requestAnimationFrame(()=>document.querySelectorAll('.bar.pre').forEach(b=>b.classList.remove('pre'))));
 }
-function go(k){if(k===S.screen)return; vt(()=>{S.screen=k;S.picked=null;S.checked=false;render();window.scrollTo(0,0)}); store.set('proto-screen',k)}
-function setDir(d){vt(()=>{document.documentElement.dataset.dir=d;syncCtl();render()});store.set('proto-dir',d)}
-function setTheme(t){vt(()=>{document.documentElement.dataset.theme=t;syncCtl()});store.set('proto-theme',t)}
+// Navigation is instant: a view transition blocks input while it captures, and nav is a tens-per-day action (MOTION.md §1).
+function go(k){if(k===S.screen)return;S.screen=k;S.picked=null;S.checked=false;render();window.scrollTo(0,0);store.set('proto-screen',k)}
+function setDir(d){document.documentElement.dataset.dir=d;syncCtl();render();store.set('proto-dir',d)}
+function setTheme(t){document.documentElement.dataset.theme=t;syncCtl();store.set('proto-theme',t)}
 function syncCtl(){
   const r=document.documentElement;
   const dark=r.dataset.theme?r.dataset.theme==='dark':matchMedia('(prefers-color-scheme: dark)').matches;
