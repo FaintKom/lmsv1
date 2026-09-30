@@ -158,7 +158,7 @@ export function CodeDemo() {
               </button>
             ))}
           </div>
-          <span className="font-mono text-3xs uppercase tracking-wide text-text-subtle">
+          <span className="text-xs text-text-subtle">
             {t("landing.demo.serverNote")}
           </span>
         </div>

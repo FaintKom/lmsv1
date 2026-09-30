@@ -143,7 +143,7 @@
 - [x] T047 [US3] Конструктор курса frontend/src/app/(admin)/admin/courses/page.tsx и courses/[courseId]/edit
 - [x] T048 [P] [US3] frontend/src/app/(admin)/admin/journal, journal/student/[studentId], gradebook, groups, calendar, live, live/[lessonId], live/[lessonId]/screen
 - [x] T049 [P] [US3] frontend/src/app/(admin)/admin/content-library и вложенные, assignments и вложенные, review, peer-review, paths, team-projects, students/[studentId]
-- [ ] T050 [US3] Обновить design-baseline.json, снимки, проверки телефона
+- [x] T050 [US3] Обновить design-baseline.json, снимки, проверки телефона
 
 **Checkpoint**: PR 4.
 
@@ -151,11 +151,11 @@
 
 ## Phase 7: US3 — админка, вход, публичные страницы · PR 5
 
-- [ ] T051 [P] [US3] frontend/src/app/(admin)/admin (главная), analytics, users, org-members, organizations и вложенные, billing, bulk-enroll, crm, integrations, settings, waitlist; графики аналитики остаются в исключениях с цветами данных
-- [ ] T052 [P] [US3] frontend/src/app/(auth)/*: login, register, forgot-password, reset-password, verify-email, parental-consent
-- [ ] T053 [US3] Лендинг frontend/src/app/page.tsx, frontend/src/app/demo, frontend/src/app/pricing: убрать свечение, пилюлю над заголовком, карточки «иконка в квадрате»; тексты проходят скиллы письма, цифры только проверенные (принцип IV)
-- [ ] T054 [P] [US3] Юридические страницы terms, privacy, cookies, refund, copyright, acceptable-use, contact и frontend/src/app/s/[slug]/enquire
-- [ ] T055 [P] [US3] Печатные формы frontend/src/app/(print)/**: читаются в чёрно-белой печати
+- [x] T051 [P] [US3] frontend/src/app/(admin)/admin (главная), analytics, users, org-members, organizations и вложенные, billing, bulk-enroll, crm, integrations, settings, waitlist; графики аналитики остаются в исключениях с цветами данных
+- [x] T052 [P] [US3] frontend/src/app/(auth)/*: login, register, forgot-password, reset-password, verify-email, parental-consent
+- [x] T053 [US3] Лендинг frontend/src/app/page.tsx, frontend/src/app/demo, frontend/src/app/pricing: убрать свечение, пилюлю над заголовком, карточки «иконка в квадрате»; тексты проходят скиллы письма, цифры только проверенные (принцип IV)
+- [x] T054 [P] [US3] Юридические страницы terms, privacy, cookies, refund, copyright, acceptable-use, contact и frontend/src/app/s/[slug]/enquire
+- [x] T055 [P] [US3] Печатные формы frontend/src/app/(print)/**: читаются в чёрно-белой печати
 - [ ] T056 [US3] Обновить design-baseline.json, снимки, проверки телефона
 
 **Checkpoint**: PR 5.

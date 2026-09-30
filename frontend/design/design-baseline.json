@@ -2,30 +2,11 @@
   "app/(admin)/admin/courses/[courseId]/edit/page.tsx": {
     "layout-anim": 1
   },
-  "app/(admin)/admin/page.tsx": {
-    "mono-eyebrow": 3,
-    "raw-palette": 15
-  },
-  "app/(admin)/admin/users/page.tsx": {
-    "raw-palette": 5
-  },
-  "app/(auth)/layout.tsx": {
-    "gradient": 1,
-    "raw-palette": 2
-  },
-  "app/(auth)/register/page.tsx": {
-    "raw-palette": 2
-  },
   "app/(dashboard)/assignments/[assignmentId]/page.tsx": {
     "raw-palette": 1
   },
   "app/(dashboard)/paths/[pathId]/page.tsx": {
     "layout-anim": 1
-  },
-  "app/demo/page.tsx": {
-    "glass": 1,
-    "gradient": 1,
-    "raw-palette": 1
   },
   "app/globals.css": {
     "bezier-literal": 5,
@@ -36,12 +17,6 @@
   },
   "app/layout.tsx": {
     "raw-hex": 1
-  },
-  "app/page.tsx": {
-    "gradient": 2
-  },
-  "app/pricing/page.tsx": {
-    "gradient": 1
   },
   "app/student-cabinet/page.tsx": {
     "raw-hex": 14
@@ -92,15 +67,8 @@
   "components/journal/pacing-flow.tsx": {
     "raw-palette": 2
   },
-  "components/landing/code-demo.tsx": {
-    "mono-eyebrow": 1
-  },
   "components/landing/exercise-gallery.tsx": {
     "transition-all": 1
-  },
-  "components/landing/landing-header.tsx": {
-    "glass": 1,
-    "raw-palette": 1
   },
   "components/layout/brand-vars.ts": {
     "raw-hex": 2
@@ -113,9 +81,6 @@
   },
   "components/lesson/fb-motion.ts": {
     "bezier-literal": 1
-  },
-  "components/live/poll-panel.tsx": {
-    "mono-eyebrow": 1
   },
   "components/onboarding/teacher-onboarding.tsx": {
     "layout-anim": 1

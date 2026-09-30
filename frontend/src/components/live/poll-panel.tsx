@@ -6,7 +6,7 @@ import { useState } from "react";
 import { closePoll, startPoll, type PollResult } from "@/lib/api/live";
 import { useTranslation } from "@/lib/i18n/context";
 
-const LABEL = "mb-1.5 block font-mono text-xs font-bold uppercase tracking-wide text-text";
+const LABEL = "mb-1.5 block text-xs font-semibold text-text";
 const INPUT =
   "w-full rounded-md border-2 border-border bg-surface px-3 py-2 text-sm transition-colors " +
   "placeholder:text-text-subtle focus:border-border-focus focus:outline-none focus:ring-4 focus:ring-primary-soft";

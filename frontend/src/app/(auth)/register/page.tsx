@@ -275,7 +275,7 @@ function RegisterForm() {
  type="checkbox"
  checked={form.consent}
  onChange={(e) => setForm((prev) => ({ ...prev, consent: e.target.checked }))}
- className="mt-1 rounded border-border-strong text-primary focus:ring-green-500"
+ className="mt-1 rounded border-border-strong text-primary focus:ring-border-focus"
  />
  <label htmlFor="reg-consent" className="text-sm text-text-muted ">
  {t("auth.iAgreeTo")}{" "}
@@ -333,7 +333,7 @@ function RegisterForm() {
  type="checkbox"
  checked={form.parentalConsent}
  onChange={(e) => setForm((prev) => ({ ...prev, parentalConsent: e.target.checked }))}
- className="mt-1 rounded border-border-strong text-primary focus:ring-green-500"
+ className="mt-1 rounded border-border-strong text-primary focus:ring-border-focus"
  />
  <label htmlFor="reg-parental-consent" className="text-sm text-text-muted ">
  {t("consent.parentalConfirm")}
