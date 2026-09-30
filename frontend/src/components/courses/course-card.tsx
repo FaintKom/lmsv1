@@ -25,7 +25,7 @@ export function CourseCard({ course, progress }: CourseCardProps) {
 
  return (
  <Link href={`/courses/${course.id}`} className="group" data-subject={subject}>
- <div className="overflow-hidden rounded-lg bg-surface transition-transform duration-[var(--motion-fast)] ease-[var(--motion-ease)] group-hover:-translate-y-0.5 motion-reduce:transform-none">
+ <div className="overflow-hidden rounded-lg bg-surface transition-transform duration-[var(--motion-fast)] ease-[var(--motion-ease)] motion-safe:group-hover:-translate-y-0.5">
  {course.thumbnail_url && !imageFailed ? (
  <div className="h-36 overflow-hidden">
  <img

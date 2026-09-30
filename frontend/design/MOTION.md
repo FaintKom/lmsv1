@@ -99,8 +99,12 @@ on marketing/explanatory surfaces.
   fewer and gentler, not zero.
 - A collapsed duration is not the same as no movement: a transform with a
   0.01ms transition still jumps. Anything that moves or scales needs an
-  explicit reset under reduced motion (`.press-scale` has one in globals.css,
-  Tailwind callsites use `motion-reduce:transform-none`).
+  explicit reset under reduced motion (`.press-scale` has one in globals.css).
+  For Tailwind lifts, gate the movement instead of resetting it:
+  `motion-safe:hover:-translate-y-0.5`. Tailwind 4 moves with the `translate`
+  property, so `motion-reduce:transform-none` resets nothing, and
+  `motion-reduce:translate-none` loses to the hover rule in the cascade. Both
+  passed review and failed `e2e/motion.spec.ts` M5.
 - Hover motion is gated: `@media (hover: hover) and (pointer: fine)` — touch
   fires false hovers on tap.
 - Focus rings are never animated away.
