@@ -41,9 +41,9 @@ const STATUS_META: Record<
 > = {
   ontrack: {
     bg: "bg-success-soft",
-    fg: "text-green-800",
-    dot: "bg-green-600",
-    bar: "bg-green-600",
+    fg: "text-success-fg",
+    dot: "bg-success",
+    bar: "bg-success",
     labelKey: "pacing.status.ontrack",
   },
   behind: {
@@ -152,7 +152,7 @@ function PacingBoard({ onOpen }: { onOpen: (groupId: string) => void }) {
 
       {/* Group table */}
       <div className="overflow-hidden rounded-xl border border-border bg-surface">
-        <div className="grid grid-cols-[230px_1fr_150px_116px_28px] gap-0 border-b border-border px-5 py-3 font-mono text-2xs font-bold uppercase tracking-wider text-text-subtle">
+        <div className="grid grid-cols-[230px_1fr_150px_116px_28px] gap-0 border-b border-border px-5 py-3 text-xs font-bold text-text-subtle">
           <span>{t("pacing.col.group")}</span>
           <span>{t("pacing.col.progress")}</span>
           <span>{t("pacing.col.nextTopic")}</span>
@@ -336,13 +336,13 @@ function PacingTimeline({
       ? "bg-danger-soft border-clay-300 text-clay-700"
       : data.badge === "ahead"
         ? "bg-warning-soft border-sun-300 text-sun-700"
-        : "bg-green-25 border-green-100 text-green-800";
+        : "bg-green-25 border-primary-soft text-success-fg";
   const noteIconColor =
     data.badge === "behind"
       ? "text-clay-500"
       : data.badge === "ahead"
         ? "text-sun-500"
-        : "text-green-600";
+        : "text-primary";
 
   return (
     <div className="space-y-4">
@@ -388,10 +388,10 @@ function PacingTimeline({
             {t("pacing.bandTitle")}
           </span>
           <div className="flex gap-3.5 text-2xs font-semibold text-text-muted">
-            <LegendDot className="bg-green-500" label={t("pacing.legend.covered")} />
+            <LegendDot className="bg-primary" label={t("pacing.legend.covered")} />
             <LegendDot className="bg-sun-400" label={t("pacing.legend.current")} />
             <LegendDot
-              className="border-2 border-dashed border-green-300"
+              className="border-2 border-dashed border-border-strong"
               label={t("pacing.legend.next")}
             />
             <LegendDot className="bg-surface-2" label={t("pacing.legend.ahead")} />
@@ -448,14 +448,14 @@ function TimelineSegment({
   widthPct: number;
 }) {
   let box = "bg-surface-2 text-text-subtle border border-border";
-  if (topic.state === "covered") box = "bg-green-500 text-white";
+  if (topic.state === "covered") box = "bg-primary text-primary-fg";
   else if (topic.state === "current") box = "bg-sun-400 text-ink-900";
   else if (topic.state === "next")
-    box = "bg-green-25 text-green-800 border-2 border-dashed border-green-300";
+    box = "bg-green-25 text-success-fg border-2 border-dashed border-border-strong";
 
   const dateColor =
     topic.state === "covered" || topic.state === "current"
-      ? "text-green-700"
+      ? "text-success-fg"
       : "text-text-subtle";
 
   return (

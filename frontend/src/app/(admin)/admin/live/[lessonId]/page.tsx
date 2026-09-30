@@ -389,7 +389,7 @@ export default function TeacherLivePage() {
       }`}
     >
       <Icon size={17} strokeWidth={2} />
-      <span className="max-w-full truncate px-1 font-mono text-3xs font-bold uppercase tracking-wide">
+      <span className="max-w-full truncate px-1 text-xs font-bold">
         {label}
       </span>
     </button>
@@ -404,8 +404,8 @@ export default function TeacherLivePage() {
           {t("live.lesson")}
         </span>
         <LessonTimer startedAt={lesson.created_at} />
-        <span className="flex items-center gap-1.5 rounded-pill bg-success-soft px-2.5 py-1 font-mono text-2xs font-bold tabular-nums text-green-800">
-          <span className="h-1.5 w-1.5 rounded-pill bg-green-600" />
+        <span className="flex items-center gap-1.5 rounded-pill bg-success-soft px-2.5 py-1 font-mono text-2xs font-bold tabular-nums text-success-fg">
+          <span className="h-1.5 w-1.5 rounded-pill bg-success" />
           {onlineCount} {t("live.online")}
         </span>
         <span className="rounded-pill bg-surface-2 px-2.5 py-1 font-mono text-2xs font-bold text-text">
@@ -710,7 +710,7 @@ export default function TeacherLivePage() {
               <div className="flex h-full flex-col">
                 {questions.length > 0 && (
                   <div className="mb-3 rounded-md bg-warning-soft p-3">
-                    <div className="mb-1.5 font-mono text-3xs font-bold uppercase tracking-wide text-sun-700">
+                    <div className="mb-1.5 text-xs font-bold text-sun-700">
                       {t("live.questionsTitle")}
                     </div>
                     {questions.map((q, i) => (
@@ -811,7 +811,7 @@ export default function TeacherLivePage() {
       )}
 
       {confirmEnd && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-ink-900/45 backdrop-blur-[2px]">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-ink-900/45">
           <div className="w-full max-w-[420px] rounded-xl bg-surface p-8 shadow-lg">
             <h3 className="mb-6 text-lg font-bold text-text">{t("live.endConfirm")}</h3>
             <div className="flex justify-end gap-2.5">

@@ -37,7 +37,7 @@ export function LiveLessonBanner() {
       </span>
       <button
         onClick={() => router.push(target)}
-        // text-text, not text-green-800: the pill's background follows the
+        // text-text, not text-success-fg: the pill's background follows the
         // theme and that fixed green did not, so in dark mode this was dark
         // green on near-black — 1.82:1, on the banner's only action. Surfaced
         // by the dark-theme audit once live lessons became reachable enough to

@@ -680,6 +680,34 @@ button { font-family: inherit; }
   .progress-fill { transform: scaleX(0); }
 }
 
+/* M6 — a menu grows from its button. Pair with an origin-* utility on the
+   side of the trigger. */
+.pop-in {
+  transition-property: opacity, transform;
+  transition-duration: var(--motion-base);
+  transition-timing-function: var(--motion-ease-out-strong);
+}
+@starting-style {
+  .pop-in { opacity: 0; transform: scale(0.96); }
+}
+
+/* M7 — a block the teacher just added rises 8px and its green wash fades,
+   so the eye finds it. Only on the new block, never on page load. */
+.block-enter {
+  transition-property: opacity, transform, background-color;
+  transition-duration: var(--motion-base);
+  transition-timing-function: var(--motion-ease-out);
+  border-radius: var(--radius-lg);
+}
+@starting-style {
+  .block-enter { opacity: 0; transform: translateY(8px); background-color: var(--color-primary-soft); }
+}
+@media (prefers-reduced-motion: reduce) {
+  /* No movement: the transform is simply not transitioned, so the element
+     starts in place; the fade and the wash still show. */
+  :root .pop-in, :root .block-enter { transition-property: opacity, background-color; }
+}
+
 /* One-shot entrance: fade + slight rise. Enters only — exits are softer. */
 @keyframes enter-fade-rise {
   from { opacity: 0; transform: translateY(8px); }

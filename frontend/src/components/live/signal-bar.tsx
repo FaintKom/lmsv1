@@ -44,7 +44,7 @@ export function SignalBar({
       className={`inline-flex min-h-11 items-center gap-1.5 rounded-pill px-4 py-2 text-sm font-bold transition-colors ${
         active === type
           ? "press-scale bg-primary text-primary-fg"
-          : "border-2 border-border bg-surface text-text hover:border-green-300"
+          : "border-2 border-border bg-surface text-text hover:border-border-strong"
       }`}
     >
       <Icon size={16} /> {label}
@@ -62,7 +62,7 @@ export function SignalBar({
         className={`inline-flex h-10 items-center gap-1.5 rounded-pill px-3 text-xs font-bold transition-colors pointer-coarse:h-11 ${
           active === type
             ? "press-scale bg-primary text-primary-fg"
-            : "border-2 border-border bg-surface text-text hover:border-green-300"
+            : "border-2 border-border bg-surface text-text hover:border-border-strong"
         }`}
       >
         <Icon size={15} aria-hidden />
@@ -80,7 +80,7 @@ export function SignalBar({
 
   return (
     <div className="flex flex-col items-center gap-1.5 border-t border-border bg-surface p-3 pt-2">
-      <div className="font-mono text-3xs font-bold uppercase tracking-wide text-text-subtle">
+      <div className="text-xs font-bold text-text-subtle">
         {t("live.signalHint")}
       </div>
       <div className="flex items-center justify-center gap-3">
@@ -89,14 +89,14 @@ export function SignalBar({
         {btn("done", t("live.signal.done"), Check)}
         <button
           onClick={() => setAsking(true)}
-          className="inline-flex min-h-11 items-center gap-1.5 rounded-pill border-2 border-border bg-surface px-4 py-2 text-sm font-bold text-text transition-colors hover:border-green-300"
+          className="inline-flex min-h-11 items-center gap-1.5 rounded-pill border-2 border-border bg-surface px-4 py-2 text-sm font-bold text-text transition-colors hover:border-border-strong"
         >
           <MessageCircleQuestion size={16} /> {t("live.ask")}
         </button>
       </div>
 
       {asking && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-ink-900/45 backdrop-blur-[2px]">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-ink-900/45">
           <div className="w-full max-w-[480px] rounded-xl bg-surface p-8 shadow-lg">
             <h3 className="mb-4 text-lg font-bold text-text">{t("live.ask")}</h3>
             <textarea

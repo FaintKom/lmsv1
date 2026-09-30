@@ -47,9 +47,9 @@ const RES: Record<
     labelKey: "journal.activity.resDone",
   },
   correct: {
-    dot: "bg-green-600",
+    dot: "bg-success",
     badgeBg: "bg-success-soft",
-    badgeFg: "text-green-800",
+    badgeFg: "text-success-fg",
     labelKey: "journal.activity.resCorrect",
   },
   partial: {
@@ -153,7 +153,7 @@ function ActivityBody({ data }: { data: StudentActivityResponse }) {
       label: t("journal.activity.kpiLessons"),
       value: String(k.lessons_attended),
       Icon: CheckCircle2,
-      fg: "text-green-700",
+      fg: "text-success-fg",
       bg: "bg-success-soft",
     },
     {
@@ -167,7 +167,7 @@ function ActivityBody({ data }: { data: StudentActivityResponse }) {
       label: t("journal.activity.kpiCorrect"),
       value: `${k.correct_pct}%`,
       Icon: Target,
-      fg: "text-green-700",
+      fg: "text-success-fg",
       bg: "bg-success-soft",
     },
     {
@@ -190,7 +190,7 @@ function ActivityBody({ data }: { data: StudentActivityResponse }) {
     <>
       {/* Header */}
       <div className="mb-[18px] flex items-center gap-4">
-        <div className="grid h-14 w-14 shrink-0 place-items-center rounded-full bg-gradient-to-br from-green-500 to-green-700 text-2xl font-extrabold text-white">
+        <div className="grid h-14 w-14 shrink-0 place-items-center rounded-full bg-primary text-2xl font-bold text-primary-fg">
           {initial}
         </div>
         <div className="min-w-0">
@@ -265,7 +265,7 @@ function ActivityBody({ data }: { data: StudentActivityResponse }) {
               {data.timeline.map((ev, i) => {
                 const dot =
                   ev.kind === "in"
-                    ? "bg-green-600"
+                    ? "bg-success"
                     : RES[ev.kind as ActivityResult]?.dot ?? "bg-ink-300";
                 return (
                   <div key={i} className="relative pb-3.5">
@@ -303,7 +303,7 @@ function LessonCard({ lesson }: { lesson: ActivityLesson }) {
           lesson.attended ? "border-b border-ink-50" : ""
         }`}
       >
-        <span className="h-[30px] w-2 shrink-0 rounded bg-green-600" />
+        <span className="h-[30px] w-2 shrink-0 rounded bg-success" />
         {lesson.time && (
           <span className="font-mono text-xs font-bold text-text">
             {lesson.time}
@@ -328,7 +328,7 @@ function LessonCard({ lesson }: { lesson: ActivityLesson }) {
               {exCount} {t("journal.activity.exShort")}
             </span>
             {correctPct != null && (
-              <span className="rounded-full bg-success-soft px-2.5 py-1 text-2xs font-bold text-green-800">
+              <span className="rounded-full bg-success-soft px-2.5 py-1 text-2xs font-bold text-success-fg">
                 {correctPct}% {t("journal.activity.correctShort")}
               </span>
             )}

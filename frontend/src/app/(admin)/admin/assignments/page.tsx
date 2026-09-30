@@ -204,7 +204,7 @@ export default function AdminAssignmentsPage() {
  type="checkbox"
  checked={form.allow_late}
  onChange={(e) => setForm({ ...form, allow_late: e.target.checked })}
- className="rounded border-border-strong text-primary focus:ring-green-500"
+ className="rounded border-border-strong text-primary focus:ring-border-focus"
  />
  {t("admin.assignments.allowLate")}
  </label>

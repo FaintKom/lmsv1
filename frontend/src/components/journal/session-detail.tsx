@@ -203,7 +203,7 @@ export function SessionDetail({
               aria-label={t("journal.sessionHeld")}
               onClick={() => setHeld((h) => !h)}
               className={`relative h-[22px] w-[38px] shrink-0 rounded-full transition-colors duration-150 ${
-                held ? "bg-green-600" : "bg-ink-200"
+                held ? "bg-success" : "bg-ink-200"
               }`}
             >
               <span
@@ -217,7 +217,7 @@ export function SessionDetail({
 
           {/* Topic */}
           <div className="mb-[18px]">
-            <div className="mb-1.5 font-mono text-3xs font-semibold uppercase tracking-[0.14em] text-text-subtle">
+            <div className="mb-1.5 text-xs font-semibold text-text-subtle">
               {t("journal.topic")}
             </div>
             <input
@@ -232,7 +232,7 @@ export function SessionDetail({
           {/* Actual curriculum topic (drives pacing) */}
           {topics.length > 0 && (
             <div className="mb-[18px]">
-              <div className="mb-1.5 font-mono text-3xs font-semibold uppercase tracking-[0.14em] text-text-subtle">
+              <div className="mb-1.5 text-xs font-semibold text-text-subtle">
                 {t("journal.actualTopic")}
               </div>
               <select
@@ -268,7 +268,7 @@ export function SessionDetail({
             <button
               onClick={markAllPresent}
               disabled={roster.length === 0}
-              className="flex items-center gap-1 rounded-lg bg-success-soft px-2.5 py-1.5 text-xs font-bold text-green-700 hover:bg-success-soft disabled:opacity-50"
+              className="flex items-center gap-1 rounded-lg bg-success-soft px-2.5 py-1.5 text-xs font-bold text-success-fg hover:bg-success-soft disabled:opacity-50"
             >
               <Check className="h-3.5 w-3.5" />
               {t("attendance.markAllPresent")}
@@ -356,7 +356,7 @@ export function SessionDetail({
                     }`}
                     className="flex items-center gap-2.5 rounded-sm border border-border bg-surface px-2.5 py-2.5 transition-colors hover:border-primary"
                   >
-                    <span className="grid h-7 w-7 shrink-0 place-items-center rounded-full bg-success-soft text-2xs font-extrabold text-green-800">
+                    <span className="grid h-7 w-7 shrink-0 place-items-center rounded-full bg-success-soft text-2xs font-extrabold text-success-fg">
                       {row.student_name.charAt(0)}
                     </span>
                     <span className="min-w-0 flex-1 truncate text-sm font-bold text-text">

@@ -57,7 +57,7 @@ export function LessonReview({
 
       {teacherView && results.length > 0 && (
         <div className="mb-6">
-          <div className="mb-2 font-mono text-xs font-bold uppercase tracking-wide text-text">
+          <div className="mb-2 text-xs font-bold text-text">
             {t("live.resultsTitle")}
           </div>
           <div className="grid grid-cols-1 gap-3 lg:grid-cols-2">
@@ -69,7 +69,7 @@ export function LessonReview({
                     <span className="min-w-0 flex-1 truncate font-semibold text-text">
                       {s.name}
                     </span>
-                    <span className="font-mono text-3xs uppercase tracking-wide text-text-subtle">
+                    <span className="text-xs text-text-subtle">
                       {s.attempts} {t("live.attempts")}
                     </span>
                     <span
@@ -96,7 +96,7 @@ export function LessonReview({
               {myResults.map(({ ex, mine }) => (
                 <div key={ex.exercise_id} className="flex items-center gap-2 py-0.5 text-sm">
                   <span className="min-w-0 flex-1 truncate font-bold text-text">{ex.title}</span>
-                  <span className="font-mono text-3xs uppercase tracking-wide text-text-subtle tabular-nums">
+                  <span className="text-xs text-text-subtle tabular-nums">
                     {t("live.attemptsN").replace("{n}", String(mine.attempts))}
                   </span>
                   <span
@@ -121,7 +121,7 @@ export function LessonReview({
               className={`rounded-pill px-3.5 py-1.5 text-sm font-bold transition-colors ${
                 openBoard === id
                   ? "bg-primary text-primary-fg"
-                  : "border-2 border-border bg-surface text-text hover:border-green-300"
+                  : "border-2 border-border bg-surface text-text hover:border-border-strong"
               }`}
             >
               {t("live.scene.board")} {i + 1}
@@ -195,7 +195,7 @@ function LessonRecordings({
 
   return (
     <div className="mb-6">
-      <div className="mb-2 font-mono text-xs font-bold uppercase tracking-wide text-text">
+      <div className="mb-2 text-xs font-bold text-text">
         {t("recordings.title")}
       </div>
       <div className="space-y-2">

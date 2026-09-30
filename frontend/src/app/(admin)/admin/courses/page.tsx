@@ -1,5 +1,6 @@
 "use client";
 
+import { SUBJECT_SURFACE, subjectOf } from "@/lib/subject";
 import { useEffect, useState } from "react";
 import apiClient from "@/lib/api-client";
 import { toast } from "sonner";
@@ -196,35 +197,26 @@ export default function AdminCoursesPage() {
 
  const canCreateTemplate = isAdmin || isMethodist;
 
- // v2 subject gradients (DESIGN_SPEC §4) — same mapping as course-card.tsx
- const CATEGORY_GRADIENTS: Record<string, string> = {
- programming: "from-green-600 to-green-900",
- math: "from-green-400 to-green-800",
- languages: "from-clay-500 to-clay-700",
- sat: "from-sun-500 to-sun-700",
- };
-
  const renderCourseCard = (course: AdminCourse | Course, opts: { showCopy?: boolean; showEdit?: boolean; showDelete?: boolean } = {}) => {
  const { showCopy = false, showEdit = true, showDelete = true } = opts;
  const isTemplate = 'is_template' in course && course.is_template;
  const thumbnailUrl = 'thumbnail_url' in course ? course.thumbnail_url : null;
  const category = 'category' in course ? course.category : null;
- const gradient = CATEGORY_GRADIENTS[category || ""] || "from-green-400 to-green-800";
+ const subject = subjectOf(category);
 
  return (
- <Card key={course.id} className="group overflow-hidden transition hover:shadow-lg ">
+ <Card key={course.id} className="group overflow-hidden">
  {/* Thumbnail / Gradient header */}
  {thumbnailUrl ? (
  <div className="relative h-32 overflow-hidden">
  <img
  src={thumbnailUrl}
  alt={course.title}
- className="h-full w-full object-cover transition-transform group-hover:scale-105"
+ className="h-full w-full object-cover"
  />
- <div className="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent" />
  <div className="absolute right-2 top-2 flex items-center gap-1.5">
  {isTemplate && (
- <span className="rounded-pill bg-primary/90 px-2 py-0.5 text-xs font-medium text-primary-fg backdrop-blur-sm">
+ <span className="rounded-pill bg-primary px-2 py-0.5 text-xs font-medium text-primary-fg">
  {t("admin.courses.fromTemplate")}
  </span>
  )}
@@ -232,15 +224,15 @@ export default function AdminCoursesPage() {
  </div>
  </div>
  ) : (
- <div className={`relative flex h-32 items-center justify-center bg-gradient-to-br ${gradient}`}>
+ <div data-subject={subject} className={`relative flex h-32 items-end p-4 text-subject-ink ${SUBJECT_SURFACE[subject]}`}>
  {isTemplate ? (
- <FileStack className="h-10 w-10 text-white/80" />
+ <FileStack className="h-6 w-6 opacity-70" aria-hidden />
  ) : (
- <BookOpen className="h-10 w-10 text-white/80" />
+ <BookOpen className="h-6 w-6 opacity-70" aria-hidden />
  )}
  <div className="absolute right-2 top-2 flex items-center gap-1.5">
  {isTemplate && (
- <span className="rounded-pill bg-surface/20 px-2 py-0.5 text-xs font-medium text-white backdrop-blur-sm">
+ <span className="rounded-pill bg-surface px-2 py-0.5 text-xs font-medium text-text">
  {t("admin.courses.fromTemplate")}
  </span>
  )}

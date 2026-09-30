@@ -1124,9 +1124,7 @@ export function CrosswordConfigEditor({ config, onChange }: EditorProps) {
              <div
                key={key}
                onClick={() => handleCellClick(r, c)}
-               className={`flex items-center justify-center border border-border text-sm font-mono font-bold uppercase transition-colors ${
-                 hasConflict
-                   ? "bg-danger-soft text-danger-fg"
+               className={`flex items-center justify-center border border-border text-sm font-bold transition-colors ${ hasConflict ?"bg-danger-soft text-danger-fg"
                    : inActive
                    ? "bg-primary-soft text-primary"
                    : !isEmpty
@@ -1173,7 +1171,7 @@ export function CrosswordConfigEditor({ config, onChange }: EditorProps) {
                    value={w.word}
                    onChange={(e) => updateWord(i, "word", e.target.value.toUpperCase())}
                    placeholder="WORD"
-                   className={`w-32 ${inputBase} font-mono uppercase`}
+                   className={`w-32 ${inputBase}`}
                  />
                  <input
                    type="text"
@@ -1318,7 +1316,7 @@ export function WordSearchConfigEditor({ config, onChange }: EditorProps) {
          {words.map((word, i) => (
            <div key={i} className="flex items-center gap-2">
              <span className="flex-shrink-0 w-7 h-7 rounded-full bg-primary-soft flex items-center justify-center text-xs font-bold text-primary">{i + 1}</span>
-             <input type="text" value={word} onChange={(e) => updateWord(i, e.target.value)} placeholder="WORD" className={`flex-1 ${inputBase} font-mono uppercase`} />
+             <input type="text" value={word} onChange={(e) => updateWord(i, e.target.value)} placeholder="WORD" className={`flex-1 ${inputBase}`} />
              {words.length > 1 && (
                <Button variant="ghost" size="sm" onClick={() => removeWord(i)} className="text-danger-fg"><Trash2 className="h-3.5 w-3.5" /></Button>
              )}
