@@ -69,7 +69,7 @@ import { ExerciseConfigPanel } from "@/components/exercises/exercise-config-pane
 import {
   EXERCISE_GROUPS,
   EXERCISE_TYPES_META,
-  EXERCISE_TYPE_LABELS,
+  exerciseTypeName,
   getExerciseIcon,
   type ExerciseType,
 } from "@/lib/api/exercises";
@@ -397,7 +397,7 @@ export default function LessonEditorPage() {
      `config` lets the picker preset e.g. a math template (specs/017 US5). */
   const createAndAttachExercise = useCallback(
     async (blockId: string, exerciseType: ExerciseType, config: Record<string, unknown> = {}) => {
-      const defaultTitle = `New ${EXERCISE_TYPE_LABELS[exerciseType] || exerciseType}`;
+      const defaultTitle = exerciseTypeName(t, exerciseType);
       try {
         const { data } = await apiClient.post("/exercises", {
           lesson_id: lessonId,
@@ -1096,11 +1096,11 @@ function ExerciseBlockBody({
                         isMath ? setMathExpanded((x) => !x) : onPickExerciseType(value)
                       }
                       className="flex flex-col items-center gap-1.5 rounded-lg bg-bg px-2 py-2.5 text-center text-2xs text-text-muted transition-colors hover:bg-primary-soft hover:text-primary"
-                      title={meta.label}
+                      title={exerciseTypeName(t, meta.value)}
                     >
                       <Icon className="h-5 w-5" strokeWidth={1.75} />
                       <span className="leading-tight">
-                        {meta.label}
+                        {exerciseTypeName(t, meta.value)}
                         {isMath && (
                           <ChevronDown
                             className={`ml-0.5 inline h-3 w-3 transition-transform ${mathExpanded ? "rotate-180" : ""}`}
@@ -1144,7 +1144,7 @@ function ExerciseBlockBody({
       <div className="mb-3 flex items-center gap-2">
         <TypeIcon className="h-5 w-5 text-text-muted" strokeWidth={1.75} />
         <span className="rounded-pill bg-surface-2 px-2 py-0.5 text-3xs font-semibold uppercase tracking-wider text-text-muted">
-          {EXERCISE_TYPE_LABELS[exercise.exercise_type as ExerciseType] || exercise.exercise_type}
+          {exerciseTypeName(t, exercise.exercise_type)}
         </span>
       </div>
       <ExerciseConfigPanel exerciseId={exercise.id} onSaved={onExerciseChanged} />
