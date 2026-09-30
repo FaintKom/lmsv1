@@ -69,7 +69,7 @@ function DemoRunner() {
  <header className="border-b border-border bg-surface">
  <div className="mx-auto flex h-16 max-w-6xl items-center justify-between px-6">
  <Link href="/" className="flex items-center gap-2.5">
- <div className="relative flex h-9 w-9 items-center justify-center rounded-sm bg-primary text-lg font-extrabold text-white">
+ <div className="relative flex h-9 w-9 items-center justify-center rounded-sm bg-primary text-lg font-extrabold text-primary-fg">
  g
  <span className="absolute bottom-[4px] right-[5px] h-[5px] w-[5px] rounded-full bg-sun-400" />
  </div>
