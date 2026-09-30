@@ -52,7 +52,7 @@ export function PollModal({
             await votePoll(lessonId, selected);
             onDone();
           }}
-          className="btn-pop mt-6 w-full rounded-md bg-primary p-3 text-sm font-bold text-primary-fg"
+          className="press-scale mt-6 w-full rounded-md bg-primary p-3 text-sm font-bold text-primary-fg"
         >
           {t("live.poll.vote")}
         </button>

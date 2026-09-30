@@ -587,7 +587,7 @@ export default function AdminDashboardPage() {
           </Link>
           <Link
             href="/admin/courses"
-            className="btn-pop flex h-9 items-center gap-1.5 rounded-sm bg-primary px-4 text-xs font-bold text-primary-fg"
+            className="press-scale flex h-9 items-center gap-1.5 rounded-sm bg-primary px-4 text-xs font-bold text-primary-fg"
           >
             <Plus className="h-3.5 w-3.5" />
             {t("admin.dashboard.newCourse")}

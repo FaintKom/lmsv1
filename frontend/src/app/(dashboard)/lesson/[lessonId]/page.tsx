@@ -197,7 +197,7 @@ export default function StudentLessonPage() {
       <div className="flex h-[calc(100vh-4rem)] flex-col items-center justify-center gap-5">
         <div className="text-xl font-extrabold text-text">{t("live.endedTitle")}</div>
         <button
-          className="btn-pop rounded-md bg-primary px-5 py-2.5 text-sm font-bold text-primary-fg"
+          className="press-scale rounded-md bg-primary px-5 py-2.5 text-sm font-bold text-primary-fg"
           onClick={() => router.push("/dashboard")}
         >
           {t("live.toDashboard")}
@@ -249,7 +249,7 @@ export default function StudentLessonPage() {
                 scene?.type !== "task" && (
                   <button
                     onClick={() => setMaterialOpen(true)}
-                    className="btn-pop btn-pop--secondary absolute left-1/2 top-4 z-30 inline-flex -translate-x-1/2 items-center gap-1.5 rounded-sm border border-border bg-surface px-3.5 py-2 text-xs font-bold text-text"
+                    className="press-scale absolute left-1/2 top-4 z-30 inline-flex -translate-x-1/2 items-center gap-1.5 rounded-sm border border-border bg-surface px-3.5 py-2 text-xs font-bold text-text"
                   >
                     <BookOpen size={14} /> {t("live.scene.material")}
                   </button>

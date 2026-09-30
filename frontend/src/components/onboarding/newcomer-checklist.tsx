@@ -1,5 +1,6 @@
 "use client";
 
+import { ProgressBar } from "@/components/ui/progress-bar";
 import { useState, useEffect } from "react";
 import Link from "next/link";
 import { CheckCircle2, Circle, X, Sparkles } from "lucide-react";
@@ -72,11 +73,8 @@ export function NewcomerChecklist({
  </div>
 
  {/* Progress bar */}
- <div className="mx-5 mb-4 h-1.5 overflow-hidden rounded-pill bg-surface-2 " role="progressbar" aria-valuenow={pct} aria-valuemin={0} aria-valuemax={100} aria-label="Onboarding progress">
- <div
- className="h-full rounded-pill bg-primary transition-[width] duration-500"
- style={{ width: `${pct}%` }}
- />
+ <div className="mx-5 mb-4">
+ <ProgressBar value={pct} size="sm" />
  </div>
 
  {/* Checklist items */}

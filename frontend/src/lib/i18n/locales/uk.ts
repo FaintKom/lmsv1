@@ -630,6 +630,7 @@ const uk: TranslationMap = {
 
  // Common
  "common.loading": "Завантаження...",
+ "common.progress": "Прогрес",
  "common.save": "Зберегти",
  "common.cancel": "Скасувати",
  "common.delete": "Видалити",

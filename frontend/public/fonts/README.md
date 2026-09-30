@@ -17,21 +17,26 @@ random.
 
 | File | Family | Subset |
 |---|---|---|
-| `manrope-latin.woff2` | Manrope (variable, 200–800) | latin |
-| `manrope-latin-ext.woff2` | Manrope (variable, 200–800) | latin-ext |
-| `manrope-cyrillic.woff2` | Manrope (variable, 200–800) | cyrillic |
-| `geist-latin.woff2` | Geist Mono (variable, 100–900) | latin |
+| `onest-latin.woff2` | Onest (variable, 100–900), body text | latin |
+| `onest-latin-ext.woff2` | Onest | latin-ext |
+| `onest-cyrillic.woff2` | Onest | cyrillic |
+| `geologica-latin.woff2` | Geologica (variable, 100–900), headings | latin |
+| `geologica-latin-ext.woff2` | Geologica | latin-ext |
+| `geologica-cyrillic.woff2` | Geologica | cyrillic |
+| `geist-latin.woff2` | Geist Mono (variable, 100–900), code only | latin |
 
-All four come from the Google Fonts `css2` API. The subsets match what the old
-`next/font` config asked for, and Google's own `unicode-range` split is kept in
-the `@font-face` rules — so a page with no Cyrillic on it still never downloads
-the Cyrillic file.
+Onest and Geologica replaced Manrope in design system v3 (specs/071). All come
+from the Google Fonts `css2` API, and Google's own `unicode-range` split is kept
+in the `@font-face` rules — so a page with no Cyrillic on it never downloads
+the Cyrillic file. Turkish needs latin-ext, Ukrainian needs cyrillic; both are
+here.
 
 ## Licence
 
-Both families are under the SIL Open Font License 1.1 — see `OFL-Manrope.txt`
-and `OFL-GeistMono.txt`. The OFL requires the licence to travel with the font
-files, which is why those texts are committed next to them.
+All three families are under the SIL Open Font License 1.1 — see
+`OFL-Onest.txt`, `OFL-Geologica.txt` and `OFL-GeistMono.txt`. The OFL requires
+the licence to travel with the font files, which is why those texts are
+committed next to them.
 
 ## Updating
 

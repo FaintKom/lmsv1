@@ -104,7 +104,7 @@ export default function DashboardPage() {
  <div className="relative flex flex-wrap gap-2.5">
  <Link
  href="/courses"
- className="btn-pop btn-pop--sun inline-flex items-center gap-2 rounded-md bg-reward px-5 py-3 text-sm font-bold text-ink-900"
+ className="press-scale inline-flex items-center gap-2 rounded-md bg-reward px-5 py-3 text-sm font-bold text-ink-900"
  >
  <BookOpen className="h-4 w-4" />
  {t("dash.browseCourses")}
@@ -128,7 +128,7 @@ export default function DashboardPage() {
  {streak}
  </p>
  </div>
- <div className="flex h-12 w-12 items-center justify-center rounded-md bg-danger text-ink-900 shadow-pop-clay">
+ <div className="flex h-12 w-12 items-center justify-center rounded-md bg-danger text-ink-900">
  <Flame className="h-5 w-5" />
  </div>
  </div>

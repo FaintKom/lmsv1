@@ -66,7 +66,7 @@ const RULES: Record<RuleId, RegExp> = {
   // duration-75…duration-1000 is allowed.
   "ms-literal":
     /\b(?:transition|animation)(?:-duration|-delay)?["'`]?\s*:\s*[^;{}]*?\b\d*\.?\d+m?s\b|\b(?:duration|delay)-\[\d/g,
-  "bezier-literal": /cubic-bezier\(|\bease-\[/g,
+  "bezier-literal": /cubic-bezier\(|\bease-\[(?!var\()/g,
   "layout-anim":
     /\btransition(?:-property)?["'`]?\s*:\s*[^;{}]*\b(?:width|height|top|left|right|bottom|margin[a-z-]*)\b|\btransition-\[(?:width|height|top|left|margin)/g,
   "scale-zero": /\bscale\(0\)|\bscale-0\b/g,
@@ -176,6 +176,7 @@ describe("design-system ratchet", () => {
     // …and stays quiet on what the system allows.
     const clean = [
       '<a href="#add" className="bg-primary text-text-muted rounded-md duration-200" />',
+      '<div className="duration-[var(--motion-fast)] ease-[var(--motion-ease)]" />',
       "  --motion-ease: cubic-bezier(0.2, 0.8, 0.2, 1);",
       ".x { transition: transform var(--motion-fast) var(--motion-ease); }",
       "// transition: all is banned",

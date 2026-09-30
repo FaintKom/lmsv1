@@ -354,7 +354,7 @@ export default function TeacherLivePage() {
       <div className="flex h-[calc(100vh-4rem)] flex-col items-center justify-center gap-5">
         <div className="text-xl font-extrabold text-text">{t("live.endedTitle")}</div>
         <button
-          className="btn-pop rounded-md bg-primary px-5 py-2.5 text-sm font-bold text-primary-fg"
+          className="press-scale rounded-md bg-primary px-5 py-2.5 text-sm font-bold text-primary-fg"
           onClick={() => router.push("/admin/groups")}
         >
           {t("common.back")}
@@ -529,7 +529,7 @@ export default function TeacherLivePage() {
                 lesson.follow_mode === "free" ? "strict" : "free",
               ).then(() => qc.invalidateQueries({ queryKey: ["live", lessonId, "state"] }))
             }
-            className="btn-pop btn-pop--secondary rounded-sm border border-border bg-surface px-3.5 py-1.5 text-xs font-bold text-text"
+            className="press-scale rounded-sm border border-border bg-surface px-3.5 py-1.5 text-xs font-bold text-text"
           >
             {lesson.follow_mode === "strict"
               ? t("live.followMode.strict")
@@ -540,13 +540,13 @@ export default function TeacherLivePage() {
               window.open(`/admin/live/${lessonId}/screen`, "_blank", "noopener,noreferrer")
             }
             title={t("live.projectorHint")}
-            className="btn-pop btn-pop--secondary inline-flex items-center gap-1.5 rounded-sm border border-border bg-surface px-3.5 py-1.5 text-xs font-bold text-text"
+            className="press-scale inline-flex items-center gap-1.5 rounded-sm border border-border bg-surface px-3.5 py-1.5 text-xs font-bold text-text"
           >
             <MonitorPlay size={14} /> {t("live.projector")}
           </button>
           <button
             onClick={() => setConfirmEnd(true)}
-            className="btn-pop btn-pop--clay rounded-sm bg-danger px-3.5 py-1.5 text-xs font-bold text-ink-900"
+            className="press-scale rounded-sm bg-danger px-3.5 py-1.5 text-xs font-bold text-ink-900"
           >
             {t("live.end")}
           </button>
@@ -601,7 +601,7 @@ export default function TeacherLivePage() {
                 />
                 <button
                   onClick={() => setPickingMaterial(true)}
-                  className="btn-pop btn-pop--secondary absolute right-4 top-4 z-10 inline-flex items-center gap-1.5 rounded-sm border border-border bg-surface px-3.5 py-1.5 text-xs font-bold text-text"
+                  className="press-scale absolute right-4 top-4 z-10 inline-flex items-center gap-1.5 rounded-sm border border-border bg-surface px-3.5 py-1.5 text-xs font-bold text-text"
                 >
                   <BookOpen size={14} /> {t("live.pickMaterial")}
                 </button>
@@ -635,7 +635,7 @@ export default function TeacherLivePage() {
                 <div className="absolute inset-0 z-10" />
                 <button
                   onClick={() => setPickingTask(true)}
-                  className="btn-pop btn-pop--secondary absolute right-4 top-4 z-20 inline-flex items-center gap-1.5 rounded-sm border border-border bg-surface px-3.5 py-1.5 text-xs font-bold text-text"
+                  className="press-scale absolute right-4 top-4 z-20 inline-flex items-center gap-1.5 rounded-sm border border-border bg-surface px-3.5 py-1.5 text-xs font-bold text-text"
                 >
                   <Puzzle size={14} /> {t("live.pickExercise")}
                 </button>
@@ -772,7 +772,7 @@ export default function TeacherLivePage() {
                     type="submit"
                     disabled={!classMsg.trim()}
                     aria-label={t("live.messageAll")}
-                    className="btn-pop flex h-9 w-9 shrink-0 items-center justify-center rounded-md bg-primary text-primary-fg disabled:opacity-50 pointer-coarse:h-11 pointer-coarse:w-11"
+                    className="press-scale flex h-9 w-9 shrink-0 items-center justify-center rounded-md bg-primary text-primary-fg disabled:opacity-50 pointer-coarse:h-11 pointer-coarse:w-11"
                   >
                     <SendHorizonal size={15} aria-hidden />
                   </button>
@@ -817,7 +817,7 @@ export default function TeacherLivePage() {
             <div className="flex justify-end gap-2.5">
               <button
                 onClick={() => setConfirmEnd(false)}
-                className="btn-pop btn-pop--secondary rounded-md border border-border bg-surface px-4 py-2 text-sm font-bold text-text"
+                className="press-scale rounded-md border border-border bg-surface px-4 py-2 text-sm font-bold text-text"
               >
                 {t("common.cancel")}
               </button>
@@ -829,7 +829,7 @@ export default function TeacherLivePage() {
                   // "ended" and renders the lesson review in place
                   await qc.invalidateQueries({ queryKey: ["live", lessonId, "state"] });
                 }}
-                className="btn-pop btn-pop--clay rounded-md bg-danger px-4 py-2 text-sm font-bold text-ink-900"
+                className="press-scale rounded-md bg-danger px-4 py-2 text-sm font-bold text-ink-900"
               >
                 {t("live.end")}
               </button>

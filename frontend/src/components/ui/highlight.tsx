@@ -2,8 +2,9 @@ import { cn } from "@/lib/utils";
 import { HTMLAttributes } from "react";
 
 /**
- * Lively highlight marker — sun-300 background, rotated −1deg.
- * The ONLY way to mark a keyword in a headline. Do NOT use for UI status.
+ * Marks a keyword in a headline with the primary colour. Until specs/071 this
+ * was a sun-300 marker rotated −1deg; a highlighter over headline words is one
+ * of the looks the spec lists as generated, so the emphasis is colour only.
  */
 export function Highlight({
   className,
@@ -12,11 +13,7 @@ export function Highlight({
 }: HTMLAttributes<HTMLSpanElement>) {
   return (
     <span
-      className={cn(
-        "inline-block px-2 rounded-lg -rotate-1",
-        className
-      )}
-      style={{ background: "#ffe066", color: "var(--color-text)" }}
+      className={cn("text-primary", className)}
       {...props}
     >
       {children}

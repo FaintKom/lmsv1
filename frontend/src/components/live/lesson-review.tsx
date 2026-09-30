@@ -232,7 +232,7 @@ function LessonRecordings({
             )}
             <button
               onClick={() => setWatching(watching === r.id ? null : r.download_url && r.id)}
-              className="btn-pop inline-flex shrink-0 items-center gap-1.5 rounded-sm bg-primary px-3 py-1.5 text-xs font-bold text-primary-fg"
+              className="press-scale inline-flex shrink-0 items-center gap-1.5 rounded-sm bg-primary px-3 py-1.5 text-xs font-bold text-primary-fg"
             >
               <Play size={13} aria-hidden />
               {t("recordings.watch")}

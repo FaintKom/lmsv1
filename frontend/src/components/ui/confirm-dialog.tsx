@@ -108,7 +108,7 @@ export function ConfirmProvider({ children }: { children: ReactNode }) {
  <div className="fixed inset-0 z-[100] flex items-center justify-center">
  {/* Backdrop */}
  <div
- className="absolute inset-0 bg-ink-900/40 backdrop-blur-sm"
+ className="absolute inset-0 bg-ink-900/40"
  onClick={() => handleClose(false)}
  aria-hidden="true"
  />
@@ -119,7 +119,7 @@ export function ConfirmProvider({ children }: { children: ReactNode }) {
  aria-modal="true"
  aria-labelledby={titleId}
  aria-describedby={descId}
- className="relative mx-4 w-full max-w-md animate-in fade-in zoom-in-95 rounded-lg bg-surface p-6 shadow-2xl duration-200 "
+ className="relative mx-4 w-full max-w-md animate-in fade-in zoom-in-95 rounded-lg bg-surface p-6 shadow-lg duration-200"
  >
  <button
  onClick={() => handleClose(false)}

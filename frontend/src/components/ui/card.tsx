@@ -1,12 +1,15 @@
 import { cn } from "@/lib/utils";
 import { HTMLAttributes, forwardRef, ElementType } from "react";
+import { SUBJECT_SURFACE, type Subject } from "@/lib/subject";
 
 interface CardProps extends HTMLAttributes<HTMLDivElement> {
-  variant?: "default" | "elevated" | "flat";
+  variant?: "default" | "elevated" | "flat" | "subject";
+  /** Field colour for `variant="subject"`; see src/lib/subject.ts. */
+  subject?: Subject;
 }
 
 const Card = forwardRef<HTMLDivElement, CardProps>(
-  ({ className, variant = "default", ...props }, ref) => (
+  ({ className, variant = "default", subject = "other", ...props }, ref) => (
     <div
       ref={ref}
       className={cn(
@@ -14,9 +17,10 @@ const Card = forwardRef<HTMLDivElement, CardProps>(
         // layout properties too, so any width change slides the card
         "rounded-lg transition-[box-shadow,border-color,background-color] duration-[var(--motion-base)] ease-[var(--motion-ease)]",
         {
-          "bg-surface border border-border shadow-sm": variant === "default",
+          "bg-surface": variant === "default",
           "bg-surface shadow-md": variant === "elevated",
           "bg-surface-2": variant === "flat",
+          [`${SUBJECT_SURFACE[subject]} text-subject-ink`]: variant === "subject",
         },
         className
       )}
@@ -43,7 +47,7 @@ const CardTitle = forwardRef<HTMLHeadingElement, CardTitleProps>(
     return (
       <Comp
         ref={ref}
-        className={cn("text-md font-bold text-text mb-1.5", className)}
+        className={cn("text-md font-semibold text-text mb-1.5", className)}
         {...props}
       />
     );

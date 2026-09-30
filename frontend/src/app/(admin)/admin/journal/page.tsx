@@ -1147,7 +1147,7 @@ function ScheduleTab({ courses, isManager }: ScheduleTabProps) {
           {isManager && (
             <button
               onClick={openAdd}
-              className="inline-flex items-center gap-1.5 rounded-xl bg-primary px-3 py-2 text-xs font-bold text-primary-fg shadow-pop hover:bg-primary-hover active:translate-y-0.5 active:shadow-none"
+              className="inline-flex items-center gap-1.5 rounded-xl bg-primary px-3 py-2 text-xs font-bold text-primary-fg hover:bg-primary-hover press-scale"
             >
               <Plus className="h-3.5 w-3.5" />
               {t("schedule.addLesson")}
@@ -1594,7 +1594,7 @@ function SchedSlotEditor({
               <button
                 onClick={() => save(false)}
                 disabled={saving}
-                className="inline-flex items-center gap-1.5 rounded-lg bg-primary px-3.5 py-2 text-xs font-bold text-primary-fg shadow-pop hover:bg-primary-hover active:translate-y-0.5 active:shadow-none disabled:opacity-50"
+                className="inline-flex items-center gap-1.5 rounded-lg bg-primary px-3.5 py-2 text-xs font-bold text-primary-fg hover:bg-primary-hover press-scale disabled:opacity-50"
               >
                 {saving && <Loader2 className="h-3.5 w-3.5 animate-spin" />}
                 {t("schedule.save")}

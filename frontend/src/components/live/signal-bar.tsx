@@ -43,7 +43,7 @@ export function SignalBar({
       onClick={() => void toggle(type)}
       className={`inline-flex min-h-11 items-center gap-1.5 rounded-pill px-4 py-2 text-sm font-bold transition-colors ${
         active === type
-          ? "btn-pop bg-primary text-primary-fg"
+          ? "press-scale bg-primary text-primary-fg"
           : "border-2 border-border bg-surface text-text hover:border-green-300"
       }`}
     >
@@ -61,7 +61,7 @@ export function SignalBar({
         aria-pressed={active === type}
         className={`inline-flex h-10 items-center gap-1.5 rounded-pill px-3 text-xs font-bold transition-colors pointer-coarse:h-11 ${
           active === type
-            ? "btn-pop bg-primary text-primary-fg"
+            ? "press-scale bg-primary text-primary-fg"
             : "border-2 border-border bg-surface text-text hover:border-green-300"
         }`}
       >
@@ -109,7 +109,7 @@ export function SignalBar({
             <div className="mt-4 flex justify-end gap-2.5">
               <button
                 onClick={() => setAsking(false)}
-                className="btn-pop btn-pop--secondary rounded-md border border-border bg-surface px-4 py-2 text-sm font-bold text-text"
+                className="press-scale rounded-md border border-border bg-surface px-4 py-2 text-sm font-bold text-text"
               >
                 {t("common.cancel")}
               </button>
@@ -121,7 +121,7 @@ export function SignalBar({
                   setAsking(false);
                   toast.success(t("live.askSent"));
                 }}
-                className="btn-pop rounded-md bg-primary px-4 py-2 text-sm font-bold text-primary-fg"
+                className="press-scale rounded-md bg-primary px-4 py-2 text-sm font-bold text-primary-fg"
               >
                 {t("live.ask")}
               </button>

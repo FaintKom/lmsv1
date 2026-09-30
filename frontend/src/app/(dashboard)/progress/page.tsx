@@ -83,24 +83,18 @@ export default function ProgressPage() {
  ) : (
  <div className="space-y-6">
  {/* Summary stats */}
- <div className="grid grid-cols-3 gap-4">
- <Card>
- <CardContent className="p-4 text-center">
+ <div className="grid grid-cols-3 gap-2 sm:gap-4">
+ <Card className="px-2 py-4 text-center sm:p-4">
  <p className="text-2xl font-bold text-primary">{enrollments.length}</p>
  <p className="text-xs text-text-muted">{t("progress.enrolled")}</p>
- </CardContent>
  </Card>
- <Card>
- <CardContent className="p-4 text-center">
+ <Card className="px-2 py-4 text-center sm:p-4">
  <p className="text-2xl font-bold text-warning-fg">{inProgressEnrollments.length}</p>
  <p className="text-xs text-text-muted">{t("progress.inProgress")}</p>
- </CardContent>
  </Card>
- <Card>
- <CardContent className="p-4 text-center">
+ <Card className="px-2 py-4 text-center sm:p-4">
  <p className="text-2xl font-bold text-primary">{completedEnrollments.length}</p>
  <p className="text-xs text-text-muted">{t("progress.completed")}</p>
- </CardContent>
  </Card>
  </div>
 

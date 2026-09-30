@@ -54,7 +54,7 @@ export function BreakoutPanel({
   });
 
   const button =
-    "btn-pop inline-flex items-center gap-1.5 rounded-sm border border-border bg-surface px-2.5 py-1.5 text-2xs font-bold text-text disabled:opacity-50";
+    "press-scale inline-flex items-center gap-1.5 rounded-sm border border-border bg-surface px-2.5 py-1.5 text-2xs font-bold text-text disabled:opacity-50";
 
   return (
     <div className="flex flex-col gap-2.5">

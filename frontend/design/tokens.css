@@ -1,5 +1,5 @@
 /* =================================================================
-   GrassLMS — Lively v2 · tokens.css · v2.2.0 · 2026-08-04
+   GrassLMS — Colour fields · tokens.css · v3.0.0 · 2026-09-30
    GENERATED FROM tokens.json — DO NOT EDIT BY HAND.
 
    Drop-in replacement for the @theme block in
@@ -59,7 +59,7 @@
   --ink-100: #e3e8dd;
   --ink-200: #c4cdbe;
   --ink-300: #93a08d;
-  --ink-400: #6a7568;
+  --ink-400: #677265;
   --ink-500: #485444;
   --ink-700: #232b22;
   --ink-900: #0d150d;
@@ -106,6 +106,12 @@
   --color-info-soft:     var(--lagoon-50);
   --color-info-fg:       var(--lagoon-800);
 
+  --subject-lang:  var(--green-100);
+  --subject-math:  var(--sun-100);
+  --subject-code:  var(--lagoon-50);
+  --subject-other: var(--ink-100);
+  --subject-ink:   var(--ink-900);
+
   /* ---- ELEVATION --------------------------------------- */
   /* ---- VIZ — categorical series for chart-like widgets ------
      Deliberately outside the brand ramps. Lively is warm and muted; no
@@ -123,18 +129,14 @@
   --shadow-md: 0 8px 24px -8px rgba(13, 21, 13, 0.14);
   --shadow-lg: 0 18px 50px -20px rgba(13, 21, 13, 0.20);
 
-  --shadow-pop:      0 4px 0 0 var(--green-700);   /* ★ signature */
-  --shadow-pop-sun:  0 4px 0 0 var(--sun-500);
-  --shadow-pop-clay: 0 4px 0 0 var(--clay-700);
-  --shadow-pop-ink:  0 4px 0 0 var(--ink-900);
   --ring-focus:      0 0 0 4px var(--green-100);
 
   /* ---- RADII ------------------------------------------- */
   --radius-xs:   6px;
   --radius-sm:   10px;
   --radius-md:   14px;
-  --radius-lg:   18px;
-  --radius-xl:   24px;
+  --radius-lg:   14px;
+  --radius-xl:   14px;
   --radius-pill: 999px;
 
   /* ---- SPACING (4px base) ------------------------------ */
@@ -156,7 +158,8 @@
   --inspector:  300px;
 
   /* ---- TYPOGRAPHY -------------------------------------- */
-  --font-sans: 'Manrope', system-ui, -apple-system, sans-serif;
+  --font-sans: 'Onest', system-ui, -apple-system, sans-serif;
+  --font-display: 'Geologica', 'Onest', system-ui, sans-serif;
   --font-mono: 'Geist Mono', ui-monospace, SFMono-Regular, monospace;
 
   /* 3xs/2xs exist for dense mode (rule 4.6, spacing x0.75) — journal,
@@ -225,6 +228,12 @@
   --color-info-soft:     rgba(58, 160, 181, 0.14);
   --color-info-fg:       #9bd3df;
 
+  --subject-lang:  #16301f;
+  --subject-math:  #33301a;
+  --subject-code:  #142b31;
+  --subject-other: #202a22;
+  --subject-ink:   #e9efe9;
+
   /* Series re-stepped for the dark surface — selected, not flipped.
      1/3/5 already clear contrast on #111713 and stay put; 2 and 4 lift to
      their brighter steps, which fail contrast on white but pass here. */
@@ -237,10 +246,6 @@
   --shadow-md: 0 8px 24px -8px rgba(0, 0, 0, 0.6);
   --shadow-lg: 0 18px 50px -20px rgba(0, 0, 0, 0.7);
 
-  --shadow-pop:      0 4px 0 0 #1c6b45;
-  --shadow-pop-sun:  0 4px 0 0 #b88700;
-  --shadow-pop-clay: 0 4px 0 0 #a83c1c;
-  --shadow-pop-ink:  0 4px 0 0 #000000;
   --ring-focus:      0 0 0 4px rgba(53, 208, 127, 0.25);
 }
 
@@ -250,6 +255,7 @@
    ================================================================= */
 @theme inline {
   --font-sans: var(--font-sans);
+  --font-display: var(--font-display);
   --font-mono: var(--font-mono);
 
   --color-green-25:  var(--green-25);
@@ -325,6 +331,11 @@
   --color-info:          var(--color-info);
   --color-info-soft:     var(--color-info-soft);
   --color-info-fg:       var(--color-info-fg);
+  --color-subject-lang:  var(--subject-lang);
+  --color-subject-math:  var(--subject-math);
+  --color-subject-code:  var(--subject-code);
+  --color-subject-other: var(--subject-other);
+  --color-subject-ink:   var(--subject-ink);
 
   --radius-xs:   var(--radius-xs);
   --radius-sm:   var(--radius-sm);
@@ -344,10 +355,6 @@
   --shadow-sm:        var(--shadow-sm);
   --shadow-md:        var(--shadow-md);
   --shadow-lg:        var(--shadow-lg);
-  --shadow-pop:       var(--shadow-pop);
-  --shadow-pop-sun:   var(--shadow-pop-sun);
-  --shadow-pop-clay:  var(--shadow-pop-clay);
-  --shadow-pop-ink:   var(--shadow-pop-ink);
 
   --text-3xs:  var(--t-3xs);
   --text-2xs:  var(--t-2xs);
@@ -375,7 +382,6 @@ body {
   color: var(--color-text);
   -webkit-font-smoothing: antialiased;
   text-rendering: optimizeLegibility;
-  font-feature-settings: 'ss01';
 }
 
 button { font-family: inherit; }
@@ -386,14 +392,13 @@ button { font-family: inherit; }
   border-radius: var(--radius-xs);
 }
 
-/* signature press — apply to primary/reward/danger buttons only */
-.btn-pop {
-  box-shadow: var(--shadow-pop);
-  transition: transform var(--motion-fast) var(--motion-ease),
-              box-shadow var(--motion-fast) var(--motion-ease);
+/* press feedback for flat controls (MOTION.md M3); .btn-pop removed in v3 */
+.press-scale {
+  transition-property: transform, background-color, border-color, color;
+  transition-duration: var(--motion-fast);
+  transition-timing-function: var(--motion-ease);
 }
-.btn-pop:hover  { transform: translateY(2px); box-shadow: 0 2px 0 0 var(--green-800); }
-.btn-pop:active { transform: translateY(4px); box-shadow: none; }
+.press-scale:active:not(:disabled) { transform: scale(0.96); }
 
 @keyframes skeleton-shimmer {
   0%   { background-position: -200% 0; }

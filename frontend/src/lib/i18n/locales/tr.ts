@@ -597,6 +597,7 @@ const tr: TranslationMap = {
  "privacy.title": "Gizlilik Politikası",
  "terms.title": "Kullanım Koşulları",
  "common.loading": "Yükleniyor...",
+ "common.progress": "İlerleme",
  "common.save": "Kaydet",
  "common.cancel": "İptal",
  "common.delete": "Sil",

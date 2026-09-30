@@ -583,6 +583,7 @@ const ru: TranslationMap = {
  "privacy.title": "Политика конфиденциальности",
  "terms.title": "Условия использования",
  "common.loading": "Загрузка...",
+ "common.progress": "Прогресс",
  "common.save": "Сохранить",
  "common.cancel": "Отмена",
  "common.delete": "Удалить",

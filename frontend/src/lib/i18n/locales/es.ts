@@ -604,6 +604,7 @@ const es: TranslationMap = {
  "privacy.title": "Política de Privacidad",
  "terms.title": "Términos de Servicio",
  "common.loading": "Cargando...",
+ "common.progress": "Progreso",
  "common.save": "Guardar",
  "common.cancel": "Cancelar",
  "common.delete": "Eliminar",

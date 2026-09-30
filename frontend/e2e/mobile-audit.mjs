@@ -12,7 +12,7 @@
  * Writes ../tasks/mobile-audit.json.
  */
 
-import { writeFileSync } from "node:fs";
+import { mkdirSync, writeFileSync } from "node:fs";
 import { chromium, devices } from "playwright";
 
 const BASE = process.env.PLAYWRIGHT_BASE_URL ?? "http://localhost:3000";
@@ -351,6 +351,25 @@ async function selfTest(page) {
   );
 }
 
+/**
+ * `--shots`: a phone and a desktop picture of every route, for the
+ * before/after pairs a design PR carries (specs/071, FR-013). Run once on
+ * main and once on the branch with SHOTS_DIR set apart.
+ */
+const SHOTS = process.argv.includes("--shots");
+const SHOTS_DIR = process.env.SHOTS_DIR ?? "test-results/shots";
+
+async function shoot(page, role, route) {
+  mkdirSync(SHOTS_DIR, { recursive: true });
+  const slug = `${role}${route.replace(/[^a-z0-9]+/gi, "-")}`.replace(/-+$/, "");
+  const phone = page.viewportSize();
+  await page.screenshot({ path: `${SHOTS_DIR}/${slug}-${phone.width}.png`, fullPage: true });
+  await page.setViewportSize({ width: 1440, height: 900 });
+  await page.waitForTimeout(300);
+  await page.screenshot({ path: `${SHOTS_DIR}/${slug}-1440.png`, fullPage: true });
+  await page.setViewportSize(phone);
+}
+
 async function run() {
   const browser = await chromium.launch();
   const results = [];
@@ -397,6 +416,7 @@ async function run() {
         Object.assign(entry, await page.evaluate(PROBE));
         entry.consoleErrors = consoleErrors.slice(0, 3);
         entry.failedRequests = [...new Set(failedRequests)].slice(0, 6);
+        if (SHOTS) await shoot(page, role, route);
       } catch (err) {
         entry.error = String(err).slice(0, 200);
       }

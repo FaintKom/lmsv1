@@ -387,7 +387,7 @@ export function SessionDetail({
           <button
             onClick={handleSave}
             disabled={saving}
-            className="btn-pop flex items-center gap-2 rounded-sm bg-primary px-6 py-2.5 text-sm font-bold text-primary-fg hover:bg-primary-hover"
+            className="press-scale flex items-center gap-2 rounded-sm bg-primary px-6 py-2.5 text-sm font-bold text-primary-fg hover:bg-primary-hover"
           >
             {saving ? <Loader2 className="h-4 w-4 animate-spin" /> : null}
             {t("journal.saveSession")}

@@ -28,13 +28,11 @@
     "glass": 1
   },
   "app/(admin)/admin/live/[lessonId]/page.tsx": {
-    "btn-pop": 16,
     "glass": 1,
     "mono-eyebrow": 2,
     "raw-palette": 2
   },
   "app/(admin)/admin/page.tsx": {
-    "btn-pop": 1,
     "mono-eyebrow": 3,
     "raw-palette": 15
   },
@@ -58,8 +56,7 @@
     "raw-palette": 2
   },
   "app/(dashboard)/achievements/page.tsx": {
-    "gradient": 2,
-    "layout-anim": 1,
+    "gradient": 1,
     "mono-eyebrow": 1,
     "raw-hex": 6
   },
@@ -70,20 +67,17 @@
     "gradient": 1
   },
   "app/(dashboard)/courses/[courseId]/lessons/[lessonId]/page.tsx": {
-    "btn-pop": 3,
     "gradient": 1,
     "mono-eyebrow": 3,
     "raw-palette": 10
   },
   "app/(dashboard)/courses/[courseId]/page.tsx": {
-    "btn-pop": 3,
     "gradient": 11,
     "mono-eyebrow": 1,
     "raw-hex": 2,
     "raw-palette": 1
   },
   "app/(dashboard)/dashboard/page.tsx": {
-    "btn-pop": 2,
     "mono-eyebrow": 1,
     "raw-palette": 2
   },
@@ -94,7 +88,6 @@
     "gradient": 3
   },
   "app/(dashboard)/lesson/[lessonId]/page.tsx": {
-    "btn-pop": 3,
     "mono-eyebrow": 2,
     "raw-palette": 1
   },
@@ -114,7 +107,6 @@
   },
   "app/globals.css": {
     "bezier-literal": 20,
-    "btn-pop": 8,
     "gradient": 3,
     "layout-anim": 2,
     "ms-literal": 86,
@@ -150,20 +142,11 @@
   "components/common/youtube-embed.tsx": {
     "gradient": 1
   },
-  "components/courses/course-card.tsx": {
-    "gradient": 14,
-    "layout-anim": 1,
-    "mono-eyebrow": 1,
-    "raw-palette": 1
-  },
   "components/editor/editor-styles.css": {
     "raw-hex": 14
   },
   "components/exercises/math-stepwise-exercise.tsx": {
     "raw-hex": 1
-  },
-  "components/exercises/v2-exercise-live.tsx": {
-    "btn-pop": 1
   },
   "components/exercises/v2/bubble-sheet-v2.tsx": {
     "ms-literal": 3,
@@ -202,7 +185,6 @@
     "raw-palette": 14
   },
   "components/journal/session-detail.tsx": {
-    "btn-pop": 1,
     "mono-eyebrow": 2,
     "raw-palette": 3
   },
@@ -234,22 +216,14 @@
     "mono-eyebrow": 1,
     "raw-palette": 1
   },
-  "components/live/breakout-panel.tsx": {
-    "btn-pop": 1
-  },
   "components/live/chat-panel.tsx": {
-    "btn-pop": 1,
     "mono-eyebrow": 1
   },
   "components/live/exercise-picker.tsx": {
     "mono-eyebrow": 2,
     "raw-palette": 2
   },
-  "components/live/lesson-list.tsx": {
-    "btn-pop": 3
-  },
   "components/live/lesson-review.tsx": {
-    "btn-pop": 1,
     "mono-eyebrow": 4,
     "raw-palette": 1
   },
@@ -258,19 +232,11 @@
     "mono-eyebrow": 6,
     "raw-palette": 4
   },
-  "components/live/media-stage.tsx": {
-    "btn-pop": 3
-  },
-  "components/live/moderation-menu.tsx": {
-    "btn-pop": 1
-  },
   "components/live/poll-modal.tsx": {
-    "btn-pop": 1,
     "glass": 1,
     "raw-palette": 1
   },
   "components/live/poll-panel.tsx": {
-    "btn-pop": 4,
     "gradient": 1,
     "layout-anim": 1,
     "mono-eyebrow": 2,
@@ -281,7 +247,6 @@
     "raw-palette": 2
   },
   "components/live/recording-indicator.tsx": {
-    "btn-pop": 1,
     "mono-eyebrow": 1
   },
   "components/live/review-inspector.tsx": {
@@ -291,26 +256,17 @@
     "mono-eyebrow": 1
   },
   "components/live/scene-view.tsx": {
-    "btn-pop": 4,
     "mono-eyebrow": 5,
     "raw-palette": 1
   },
   "components/live/signal-bar.tsx": {
-    "btn-pop": 5,
     "glass": 1,
     "mono-eyebrow": 1,
     "raw-palette": 3
   },
-  "components/live/start-lesson-button.tsx": {
-    "btn-pop": 1
-  },
   "components/live/student-drawer.tsx": {
-    "btn-pop": 1,
     "mono-eyebrow": 1,
     "raw-palette": 1
-  },
-  "components/onboarding/newcomer-checklist.tsx": {
-    "layout-anim": 1
   },
   "components/onboarding/teacher-onboarding.tsx": {
     "layout-anim": 1
@@ -335,24 +291,6 @@
   },
   "components/theory/theory-viewer.tsx": {
     "mono-eyebrow": 3
-  },
-  "components/ui/bottom-sheet.tsx": {
-    "glass": 1
-  },
-  "components/ui/button.tsx": {
-    "btn-pop": 9
-  },
-  "components/ui/card.tsx": {
-    "bezier-literal": 1
-  },
-  "components/ui/chip.tsx": {
-    "mono-eyebrow": 1
-  },
-  "components/ui/confirm-dialog.tsx": {
-    "glass": 1
-  },
-  "components/ui/highlight.tsx": {
-    "raw-hex": 1
   },
   "components/widgets/interactive-widgets.ts": {
     "gradient": 16,

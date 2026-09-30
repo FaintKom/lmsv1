@@ -96,7 +96,7 @@ export function ChatPanel({
           type="submit"
           disabled={!draft.trim() || sending}
           aria-label={t("live.chat.send")}
-          className="btn-pop flex h-9 w-9 shrink-0 items-center justify-center rounded-md bg-primary text-primary-fg disabled:opacity-50 pointer-coarse:h-11 pointer-coarse:w-11"
+          className="press-scale flex h-9 w-9 shrink-0 items-center justify-center rounded-md bg-primary text-primary-fg disabled:opacity-50 pointer-coarse:h-11 pointer-coarse:w-11"
         >
           <SendHorizonal size={15} aria-hidden />
         </button>

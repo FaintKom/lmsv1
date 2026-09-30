@@ -50,7 +50,7 @@ export function BottomSheet({ open, onClose, title, children, className }: Botto
  >
  {/* Backdrop */}
  <div
- className="absolute inset-0 bg-ink-900/40 backdrop-blur-sm"
+ className="absolute inset-0 bg-ink-900/40"
  onClick={onClose}
  aria-hidden="true"
  />
@@ -59,7 +59,7 @@ export function BottomSheet({ open, onClose, title, children, className }: Botto
  ref={sheetRef}
  tabIndex={-1}
  className={cn(
- "relative z-10 w-full max-h-[85vh] overflow-y-auto overscroll-contain rounded-t-2xl bg-surface pb-[env(safe-area-inset-bottom)] shadow-2xl ",
+ "relative z-10 w-full max-h-[85vh] overflow-y-auto overscroll-contain rounded-t-lg bg-surface pb-[env(safe-area-inset-bottom)] shadow-lg",
  "md:max-w-md md:rounded-lg md:pb-0",
  "animate-in slide-in-from-bottom duration-200 md:fade-in md:zoom-in-95",
  className,
