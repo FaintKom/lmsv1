@@ -315,7 +315,7 @@ function TaskPane({
       <>
         <button
           onClick={() => setShowMaterial(true)}
-          className="btn-pop btn-pop--secondary absolute left-1/2 top-4 z-30 inline-flex -translate-x-1/2 items-center gap-1.5 rounded-sm border border-border bg-surface px-3.5 py-2 text-xs font-bold text-text"
+          className="press-scale absolute left-1/2 top-4 z-30 inline-flex -translate-x-1/2 items-center gap-1.5 rounded-sm border border-border bg-surface px-3.5 py-2 text-xs font-bold text-text"
         >
           <BookOpen size={14} /> {t("live.scene.material")}
         </button>
@@ -356,7 +356,7 @@ function TaskPane({
         )}
         <button
           onClick={() => setDone(null)}
-          className="btn-pop btn-pop--secondary inline-flex items-center gap-1.5 rounded-md border border-border bg-surface px-4 py-2 text-sm font-bold text-text"
+          className="press-scale inline-flex items-center gap-1.5 rounded-md border border-border bg-surface px-4 py-2 text-sm font-bold text-text"
         >
           <RotateCcw size={14} /> {t("live.scene.task")}
         </button>

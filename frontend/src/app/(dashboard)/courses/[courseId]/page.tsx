@@ -223,7 +223,7 @@ export default function CourseDetailPage() {
                 {firstLessonId && (
                   <Link
                     href={`/courses/${params.courseId}/lessons/${firstLessonId}${lessonPreviewSuffix}`}
-                    className="btn-pop inline-flex items-center gap-2 rounded-md bg-white px-5 py-2.5 text-sm font-bold text-text"
+                    className="press-scale inline-flex items-center gap-2 rounded-md bg-white px-5 py-2.5 text-sm font-bold text-text"
                     style={{ "--pop": "rgba(0,0,0,0.15)" } as React.CSSProperties}
                   >
                     {t("course.startLearning")}
@@ -235,7 +235,7 @@ export default function CourseDetailPage() {
               <button
                 onClick={handleEnroll}
                 disabled={enrolling}
-                className="btn-pop btn-pop--sun rounded-md bg-sun-400 px-6 py-2.5 text-sm font-bold text-ink-900"
+                className="press-scale rounded-md bg-sun-400 px-6 py-2.5 text-sm font-bold text-ink-900"
               >
                 {enrolling ? t("course.enrolling") : t("course.enrollInCourse")}
               </button>

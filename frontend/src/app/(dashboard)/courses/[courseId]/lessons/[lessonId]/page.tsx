@@ -596,7 +596,7 @@ export default function LessonViewerPage() {
         <button
          onClick={handleComplete}
          disabled={completing}
-         className="btn-pop flex w-full items-center justify-center gap-2 rounded-md bg-primary px-6 py-3.5 text-sm font-bold text-primary-fg disabled:opacity-50"
+         className="press-scale flex w-full items-center justify-center gap-2 rounded-md bg-primary px-6 py-3.5 text-sm font-bold text-primary-fg disabled:opacity-50"
          style={{ boxShadow: "0 4px 0 0 var(--green-700)" }}
         >
          <CheckCircle className="h-4 w-4" />
@@ -641,7 +641,7 @@ export default function LessonViewerPage() {
      {nextLesson ? (
       <Link
        href={`/courses/${courseId}/lessons/${nextLesson.lesson.id}`}
-       className="btn-pop flex items-center gap-2.5 rounded-xl bg-primary px-3.5 py-2 text-sm font-bold text-primary-fg"
+       className="press-scale flex items-center gap-2.5 rounded-xl bg-primary px-3.5 py-2 text-sm font-bold text-primary-fg"
        style={{ boxShadow: "0 4px 0 0 var(--green-700)" }}
       >
        <div className="text-right">
@@ -655,7 +655,7 @@ export default function LessonViewerPage() {
      ) : (
       <Link
        href={`/courses/${courseId}`}
-       className="btn-pop flex items-center gap-2 rounded-xl bg-primary px-3.5 py-2 text-sm font-bold text-primary-fg"
+       className="press-scale flex items-center gap-2 rounded-xl bg-primary px-3.5 py-2 text-sm font-bold text-primary-fg"
        style={{ boxShadow: "0 4px 0 0 var(--green-700)" }}
       >
        <CheckCircle className="h-3.5 w-3.5" />

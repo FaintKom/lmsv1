@@ -34,7 +34,7 @@
 ## Phase 2: Foundational — общее для всех фаз
 
 - [x] T005 Сверить с `main` перед стартом: `git log origin/main..main` пуст, номер спеки 071 свободен на origin/main, в ветке нет чужих коммитов
-- [ ] T006 [P] Снять значения `courses.category` на проде одним read-only запросом (`SELECT category, count(*) FROM courses GROUP BY 1`) и записать их в specs/071-design-system-v2/data-model.md
+- [x] T006 [P] Снять значения `courses.category` на проде одним read-only запросом (`SELECT category, count(*) FROM courses GROUP BY 1`) и записать их в specs/071-design-system-v2/data-model.md
 
 **Checkpoint**: база известна, можно начинать PR 1.
 
@@ -73,29 +73,29 @@
 
 ### Tests
 
-- [ ] T014 [P] [US3] Юнит-тест frontend/src/lib/subject.test.ts по таблице из data-model.md плюс «неизвестная категория даёт other»; сначала красный
-- [ ] T015 [P] [US3] Тест контраста frontend/src/lib/design/contrast.test.ts: все пары «текст / фон» семантических токенов в обеих темах читаются из globals.css — `--color-text*` на `--color-bg`/`--surface*`, `*-fg` на `*-soft` (чипы), `--color-primary-fg` на `--color-primary`, `--subject-ink` на `--subject-*`; текст не ниже 4.5:1, рамки и крупный текст не ниже 3:1; фон страницы `#fbfcf7`, не белый
-- [ ] T016 [US3] Флаг `--shots` в frontend/e2e/mobile-audit.mjs: снимок каждого маршрута на 390 и 1440 в `test-results/shots/<route>-<width>.png`; снять набор «до» с main
+- [x] T014 [P] [US3] Юнит-тест frontend/src/lib/subject.test.ts по таблице из data-model.md плюс «неизвестная категория даёт other»; сначала красный
+- [x] T015 [P] [US3] Тест контраста frontend/src/lib/design/contrast.test.ts: все пары «текст / фон» семантических токенов в обеих темах читаются из globals.css — `--color-text*` на `--color-bg`/`--surface*`, `*-fg` на `*-soft` (чипы), `--color-primary-fg` на `--color-primary`, `--subject-ink` на `--subject-*`; текст не ниже 4.5:1, рамки и крупный текст не ниже 3:1; фон страницы `#fbfcf7`, не белый
+- [x] T016 [US3] Флаг `--shots` в frontend/e2e/mobile-audit.mjs: снимок каждого маршрута на 390 и 1440 в `test-results/shots/<route>-<width>.png`; снять набор «до» с main
 
 ### Implementation
 
-- [ ] T017 [P] [US3] Скачать Geologica (500, 600, 700) и Onest (400–700) woff2, подмножества cyrillic, latin, latin-ext, в frontend/public/fonts/; проверить лицензию OFL
-- [ ] T018 [US3] В frontend/src/app/globals.css: `@font-face` для обоих шрифтов, `--font-sans: Onest`, новый `--font-display: Geologica`, `h1–h3` на `--font-display`; `@font-face` и файлы Manrope удалить
-- [ ] T019 [US3] В frontend/src/app/globals.css в `:root` и `.dark`: радиусы по contracts/tokens.md, токены `--subject-*` и `--subject-ink`, проброс в `@theme inline` (`bg-subject-lang` и остальные)
-- [ ] T020 [US3] Перенести те же значения в frontend/design/tokens.json (версия 3.0.0, заметка в `meta.notes`) и пересобрать frontend/design/tokens.css
-- [ ] T021 [US3] Удалить `.btn-pop*` и `--shadow-pop*` из frontend/src/app/globals.css; все 49 мест с `btn-pop` и `text-[10px]/[11px]` перевести на `Button` и `text-3xs/2xs`
-- [ ] T022 [P] [US3] frontend/src/lib/subject.ts: `subjectOf(category)` по data-model.md
-- [ ] T023 [US3] Переделать frontend/src/components/ui/button.tsx: круглая форма, нажатие `scale(.96)` (M3), без смещённой тени
-- [ ] T024 [P] [US3] Переделать frontend/src/components/ui/card.tsx: без рамки в светлой теме, радиус 14, вариант `subject` с цветной поверхностью
-- [ ] T025 [P] [US3] Переделать frontend/src/components/ui/chip.tsx, input.tsx, tooltip.tsx, skeleton.tsx под новые радиусы и шрифт
-- [ ] T026 [P] [US3] frontend/src/components/ui/xp-pill.tsx и streak-pill.tsx: форма пилюли из прототипа, цвета reward-soft и danger-soft; поведение не меняется (игровые элементы остаются по решению владельца)
-- [ ] T027 [US3] Полоса прогресса: найти компонент (`grep -rn 'role="progressbar"' frontend/src`), перевести с `width` на `scaleX` (M2)
-- [ ] T028 [US3] Убрать маркер с жёлтой подложкой из заголовков: frontend/src/components/ui/highlight.tsx и его вызовы
-- [ ] T029 [US3] Обновить frontend/design/DESIGN_SPEC.md: шрифты, радиусы, кнопка, карточка, цвет предмета, список запретов (восемь примет из spec.md)
-- [ ] T030 [US3] Обновить frontend/design/MOTION.md: приёмы M2–M10 из contracts/motion.md, правило про View Transitions (research R6), убрать исключение про `width` у прогресса
-- [ ] T031 [US3] Обновить frontend/design/design-baseline.json: счётчики только уменьшились
-- [ ] T031a [US3] Остальные базовые компоненты из FR-008 под новые радиусы, шрифт и тени: frontend/src/components/ui/confirm-dialog.tsx, bottom-sheet.tsx, error-boundary.tsx, access-denied.tsx, toaster.tsx; найти общие таблицу и пустое состояние (`grep -rln "EmptyState\|<table" frontend/src/components`) и привести их к одному экземпляру
-- [ ] T031b [US3] Каркас frontend/e2e/motion.spec.ts (хелпер «дважды: обычный режим и `reducedMotion: 'reduce'`») и тесты M2 (полоса прогресса) и M3 (нажатие кнопки), сначала красные: эти приёмы появляются в этом PR
+- [x] T017 [P] [US3] Скачать Geologica (500, 600, 700) и Onest (400–700) woff2, подмножества cyrillic, latin, latin-ext, в frontend/public/fonts/; проверить лицензию OFL
+- [x] T018 [US3] В frontend/src/app/globals.css: `@font-face` для обоих шрифтов, `--font-sans: Onest`, новый `--font-display: Geologica`, `h1–h3` на `--font-display`; `@font-face` и файлы Manrope удалить
+- [x] T019 [US3] В frontend/src/app/globals.css в `:root` и `.dark`: радиусы по contracts/tokens.md, токены `--subject-*` и `--subject-ink`, проброс в `@theme inline` (`bg-subject-lang` и остальные)
+- [x] T020 [US3] Перенести те же значения в frontend/design/tokens.json (версия 3.0.0, заметка в `meta.notes`) и пересобрать frontend/design/tokens.css
+- [x] T021 [US3] Удалить `.btn-pop*` и `--shadow-pop*` из frontend/src/app/globals.css; все 49 мест с `btn-pop` и `text-[10px]/[11px]` перевести на `Button` и `text-3xs/2xs`
+- [x] T022 [P] [US3] frontend/src/lib/subject.ts: `subjectOf(category)` по data-model.md
+- [x] T023 [US3] Переделать frontend/src/components/ui/button.tsx: круглая форма, нажатие `scale(.96)` (M3), без смещённой тени
+- [x] T024 [P] [US3] Переделать frontend/src/components/ui/card.tsx: без рамки в светлой теме, радиус 14, вариант `subject` с цветной поверхностью
+- [x] T025 [P] [US3] Переделать frontend/src/components/ui/chip.tsx, input.tsx, tooltip.tsx, skeleton.tsx под новые радиусы и шрифт
+- [x] T026 [P] [US3] frontend/src/components/ui/xp-pill.tsx и streak-pill.tsx: форма пилюли из прототипа, цвета reward-soft и danger-soft; поведение не меняется (игровые элементы остаются по решению владельца)
+- [x] T027 [US3] Полоса прогресса: найти компонент (`grep -rn 'role="progressbar"' frontend/src`), перевести с `width` на `scaleX` (M2)
+- [x] T028 [US3] Убрать маркер с жёлтой подложкой из заголовков: frontend/src/components/ui/highlight.tsx и его вызовы
+- [x] T029 [US3] Обновить frontend/design/DESIGN_SPEC.md: шрифты, радиусы, кнопка, карточка, цвет предмета, список запретов (восемь примет из spec.md)
+- [x] T030 [US3] Обновить frontend/design/MOTION.md: приёмы M2–M10 из contracts/motion.md, правило про View Transitions (research R6), убрать исключение про `width` у прогресса
+- [x] T031 [US3] Обновить frontend/design/design-baseline.json: счётчики только уменьшились
+- [x] T031a [US3] Остальные базовые компоненты из FR-008 под новые радиусы, шрифт и тени: frontend/src/components/ui/confirm-dialog.tsx, bottom-sheet.tsx, error-boundary.tsx, access-denied.tsx, toaster.tsx; найти общие таблицу и пустое состояние (`grep -rln "EmptyState\|<table" frontend/src/components`) и привести их к одному экземпляру
+- [x] T031b [US3] Каркас frontend/e2e/motion.spec.ts (хелпер «дважды: обычный режим и `reducedMotion: 'reduce'`») и тесты M2 (полоса прогресса) и M3 (нажатие кнопки), сначала красные: эти приёмы появляются в этом PR
 - [ ] T032 [US3] Снять набор «после» (`node e2e/mobile-audit.mjs --shots`), приложить пары к PR, проверить на снимках 390px (FR-005 для прототипа проверить не удалось); прогнать frontend/e2e/dark-theme.spec.ts и frontend/e2e/mobile.spec.ts
 
 **Checkpoint**: PR 2 зелёный, снимки приложены. Мёрж, деплой, проверка прода глазами.

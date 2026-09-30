@@ -1,5 +1,6 @@
 "use client";
 
+import { ProgressBar } from "@/components/ui/progress-bar";
 import { useSearchParams } from "next/navigation";
 import { useEffect, useMemo, useState } from "react";
 import apiClient from "@/lib/api-client";
@@ -335,15 +336,12 @@ function AchievementsTab({
  <span>Progress to {league.next_league}</span>
  <span>{streak?.total_xp || 0} / {league.next_xp} XP</span>
  </div>
- <div className="h-3 w-full overflow-hidden rounded-pill bg-surface-2 " role="progressbar" aria-valuenow={Math.min(league.progress, 100)} aria-valuemin={0} aria-valuemax={100}>
- <div
- className="h-full rounded-pill transition-[width] duration-500"
- style={{
- width: `${Math.min(league.progress, 100)}%`,
- background: `linear-gradient(90deg, ${LEAGUE_TINT[leagueKindFromName(league.name)]}, color-mix(in srgb, ${LEAGUE_TINT[leagueKindFromName(league.name)]} 80%, transparent))`,
- }}
+ <ProgressBar
+ value={league.progress}
+ size="lg"
+ fillClassName=""
+ fillStyle={{ background: LEAGUE_TINT[leagueKindFromName(league.name)] }}
  />
- </div>
  </div>
  )}
  </div>
@@ -647,9 +645,7 @@ function SkillsTab({ skills, radarData }: { skills: UserSkill[]; radarData: Rada
  <span>{s.total_xp} XP</span>
  <span>Next: {(Math.floor(s.total_xp / 50) + 1) * 50} XP</span>
  </div>
- <div className="h-1.5 overflow-hidden rounded-pill bg-surface-2 " role="progressbar" aria-valuenow={progressToNext} aria-valuemin={0} aria-valuemax={100}>
- <div className="h-full rounded-pill bg-primary" style={{ width: `${progressToNext}%` }} />
- </div>
+ <ProgressBar value={progressToNext} size="sm" />
  </div>
  </CardContent>
  </Card>

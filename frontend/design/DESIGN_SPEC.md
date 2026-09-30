@@ -1,30 +1,49 @@
-# DESIGN_SPEC — GrassLMS Lively v2
+# DESIGN_SPEC — GrassLMS v3 «Colour fields»
 
 Component-by-component contract. Every value references a token from `tokens.css`.
-The live rendering of everything below is `GrassLMS Design System v2.dc.html`.
+v3 (specs/071, 2026-09-30) keeps the v2 palette and changes everything else:
+Onest for text, Geologica for headings, radii capped at 14px, flat buttons,
+and a course's subject as a field of colour. The v3 reference is the
+direction-C prototype in `specs/071-design-system-v2/prototype/b-and-c.html`.
 
 Rules that apply everywhere:
 
 - Colour never carries meaning alone — always paired with text or an icon.
 - Hierarchy is size + weight, never colour. Headings are never tinted.
 - One accent per card. Sun and clay never appear in the same card.
-- Soft shadows and pop shadows never combine on one element.
+- Shadows only on layers that float: menus, dialogs, toasts. Cards sit flat.
 - Focus is always visible: `2px solid var(--color-border-focus)`, offset 2.
 - Minimum touch target 44×44 including invisible padding.
 - Emoji: never in product UI.
+
+Never, anywhere (the spec's list of generated looks, checked by the ratchet
+in `src/lib/design/design-system.test.ts`):
+
+1. Purple-to-blue gradients, or any gradient as a fill.
+2. Emoji instead of icons.
+3. Glass: translucent fill with backdrop blur, glow on the edge.
+4. A grid of identical "icon in a circle + title + two lines" cards as the
+   main device of a page.
+5. Large radius and a shadow on everything.
+6. Blurred colour blobs and glows in the background.
+7. Mono uppercase labels over every block; highlighter marks on headline words.
+8. "Unlock your potential" copy; numbers and testimonials that did not happen.
 
 ---
 
 ## 1 · Buttons
 
-| Variant | Background | Text | Shadow | Use |
+All buttons are pills (`--radius-pill`), flat, no shadow.
+
+| Variant | Background | Text | Border | Use |
 |---|---|---|---|---|
-| primary | `--color-primary` | `--color-primary-fg` | `--shadow-pop` | main action, one per view |
-| secondary | `--color-surface` | `--color-text` | none, `1px --color-border-strong` | alternative action |
-| ghost | transparent | `--color-primary` | none | tertiary, inline |
-| reward | `--color-reward` | `--ink-900` | `--shadow-pop-sun` | claim XP, hero CTA on green only |
-| danger | `--color-danger` | `--ink-900` | `--shadow-pop-clay` | destructive, always with confirm |
-| admin | `--ink-700` | `#fff` | `--shadow-pop-ink` | admin bulk actions |
+| primary | `--color-primary` | `--color-primary-fg` | none | main action, one per view |
+| secondary | `--color-surface` | `--color-text` | `1px --color-border` | alternative action |
+| outline | `--color-surface` | `--color-text` | `1px --color-border-strong` | alternative action on a filled area |
+| ghost | transparent | `--color-text` | none | tertiary, inline |
+| sun | `--color-reward` | `--ink-900` | none | claim XP, hero CTA on green only |
+| destructive | `--color-danger` | `--ink-900` | none | destructive, always with confirm |
+| dark | `--ink-900` | `#fff` | none | admin bulk actions |
 
 **Never hardcode `text-white` on a brand surface.** Use the row's token. The
 foreground is theme-dependent and white fails §14 on both brand colours
@@ -34,22 +53,19 @@ tokens pass: `--color-primary-fg` gives 4.56 / 9.31, `--ink-900` on danger
 gives 4.93 / 7.22. Same reasoning as the long-standing ink-on-sun rule — a
 bright surface takes dark text, whatever the hue.
 
-Sizes: sm 36px / `--t-sm` / padding 8×14 / radius `--radius-sm`;
-md 44px / `--t-base` / 12×20 / `--radius-md`; lg 52px / `--t-md` / 15×26 / `--radius-md`.
-Weight 700. Icon 18px, gap 8, before the label.
+Sizes: sm 36px / `--t-xs` / padding 0×16; md 44px / `--t-sm` / 0×20;
+lg 48px / `--t-base` / 0×24. Weight 600. Icon 18px, gap 8, before the label.
 
-States (120ms, `--motion-ease`):
+States (120ms, `--motion-ease`, `.press-scale`):
 
 ```
-default  resting, full 4px pop shadow
-hover    translateY(2px), shadow → 0 2px 0 0 green-800
-active   translateY(4px), shadow → none
-focus    outline 2px green-500, offset 2 (pop shadow stays)
+default  resting, flat
+hover    background one step darker (primary → primary-hover, others → surface-2)
+active   scale(0.96); none under reduced motion (MOTION.md M3)
+focus    outline 2px border-focus, offset 2
 loading  13px spinner, label → present-tense verb ("Отправка…"), width frozen, disabled
-disabled bg ink-200, text ink-50, no shadow, cursor not-allowed
+disabled opacity 0.5, cursor not-allowed
 ```
-
-Secondary/ghost do not use pop shadows: hover = `--color-surface-2`, active = `--ink-100`.
 
 ## 2 · Inputs
 
@@ -91,24 +107,33 @@ Kbd chip: mono 11, `--ink-50`, 1px border, radius `--radius-xs`.
 
 | Variant | Spec |
 |---|---|
-| default | `--color-surface`, 1px `--color-border`, `--shadow-sm`, `--radius-lg`, padding 24 |
-| elevated | no border, `--shadow-md` — featured / hovered |
-| flat | `--color-surface-2`, no border, no shadow — nested panel |
-| interactive | default + hover: translateY(−2px), `--shadow-md`, border `--green-300`, 120ms |
+| default | `--color-surface`, no border, no shadow, `--radius-lg` (14), padding 20–24 |
+| elevated | `--shadow-md` — only for something that floats |
+| flat | `--color-surface-2` — nested panel |
+| subject | the course's field (`--subject-lang/math/code/other`), text `--subject-ink` |
+| interactive | default + hover: translateY(−2px), pointer devices only, 120ms (MOTION.md M5) |
 
-**Course card.** Cover 88–120px with a subject radial gradient (code `green-600→900`,
-math `green-400→800`, language `clay-500→700`, SAT `sun-500→700`); oversized mono subject
-glyph top-right at `rgba(255,255,255,0.25)`; protection gradient
-`linear-gradient(180deg, transparent 30%, rgba(0,0,0,0.4))` — the only place it is allowed.
-Body: title 15/700, mono meta `6/12 · 50%`, 4px progress bar.
+**Subject fields.** A course's subject comes from `courses.category` through
+`subjectOf()` in `src/lib/subject.ts`: languages → `--subject-lang` (green-100),
+maths → `--subject-math` (sun-100), programming → `--subject-code` (lagoon-50),
+anything else → `--subject-other` (ink-100). Dark theme has its own fields.
+Text on a field is always `--subject-ink`, never white.
 
-**KPI card.** Text only — no icon tiles. Mono eyebrow 10 caps, value 22–28/800 tabular.
-Never repeat a value already shown in the hero.
+**Course card.** Without a thumbnail the cover is the subject field, 144px, the
+category small at the top and the title in the display face at the bottom. No
+gradient, no watermark glyph. With a thumbnail: the image, no overlay. Body:
+description two lines, `ProgressBar` sm and the percentage.
+
+**Summary numbers.** One strip of label + value, not a row of identical tiles.
+Label 12–13 sans sentence case, value 22–28/600 tabular. Never repeat a value
+already shown in the hero.
 
 ## 5 · Progress
 
-Linear: height 4 (card) / 6 (page), radius pill, track `--ink-100`, fill `--color-primary`,
-`width` 400ms `--motion-ease`. At risk → fill `--color-danger`.
+Linear: `components/ui/progress-bar.tsx`, the only one. Height 6 / 10 / 12
+(sm / md / lg), radius pill, track `--color-surface-2`, fill `--color-primary`.
+The fill scales from the left and grows from zero on first paint (MOTION.md M2);
+it never animates `width`. At risk → `fillClassName="bg-danger"`.
 Segmented (lesson steps): equal 6px segments, gap 4, done `--color-primary`, current
 2px `--color-primary` ring, locked `--ink-100`.
 Ring (XP, SAT score): stroke 6, track `--ink-100`, value `--color-primary`, number in the middle,

@@ -3,101 +3,56 @@
 import { useState } from "react";
 import Link from "next/link";
 import type { Course } from "@/types/api";
-
-/* v2 subject gradients (DESIGN_SPEC §4): code green-600→900,
-   math green-400→800, language clay-500→700, SAT sun-500→700. */
-const SUBJECT_THEMES: Record<string, { gradient: string; glyph: string }> = {
- programming: { gradient: "radial-gradient(circle at 75% 25%, var(--green-600), var(--green-900))", glyph: "</>" },
- math: { gradient: "radial-gradient(circle at 75% 25%, var(--green-400), var(--green-800))", glyph: "Σ" },
- algebra: { gradient: "radial-gradient(circle at 75% 25%, var(--green-400), var(--green-800))", glyph: "x²" },
- geometry: { gradient: "radial-gradient(circle at 75% 25%, var(--green-400), var(--green-800))", glyph: "△" },
- languages: { gradient: "radial-gradient(circle at 75% 25%, var(--clay-500), var(--clay-700))", glyph: "Ñ" },
- spanish: { gradient: "radial-gradient(circle at 75% 25%, var(--clay-500), var(--clay-700))", glyph: "Ñ" },
- sat: { gradient: "radial-gradient(circle at 75% 25%, var(--sun-500), var(--sun-700))", glyph: "★" },
- science: { gradient: "radial-gradient(circle at 75% 25%, var(--green-600), var(--green-900))", glyph: "Sc" },
- python: { gradient: "radial-gradient(circle at 75% 25%, var(--green-600), var(--green-900))", glyph: "Py" },
- javascript: { gradient: "radial-gradient(circle at 75% 25%, var(--sun-500), var(--sun-700))", glyph: "JS" },
-};
-
-const DEFAULT_THEME = { gradient: "radial-gradient(circle at 75% 25%, var(--green-400), var(--green-800))", glyph: "≡" };
+import { ProgressBar } from "@/components/ui/progress-bar";
+import { SUBJECT_SURFACE, subjectOf } from "@/lib/subject";
 
 interface CourseCardProps {
  course: Course;
  progress?: number;
 }
 
+/**
+ * A course in the catalog. Without a thumbnail the cover is the subject's
+ * field colour with the title set on it (specs/071, direction C); the old
+ * cover was the same green gradient with a watermark glyph on every course.
+ * Hover lifts the card 2px (MOTION.md M5); Tailwind's `hover:` only fires on
+ * devices that can hover, so a tap never leaves it raised.
+ */
 export function CourseCard({ course, progress }: CourseCardProps) {
- const theme = SUBJECT_THEMES[course.category || ""] || DEFAULT_THEME;
- // Broken thumbnail URL falls back to the themed cover (specs/016 US1 edge case)
+ // Broken thumbnail URL falls back to the field cover (specs/016 US1 edge case)
  const [imageFailed, setImageFailed] = useState(false);
+ const subject = subjectOf(course.category);
 
  return (
- <Link href={`/courses/${course.id}`} className="group">
- <div className="overflow-hidden rounded-lg border border-border bg-surface shadow-sm transition duration-200 hover:-translate-y-0.5 hover:border-green-300 hover:shadow-md">
- {/* Cover */}
+ <Link href={`/courses/${course.id}`} className="group" data-subject={subject}>
+ <div className="overflow-hidden rounded-lg bg-surface transition-transform duration-[var(--motion-fast)] ease-[var(--motion-ease)] group-hover:-translate-y-0.5 motion-reduce:transform-none">
  {course.thumbnail_url && !imageFailed ? (
- <div className="relative h-36 overflow-hidden">
+ <div className="h-36 overflow-hidden">
  <img
  src={course.thumbnail_url}
  alt={course.title}
  onError={() => setImageFailed(true)}
- className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105"
+ className="h-full w-full object-cover"
  />
- <div className="absolute inset-0 bg-gradient-to-b from-transparent via-transparent to-black/40" />
  </div>
  ) : (
- <div
- className="relative flex h-36 items-end overflow-hidden p-4"
- style={{ background: theme.gradient }}
- >
- <span
- data-theme-exempt
- className="absolute right-4 top-3 font-mono text-2xl font-extrabold text-white/25"
- >
- {theme.glyph}
- </span>
- <div className="absolute inset-0 bg-gradient-to-b from-transparent via-transparent to-black/40" />
- {course.category && (
- <span className="relative font-mono text-3xs font-medium uppercase tracking-widest text-white/85">
- {course.category}
- </span>
- )}
+ <div className={`flex h-36 flex-col justify-between p-4 text-subject-ink ${SUBJECT_SURFACE[subject]}`}>
+ <span className="text-xs font-medium opacity-80">{course.category}</span>
+ <h3 className="text-lg font-semibold leading-tight line-clamp-2">{course.title}</h3>
  </div>
  )}
 
- {/* Body */}
- <div className="p-5">
- <h3 className="mb-1 text-sm font-extrabold leading-snug text-text">
- {course.title}
- </h3>
+ <div className="grid gap-3 p-5">
+ {course.thumbnail_url && !imageFailed && (
+ <h3 className="text-md font-semibold leading-snug text-text">{course.title}</h3>
+ )}
  {course.description && (
- <p className="mb-3 line-clamp-2 text-xs leading-relaxed text-text-muted">
- {course.description}
- </p>
+ <p className="line-clamp-2 text-sm leading-relaxed text-text-muted">{course.description}</p>
  )}
  {progress !== undefined && (
- <div>
- <div className="mb-1.5 flex justify-between">
- <span className="font-mono text-2xs font-bold text-primary">
- {Math.round(progress)}%
- </span>
- </div>
- <div
- className="h-[10px] overflow-hidden rounded-pill bg-surface-2"
- role="progressbar"
- aria-valuenow={Math.round(progress)}
- aria-valuemin={0}
- aria-valuemax={100}
- aria-label={`Course progress: ${Math.round(progress)}%`}
- >
- <div
- className="h-full rounded-pill transition-[width] duration-500"
- style={{
- width: `${progress}%`,
- background: "linear-gradient(90deg, var(--green-400), var(--green-600))",
- }}
- />
- </div>
+ <div className="flex items-center gap-3">
+ <ProgressBar value={progress} size="sm" />
+ <span className="text-xs font-medium tabular-nums text-text-muted">{Math.round(progress)}%</span>
  </div>
  )}
  </div>

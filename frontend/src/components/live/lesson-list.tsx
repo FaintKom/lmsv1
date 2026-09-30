@@ -140,7 +140,7 @@ export function LessonList() {
       <button
         onClick={() => setWatching(r)}
         disabled={!r.download_url}
-        className="btn-pop inline-flex shrink-0 items-center gap-1.5 rounded-sm bg-primary px-3 py-1.5 text-xs font-bold text-primary-fg disabled:opacity-40"
+        className="press-scale inline-flex shrink-0 items-center gap-1.5 rounded-sm bg-primary px-3 py-1.5 text-xs font-bold text-primary-fg disabled:opacity-40"
       >
         <Play size={13} aria-hidden />
         {t("recordings.watch")}
@@ -153,7 +153,7 @@ export function LessonList() {
           }}
           disabled={destroy.isPending}
           aria-label={t("recordings.delete")}
-          className="btn-pop flex h-8 w-8 shrink-0 items-center justify-center rounded-sm border border-border bg-surface text-clay-700 hover:bg-danger-soft disabled:opacity-40 pointer-coarse:h-11 pointer-coarse:w-11"
+          className="press-scale flex h-8 w-8 shrink-0 items-center justify-center rounded-sm border border-border bg-surface text-clay-700 hover:bg-danger-soft disabled:opacity-40 pointer-coarse:h-11 pointer-coarse:w-11"
         >
           <Trash2 size={14} aria-hidden />
         </button>
@@ -196,7 +196,7 @@ export function LessonList() {
                 </div>
                 <Link
                   href={isStaff ? `/admin/live/${lesson.id}` : `/lesson/${lesson.id}`}
-                  className="btn-pop shrink-0 rounded-sm border border-border bg-surface px-3 py-1.5 text-xs font-bold text-text hover:bg-surface-2"
+                  className="press-scale shrink-0 rounded-sm border border-border bg-surface px-3 py-1.5 text-xs font-bold text-text hover:bg-surface-2"
                 >
                   {t("live.list.open")}
                 </Link>

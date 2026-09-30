@@ -630,6 +630,7 @@ const en: TranslationMap = {
 
  // Common
  "common.loading": "Loading...",
+ "common.progress": "Progress",
  "common.save": "Save",
  "common.cancel": "Cancel",
  "common.delete": "Delete",

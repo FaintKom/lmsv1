@@ -14,7 +14,7 @@ export function WalletPill({ wallet }: WalletPillProps) {
     <div className="flex items-center gap-3 rounded-md border border-reward/40 bg-reward-soft px-3 py-2.5">
       {/* The chip stays solid --color-reward in both themes, so its glyph is
           ink-900 in both — never white on yellow. */}
-      <div className="grid h-9 w-9 place-items-center rounded-sm bg-reward shadow-pop-sun">
+      <div className="grid h-9 w-9 place-items-center rounded-sm bg-reward">
         <Zap className="h-[18px] w-[18px] fill-current text-ink-900" />
       </div>
       <div className="flex-1">

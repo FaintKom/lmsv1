@@ -62,9 +62,9 @@ on marketing/explanatory surfaces.
 - Popovers/dropdowns/tooltips scale **from their trigger**
   (`transform-origin` at the trigger side). Modals are exempt — centered is
   correct.
-- Press feedback: buttons with pop shadows use the `.btn-pop` translateY state
-  machine (the signature). Flat pressables use `active:scale-[0.96]` —
-  exactly 0.96, never below 0.95.
+- Press feedback: every pressable uses `.press-scale` — `scale(0.96)`,
+  exactly, never below 0.95. The `.btn-pop` shadow-and-drop was removed in v3
+  (specs/071).
 - Icon state swaps cross-fade (`opacity` + `scale(0.25→1)` + `blur(4px→0)`),
   both icons in the DOM — never unmount/remount.
 
@@ -89,15 +89,18 @@ on marketing/explanatory surfaces.
 - `will-change` only for transform/opacity/filter, only after observing
   first-frame stutter.
 - Transition-time `filter: blur()` stays under 20px.
-- Exception already in the system: progress bars animate `width`
-  (400ms, DESIGN_SPEC §5) — accepted tradeoff, don't copy the pattern
-  elsewhere.
+- Progress bars no longer animate `width`: `.progress-fill` scales from the
+  left (M2). There is no layout-property exception left in the system.
 
 ## 6 · Accessibility
 
 - `prefers-reduced-motion` collapses movement globally (globals.css). When
   adding bespoke motion, keep opacity/color feedback under reduced motion —
   fewer and gentler, not zero.
+- A collapsed duration is not the same as no movement: a transform with a
+  0.01ms transition still jumps. Anything that moves or scales needs an
+  explicit reset under reduced motion (`.press-scale` has one in globals.css,
+  Tailwind callsites use `motion-reduce:transform-none`).
 - Hover motion is gated: `@media (hover: hover) and (pointer: fine)` — touch
   fires false hovers on tap.
 - Focus rings are never animated away.
@@ -112,22 +115,56 @@ high-frequency lists (roster updates, chat).
 Exits are softer than enters: small fixed `translateY` + fade, `--motion-ease-out`,
 shorter than the enter.
 
+## 8 · Patterns (v3, specs/071)
+
+Each pattern has a test in `e2e/motion.spec.ts` that runs twice: once with
+motion, where it must move, and once under `reducedMotion: 'reduce'`, where it
+must not move or scale. Details and the test for each: 
+`specs/071-design-system-v2/contracts/motion.md`.
+
+| Id | Where | What | Time, curve |
+|---|---|---|---|
+| M2 | `ProgressBar` | `.progress-fill` grows by `scaleX` from 0 on first paint (`@starting-style`) | slow, ease-out-strong |
+| M3 | every pressable | `.press-scale`: `scale(0.96)` on `:active` | fast, ease |
+| M4a | exercise option, correct | tick cross-fades in: opacity, scale .25→1, blur 4→0 | base, ease-out-strong |
+| M4b | exercise option, wrong | one shake of ±4px; the hint text carries the meaning | 300ms keyframes |
+| M4c | XP for a correct answer | "+10 XP" rises and fades | 700ms, ease-out-strong |
+| M5 | course card, tile | lifts 2px on hover, pointer devices only | fast, ease |
+| M6 | block menu in the builder | scales .96→1 from its button | base, ease-out-strong |
+| M7 | new block in the builder | rises 8px, green wash fades | base, ease-out |
+| M8 | toast | in from below on the drawer curve, out faster | base / fast |
+| M9 | student home | sections in with a 60ms step, max 5, first visit only | base |
+| M10 | catalog filter | View Transition reflows the grid | base, ease-out |
+
+### View Transitions: reflows only
+
+`document.startViewTransition` blocks input while it captures the old frame:
+a second click inside the 200ms is lost, and `::view-transition
+{ pointer-events: none }` does not bring it back. In a hidden tab the update
+callback waits for a frame that never comes, so nothing changes at all. Both
+were found on the specs/071 prototype.
+
+So: a View Transition only where the movement carries meaning and the action
+is occasional (M10). Never on navigation, theme switching, or anything done
+tens of times a day. Guard every call with `!document.hidden`, and
+`skipTransition()` one that is already running. The ratchet rule `vt-nav`
+fails any call outside its allow-list.
+
 ## Utilities (globals.css)
 
 | Class | What it does |
 |---|---|
-| `.btn-pop` (+ `--sun/--clay/--ink/--secondary`) | signature press physics: translateY 2/4px + shadow collapse, 120ms |
-| `.press-scale` | flat-control press feedback, `scale(0.96)` @ 120ms; also carries the colour transitions, see the layering note below |
+| `.press-scale` | press feedback, `scale(0.96)` @ 120ms, none under reduced motion; also carries the colour transitions, see the layering note below |
+| `.progress-fill` | M2: `scaleX(var(--p))` from the left, grows from 0 on first paint; used by `components/ui/progress-bar.tsx` |
 | `.enter-fade-rise` | one-shot enter: opacity 0→1 + translateY(8px)→0, 200ms ease-out |
 | `.stagger-children > *` | staggered `.enter-fade-rise` for up to 6 children, 60ms step |
 | `.skeleton` / `.lms-skeleton` | 1.5s linear shimmer; show after 200ms, never a full-page spinner |
 
 ### Two traps in these utilities
 
-**They do not stack on `transform`.** `.btn-pop:active` sets
-`translateY(4px)`, `.press-scale:active` sets `scale(0.96)`. Same property,
-same element — one silently wins. A control gets `.btn-pop` **or**
-`.press-scale`, never both.
+**They do not stack on `transform`.** `.press-scale:active` sets
+`scale(0.96)`; a hover lift on the same element sets `translateY`. Same
+property, same element — one silently wins. Put the lift on a wrapper.
 
 **`globals.css` declares no `@layer`,** so everything in it is unlayered and
 beats Tailwind's layered utilities regardless of source order. A utility that
@@ -141,7 +178,9 @@ as well as transform.
 - [ ] No animation on keyboard-initiated or 100+/day actions
 - [ ] No `ease-in` on entrances; no bare `ease`/`linear` on entrances
 - [ ] No `transition: all`; transforms/opacity only
-- [ ] No `scale(0)`; origins from trigger; press = btn-pop or 0.96
+- [ ] No `scale(0)`; origins from trigger; press = `.press-scale` (0.96)
+- [ ] No View Transition outside the reflow allow-list
+- [ ] New pattern listed in §8 with a test in `e2e/motion.spec.ts`, both modes
 - [ ] Rapid UI on transitions, not keyframes
 - [ ] Durations within budget; tokens, not literals
 - [ ] Reduced-motion and hover-gating respected

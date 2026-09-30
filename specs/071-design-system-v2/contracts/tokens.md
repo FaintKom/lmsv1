@@ -19,8 +19,9 @@
 
 ## Новое
 
-`--subject-lang`, `--subject-math`, `--subject-code`, `--subject-web`,
-`--subject-other`, `--subject-ink`, в светлой и тёмной теме.
+`--subject-lang`, `--subject-math`, `--subject-code`, `--subject-other`,
+`--subject-ink`, в светлой и тёмной теме. Предмета `web` нет: такой категории
+на проде нет (data-model.md).
 
 ## Правила храповика: цвет, форма, текст
 

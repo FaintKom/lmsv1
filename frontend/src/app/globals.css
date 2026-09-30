@@ -5,7 +5,7 @@
  this file (or run the design-export sync). Light + dark.
  App-specific deltas vs the export (keep on every sync): org-branding
  --primary fallback on the primary aliases, next/font variables in the
- font stacks, --font-math, the --pop variant pattern on .btn-pop.
+ font stacks, --font-math.
  ================================================================= */
 @import "tailwindcss";
 
@@ -24,36 +24,56 @@
    CDN link. Files are the variable woff2 Google serves, OFL-licensed,
    with Google's own unicode-range split kept so Cyrillic downloads only
    when a Cyrillic glyph is used. Subsets match what the old next/font
-   config asked for: Manrope latin + latin-ext + cyrillic, Geist Mono
-   latin.
+   config asked for. Since specs/071: Onest (text) and Geologica (headings),
+   latin + latin-ext + cyrillic each; Geist Mono latin for code only.
    ================================================================= */
 @font-face {
-  font-family: "Manrope";
+  font-family: "Geologica";
   font-style: normal;
-  font-weight: 200 800;
+  font-weight: 100 900;
   font-display: swap;
-  src: url("/fonts/manrope-cyrillic.woff2") format("woff2");
+  src: url("/fonts/geologica-cyrillic.woff2") format("woff2");
   unicode-range: U+0301, U+0400-045F, U+0490-0491, U+04B0-04B1, U+2116;
 }
 @font-face {
-  font-family: "Manrope";
+  font-family: "Geologica";
   font-style: normal;
-  font-weight: 200 800;
+  font-weight: 100 900;
   font-display: swap;
-  src: url("/fonts/manrope-latin-ext.woff2") format("woff2");
-  unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF,
-    U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020,
-    U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F, U+A720-A7FF;
+  src: url("/fonts/geologica-latin-ext.woff2") format("woff2");
+  unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F, U+A720-A7FF;
 }
 @font-face {
-  font-family: "Manrope";
+  font-family: "Geologica";
   font-style: normal;
-  font-weight: 200 800;
+  font-weight: 100 900;
   font-display: swap;
-  src: url("/fonts/manrope-latin.woff2") format("woff2");
-  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA,
-    U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193,
-    U+2212, U+2215, U+FEFF, U+FFFD;
+  src: url("/fonts/geologica-latin.woff2") format("woff2");
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+@font-face {
+  font-family: "Onest";
+  font-style: normal;
+  font-weight: 100 900;
+  font-display: swap;
+  src: url("/fonts/onest-cyrillic.woff2") format("woff2");
+  unicode-range: U+0301, U+0400-045F, U+0490-0491, U+04B0-04B1, U+2116;
+}
+@font-face {
+  font-family: "Onest";
+  font-style: normal;
+  font-weight: 100 900;
+  font-display: swap;
+  src: url("/fonts/onest-latin-ext.woff2") format("woff2");
+  unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F, U+A720-A7FF;
+}
+@font-face {
+  font-family: "Onest";
+  font-style: normal;
+  font-weight: 100 900;
+  font-display: swap;
+  src: url("/fonts/onest-latin.woff2") format("woff2");
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
 }
 @font-face {
   font-family: "Geist Mono";
@@ -108,7 +128,8 @@
  --ink-100: #e3e8dd;
  --ink-200: #c4cdbe;
  --ink-300: #93a08d;
- --ink-400: #6a7568;
+ /* was #6a7568: 4.39:1 on surface-2, under AA (specs/071 contrast test) */
+ --ink-400: #677265;
  --ink-500: #485444;
  --ink-700: #232b22;
  --ink-900: #0d150d;
@@ -171,6 +192,15 @@
  --color-info-soft: var(--lagoon-50);
  --color-info-fg: var(--lagoon-800);
 
+ /* ---- SUBJECT — a course's field colour (specs/071) -----
+    Surfaces drawn from the palette, text on them always --subject-ink.
+    Which subject a course is comes from src/lib/subject.ts. */
+ --subject-lang: var(--green-100);
+ --subject-math: var(--sun-100);
+ --subject-code: var(--lagoon-50);
+ --subject-other: var(--ink-100);
+ --subject-ink: var(--ink-900);
+
  /* ---- ELEVATION --------------------------------------- */
  /* ---- VIZ — categorical series for chart-like widgets ------
     Deliberately outside the brand ramps. Lively is warm and muted; no
@@ -187,18 +217,14 @@
  --shadow-sm: 0 2px 6px -1px rgba(13, 21, 13, 0.07);
  --shadow-md: 0 8px 24px -8px rgba(13, 21, 13, 0.14);
  --shadow-lg: 0 18px 50px -20px rgba(13, 21, 13, 0.20);
- --shadow-pop: 0 4px 0 0 var(--green-700);
- --shadow-pop-clay: 0 4px 0 0 var(--clay-700);
- --shadow-pop-sun: 0 4px 0 0 var(--sun-500);
- --shadow-pop-ink: 0 4px 0 0 var(--ink-900);
  --ring-focus: 0 0 0 4px var(--green-100);
 
  /* ---- RADII ------------------------------------------- */
  --radius-xs: 6px;
  --radius-sm: 10px;
  --radius-md: 14px;
- --radius-lg: 18px;
- --radius-xl: 24px;
+ --radius-lg: 14px;
+ --radius-xl: 14px;
  --radius-pill: 999px;
 
  /* ---- SPACING (4px base) ------------------------------ */
@@ -232,7 +258,8 @@
     by next/font. An undefined var() invalidates the whole declaration
     rather than falling through to the next family, so the names are used
     directly — they resolve to the @font-face rules above. */
- --font-sans: 'Manrope', system-ui, -apple-system, sans-serif;
+ --font-sans: 'Onest', system-ui, -apple-system, sans-serif;
+ --font-display: 'Geologica', 'Onest', system-ui, sans-serif;
  --font-mono: 'Geist Mono', ui-monospace, SFMono-Regular, monospace;
  /* MM-02: math expressions render in serif via token, not hardcoded font stacks */
  --font-math: 'Times New Roman', Georgia, serif;
@@ -328,21 +355,24 @@
  --viz-2: #f59e0b;
  --viz-4: #22c55e;
 
+ --subject-lang: #16301f;
+ --subject-math: #33301a;
+ --subject-code: #142b31;
+ --subject-other: #202a22;
+ --subject-ink: #e9efe9;
+
  /* elevation by surface, not by shadow (dark-mode rule) */
  --shadow-xs: none;
  --shadow-sm: none;
  --shadow-md: 0 8px 24px -8px rgba(0, 0, 0, 0.6);
  --shadow-lg: 0 18px 50px -20px rgba(0, 0, 0, 0.7);
 
- --shadow-pop: 0 4px 0 0 #1c6b45;
- --shadow-pop-sun: 0 4px 0 0 #b88700;
- --shadow-pop-clay: 0 4px 0 0 #a83c1c;
- --shadow-pop-ink: 0 4px 0 0 #000000;
  --ring-focus: 0 0 0 4px rgba(53, 208, 127, 0.25);
 }
 
 @theme inline {
  --font-sans: var(--font-sans);
+ --font-display: var(--font-display);
  --font-mono: var(--font-mono);
 
  /* full color scale — for design-system pages, charts, illustrations */
@@ -420,6 +450,11 @@
  --color-info: var(--color-info);
  --color-info-soft: var(--color-info-soft);
  --color-info-fg: var(--color-info-fg);
+ --color-subject-lang: var(--subject-lang);
+ --color-subject-math: var(--subject-math);
+ --color-subject-code: var(--subject-code);
+ --color-subject-other: var(--subject-other);
+ --color-subject-ink: var(--subject-ink);
 
  --radius-xs: var(--radius-xs);
  --radius-sm: var(--radius-sm);
@@ -444,10 +479,6 @@
  --shadow-sm: var(--shadow-sm);
  --shadow-md: var(--shadow-md);
  --shadow-lg: var(--shadow-lg);
- --shadow-pop: var(--shadow-pop);
- --shadow-pop-clay: var(--shadow-pop-clay);
- --shadow-pop-sun: var(--shadow-pop-sun);
- --shadow-pop-ink: var(--shadow-pop-ink);
 
  --text-3xs: var(--t-3xs);
  --text-2xs: var(--t-2xs);
@@ -482,7 +513,6 @@ body {
  color: var(--color-text);
  -webkit-font-smoothing: antialiased;
  text-rendering: optimizeLegibility;
- font-feature-settings: 'ss01';
  line-height: var(--leading-body);
 }
 
@@ -504,6 +534,10 @@ button { font-family: inherit; }
    deliberately use `bg-transparent` (the inline editors on /admin/users) or
    `bg-surface-2`. Inside base, the utilities layer wins as intended. */
 @layer base {
+ h1, h2, h3 {
+  font-family: var(--font-display);
+  letter-spacing: var(--tracking-heading);
+ }
  select {
  background-color: var(--color-surface);
  color: var(--color-text);
@@ -523,6 +557,11 @@ button { font-family: inherit; }
  transition-duration: 0.01ms !important;
  scroll-behavior: auto !important;
  }
+ /* A zero-length transition still jumps: the press would snap to 0.96
+    instead of easing there. Reduced motion means no scale at all
+    (specs/071 FR-016); the colour change on press still shows. */
+ /* :root lifts it over the .press-scale rule further down the file. */
+ :root .press-scale:active:not(:disabled) { transform: none; }
 }
 
 ::-webkit-scrollbar { width: 10px; height: 10px; }
@@ -580,36 +619,6 @@ button { font-family: inherit; }
   height: 24px !important;
 }
 
-/* =================================================================
-   Button physics — signature shadow-pop with translate state machine.
-   ================================================================= */
-.btn-pop {
-  /* follows org branding, same fallback chain as --color-primary-hover */
-  --pop: var(--primary-dark, var(--green-700));
-  box-shadow: 0 4px 0 0 var(--pop);
-  transition:
-    transform var(--motion-fast) var(--motion-ease),
-    box-shadow var(--motion-fast) var(--motion-ease),
-    background-color var(--motion-fast) var(--motion-ease);
-}
-.btn-pop:hover:not(:disabled) {
-  transform: translateY(2px);
-  box-shadow: 0 2px 0 0 var(--pop);
-}
-.btn-pop:active:not(:disabled) {
-  transform: translateY(4px);
-  box-shadow: 0 0 0 0 var(--pop);
-}
-.btn-pop:disabled {
-  opacity: 0.4;
-  transform: none !important;
-  cursor: not-allowed;
-}
-.btn-pop--clay  { --pop: var(--clay-700); }
-.btn-pop--sun   { --pop: var(--sun-500); }
-.btn-pop--ink   { --pop: var(--ink-900); }
-.btn-pop--secondary { --pop: var(--ink-100); }
-
 /* Dark rail — override semantic tokens so child components auto-adapt */
 .rail-dark {
   --color-text: #ffffff;
@@ -647,18 +656,17 @@ button { font-family: inherit; }
   border-radius: var(--radius-sm);
 }
 
-/* Mono caps label — section eyebrows, table headers, breadcrumbs.
+/* Small label above a section, table headers, breadcrumbs. Sans and
+   sentence case since specs/071: mono caps over every block read as generated.
    Layered on purpose: unlayered, its `color` beats any Tailwind text-*
    utility on the same element (see MOTION.md "two traps"), so
    `class="eyebrow text-primary-fg"` silently rendered text-subtle on the
    dashboard hero's green panel. In @layer components the callsite wins. */
 @layer components {
   .eyebrow {
-    font-family: var(--font-mono);
-    font-size: var(--t-xs);
+    font-family: var(--font-sans);
+    font-size: var(--t-sm);
     font-weight: 500;
-    letter-spacing: var(--tracking-eyebrow);
-    text-transform: uppercase;
     color: var(--color-text-subtle);
   }
 }
@@ -675,6 +683,18 @@ button { font-family: inherit; }
   transition-timing-function: var(--motion-ease);
 }
 .press-scale:active:not(:disabled) { transform: scale(0.96); }
+
+/* M2 — progress fill. Scaled from the left, never resized: width would
+   re-lay-out every frame. @starting-style grows it from zero on first paint;
+   later value changes ride the same transition. */
+.progress-fill {
+  transform-origin: left center;
+  transform: scaleX(var(--p, 0));
+  transition: transform var(--motion-slow) var(--motion-ease-out-strong);
+}
+@starting-style {
+  .progress-fill { transform: scaleX(0); }
+}
 
 /* One-shot entrance: fade + slight rise. Enters only — exits are softer. */
 @keyframes enter-fade-rise {
