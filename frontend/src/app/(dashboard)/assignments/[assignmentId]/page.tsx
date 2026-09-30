@@ -205,7 +205,7 @@ export default function AssignmentDetailPage() {
  value={content}
  onChange={(e) => setContent(e.target.value)}
  rows={6}
- className="w-full rounded-lg border border-border-strong bg-surface px-3 py-2 text-sm text-text placeholder:text-text-subtle focus:border-primary focus:outline-none focus:ring-1 focus:ring-green-500 "
+ className="w-full rounded-lg border border-border-strong bg-surface px-3 py-2 text-sm text-text placeholder:text-text-subtle focus:border-primary focus:outline-none focus:ring-1 focus:ring-border-focus "
  placeholder={t("assignment.yourAnswerPlaceholder")}
  />
  </div>

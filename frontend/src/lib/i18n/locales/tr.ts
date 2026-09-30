@@ -2887,7 +2887,7 @@ const tr: TranslationMap = {
  "journal.tab.program": "Program",
  "journal.tab.schedule": "Ders programı",
  "journal.tab.rooms": "Derslikler",
- "journal.tab.setup": "⚙ Kurulum",
+ "journal.tab.setup": "Kurulum",
  "journal.actualTopic": "İşlenen konu (program)",
  "journal.actualTopicNone": "— belirlenmedi —",
  "journal.plannedTopicHint": "Planlanan",

@@ -1,31 +1,23 @@
-import { existsSync, readdirSync, readFileSync, statSync, writeFileSync } from "node:fs";
+import { readdirSync, readFileSync, statSync } from "node:fs";
 import { join, relative, resolve, sep } from "node:path";
 
 import { describe, expect, it } from "vitest";
 
 /**
- * Design-system ratchet (specs/071).
+ * Design-system guard (specs/071).
  *
  * Counts, per file, the places that bypass the design system: raw colours,
- * gradients, hand-typed motion values and the rest listed in RULES. The counts
- * live in `design/design-baseline.json` and may only go down:
+ * gradients, hand-typed motion values and the rest listed in RULES. It started
+ * as a ratchet with a per-file baseline; PR 6 brought every count to zero, so
+ * now any violation outside EXEMPT fails the build. A new exemption needs its
+ * reason in EXEMPT and in the PR.
  *
- *   - a file may not gain a violation, and a file missing from the baseline
- *     must have none, so new code is born clean;
- *   - a count that dropped must be written back to the baseline, otherwise the
- *     improvement could be undone without anyone noticing.
- *
- * Rewrite the baseline after an intentional clean-up:
- *
- *   UPDATE_DESIGN_BASELINE=1 npx vitest run src/lib/design
- *
- * Same pattern as src/lib/i18n/no-hardcoded-strings.test.ts. Rules and their
+ * Same idea as src/lib/i18n/no-hardcoded-strings.test.ts. Rules and their
  * reasons: specs/071-design-system-v2/contracts/{tokens,motion}.md.
  */
 
 const FRONTEND_ROOT = resolve(__dirname, "..", "..", "..");
 const SRC_DIR = resolve(FRONTEND_ROOT, "src");
-const BASELINE_PATH = resolve(FRONTEND_ROOT, "design", "design-baseline.json");
 
 type RuleId =
   | "raw-hex"
@@ -40,7 +32,9 @@ type RuleId =
   | "bezier-literal"
   | "layout-anim"
   | "scale-zero"
-  | "vt-nav";
+  | "vt-nav"
+  | "radius-over-cap"
+  | "emoji";
 
 const PALETTE =
   "gray|slate|zinc|neutral|stone|red|orange|amber|yellow|lime|green|emerald|teal|cyan|sky|blue|indigo|violet|purple|fuchsia|pink|rose";
@@ -71,6 +65,11 @@ const RULES: Record<RuleId, RegExp> = {
     /\btransition(?:-property)?["'`]?\s*:\s*[^;{}]*\b(?:width|height|top|left|right|bottom|margin[a-z-]*)\b|\btransition-\[(?:width|height|top|left|margin)/g,
   "scale-zero": /\bscale\(0\)|\bscale-0\b/g,
   "vt-nav": /\bstartViewTransition\b/g,
+  // Radii stop at --radius-xl (14px); Tailwind's 2xl and up are 16px and more.
+  "radius-over-cap": /\brounded(?:-[trblse]{1,2})?-(?:2xl|3xl|4xl|\[\d+px\])/g,
+  // Emoji in place of an icon (spec, AI sign 2). Typographic marks such as
+  // ✓, ✕, arrows and © are typography and pass.
+  emoji: /(?![©®™↔-↙])\p{Extended_Pictographic}/gu,
 };
 
 /**
@@ -94,6 +93,22 @@ const EXEMPT: { prefix: string; why: string }[] = [
   { prefix: "components/gamification/league-mark.tsx", why: "league crest artwork: metal tones per league" },
   { prefix: "components/gamification/rank-medal.tsx", why: "medal artwork: gold, silver, bronze" },
   { prefix: "components/gamification/badge-icon.tsx", why: "badge artwork, one tint per badge kind" },
+  // Lesson content is drawn by the course author; the system frames it and does
+  // not repaint it (spec, edge cases).
+  { prefix: "components/widgets/interactive-widgets.ts", why: "lesson content: math widgets drawn inside the author's lesson HTML" },
+  { prefix: "components/common/content-renderer.tsx", why: "lesson content: base styles for the author's HTML in a sandboxed iframe" },
+  { prefix: "components/editor/editor-styles.css", why: "lesson content: how the author's rich text looks while it is written" },
+  { prefix: "components/editor/extensions/callout.ts", why: "lesson content: the callout icon is saved into the lesson's HTML" },
+  { prefix: "components/sat/sat-question-bank.ts", why: "question data: figures belong to the SAT item" },
+  { prefix: "components/exercises/v2/map-pin-v2.tsx", why: "exercise scene: the map's sky and water" },
+  { prefix: "components/exercises/v2/solid-view.tsx", why: "Three.js needs a literal fallback before the CSS token is read" },
+  { prefix: "app/student-cabinet/", why: "3D cabinet scene: colours are scene materials" },
+  // A school's own brand colour is data the school types in.
+  { prefix: "components/admin/brand-preview.tsx", why: "previews the school's own brand colour" },
+  { prefix: "components/admin/org-settings-form.tsx", why: "the school's brand colour picker and its defaults" },
+  { prefix: "components/layout/brand-vars.ts", why: "derives --primary from the school's brand colour" },
+  { prefix: "components/layout/school-mark.tsx", why: "draws the school's mark in its own colour" },
+  { prefix: "app/layout.tsx", why: "Next metadata themeColor is a literal for the browser chrome; it cannot read CSS" },
 ];
 
 /** Files allowed to call startViewTransition (research R6). */
@@ -128,6 +143,13 @@ function countFile(path: string, text: string): Partial<Record<RuleId, number>> 
     if (isIgnorableLine(line)) continue;
     for (const [rule, re] of Object.entries(RULES) as [RuleId, RegExp][]) {
       if (rule === "vt-nav" && VIEW_TRANSITION_ALLOWED.includes(path)) continue;
+      // Two timings are governed, not hand-typed: the exercise feedback grammar
+      // scales every duration by its --mdur knob, and constant motion
+      // (spinners, skeletons) loops on its own clock (MOTION.md §2).
+      if (rule === "ms-literal" && (/\*\s*var\(--mdur\)/.test(line) || /\binfinite\b/.test(line))) continue;
+      // Goal labels of the robot and 3D-world games live in the locale files
+      // but are drawn only inside components/game, which is exempt.
+      if (rule === "emoji" && /"(?:world|game)\.goal\./.test(line)) continue;
       const hits = line.match(re)?.length ?? 0;
       if (hits) out[rule] = (out[rule] ?? 0) + hits;
     }
@@ -146,25 +168,9 @@ function scan(): Counts {
   return counts;
 }
 
-function sortCounts(c: Counts): Counts {
-  const out: Counts = {};
-  for (const file of Object.keys(c).sort()) {
-    out[file] = Object.fromEntries(Object.entries(c[file]).sort(([a], [b]) => a.localeCompare(b)));
-  }
-  return out;
-}
-
 const current = scan();
 
-if (process.env.UPDATE_DESIGN_BASELINE === "1") {
-  writeFileSync(BASELINE_PATH, JSON.stringify(sortCounts(current), null, 2) + "\n");
-}
-
-const baseline: Counts = existsSync(BASELINE_PATH)
-  ? JSON.parse(readFileSync(BASELINE_PATH, "utf8"))
-  : {};
-
-describe("design-system ratchet", () => {
+describe("design-system guard", () => {
   it("rules catch what they claim to catch", () => {
     // Positive control: the ratchet is only worth having if every rule fires.
     const sample = [
@@ -173,6 +179,8 @@ describe("design-system ratchet", () => {
       '<button className="btn-pop backdrop-blur-md transition-all duration-[250ms] ease-[cubic-bezier(0,0,1,1)]" />',
       ".x { transition: width 200ms cubic-bezier(0.2, 0.8, 0.2, 1); transform: scale(0); }",
       "document.startViewTransition(() => go());",
+      '<div className="rounded-2xl" />',
+      '<span>⚠ {label}</span>',
     ].join("\n");
     const hit = countFile("sample.tsx", sample);
     for (const rule of Object.keys(RULES)) expect(hit, rule).toHaveProperty(rule);
@@ -180,42 +188,27 @@ describe("design-system ratchet", () => {
     const clean = [
       '<a href="#add" className="bg-primary text-text-muted rounded-md duration-200" />',
       '<div className="duration-[var(--motion-fast)] ease-[var(--motion-ease)]" />',
+      ".fb-x { animation: fb-shake calc(0.4s * var(--mdur)) var(--motion-ease) both; }",
+      ".spin { animation: gp-rotate 0.7s linear infinite; }",
       "  --motion-ease: cubic-bezier(0.2, 0.8, 0.2, 1);",
       ".x { transition: transform var(--motion-fast) var(--motion-ease); }",
       "// transition: all is banned",
+      '<span>✓ {done} ✕ → ↔ © 2026</span>',
+      '  "game.goal.at_goal": "🏁 Get the robot to the flag",',
       "/* contrast on",
       "   #111713 stays put */",
     ].join("\n");
     expect(countFile("clean.tsx", clean)).toEqual({});
   });
 
-  it("no file gains a violation", () => {
-    const worse: string[] = [];
-    for (const [file, rules] of Object.entries(current)) {
-      for (const [rule, n] of Object.entries(rules) as [RuleId, number][]) {
-        const allowed = baseline[file]?.[rule] ?? 0;
-        if (n > allowed) worse.push(`${file}: ${rule} ${n} (baseline ${allowed})`);
-      }
-    }
+  it("nothing outside EXEMPT bypasses the system", () => {
+    const found = Object.entries(current).flatMap(([file, rules]) =>
+      Object.entries(rules).map(([rule, n]) => `${file}: ${rule} ${n}`),
+    );
     expect(
-      worse,
+      found,
       "These files bypass the design system. Use a token or a component from " +
         "src/components/ui instead; rules are in specs/071-design-system-v2/contracts.",
-    ).toEqual([]);
-  });
-
-  it("baseline records every improvement", () => {
-    const better: string[] = [];
-    for (const [file, rules] of Object.entries(baseline)) {
-      for (const [rule, allowed] of Object.entries(rules) as [RuleId, number][]) {
-        const n = current[file]?.[rule] ?? 0;
-        if (n < allowed) better.push(`${file}: ${rule} ${n} (baseline ${allowed})`);
-      }
-    }
-    expect(
-      better,
-      "Violations went down. Lock the gain in: " +
-        "UPDATE_DESIGN_BASELINE=1 npx vitest run src/lib/design",
     ).toEqual([]);
   });
 });

@@ -167,7 +167,7 @@ export function YouTubeEmbed({ url, className }: YouTubeEmbedProps) {
  </div>
 
  {/* Bottom info bar */}
- <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/80 to-transparent p-3 sm:p-4">
+ <div className="absolute bottom-0 left-0 right-0 bg-ink-900/75 p-3 sm:p-4">
  {metadata.title && (
  <p className="truncate text-sm font-semibold text-white sm:text-base">
  {metadata.title}

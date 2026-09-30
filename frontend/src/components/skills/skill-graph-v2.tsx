@@ -61,7 +61,7 @@ const DEFAULT_CATEGORY_COLORS: Record<string, string> = {
   programming: "var(--green-500)",
   math: "var(--sun-400)",
   language: "var(--clay-400)",
-  science: "#3b82f6",
+  science: "var(--color-info)",
   other: "var(--ink-400)",
 };
 
@@ -84,7 +84,7 @@ function styleFor(
       return {
         bg: "var(--green-600)",
         border: "var(--green-700)",
-        text: "#fff",
+        text: "var(--ink-on-fill)",
         shadow: "var(--green-800)",
         pulse: false,
       };
@@ -246,7 +246,7 @@ export function SkillGraphV2({
                   stroke={s.border}
                   strokeWidth="2.5"
                   filter={`drop-shadow(0 ${isHover && isClickable ? 2 : 3}px 0 ${s.shadow})`}
-                  style={{ transition: "all 100ms" }}
+                  style={{ transition: "opacity var(--motion-fast), fill var(--motion-fast)" }}
                 />
                 {n.status === "in-progress" && n.mastery !== undefined && (
                   <rect

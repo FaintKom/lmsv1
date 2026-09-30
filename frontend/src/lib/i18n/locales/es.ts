@@ -2884,7 +2884,7 @@ const es: TranslationMap = {
  "journal.tab.program": "Programa",
  "journal.tab.schedule": "Horario",
  "journal.tab.rooms": "Aulas",
- "journal.tab.setup": "⚙ Configuración",
+ "journal.tab.setup": "Configuración",
  "journal.actualTopic": "Tema impartido (programa)",
  "journal.actualTopicNone": "— sin definir —",
  "journal.plannedTopicHint": "Planificado",

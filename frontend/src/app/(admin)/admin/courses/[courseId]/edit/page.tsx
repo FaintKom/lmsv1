@@ -1070,7 +1070,7 @@ export default function CourseEditorPage() {
  <p className="text-xs font-medium text-text-muted ">{student.progress_percent}%</p>
  <div className="h-1.5 w-16 overflow-hidden rounded-pill bg-surface-2 ">
  <div
- className="h-full rounded-pill bg-primary transition-[width] duration-500"
+ className="h-full rounded-pill bg-primary"
  style={{ width: `${student.progress_percent}%` }}
  />
  </div>

@@ -36,9 +36,9 @@ export interface StatusToken {
 export const ATT_STATUS: Record<AttendanceStatus, StatusToken> = {
   present: {
     letter: "P",
-    cell: "bg-green-100 text-green-800",
-    text: "text-green-800",
-    dot: "bg-green-600",
+    cell: "bg-success-soft text-success-fg",
+    text: "text-success-fg",
+    dot: "bg-success",
   },
   late: {
     letter: "L",
@@ -75,18 +75,18 @@ export function countsPresent(status: AttendanceStatus | null): boolean {
 }
 
 // ── per-course group color bar ───────────────────────────────────────────
-// Stable, warm palette derived from a hash of course_id so every screen draws
-// the same group its same color. Inline hex (matches the handoff group bars,
-// which are arbitrary decorative colors rather than semantic tokens).
+// Stable palette derived from a hash of course_id so every screen draws the
+// same group its same color. Decorative, so it draws on the palette and the
+// categorical viz series rather than on status colours (specs/071).
 const GROUP_COLORS = [
-  "#0a8754", // green-600
-  "#f5b800", // sun-500
-  "var(--clay-500)", // clay-500
-  "var(--lagoon-600)", // info
-  "#7c5cff", // violet
-  "#3aa76d", // green-500
-  "#ffb02e", // amber
-  "#e0566f", // rose
+  "var(--green-600)",
+  "var(--sun-500)",
+  "var(--clay-500)",
+  "var(--lagoon-600)",
+  "var(--viz-1)",
+  "var(--green-500)",
+  "var(--viz-2)",
+  "var(--viz-3)",
 ];
 
 /** Deterministic decorative color for a course's group bar. */

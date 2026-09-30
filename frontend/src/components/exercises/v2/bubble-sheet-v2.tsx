@@ -232,7 +232,7 @@ export function BubbleSheetV2({
                 border: `2px solid ${isKept ? "var(--green-200)" : "var(--ink-100)"}`,
                 borderRadius: 14,
                 padding: "14px 18px",
-                transition: "border-color 200ms",
+                transition: "border-color var(--motion-base)",
               }}
             >
               <div
@@ -249,14 +249,14 @@ export function BubbleSheetV2({
                     height: 26,
                     borderRadius: 999,
                     background: isKept ? "var(--green-600)" : "var(--color-surface-2)",
-                    color: isKept ? "#fff" : "var(--color-text-muted)",
+                    color: isKept ? "var(--ink-on-fill)" : "var(--color-text-muted)",
                     display: "grid",
                     placeItems: "center",
                     fontFamily: "var(--font-mono)",
                     fontWeight: 700,
                     fontSize: 12,
                     flexShrink: 0,
-                    transition: "background 200ms",
+                    transition: "background-color var(--motion-base)",
                   }}
                 >
                   {isKept ? "✓" : q.n}
@@ -298,19 +298,19 @@ export function BubbleSheetV2({
                     color = "var(--green-800)";
                     border = "var(--green-500)";
                     bubbleBg = "var(--green-600)";
-                    bubbleColor = "#fff";
+                    bubbleColor = "var(--ink-on-fill)";
                   } else if (isWrongPick) {
                     bg = "var(--clay-50)";
                     color = "var(--clay-700)";
                     border = "var(--clay-500)";
                     bubbleBg = "var(--clay-500)";
-                    bubbleColor = "#fff";
+                    bubbleColor = "var(--ink-on-fill)";
                   } else if (picked) {
                     bg = "var(--color-surface-2)";
                     color = "var(--color-text)";
                     border = "var(--ink-900)";
                     bubbleBg = "var(--ink-900)";
-                    bubbleColor = "#fff";
+                    bubbleColor = "var(--ink-on-fill)";
                   }
                   return (
                     <button
@@ -328,7 +328,7 @@ export function BubbleSheetV2({
                         border: `2px solid ${border}`,
                         borderRadius: 10,
                         cursor: locked ? "default" : "pointer",
-                        transition: "all 120ms",
+                        transition: "background-color var(--motion-fast), border-color var(--motion-fast), color var(--motion-fast)",
                         fontFamily: "var(--font-sans)",
                         textAlign: "left",
                       }}

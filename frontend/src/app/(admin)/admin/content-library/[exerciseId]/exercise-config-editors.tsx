@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useRef, useState } from "react";
-import { Plus, Trash2, Upload, MapPin as MapPinIcon } from "lucide-react";
+import { Plus, Trash2, Upload, MapPin as MapPinIcon, TriangleAlert } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { buildCrosswordLayout } from "@/components/exercises/crossword-layout";
 import { CommaListInput } from "@/components/exercises/comma-list-input";
@@ -1232,8 +1232,9 @@ export function CrosswordConfigEditor({ config, onChange }: EditorProps) {
                  </div>
                </details>
                {overflow && (
-                 <span className="pl-9 text-2xs text-danger-fg">
-                   ⚠ Word extends past grid edge
+                 <span className="flex items-center gap-1 pl-9 text-2xs text-danger-fg">
+                   <TriangleAlert className="h-3 w-3 shrink-0" aria-hidden />
+                   Word extends past grid edge
                  </span>
                )}
              </div>

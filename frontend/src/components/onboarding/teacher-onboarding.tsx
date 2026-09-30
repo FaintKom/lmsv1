@@ -131,7 +131,7 @@ export function TeacherOnboarding() {
  <div className="mb-4 flex items-center gap-2">
  <div className="flex-1 h-2 rounded-pill bg-primary-soft overflow-hidden">
  <div
- className="h-full rounded-pill bg-primary transition-[width] duration-500"
+ className="h-full rounded-pill bg-primary"
  style={{ width: `${(completedCount / steps.length) * 100}%` }}
  />
  </div>

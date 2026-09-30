@@ -2946,7 +2946,7 @@ const de: TranslationMap = {
  "journal.tab.program": "Lehrplan",
  "journal.tab.schedule": "Stundenplan",
  "journal.tab.rooms": "Räume",
- "journal.tab.setup": "⚙ Einrichtung",
+ "journal.tab.setup": "Einrichtung",
  "journal.actualTopic": "Behandeltes Thema (Lehrplan)",
  "journal.actualTopicNone": "— nicht festgelegt —",
  "journal.plannedTopicHint": "Geplant",

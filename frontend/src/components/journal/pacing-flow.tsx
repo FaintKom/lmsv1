@@ -336,7 +336,7 @@ function PacingTimeline({
       ? "bg-danger-soft border-clay-300 text-clay-700"
       : data.badge === "ahead"
         ? "bg-warning-soft border-sun-300 text-sun-700"
-        : "bg-green-25 border-primary-soft text-success-fg";
+        : "bg-success-soft border-primary-soft text-success-fg";
   const noteIconColor =
     data.badge === "behind"
       ? "text-clay-500"
@@ -451,7 +451,7 @@ function TimelineSegment({
   if (topic.state === "covered") box = "bg-primary text-primary-fg";
   else if (topic.state === "current") box = "bg-sun-400 text-ink-900";
   else if (topic.state === "next")
-    box = "bg-green-25 text-success-fg border-2 border-dashed border-border-strong";
+    box = "bg-success-soft text-success-fg border-2 border-dashed border-border-strong";
 
   const dateColor =
     topic.state === "covered" || topic.state === "current"

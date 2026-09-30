@@ -61,7 +61,7 @@ export function AskWidget({ lessonId }: { lessonId: string }) {
   }
 
   return (
-    <section className="mt-8 rounded-2xl border border-ink-200 bg-sun-300 p-5 text-ink-900">
+    <section className="mt-8 rounded-xl border border-ink-200 bg-sun-300 p-5 text-ink-900">
       <div className="mb-3 flex items-center justify-between gap-4">
         <h3 className="text-base font-semibold text-ink-900">
           {t("tutor.ask")}

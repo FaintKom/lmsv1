@@ -395,7 +395,7 @@ export function LessonShell({
         {showBar ? (
           <>
             <div className="lf-progress">
-              <div className="lf-progress-fill" style={{ width: `${fill}%` }} />
+              <div className="lf-progress-fill" style={{ "--p": (fill ?? 0) / 100 } as import("react").CSSProperties} />
             </div>
             {hasStep && (
               <span
