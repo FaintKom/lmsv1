@@ -26,11 +26,11 @@
 | RuleId | Что считается |
 |---|---|
 | `transition-all` | `transition: all` и класс `transition-all` |
-| `ms-literal` | число с `ms` или `s` в `transition`, `animation`, `duration-[…]` вне токенов |
+| `ms-literal` | число с `ms` или `s` в CSS-свойствах `transition`, `animation`, `*-duration`, `*-delay` вне блоков токенов, и произвольные классы `duration-[…]`, `delay-[…]`. Стандартные классы шкалы Tailwind (`duration-75`…`duration-1000`) разрешены |
 | `bezier-literal` | `cubic-bezier(` вне блока токенов |
 | `layout-anim` | `transition` или `@keyframes`, которые двигают `width`, `height`, `top`, `left`, `margin` |
 | `scale-zero` | `scale(0)` и `scale-0` |
-| `vt-nav` | `startViewTransition` в навигации и переключателе темы |
+| `vt-nav` | любой `startViewTransition` вне списка разрешённых файлов в тесте. В списке только каталог курсов (M10); новый файл попадает туда решением в PR с причиной |
 
 Полоса прогресса из DESIGN_SPEC §5 перестаёт быть исключением: в PR 2 она
 переходит с `width` на `scaleX`.
