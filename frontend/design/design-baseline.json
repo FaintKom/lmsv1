@@ -1,0 +1,368 @@
+{
+  "app/(admin)/admin/assignments/[id]/edit/page.tsx": {
+    "raw-palette": 1
+  },
+  "app/(admin)/admin/assignments/page.tsx": {
+    "raw-palette": 1
+  },
+  "app/(admin)/admin/content-library/[exerciseId]/exercise-config-editors.tsx": {
+    "mono-eyebrow": 3
+  },
+  "app/(admin)/admin/courses/[courseId]/edit/page.tsx": {
+    "layout-anim": 1
+  },
+  "app/(admin)/admin/courses/page.tsx": {
+    "glass": 2,
+    "gradient": 2,
+    "raw-palette": 6
+  },
+  "app/(admin)/admin/journal/page.tsx": {
+    "mono-eyebrow": 6,
+    "raw-palette": 7
+  },
+  "app/(admin)/admin/journal/student/[studentId]/page.tsx": {
+    "gradient": 1,
+    "raw-palette": 9
+  },
+  "app/(admin)/admin/lessons/[lessonId]/edit/page.tsx": {
+    "glass": 1
+  },
+  "app/(admin)/admin/live/[lessonId]/page.tsx": {
+    "btn-pop": 16,
+    "glass": 1,
+    "mono-eyebrow": 2,
+    "raw-palette": 2
+  },
+  "app/(admin)/admin/page.tsx": {
+    "btn-pop": 1,
+    "mono-eyebrow": 3,
+    "raw-palette": 15
+  },
+  "app/(admin)/admin/paths/page.tsx": {
+    "raw-palette": 1
+  },
+  "app/(admin)/admin/students/[studentId]/page.tsx": {
+    "raw-palette": 1
+  },
+  "app/(admin)/admin/users/page.tsx": {
+    "raw-palette": 5
+  },
+  "app/(admin)/layout.tsx": {
+    "raw-palette": 2
+  },
+  "app/(auth)/layout.tsx": {
+    "gradient": 1,
+    "raw-palette": 2
+  },
+  "app/(auth)/register/page.tsx": {
+    "raw-palette": 2
+  },
+  "app/(dashboard)/achievements/page.tsx": {
+    "gradient": 2,
+    "layout-anim": 1,
+    "mono-eyebrow": 1,
+    "raw-hex": 6
+  },
+  "app/(dashboard)/assignments/[assignmentId]/page.tsx": {
+    "raw-palette": 1
+  },
+  "app/(dashboard)/certificates/page.tsx": {
+    "gradient": 1
+  },
+  "app/(dashboard)/courses/[courseId]/lessons/[lessonId]/page.tsx": {
+    "btn-pop": 3,
+    "gradient": 1,
+    "mono-eyebrow": 3,
+    "raw-palette": 10
+  },
+  "app/(dashboard)/courses/[courseId]/page.tsx": {
+    "btn-pop": 3,
+    "gradient": 11,
+    "mono-eyebrow": 1,
+    "raw-hex": 2,
+    "raw-palette": 1
+  },
+  "app/(dashboard)/dashboard/page.tsx": {
+    "btn-pop": 2,
+    "mono-eyebrow": 1,
+    "raw-palette": 2
+  },
+  "app/(dashboard)/layout.tsx": {
+    "raw-palette": 2
+  },
+  "app/(dashboard)/leaderboard/page.tsx": {
+    "gradient": 3
+  },
+  "app/(dashboard)/lesson/[lessonId]/page.tsx": {
+    "btn-pop": 3,
+    "mono-eyebrow": 2,
+    "raw-palette": 1
+  },
+  "app/(dashboard)/paths/[pathId]/page.tsx": {
+    "layout-anim": 1
+  },
+  "app/(dashboard)/progress/page.tsx": {
+    "layout-anim": 1
+  },
+  "app/(dashboard)/skills/page.tsx": {
+    "raw-hex": 5
+  },
+  "app/demo/page.tsx": {
+    "glass": 1,
+    "gradient": 1,
+    "raw-palette": 1
+  },
+  "app/globals.css": {
+    "bezier-literal": 20,
+    "btn-pop": 8,
+    "gradient": 3,
+    "layout-anim": 2,
+    "ms-literal": 86,
+    "raw-hex": 13
+  },
+  "app/layout.tsx": {
+    "raw-hex": 1
+  },
+  "app/page.tsx": {
+    "gradient": 2
+  },
+  "app/pricing/page.tsx": {
+    "gradient": 1
+  },
+  "app/student-cabinet/page.tsx": {
+    "raw-hex": 14
+  },
+  "components/admin/brand-preview.tsx": {
+    "raw-hex": 8
+  },
+  "components/admin/org-settings-form.tsx": {
+    "raw-hex": 4
+  },
+  "components/assessments/quiz-submission-breakdown.tsx": {
+    "glass": 1
+  },
+  "components/calendar/calendar-view.tsx": {
+    "raw-hex": 4
+  },
+  "components/common/content-renderer.tsx": {
+    "raw-hex": 3
+  },
+  "components/common/youtube-embed.tsx": {
+    "gradient": 1
+  },
+  "components/courses/course-card.tsx": {
+    "gradient": 14,
+    "layout-anim": 1,
+    "mono-eyebrow": 1,
+    "raw-palette": 1
+  },
+  "components/editor/editor-styles.css": {
+    "raw-hex": 14
+  },
+  "components/exercises/math-stepwise-exercise.tsx": {
+    "raw-hex": 1
+  },
+  "components/exercises/v2-exercise-live.tsx": {
+    "btn-pop": 1
+  },
+  "components/exercises/v2/bubble-sheet-v2.tsx": {
+    "ms-literal": 3,
+    "raw-hex": 4,
+    "transition-all": 1
+  },
+  "components/exercises/v2/crossword-v2.tsx": {
+    "ms-literal": 1
+  },
+  "components/exercises/v2/map-pin-v2.tsx": {
+    "gradient": 1,
+    "ms-literal": 1,
+    "raw-hex": 2
+  },
+  "components/exercises/v2/math-system-v2.tsx": {
+    "ms-literal": 1
+  },
+  "components/exercises/v2/solid-view.tsx": {
+    "raw-hex": 1
+  },
+  "components/gamification/badge-icon.tsx": {
+    "raw-palette": 4
+  },
+  "components/gamification/lang-code.tsx": {
+    "mono-eyebrow": 1,
+    "raw-palette": 1
+  },
+  "components/gamification/league-mark.tsx": {
+    "raw-hex": 21
+  },
+  "components/gamification/rank-medal.tsx": {
+    "raw-hex": 9
+  },
+  "components/journal/pacing-flow.tsx": {
+    "mono-eyebrow": 1,
+    "raw-palette": 14
+  },
+  "components/journal/session-detail.tsx": {
+    "btn-pop": 1,
+    "mono-eyebrow": 2,
+    "raw-palette": 3
+  },
+  "components/landing/code-demo.tsx": {
+    "mono-eyebrow": 1
+  },
+  "components/landing/exercise-gallery.tsx": {
+    "transition-all": 1
+  },
+  "components/landing/landing-header.tsx": {
+    "glass": 1,
+    "raw-palette": 1
+  },
+  "components/layout/brand-vars.ts": {
+    "raw-hex": 2
+  },
+  "components/layout/school-mark.tsx": {
+    "raw-hex": 2
+  },
+  "components/layout/sidebar.tsx": {
+    "layout-anim": 1,
+    "mono-eyebrow": 2,
+    "raw-palette": 2
+  },
+  "components/lesson/fb-motion.ts": {
+    "bezier-literal": 1
+  },
+  "components/live/attention-panel.tsx": {
+    "mono-eyebrow": 1,
+    "raw-palette": 1
+  },
+  "components/live/breakout-panel.tsx": {
+    "btn-pop": 1
+  },
+  "components/live/chat-panel.tsx": {
+    "btn-pop": 1,
+    "mono-eyebrow": 1
+  },
+  "components/live/exercise-picker.tsx": {
+    "mono-eyebrow": 2,
+    "raw-palette": 2
+  },
+  "components/live/lesson-list.tsx": {
+    "btn-pop": 3
+  },
+  "components/live/lesson-review.tsx": {
+    "btn-pop": 1,
+    "mono-eyebrow": 4,
+    "raw-palette": 1
+  },
+  "components/live/material-picker.tsx": {
+    "gradient": 4,
+    "mono-eyebrow": 6,
+    "raw-palette": 4
+  },
+  "components/live/media-stage.tsx": {
+    "btn-pop": 3
+  },
+  "components/live/moderation-menu.tsx": {
+    "btn-pop": 1
+  },
+  "components/live/poll-modal.tsx": {
+    "btn-pop": 1,
+    "glass": 1,
+    "raw-palette": 1
+  },
+  "components/live/poll-panel.tsx": {
+    "btn-pop": 4,
+    "gradient": 1,
+    "layout-anim": 1,
+    "mono-eyebrow": 2,
+    "raw-palette": 3
+  },
+  "components/live/progress-grid.tsx": {
+    "mono-eyebrow": 1,
+    "raw-palette": 2
+  },
+  "components/live/recording-indicator.tsx": {
+    "btn-pop": 1,
+    "mono-eyebrow": 1
+  },
+  "components/live/review-inspector.tsx": {
+    "mono-eyebrow": 3
+  },
+  "components/live/roster-panel.tsx": {
+    "mono-eyebrow": 1
+  },
+  "components/live/scene-view.tsx": {
+    "btn-pop": 4,
+    "mono-eyebrow": 5,
+    "raw-palette": 1
+  },
+  "components/live/signal-bar.tsx": {
+    "btn-pop": 5,
+    "glass": 1,
+    "mono-eyebrow": 1,
+    "raw-palette": 3
+  },
+  "components/live/start-lesson-button.tsx": {
+    "btn-pop": 1
+  },
+  "components/live/student-drawer.tsx": {
+    "btn-pop": 1,
+    "mono-eyebrow": 1,
+    "raw-palette": 1
+  },
+  "components/onboarding/newcomer-checklist.tsx": {
+    "layout-anim": 1
+  },
+  "components/onboarding/teacher-onboarding.tsx": {
+    "layout-anim": 1
+  },
+  "components/sat/sat-question-bank.ts": {
+    "raw-hex": 4
+  },
+  "components/sat/sat-results.tsx": {
+    "layout-anim": 1
+  },
+  "components/skills/skill-graph-v2.tsx": {
+    "ms-literal": 1,
+    "raw-hex": 2,
+    "transition-all": 1
+  },
+  "components/submissions/exercises/srs-flashcard.css": {
+    "layout-anim": 1,
+    "ms-literal": 3
+  },
+  "components/submissions/exercises/srs-flashcard.tsx": {
+    "mono-eyebrow": 1
+  },
+  "components/theory/theory-viewer.tsx": {
+    "mono-eyebrow": 3
+  },
+  "components/ui/bottom-sheet.tsx": {
+    "glass": 1
+  },
+  "components/ui/button.tsx": {
+    "btn-pop": 9
+  },
+  "components/ui/card.tsx": {
+    "bezier-literal": 1
+  },
+  "components/ui/chip.tsx": {
+    "mono-eyebrow": 1
+  },
+  "components/ui/confirm-dialog.tsx": {
+    "glass": 1
+  },
+  "components/ui/highlight.tsx": {
+    "raw-hex": 1
+  },
+  "components/widgets/interactive-widgets.ts": {
+    "gradient": 16,
+    "layout-anim": 1,
+    "ms-literal": 13,
+    "raw-hex": 402,
+    "transition-all": 5
+  },
+  "lib/journal-status.ts": {
+    "raw-hex": 6,
+    "raw-palette": 4
+  }
+}
