@@ -45,7 +45,7 @@ export default function StudentAttendancePage() {
         </Card>
       ) : (
         <Card>
-          <CardContent className="p-4">
+          <CardContent className="overflow-x-auto p-4">
             <table className="w-full text-left text-sm">
               <thead>
                 <tr className="text-xs text-text-subtle">
