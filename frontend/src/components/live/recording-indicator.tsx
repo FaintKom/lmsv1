@@ -113,7 +113,7 @@ export function RecordingIndicator({
   return (
     <div className="flex items-center gap-2">
       {recordingId && (
-        <span className="inline-flex items-center gap-1 rounded-pill bg-clay-500 px-2 py-0.5 font-mono text-3xs font-bold uppercase tracking-wide text-white">
+        <span className="inline-flex items-center gap-1 rounded-pill bg-clay-500 px-2 py-0.5 text-xs font-bold text-white">
           <span className="h-1.5 w-1.5 animate-pulse rounded-pill bg-white" />
           {t("live.media.recording")}
         </span>

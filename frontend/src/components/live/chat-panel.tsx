@@ -71,7 +71,7 @@ export function ChatPanel({
             }`}
           >
             {m.from === "teacher" && (
-              <span className="mb-0.5 block font-mono text-3xs font-bold uppercase tracking-wide opacity-70">
+              <span className="mb-0.5 block text-xs font-bold opacity-70">
                 {t("live.chat.teacher")}
               </span>
             )}

@@ -305,7 +305,7 @@ export default function StudentProfilePage() {
                     </div>
                     <div className="h-2 w-full overflow-hidden rounded-pill bg-surface-2">
                       <div
-                        className={`h-full rounded-pill ${e.completed_at ? "bg-green-500" : "bg-primary"}`}
+                        className={`h-full rounded-pill ${e.completed_at ? "bg-primary" : "bg-primary"}`}
                         style={{ width: `${Math.min(100, Math.max(0, pct))}%` }}
                       />
                     </div>

@@ -58,7 +58,7 @@ export function AttentionPanel({
   return (
     <div className="mb-3">
       <div className="mb-2 flex gap-1.5">
-        <Kpi label={t("live.kpi.solved")} value={s.solved} tone="text-green-700" />
+        <Kpi label={t("live.kpi.solved")} value={s.solved} tone="text-success-fg" />
         <Kpi label={t("live.kpi.working")} value={s.working} tone="text-text" />
         <Kpi label={t("live.kpi.stuck")} value={s.stuck} tone="text-clay-700" />
         <Kpi label={t("live.kpi.ahead")} value={s.ahead} tone="text-primary" />
@@ -78,7 +78,7 @@ export function AttentionPanel({
               >
                 <Icon size={14} strokeWidth={2.5} className="shrink-0" />
                 <span className="min-w-0 flex-1 truncate font-semibold">{e.name}</span>
-                <span className="font-mono text-3xs uppercase tracking-wide">
+                <span className="text-xs">
                   {t(REASON_KEY[e.reason])}
                   {e.reason === "stuck" ? ` ${e.attempts}` : ""}
                 </span>

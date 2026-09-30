@@ -159,7 +159,7 @@ export default function SrsFlashcardExercise({
         <div className="fill" style={{ width: `${progress}%` }} />
       </div>
 
-      <div className="text-xs text-text-subtle font-mono uppercase tracking-wider mb-4 text-center">
+      <div className="text-xs text-text-subtle mb-4 text-center">
         {reviewedToday + 1} / {reviewedToday + totalDue}
       </div>
 

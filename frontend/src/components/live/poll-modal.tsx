@@ -20,7 +20,7 @@ export function PollModal({
   const [voted, setVoted] = useState(false);
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-ink-900/45 backdrop-blur-[2px]">
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-ink-900/45">
       <div className="w-full max-w-[560px] rounded-xl bg-surface p-8 shadow-lg">
         <h3 className="mb-5 text-xl font-bold text-text">{poll.question}</h3>
         <div className="flex flex-col gap-2">
@@ -32,7 +32,7 @@ export function PollModal({
               className={`relative rounded-md border-2 p-3.5 text-left text-sm font-semibold transition-colors ${
                 selected === i
                   ? "border-primary bg-primary-soft text-success-fg"
-                  : "border-border bg-surface text-text hover:border-green-300"
+                  : "border-border bg-surface text-text hover:border-border-strong"
               }`}
             >
               {opt}

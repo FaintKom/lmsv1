@@ -138,11 +138,11 @@
 **Independent Test**: демо-преподаватель добавляет блок в урок и сохраняет;
 `e2e/motion.spec.ts` зелёный для M6–M8.
 
-- [ ] T045 [US3] Тесты M6, M7, M8 в frontend/e2e/motion.spec.ts, сначала красные
-- [ ] T046 [US3] Конструктор урока frontend/src/app/(admin)/admin/lessons/[lessonId]/edit/page.tsx: меню блоков от кнопки M6, новый блок M7, тост M8 через frontend/src/components/ui/toaster.tsx
-- [ ] T047 [US3] Конструктор курса frontend/src/app/(admin)/admin/courses/page.tsx и courses/[courseId]/edit
-- [ ] T048 [P] [US3] frontend/src/app/(admin)/admin/journal, journal/student/[studentId], gradebook, groups, calendar, live, live/[lessonId], live/[lessonId]/screen
-- [ ] T049 [P] [US3] frontend/src/app/(admin)/admin/content-library и вложенные, assignments и вложенные, review, peer-review, paths, team-projects, students/[studentId]
+- [x] T045 [US3] Тесты M6, M7, M8 в frontend/e2e/motion.spec.ts, сначала красные
+- [x] T046 [US3] Конструктор урока frontend/src/app/(admin)/admin/lessons/[lessonId]/edit/page.tsx: меню блоков от кнопки M6, новый блок M7, тост M8 через frontend/src/components/ui/toaster.tsx
+- [x] T047 [US3] Конструктор курса frontend/src/app/(admin)/admin/courses/page.tsx и courses/[courseId]/edit
+- [x] T048 [P] [US3] frontend/src/app/(admin)/admin/journal, journal/student/[studentId], gradebook, groups, calendar, live, live/[lessonId], live/[lessonId]/screen
+- [x] T049 [P] [US3] frontend/src/app/(admin)/admin/content-library и вложенные, assignments и вложенные, review, peer-review, paths, team-projects, students/[studentId]
 - [ ] T050 [US3] Обновить design-baseline.json, снимки, проверки телефона
 
 **Checkpoint**: PR 4.

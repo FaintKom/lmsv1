@@ -371,7 +371,7 @@ function TodayTab({ courses, isManager }: TodayTabProps) {
         ].map((m) => (
           <Card key={m.key} className="flex-1">
             <CardContent className="flex items-center justify-between px-3.5 py-3">
-              <span className="font-mono text-3xs font-semibold uppercase tracking-[0.14em] text-text-subtle">
+              <span className="text-xs font-semibold text-text-subtle">
                 {m.label}
               </span>
               <span className={`text-2xl font-extrabold tracking-tight ${m.color}`}>
@@ -544,8 +544,8 @@ function AgendaRow({ row, date, isFirst, onOpen, onJoin }: AgendaRowProps) {
         {saving ? (
           <Loader2 className="h-3.5 w-3.5 animate-spin text-text-subtle" />
         ) : marked ? (
-          <span className="inline-flex items-center gap-1.5 text-sm font-bold text-green-700">
-            <span className="h-2 w-2 rounded-full bg-green-600" />
+          <span className="inline-flex items-center gap-1.5 text-sm font-bold text-success-fg">
+            <span className="h-2 w-2 rounded-full bg-success" />
             {row.attendance.present}/{row.attendance.total}
           </span>
         ) : (
@@ -711,7 +711,7 @@ function RegisterTab({ courses }: RegisterTabProps) {
   );
 
   const pctColor = (p: number) =>
-    p >= 85 ? "bg-green-600" : p >= 70 ? "bg-sun-500" : "bg-clay-500";
+    p >= 85 ? "bg-success" : p >= 70 ? "bg-sun-500" : "bg-clay-500";
 
   const handleExport = async () => {
     if (!courseId || dates.length === 0) return;
@@ -796,7 +796,7 @@ function RegisterTab({ courses }: RegisterTabProps) {
               <table className="w-full border-separate border-spacing-0 tabular-nums">
                 <thead>
                   <tr>
-                    <th className="sticky left-0 top-0 z-30 h-8 min-w-[170px] border-b-[1.5px] border-r-[1.5px] border-border bg-surface-2 px-2.5 py-0 text-left font-mono text-2xs font-bold uppercase tracking-wide text-text-muted">
+                    <th className="sticky left-0 top-0 z-30 h-8 min-w-[170px] border-b-[1.5px] border-r-[1.5px] border-border bg-surface-2 px-2.5 py-0 text-left text-xs font-bold text-text-muted">
                       {t("journal.student")}
                     </th>
                     {dates.map((d) => {
@@ -818,7 +818,7 @@ function RegisterTab({ courses }: RegisterTabProps) {
                         </th>
                       );
                     })}
-                    <th className="sticky right-0 top-0 z-30 h-8 border-b-[1.5px] border-l-[1.5px] border-border bg-surface-2 px-2.5 py-0 font-mono text-2xs font-bold uppercase tracking-wide text-text-muted">
+                    <th className="sticky right-0 top-0 z-30 h-8 border-b-[1.5px] border-l-[1.5px] border-border bg-surface-2 px-2.5 py-0 text-xs font-bold text-text-muted">
                       {t("journal.attShort")}
                     </th>
                   </tr>
@@ -874,7 +874,7 @@ function RegisterTab({ courses }: RegisterTabProps) {
                 </tbody>
                 <tfoot>
                   <tr>
-                    <td className="sticky left-0 z-10 h-8 border-r-[1.5px] border-t-[1.5px] border-border bg-surface-2 px-2.5 py-0 font-mono text-2xs font-bold uppercase tracking-wide text-text-muted">
+                    <td className="sticky left-0 z-10 h-8 border-r-[1.5px] border-t-[1.5px] border-border bg-surface-2 px-2.5 py-0 text-xs font-bold text-text-muted">
                       {t("journal.presentFrom")} {students.length}
                     </td>
                     {colTotals.map((tot, i) => (
@@ -882,7 +882,7 @@ function RegisterTab({ courses }: RegisterTabProps) {
                         key={dates[i]}
                         className={`border-t-[1.5px] border-border bg-surface-2 px-1 py-2.5 text-center text-xs font-extrabold ${
                           tot >= students.length - 1
-                            ? "text-green-700"
+                            ? "text-success-fg"
                             : tot <= students.length - 3
                               ? "text-clay-700"
                               : "text-text"
@@ -902,13 +902,13 @@ function RegisterTab({ courses }: RegisterTabProps) {
           <div className="flex flex-col gap-3">
             <Card>
               <CardContent className="px-4 py-4">
-                <div className="font-mono text-3xs font-semibold uppercase tracking-[0.14em] text-text-subtle">
+                <div className="text-xs font-semibold text-text-subtle">
                   {t("journal.avgAttendance")}
                 </div>
                 <div className="mt-1 flex items-baseline gap-1.5">
                   <span
                     className={`text-2xl font-extrabold tracking-tight ${
-                      avgPct >= 85 ? "text-green-700" : "text-sun-700"
+                      avgPct >= 85 ? "text-success-fg" : "text-sun-700"
                     }`}
                   >
                     {avgPct}%
@@ -1175,7 +1175,7 @@ function ScheduleTab({ courses, isManager }: ScheduleTabProps) {
       {/* Color legend (course → group) */}
       {legendCourses.length > 0 && (
         <div className="flex flex-wrap items-center gap-2">
-          <span className="mr-0.5 font-mono text-2xs font-bold uppercase tracking-[0.08em] text-text-subtle">
+          <span className="mr-0.5 text-xs font-bold text-text-subtle">
             {t("schedule.groupsLegend")}
           </span>
           {legendCourses.map(([cid, title]) => (
@@ -1831,7 +1831,7 @@ function RoomBoardRow({
                   )}
                   <span
                     className={`truncate text-3xs font-extrabold ${
-                      isClash ? "text-clay-700" : "text-green-800"
+                      isClash ? "text-clay-700" : "text-success-fg"
                     }`}
                   >
                     {label}
@@ -1845,7 +1845,7 @@ function RoomBoardRow({
       <td className="border-b border-l-[1.5px] border-ink-50 border-l-ink-100 text-center">
         <span
           className={`font-mono text-xs font-extrabold ${
-            utilPct > 40 ? "text-green-700" : "text-text-subtle"
+            utilPct > 40 ? "text-success-fg" : "text-text-subtle"
           }`}
         >
           {utilPct}%

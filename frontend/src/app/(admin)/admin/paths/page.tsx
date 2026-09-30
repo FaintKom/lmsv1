@@ -198,7 +198,7 @@ export default function AdminPathsPage() {
  type="checkbox"
  checked={s.is_required}
  onChange={() => toggleRequired(s.course_id)}
- className="rounded border-border-strong text-primary focus:ring-green-500"
+ className="rounded border-border-strong text-primary focus:ring-border-focus"
  />
  {t("admin.paths.required")}
  </label>

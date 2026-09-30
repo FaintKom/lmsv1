@@ -93,7 +93,7 @@ export function SceneView({ lessonId, scene, boardHandleRef, interactive, canQui
   } else {
     body = (
       <div className="flex h-full flex-col items-center justify-center gap-4">
-        <span className="flex items-center gap-2 rounded-pill bg-danger-soft px-3 py-1.5 font-mono text-2xs font-bold uppercase tracking-wide text-clay-700">
+        <span className="flex items-center gap-2 rounded-pill bg-danger-soft px-3 py-1.5 text-xs font-bold text-clay-700">
           <span className="h-2 w-2 animate-pulse rounded-pill bg-clay-500" />
           {t("live.lesson")}
         </span>
@@ -304,7 +304,7 @@ function TaskPane({
     return (
       <div className="flex h-full flex-col items-center justify-center gap-3">
         <div className="text-3xl font-extrabold text-text">{exercise.title ?? ""}</div>
-        <div className="font-mono text-xs font-bold uppercase tracking-wide text-text-subtle">
+        <div className="text-xs font-bold text-text-subtle">
           {t("live.scene.task")}
         </div>
       </div>
@@ -350,7 +350,7 @@ function TaskPane({
         </span>
         <div className="text-xl font-extrabold text-text">{exercise.title ?? ""}</div>
         {done === "solved" && (
-          <div className="font-mono text-xs font-bold uppercase tracking-wide text-green-700">
+          <div className="text-xs font-bold text-success-fg">
             {t("live.solved")}
           </div>
         )}
@@ -405,7 +405,7 @@ function SolutionPane({ payload }: { payload: Record<string, unknown> }) {
           {String(payload.exercise_title)}
         </h2>
       ) : null}
-      <div className="mb-4 font-mono text-xs font-bold uppercase tracking-wide text-text">
+      <div className="mb-4 text-xs font-bold text-text">
         {payload.anonymous ? t("live.anonymous") : String(payload.student_name ?? "")}
       </div>
       {payload.source_code ? (
@@ -426,7 +426,7 @@ export function AnswerList({ answers }: { answers: Record<string, unknown> }) {
     <div className="mt-4 flex flex-col gap-3">
       {Object.entries(answers).map(([key, value]) => (
         <div key={key}>
-          <div className="mb-1.5 font-mono text-3xs font-bold uppercase tracking-wide text-text-subtle">
+          <div className="mb-1.5 text-xs font-bold text-text-subtle">
             {key.replace(/_/g, " ")}
           </div>
           {Array.isArray(value) ? (

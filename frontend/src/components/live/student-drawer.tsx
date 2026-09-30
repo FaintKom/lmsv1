@@ -72,8 +72,8 @@ export function StudentDrawer({
           canShare={canShare}
         />
       </div>
-      <div className="mb-2 flex items-center gap-2 font-mono text-xs font-bold uppercase tracking-wide text-text">
-        <span className="h-1.5 w-1.5 animate-pulse rounded-pill bg-green-500" />
+      <div className="mb-2 flex items-center gap-2 text-xs font-bold text-text">
+        <span className="h-1.5 w-1.5 animate-pulse rounded-pill bg-primary" />
         {t("live.draft")}
       </div>
       {draft ? (

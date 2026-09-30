@@ -38,7 +38,7 @@ export function ExercisePicker({
   }, [lessonRowId]);
   return (
     <div className="h-full overflow-y-auto p-5">
-      <div className="mb-3 font-mono text-xs font-bold uppercase tracking-wide text-text">
+      <div className="mb-3 text-xs font-bold text-text">
         {t("live.pickExercise")}
       </div>
       {items.map((ex) => {
@@ -59,19 +59,19 @@ export function ExercisePicker({
           >
             <span
               className={`flex h-[15px] w-[15px] shrink-0 items-center justify-center rounded-pill ${
-                isLive || isPicked ? "bg-green-600" : "border-2 border-ink-200"
+                isLive || isPicked ? "bg-success" : "border-2 border-ink-200"
               }`}
             >
               {(isLive || isPicked) && <Check size={9} strokeWidth={4} className="text-white" />}
             </span>
             <span className="min-w-0 flex-1 truncate">{ex.title}</span>
-            <span className="rounded-pill bg-surface-2 px-2 py-0.5 font-mono text-3xs font-bold uppercase tracking-wide text-text">
+            <span className="rounded-pill bg-surface-2 px-2 py-0.5 text-xs font-bold text-text">
               {ex.exercise_type}
             </span>
             {isLive && (
               <Radio
                 size={14}
-                className="shrink-0 animate-pulse text-green-700"
+                className="shrink-0 animate-pulse text-success-fg"
                 aria-label={t("live.scene.task")}
               />
             )}

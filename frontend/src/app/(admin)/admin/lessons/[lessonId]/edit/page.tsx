@@ -315,12 +315,16 @@ export default function LessonEditorPage() {
     [confirm, t]
   );
 
+  // M7: only the block the teacher just added animates in (MOTION.md §8).
+  const [justAdded, setJustAdded] = useState<string | null>(null);
   const addBlock = useCallback((kind: BlockKind, pageIndex: number, position: number) => {
+    const newId = generateBlockId();
+    setJustAdded(newId);
     setPages((ps) =>
       ps.map((p, i) => {
         if (i !== pageIndex) return p;
         const newBlock: LessonBlock = {
-          id: generateBlockId(),
+          id: newId,
           type: kind,
           sort_order: position,
           page: pageIndex + 1,
@@ -474,7 +478,7 @@ export default function LessonEditorPage() {
   return (
     <div className="flex min-h-screen flex-col bg-bg">
       {/* Top bar */}
-      <div className="sticky top-0 z-30 border-b border-border bg-bg/95 backdrop-blur">
+      <div className="sticky top-0 z-30 border-b border-border bg-bg">
         <div className="mx-auto flex max-w-4xl items-center gap-3 px-6 py-3">
           <button
             onClick={() => router.push(backHref)}
@@ -603,11 +607,10 @@ export default function LessonEditorPage() {
                         <div
                           key={block.id}
                           id={`block-${block.id}`}
-                          className={
-                            block.id === anchored
-                              ? "rounded-lg outline outline-2 outline-offset-2 outline-primary"
-                              : undefined
-                          }
+                          className={[
+                            block.id === anchored ? "rounded-lg outline outline-2 outline-offset-2 outline-primary" : "",
+                            block.id === justAdded ? "block-enter" : "",
+                          ].join(" ") || undefined}
                         >
                           <SortableBlock
                             block={block}
@@ -717,7 +720,7 @@ function AddZone({ onAdd }: { onAdd: (kind: BlockKind) => void }) {
         <Plus className="inline h-3 w-3" /> add block
       </button>
       {open && (
-        <div className="absolute left-1/2 top-full z-20 mt-1 flex -translate-x-1/2 gap-1 rounded-lg border border-border-strong bg-bg p-1 shadow-lg">
+        <div className="pop-in absolute left-1/2 top-full z-20 mt-1 flex origin-top -translate-x-1/2 gap-1 rounded-lg border border-border-strong bg-bg p-1 shadow-lg">
           <BlockTypeChips onPick={(k) => { onAdd(k); setOpen(false); }} />
         </div>
       )}
@@ -751,7 +754,7 @@ function AddContentButton({
         {t("admin.lessonEditor.addContent")}
       </button>
       {open && (
-        <div className="absolute left-1/2 top-full z-20 mt-1 flex -translate-x-1/2 flex-wrap justify-center gap-1 rounded-lg border border-border-strong bg-bg p-1 shadow-lg">
+        <div className="pop-in absolute left-1/2 top-full z-20 mt-1 flex origin-top -translate-x-1/2 flex-wrap justify-center gap-1 rounded-lg border border-border-strong bg-bg p-1 shadow-lg">
           <BlockTypeChips onPick={(k) => { onAdd(k); setOpen(false); }} />
         </div>
       )}

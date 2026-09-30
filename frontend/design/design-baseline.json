@@ -1,46 +1,10 @@
 {
-  "app/(admin)/admin/assignments/[id]/edit/page.tsx": {
-    "raw-palette": 1
-  },
-  "app/(admin)/admin/assignments/page.tsx": {
-    "raw-palette": 1
-  },
-  "app/(admin)/admin/content-library/[exerciseId]/exercise-config-editors.tsx": {
-    "mono-eyebrow": 3
-  },
   "app/(admin)/admin/courses/[courseId]/edit/page.tsx": {
     "layout-anim": 1
-  },
-  "app/(admin)/admin/courses/page.tsx": {
-    "glass": 2,
-    "gradient": 2,
-    "raw-palette": 6
-  },
-  "app/(admin)/admin/journal/page.tsx": {
-    "mono-eyebrow": 6,
-    "raw-palette": 7
-  },
-  "app/(admin)/admin/journal/student/[studentId]/page.tsx": {
-    "gradient": 1,
-    "raw-palette": 9
-  },
-  "app/(admin)/admin/lessons/[lessonId]/edit/page.tsx": {
-    "glass": 1
-  },
-  "app/(admin)/admin/live/[lessonId]/page.tsx": {
-    "glass": 1,
-    "mono-eyebrow": 2,
-    "raw-palette": 2
   },
   "app/(admin)/admin/page.tsx": {
     "mono-eyebrow": 3,
     "raw-palette": 15
-  },
-  "app/(admin)/admin/paths/page.tsx": {
-    "raw-palette": 1
-  },
-  "app/(admin)/admin/students/[studentId]/page.tsx": {
-    "raw-palette": 1
   },
   "app/(admin)/admin/users/page.tsx": {
     "raw-palette": 5
@@ -126,12 +90,7 @@
     "raw-hex": 1
   },
   "components/journal/pacing-flow.tsx": {
-    "mono-eyebrow": 1,
-    "raw-palette": 14
-  },
-  "components/journal/session-detail.tsx": {
-    "mono-eyebrow": 2,
-    "raw-palette": 3
+    "raw-palette": 2
   },
   "components/landing/code-demo.tsx": {
     "mono-eyebrow": 1
@@ -155,61 +114,8 @@
   "components/lesson/fb-motion.ts": {
     "bezier-literal": 1
   },
-  "components/live/attention-panel.tsx": {
-    "mono-eyebrow": 1,
-    "raw-palette": 1
-  },
-  "components/live/chat-panel.tsx": {
-    "mono-eyebrow": 1
-  },
-  "components/live/exercise-picker.tsx": {
-    "mono-eyebrow": 2,
-    "raw-palette": 2
-  },
-  "components/live/lesson-review.tsx": {
-    "mono-eyebrow": 4,
-    "raw-palette": 1
-  },
-  "components/live/material-picker.tsx": {
-    "gradient": 4,
-    "mono-eyebrow": 6,
-    "raw-palette": 4
-  },
-  "components/live/poll-modal.tsx": {
-    "glass": 1,
-    "raw-palette": 1
-  },
   "components/live/poll-panel.tsx": {
-    "gradient": 1,
-    "layout-anim": 1,
-    "mono-eyebrow": 2,
-    "raw-palette": 3
-  },
-  "components/live/progress-grid.tsx": {
-    "mono-eyebrow": 1,
-    "raw-palette": 2
-  },
-  "components/live/recording-indicator.tsx": {
     "mono-eyebrow": 1
-  },
-  "components/live/review-inspector.tsx": {
-    "mono-eyebrow": 3
-  },
-  "components/live/roster-panel.tsx": {
-    "mono-eyebrow": 1
-  },
-  "components/live/scene-view.tsx": {
-    "mono-eyebrow": 5,
-    "raw-palette": 1
-  },
-  "components/live/signal-bar.tsx": {
-    "glass": 1,
-    "mono-eyebrow": 1,
-    "raw-palette": 3
-  },
-  "components/live/student-drawer.tsx": {
-    "mono-eyebrow": 1,
-    "raw-palette": 1
   },
   "components/onboarding/teacher-onboarding.tsx": {
     "layout-anim": 1
@@ -228,9 +134,6 @@
   "components/submissions/exercises/srs-flashcard.css": {
     "layout-anim": 1,
     "ms-literal": 3
-  },
-  "components/submissions/exercises/srs-flashcard.tsx": {
-    "mono-eyebrow": 1
   },
   "components/widgets/interactive-widgets.ts": {
     "gradient": 16,

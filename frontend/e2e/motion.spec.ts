@@ -33,6 +33,24 @@ async function mount(page: Page, html: string) {
   return page.locator("#motion-probe");
 }
 
+/**
+ * Mount `html` and report which properties started a CSS transition on it.
+ * M6 and M7 enter through @starting-style, which only shows as a transition.
+ */
+async function enterTransitions(page: Page, html: string) {
+  await page.evaluate(() => {
+    const w = window as unknown as { __enter: string[] };
+    w.__enter = [];
+    document.addEventListener("transitionrun", (e) => {
+      if ((e.target as Element).id === "motion-probe") w.__enter.push(e.propertyName);
+    });
+  });
+  const el = await mount(page, html);
+  await page.waitForTimeout(400);
+  const props = await page.evaluate(() => (window as unknown as { __enter: string[] }).__enter);
+  return { el, props };
+}
+
 for (const mode of MODES) {
   test.describe(`motion, ${mode.name}`, () => {
     test.beforeEach(async ({ context, page }) => {
@@ -142,6 +160,28 @@ for (const mode of MODES) {
       await expect(page.getByRole("heading", { level: 1 })).toBeVisible({ timeout: 20_000 });
       await expect(page.locator(".stagger-children")).toHaveCount(0);
     });
+
+    test("M6 a menu grows from its button, and only fades under reduced motion", async ({ page }) => {
+      const { el, props } = await enterTransitions(
+        page,
+        '<div id="motion-probe" class="pop-in origin-top" style="position:fixed;left:40px;top:40px;width:120px;height:40px;background:#fff;z-index:99999">menu</div>',
+      );
+      expect(await el.evaluate((n) => getComputedStyle(n).transformOrigin)).toMatch(/^60px 0px/);
+      expect(props).toContain("opacity");
+      if (mode.reducedMotion === "reduce") expect(props).not.toContain("transform");
+      else expect(props).toContain("transform");
+    });
+
+    test("M7 a new block rises and loses its wash, and does not move under reduced motion", async ({ page }) => {
+      const { props } = await enterTransitions(
+        page,
+        '<div id="motion-probe" class="block-enter" style="position:fixed;left:40px;top:40px;width:200px;height:60px;z-index:99999">block</div>',
+      );
+      expect(props).toContain("background-color");
+      if (mode.reducedMotion === "reduce") expect(props).not.toContain("transform");
+      else expect(props).toContain("transform");
+    });
+
 
     test("M3 press scales a control to 0.96, and not under reduced motion", async ({ page }) => {
       const button = await mount(

@@ -8,7 +8,7 @@ import { useTranslation } from "@/lib/i18n/context";
 function StatusTile({ row }: { row: ProgressRow }) {
   if (row.passed)
     return (
-      <span className="flex h-5 w-5 items-center justify-center rounded-sm bg-green-500 text-white">
+      <span className="flex h-5 w-5 items-center justify-center rounded-sm bg-primary text-primary-fg">
         <Check size={12} strokeWidth={3} />
       </span>
     );
@@ -36,7 +36,7 @@ export function ProgressGrid({ rows }: { rows: ProgressRow[] }) {
   const solved = rows.filter((r) => r.passed).length;
   return (
     <div>
-      <div className="mb-2 font-mono text-xs font-bold tabular-nums text-green-700">
+      <div className="mb-2 font-mono text-xs font-bold tabular-nums text-success-fg">
         {solved}/{rows.length}
       </div>
       <div className="flex flex-col gap-1">
@@ -46,7 +46,7 @@ export function ProgressGrid({ rows }: { rows: ProgressRow[] }) {
             className="flex items-center gap-2.5 rounded-md bg-surface-2 p-2 text-sm"
           >
             <span className="min-w-0 flex-1 truncate font-semibold text-text">{r.name}</span>
-            <span className="font-mono text-3xs uppercase tracking-wide text-text-subtle">
+            <span className="text-xs text-text-subtle">
               {r.attempts} {t("live.attempts")}
             </span>
             <StatusTile row={r} />

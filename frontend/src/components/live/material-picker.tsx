@@ -1,5 +1,6 @@
 "use client";
 
+import { SUBJECT_SURFACE, subjectOf } from "@/lib/subject";
 import { useEffect, useMemo, useState } from "react";
 import { BookOpen, Check, ChevronLeft, ChevronRight, Radio, Search } from "lucide-react";
 
@@ -23,18 +24,6 @@ interface CourseRow {
   status?: string;
 }
 
-// Spec §4.1: course covers are radial gradients, never photos. Hue by hash.
-const COVERS = [
-  "radial-gradient(circle at 75% 25%, var(--green-500), var(--green-800))",
-  "radial-gradient(circle at 75% 25%, var(--green-600), var(--ink-900))",
-  "radial-gradient(circle at 75% 25%, var(--clay-500), var(--clay-700))",
-  "radial-gradient(circle at 75% 25%, var(--sun-400), var(--sun-700))",
-];
-function coverFor(title: string) {
-  let h = 0;
-  for (const ch of title) h = (h * 31 + ch.charCodeAt(0)) | 0;
-  return COVERS[Math.abs(h) % COVERS.length];
-}
 
 /**
  * Two-step source picker: course → lesson. Defaults into the group's
@@ -108,7 +97,7 @@ export function MaterialPicker({
     return (
       <div className="h-full overflow-y-auto p-6">
         <div className="mb-4 flex items-center justify-between gap-4">
-          <div className="font-mono text-xs font-bold uppercase tracking-wide text-text">
+          <div className="text-xs font-bold text-text">
             {t("live.pickMaterial")}
           </div>
           <label className="flex h-9 w-56 items-center gap-2 rounded-md border-2 border-border bg-surface px-3 transition-colors focus-within:border-border-focus">
@@ -132,13 +121,13 @@ export function MaterialPicker({
                   setQuery("");
                   setCourseId(c.id);
                 }}
-                className="group flex items-center gap-3.5 rounded-lg border border-border bg-surface p-3.5 text-left shadow-sm transition duration-150 hover:-translate-y-0.5 hover:border-green-300 hover:shadow-md active:translate-y-0"
+                className="group flex items-center gap-3.5 rounded-lg bg-surface p-3.5 text-left transition-transform duration-[var(--motion-fast)] ease-[var(--motion-ease)] motion-safe:hover:-translate-y-0.5"
               >
                 <span
-                  className="flex h-14 w-14 shrink-0 items-end justify-start rounded-md p-1.5"
-                  style={{ background: coverFor(c.title) }}
+                  data-subject={subjectOf(c.category)}
+                  className={`flex h-14 w-14 shrink-0 items-end justify-start rounded-md p-1.5 text-subject-ink ${SUBJECT_SURFACE[subjectOf(c.category)]}`}
                 >
-                  <span className="font-mono text-lg font-bold leading-none text-white/40">
+                  <span className="font-display text-lg font-semibold leading-none opacity-60">
                     {c.title.charAt(0).toUpperCase()}
                   </span>
                 </span>
@@ -148,12 +137,12 @@ export function MaterialPicker({
                   </span>
                   <span className="mt-1 flex items-center gap-2">
                     {c.category && (
-                      <span className="font-mono text-3xs uppercase tracking-wide text-text-subtle">
+                      <span className="text-xs text-text-subtle">
                         {c.category}
                       </span>
                     )}
                     {c.status && c.status !== "published" && (
-                      <span className="rounded-pill bg-warning-soft px-2 py-0.5 font-mono text-3xs font-bold uppercase text-sun-700">
+                      <span className="rounded-pill bg-warning-soft px-2 py-0.5 text-xs font-bold text-sun-700">
                         {c.status}
                       </span>
                     )}
@@ -161,7 +150,7 @@ export function MaterialPicker({
                 </span>
                 <ChevronRight
                   size={16}
-                  className="shrink-0 text-text-subtle transition-transform duration-150 group-hover:translate-x-0.5 group-hover:text-green-700"
+                  className="shrink-0 text-text-subtle transition-transform duration-150 group-hover:translate-x-0.5 group-hover:text-success-fg"
                 />
               </button>
             ))}
@@ -177,12 +166,12 @@ export function MaterialPicker({
       <div className="mb-4 flex items-center gap-3">
         <button
           onClick={() => setCourseId(null)}
-          className="inline-flex items-center gap-1 rounded-pill bg-surface-2 px-3 py-2.5 font-mono text-3xs font-bold uppercase tracking-wide text-text transition-colors hover:bg-surface-2"
+          className="inline-flex items-center gap-1 rounded-pill bg-surface-2 px-3 py-2.5 text-xs font-bold text-text transition-colors hover:bg-surface-2"
         >
           <ChevronLeft size={11} strokeWidth={3} /> {t("common.back")}
         </button>
         <div className="min-w-0">
-          <div className="font-mono text-3xs uppercase tracking-wide text-text-subtle">
+          <div className="text-xs text-text-subtle">
             {t("live.pickMaterial")}
           </div>
           <div className="truncate text-sm font-extrabold text-text">
@@ -197,7 +186,7 @@ export function MaterialPicker({
             <span className="flex h-[22px] w-[22px] items-center justify-center rounded-sm bg-surface-2 font-mono text-3xs font-bold text-text">
               {mi + 1}
             </span>
-            <span className="font-mono text-2xs font-semibold uppercase tracking-wide text-text-subtle">
+            <span className="text-xs font-semibold text-text-subtle">
               {m.title}
             </span>
             <span className="font-mono text-3xs text-text-subtle">
@@ -222,7 +211,7 @@ export function MaterialPicker({
               >
                 <span
                   className={`flex h-[15px] w-[15px] shrink-0 items-center justify-center rounded-pill ${
-                    isLive || isPicked ? "bg-green-600" : "border-2 border-ink-200"
+                    isLive || isPicked ? "bg-success" : "border-2 border-ink-200"
                   }`}
                 >
                   {(isLive || isPicked) && (
@@ -233,7 +222,7 @@ export function MaterialPicker({
                 {isLive && (
                   <Radio
                     size={14}
-                    className="shrink-0 animate-pulse text-green-700"
+                    className="shrink-0 animate-pulse text-success-fg"
                     aria-label={t("live.scene.material")}
                   />
                 )}

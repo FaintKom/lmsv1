@@ -166,6 +166,14 @@ fails any call outside its allow-list.
 |---|---|
 | `.press-scale` | press feedback, `scale(0.96)` @ 120ms, none under reduced motion; also carries the colour transitions, see the layering note below |
 | `.progress-fill` | M2: `scaleX(var(--p))` from the left, grows from 0 on first paint; used by `components/ui/progress-bar.tsx` |
+| `.pop-in` | M6: a menu enters from `scale(0.96)` + fade via `@starting-style`; add an `origin-*` utility on the trigger's side. Under reduced motion only the fade runs |
+| `.block-enter` | M7: put only on the block just added (the builder tracks its id); rises 8px, the `--color-primary-soft` wash fades. Under reduced motion only the fade and wash run |
+
+**M8 toasts** are Sonner's own motion. Sonner ships
+`@media (prefers-reduced-motion){[data-sonner-toast]{transition:none;animation:none}}`;
+`src/lib/design/motion-toast.test.ts` fails if an upgrade drops it. A browser
+probe cannot check this: Sonner injects its stylesheet only once a toast is
+shown, so a probe on an empty page passes for nothing.
 | `.enter-fade-rise` | one-shot enter: opacity 0→1 + translateY(8px)→0, 200ms ease-out |
 | `.stagger-children > *` | staggered `.enter-fade-rise` for up to 6 children, 60ms step |
 | `.skeleton` / `.lms-skeleton` | 1.5s linear shimmer; show after 200ms, never a full-page spinner |
