@@ -13,15 +13,15 @@ export function LangCode({ code, label, active = false, onClick }: LangCodeProps
       type="button"
       onClick={onClick}
       className={cn(
-        "flex items-center gap-2.5 rounded-xl px-3.5 py-2.5 text-left text-sm font-semibold transition",
+        "flex items-center gap-2.5 min-w-0 rounded-lg px-3.5 py-2.5 text-left text-sm font-semibold transition",
         active
-          ? "border-2 border-green-500 bg-success-soft text-success-fg"
+          ? "border-2 border-primary bg-success-soft text-success-fg"
           : "border border-border bg-surface text-text hover:border-border-strong hover:bg-surface-2",
       )}
     >
       <span
         className={cn(
-          "grid h-[22px] w-[30px] flex-shrink-0 place-items-center rounded-xs font-mono text-3xs font-bold uppercase tracking-[0.08em]",
+          "grid h-[22px] w-[30px] flex-shrink-0 place-items-center rounded-xs font-mono text-2xs font-bold",
           active ? "bg-primary text-primary-fg" : "bg-surface-2 text-text",
         )}
       >

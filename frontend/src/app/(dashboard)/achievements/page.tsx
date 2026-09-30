@@ -264,7 +264,7 @@ function AvatarTab() {
  <div className="relative h-[60vh] min-h-[400px] overflow-hidden lg:h-full">
  <AvatarCanvas state={state} />
  <div className="pointer-events-none absolute left-6 top-6 max-w-md">
- <p className="font-mono text-2xs uppercase tracking-[0.14em] text-text-subtle">
+ <p className="text-xs text-text-subtle">
  {t("nav.achievements")} · {t("nav.myAvatar")}
  </p>
  <h1 className="mt-2 text-xl font-extrabold leading-tight text-text">
@@ -272,7 +272,7 @@ function AvatarTab() {
  <span
  className="inline-block rounded-xs px-2 py-0 text-text"
  style={{
- background: "#ffe9a3",
+ background: "var(--color-reward-soft)",
  transform: "rotate(-1.5deg)",
  display: "inline-block",
  }}
@@ -545,7 +545,7 @@ function CertificatesTab({ certificates }: { certificates: CertificateData[] }) 
  {certificates.map((cert) => (
  <Card key={cert.id} className="hover:shadow-md">
  <CardContent className="flex items-center gap-4 p-5">
- <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-gradient-to-br from-sun-100 to-sun-50">
+ <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-reward-soft">
  <Award className="h-6 w-6 text-warning-fg" />
  </div>
  <div className="min-w-0 flex-1">
@@ -607,10 +607,10 @@ function SkillsTab({ skills, radarData }: { skills: UserSkill[]; radarData: Rada
  <CardContent>
  <ResponsiveContainer width="100%" height={300}>
  <RadarChart data={radarData}>
- <PolarGrid stroke="#e2e8f0" />
- <PolarAngleAxis dataKey="subject" tick={{ fontSize: 12, fill: "#64748b" }} />
- <PolarRadiusAxis tick={{ fontSize: 10, fill: "#94a3b8" }} />
- <Radar name="XP" dataKey="value" stroke="#6366f1" fill="#6366f1" fillOpacity={0.3} />
+ <PolarGrid stroke="var(--color-border)" />
+ <PolarAngleAxis dataKey="subject" tick={{ fontSize: 12, fill: "var(--color-text-muted)" }} />
+ <PolarRadiusAxis tick={{ fontSize: 10, fill: "var(--color-text-subtle)" }} />
+ <Radar name="XP" dataKey="value" stroke="var(--viz-1)" fill="var(--viz-1)" fillOpacity={0.3} />
  </RadarChart>
  </ResponsiveContainer>
  </CardContent>

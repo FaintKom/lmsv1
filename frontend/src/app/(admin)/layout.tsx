@@ -40,7 +40,7 @@ export default function AdminLayout({
  if (isLoading) {
  return (
  <div className="flex h-screen flex-col items-center justify-center gap-3 bg-surface-2 ">
- <div className="relative flex h-12 w-12 items-center justify-center rounded-sm bg-green-500 text-xl font-extrabold text-white">
+ <div className="relative flex h-12 w-12 items-center justify-center rounded-sm bg-primary text-xl font-extrabold text-primary-fg">
  g
  <span className="absolute bottom-[5px] right-[6px] h-[6px] w-[6px] rounded-full bg-sun-400" />
  </div>
@@ -85,7 +85,7 @@ export default function AdminLayout({
  className="h-7 w-7 rounded-xs object-cover"
  />
  ) : (
- <div className="relative flex h-7 w-7 items-center justify-center rounded-xs bg-green-500 text-sm font-extrabold text-white">
+ <div className="relative flex h-7 w-7 items-center justify-center rounded-xs bg-primary text-sm font-extrabold text-primary-fg">
  g
  <span className="absolute bottom-[3px] right-[3px] h-[4px] w-[4px] rounded-full bg-sun-400" />
  </div>

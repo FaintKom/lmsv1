@@ -130,9 +130,15 @@ must not move or scale. Details and the test for each:
 |---|---|---|---|
 | M2 | `ProgressBar` | `.progress-fill` grows by `scaleX` from 0 on first paint (`@starting-style`) | slow, ease-out-strong |
 | M3 | every pressable | `.press-scale`: `scale(0.96)` on `:active` | fast, ease |
-| M4a | exercise option, correct | tick cross-fades in: opacity, scale .25→1, blur 4→0 | base, ease-out-strong |
-| M4b | exercise option, wrong | one shake of ±4px; the hint text carries the meaning | 300ms keyframes |
-| M4c | XP for a correct answer | "+10 XP" rises and fades | 700ms, ease-out-strong |
+| M4a | exercise result, correct | the existing `fb-pop` on `.lf-fb-icon` and on correct pieces, curve `--motion-ease-spring` | 300–400ms × `--mdur` |
+| M4b | exercise answer, wrong | the existing `fb-shake`, amplitude × `--mamp`; the hint text carries the meaning | 400ms × `--mdur` |
+| M4c | XP for a correct answer | **deferred**: the submission response does not say how much XP it earned, and the page will not guess | — |
+
+The exercise feedback grammar (`fb-*` in globals.css) already covered 44
+widget types before v3; M4 names it rather than adding a second one. Its two
+knobs are the reduced-motion switch: `--mdur` scales every duration,
+`--mamp` every amplitude, and `--mamp` is 0 under `prefers-reduced-motion`,
+so no shake, lift or tilt moves while colour and text still change.
 | M5 | course card, tile | lifts 2px on hover, pointer devices only | fast, ease |
 | M6 | block menu in the builder | scales .96→1 from its button | base, ease-out-strong |
 | M7 | new block in the builder | rises 8px, green wash fades | base, ease-out |

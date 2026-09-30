@@ -96,7 +96,7 @@
 - [x] T031 [US3] Обновить frontend/design/design-baseline.json: счётчики только уменьшились
 - [x] T031a [US3] Остальные базовые компоненты из FR-008 под новые радиусы, шрифт и тени: frontend/src/components/ui/confirm-dialog.tsx, bottom-sheet.tsx, error-boundary.tsx, access-denied.tsx, toaster.tsx; найти общие таблицу и пустое состояние (`grep -rln "EmptyState\|<table" frontend/src/components`) и привести их к одному экземпляру
 - [x] T031b [US3] Каркас frontend/e2e/motion.spec.ts (хелпер «дважды: обычный режим и `reducedMotion: 'reduce'`») и тесты M2 (полоса прогресса) и M3 (нажатие кнопки), сначала красные: эти приёмы появляются в этом PR
-- [ ] T032 [US3] Снять набор «после» (`node e2e/mobile-audit.mjs --shots`), приложить пары к PR, проверить на снимках 390px (FR-005 для прототипа проверить не удалось); прогнать frontend/e2e/dark-theme.spec.ts и frontend/e2e/mobile.spec.ts
+- [x] T032 [US3] Снять набор «после» (`node e2e/mobile-audit.mjs --shots`), приложить пары к PR, проверить на снимках 390px (FR-005 для прототипа проверить не удалось); прогнать frontend/e2e/dark-theme.spec.ts и frontend/e2e/mobile.spec.ts
 
 **Checkpoint**: PR 2 зелёный, снимки приложены. Мёрж, деплой, проверка прода глазами.
 
@@ -111,21 +111,21 @@
 
 ### Tests
 
-- [ ] T033 [US3] Дописать в frontend/e2e/motion.spec.ts тесты M4a, M4b, M4c, M5, M9, M10 по contracts/motion.md; каждый сначала красный на текущем коде
-- [ ] T034 [P] [US3] Дополнить сценарий ученика в frontend/e2e/journeys проверкой, что плитки курсов получают `data-subject` по категории
+- [x] T033 [US3] Дописать в frontend/e2e/motion.spec.ts тесты M4a, M4b, M4c, M5, M9, M10 по contracts/motion.md; каждый сначала красный на текущем коде
+- [x] T034 [P] [US3] Дополнить сценарий ученика в frontend/e2e/journeys проверкой, что плитки курсов получают `data-subject` по категории
 
 ### Implementation
 
-- [ ] T035 [US3] Главная ученика frontend/src/app/(dashboard)/dashboard/page.tsx и её компоненты: карточка «продолжить» на цвете предмета, «Due this week», полоса сводки вместо четырёх плиток, плитки курсов; появление блоками M9 только при первом открытии
-- [ ] T036 [US3] Каталог frontend/src/app/(dashboard)/courses/page.tsx: обложка в цвете предмета без градиента и иконки, фильтр по предмету, подъём при наведении M5, перестроение через View Transition M10 с защитой `!document.hidden` и `skipTransition()`
-- [ ] T037 [US3] Страница курса frontend/src/app/(dashboard)/courses/[courseId]/page.tsx
-- [ ] T038 [US3] Урок: frontend/src/app/(dashboard)/courses/[courseId]/lessons/[lessonId]/page.tsx и frontend/src/app/(dashboard)/lesson/[lessonId]/page.tsx; оглавление слева, ширина строки 66ch
-- [ ] T039 [US3] Обратная связь упражнения (компонент проверки ответа в frontend/src/components/exercises/): M4a галочка, M4b вздрагивание с подсказкой, M4c «+10 XP»; результат по-прежнему с сервера (принцип III)
-- [ ] T040 [P] [US3] frontend/src/app/(dashboard)/progress, achievements, leaderboard, certificates, skills, paths, paths/[pathId]
-- [ ] T041 [P] [US3] frontend/src/app/(dashboard)/assignments, assignments/[assignmentId], calendar, schedule, attendance, live, peer-review, team-projects
-- [ ] T042 [P] [US3] frontend/src/app/(dashboard)/profile, support, support/thanks, parent, parent/children, parent/children/[childId], а также frontend/src/app/student-cabinet
-- [ ] T043 [US3] Боковое меню и нижняя панель на телефоне (frontend/src/app/(dashboard)/layout.tsx): активный пункт на `primary-soft`, переходы без анимации
-- [ ] T044 [US3] Обновить design-baseline.json, снимки «до/после» экранов ученика, прогнать проверки specs/065–067 (`node e2e/mobile-audit.mjs`)
+- [x] T035 [US3] Главная ученика frontend/src/app/(dashboard)/dashboard/page.tsx и её компоненты: карточка «продолжить» на цвете предмета, «Due this week», полоса сводки вместо четырёх плиток, плитки курсов; появление блоками M9 только при первом открытии
+- [x] T036 [US3] Каталог frontend/src/app/(dashboard)/courses/page.tsx: обложка в цвете предмета без градиента и иконки, фильтр по предмету, подъём при наведении M5, перестроение через View Transition M10 с защитой `!document.hidden` и `skipTransition()`
+- [x] T037 [US3] Страница курса frontend/src/app/(dashboard)/courses/[courseId]/page.tsx
+- [x] T038 [US3] Урок: frontend/src/app/(dashboard)/courses/[courseId]/lessons/[lessonId]/page.tsx и frontend/src/app/(dashboard)/lesson/[lessonId]/page.tsx; оглавление слева, ширина строки 66ch
+- [x] T039 [US3] (M4a/M4b — существующая грамматика fb-*, M4c отложен: ответ проверки не сообщает XP) Обратная связь упражнения (компонент проверки ответа в frontend/src/components/exercises/): M4a галочка, M4b вздрагивание с подсказкой, M4c «+10 XP»; результат по-прежнему с сервера (принцип III)
+- [x] T040 [P] [US3] frontend/src/app/(dashboard)/progress, achievements, leaderboard, certificates, skills, paths, paths/[pathId]
+- [x] T041 [P] [US3] frontend/src/app/(dashboard)/assignments, assignments/[assignmentId], calendar, schedule, attendance, live, peer-review, team-projects
+- [x] T042 [P] [US3] frontend/src/app/(dashboard)/profile, support, support/thanks, parent, parent/children, parent/children/[childId], а также frontend/src/app/student-cabinet
+- [x] T043 [US3] Боковое меню и нижняя панель на телефоне (frontend/src/app/(dashboard)/layout.tsx): активный пункт на `primary-soft`, переходы без анимации
+- [x] T044 [US3] Обновить design-baseline.json, снимки «до/после» экранов ученика, прогнать проверки specs/065–067 (`node e2e/mobile-audit.mjs`)
 
 **Checkpoint**: PR 3. Мёрж, деплой, проверка прода демо-учеником.
 

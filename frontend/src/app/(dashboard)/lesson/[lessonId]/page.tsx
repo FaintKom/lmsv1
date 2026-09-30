@@ -209,13 +209,13 @@ export default function StudentLessonPage() {
   return (
     <div className="flex h-full min-h-0 flex-col">
       {!connected && (
-        <div className="fixed left-1/2 top-3 z-50 flex -translate-x-1/2 items-center gap-2 rounded-pill bg-clay-500 px-3.5 py-1.5 font-mono text-2xs font-bold uppercase tracking-wide text-white shadow-md">
+        <div className="fixed left-1/2 top-3 z-50 flex -translate-x-1/2 items-center gap-2 rounded-pill bg-clay-500 px-3.5 py-1.5 text-xs font-bold text-white shadow-md">
           <span className="h-2 w-2 animate-pulse rounded-pill bg-white" />
           {t("live.reconnecting")}
         </div>
       )}
       {followMode === "strict" && (
-        <div className="flex items-center justify-center gap-2 border-b border-border bg-surface-2 py-1.5 font-mono text-3xs font-bold uppercase tracking-wide text-text">
+        <div className="flex items-center justify-center gap-2 border-b border-border bg-surface-2 py-1.5 text-xs font-bold text-text">
           <span className="h-1.5 w-1.5 rounded-pill bg-primary" />
           {t("live.followStrictBanner")}
         </div>
@@ -343,7 +343,7 @@ export default function StudentLessonPage() {
           {pollResult.options.map((opt, i) => (
             <div key={i} className="flex items-baseline justify-between gap-4 py-0.5 text-sm">
               <span className="font-semibold text-text">{opt}</span>
-              <span className="font-mono text-2xs font-bold tabular-nums text-green-700">
+              <span className="font-mono text-2xs font-bold tabular-nums text-success-fg">
                 {pollResult.counts[i]}
               </span>
             </div>

@@ -85,14 +85,14 @@ export default function SkillsPage() {
  <CardContent>
  <ResponsiveContainer width="100%" height={300}>
  <RadarChart data={radarData}>
- <PolarGrid stroke="#e2e8f0" />
- <PolarAngleAxis dataKey="subject" tick={{ fontSize: 12, fill: "#64748b" }} />
- <PolarRadiusAxis tick={{ fontSize: 10, fill: "#94a3b8" }} />
+ <PolarGrid stroke="var(--color-border)" />
+ <PolarAngleAxis dataKey="subject" tick={{ fontSize: 12, fill: "var(--color-text-muted)" }} />
+ <PolarRadiusAxis tick={{ fontSize: 10, fill: "var(--color-text-subtle)" }} />
  <Radar
  name="XP"
  dataKey="value"
- stroke="#6366f1"
- fill="#6366f1"
+ stroke="var(--viz-1)"
+ fill="var(--viz-1)"
  fillOpacity={0.3}
  />
  </RadarChart>

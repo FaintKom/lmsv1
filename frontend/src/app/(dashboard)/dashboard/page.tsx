@@ -5,17 +5,11 @@ import Link from "next/link";
 import { useAuthStore } from "@/stores/auth-store";
 import apiClient from "@/lib/api-client";
 import { CourseCard } from "@/components/courses/course-card";
-import {
- BookOpen,
- TrendingUp,
- ArrowRight,
- Sparkles,
- Flame,
- Calendar,
- Lightbulb,
- Clock,
- Star,
-} from "lucide-react";
+import { ProgressBar } from "@/components/ui/progress-bar";
+import { StreakPill } from "@/components/ui/streak-pill";
+import { XpPill } from "@/components/ui/xp-pill";
+import { SUBJECT_SURFACE, subjectOf } from "@/lib/subject";
+import { ArrowRight, BookOpen } from "lucide-react";
 import type { Enrollment, Course, CalendarEvent } from "@/types/api";
 import { useTranslation } from "@/lib/i18n/context";
 import { NewcomerChecklist } from "@/components/onboarding/newcomer-checklist";
@@ -27,6 +21,23 @@ interface Recommendation {
  link: string;
  priority: number;
 }
+
+const REC_CHIP: Record<Recommendation["type"], string> = {
+ review: "bg-danger-soft text-danger-fg",
+ continue: "bg-info-soft text-info-fg",
+ new: "bg-success-soft text-success-fg",
+ almost_done: "bg-warning-soft text-warning-fg",
+};
+
+/** Event-type dot. Colour alone carries the type, so it is hidden from readers. */
+const EVENT_DOT: Record<string, string> = {
+ deadline: "bg-danger",
+ lesson: "bg-info",
+ meeting: "bg-primary",
+};
+
+/** M9 plays once per browser session; the dashboard is revisited all day. */
+const SEEN_KEY = "dash-entered";
 
 export default function DashboardPage() {
  const user = useAuthStore((s) => s.user);
@@ -42,6 +53,17 @@ export default function DashboardPage() {
  { type: string; title: string; score: number | null; max_score: number }[] | null
  >(null);
  const [xp, setXp] = useState(0);
+ // Decided after hydration: the server has no sessionStorage, and a class
+ // that differs between server and client HTML is not patched by React.
+ const [firstVisit, setFirstVisit] = useState(false);
+ useEffect(() => {
+ try {
+ if (!sessionStorage.getItem(SEEN_KEY)) setFirstVisit(true);
+ sessionStorage.setItem(SEEN_KEY, "1");
+ } catch {
+ /* private mode: no entrance, nothing lost */
+ }
+ }, []);
 
  useEffect(() => {
  apiClient.get("/calendar/upcoming?limit=5").then(({ data }) => setUpcomingEvents(data)).catch(() => {});
@@ -77,92 +99,114 @@ export default function DashboardPage() {
  const enrolledCourses = enrollments
  .map((e) => ({ enrollment: e, course: courseMap.get(e.course_id) }))
  .filter((item) => item.course);
+ // The course to pick up: furthest along among the unfinished ones.
+ const current = enrolledCourses
+ .filter(({ enrollment }) => enrollment.completed_at === null)
+ .sort((a, b) => (b.enrollment.progress_percent || 0) - (a.enrollment.progress_percent || 0))[0];
+ const others = enrolledCourses.filter((c) => c !== current);
+ const currentSubject = current ? subjectOf(current.course!.category) : "other";
+
+ const firstName = user?.full_name?.split(" ")[0];
+ const today = new Date().toLocaleDateString(undefined, { weekday: "long", day: "numeric", month: "long" });
 
  return (
- <div className="mx-auto max-w-6xl">
- {/* Hero row */}
- <div className="mb-8 grid grid-cols-1 gap-6 lg:grid-cols-[1.2fr_1fr]">
- {/* Hero greeting card */}
- {/* Flat hero — v2 rule: no gradients, they dirty the sun marker */}
- <div className="relative overflow-hidden rounded-xl bg-primary p-9">
- <p className="eyebrow relative mb-2.5 text-primary-fg">
- {t("dash.welcomeBack") || "Welcome back"}
- </p>
- <h1 className="relative mb-3 text-2xl font-extrabold leading-[1.05] tracking-tight text-primary-fg">
+ <div className={`mx-auto grid max-w-6xl gap-8 ${firstVisit ? "stagger-children" : ""}`}>
+ {/* Greeting. Streak and XP stay; they only lost the loud fills. */}
+ <header className="flex flex-wrap items-end justify-between gap-4">
+ <div className="grid gap-1">
+ <p className="text-sm text-text-subtle">{today}</p>
+ <h1 className="text-3xl font-bold leading-tight text-text">
  {t("dash.welcomeBack")}
- {user?.full_name ? (
- <>
- {", "}
- <em className="sun-mark">{user.full_name.split(" ")[0]}</em>
- </>
- ) : null}
- !
+ {firstName ? `, ${firstName}` : ""}
  </h1>
- <p className="relative mb-6 max-w-[380px] text-base leading-relaxed text-primary-fg/85">
- {t("dash.subtitle")}
- </p>
- <div className="relative flex flex-wrap gap-2.5">
+ </div>
+ <div className="flex flex-wrap gap-2">
+ <StreakPill days={streak} />
+ {xp > 0 && <XpPill xp={xp} />}
+ </div>
+ </header>
+
+ <div className="grid gap-5 lg:grid-cols-[1.6fr_1fr]">
+ {/* Pick up where you left off, on the course's own field colour */}
+ {current ? (
+ <section
+ aria-label={t("dash.continue")}
+ data-subject={currentSubject}
+ className={`grid content-between gap-6 rounded-lg p-6 text-subject-ink ${SUBJECT_SURFACE[currentSubject]}`}
+ >
+ <div className="grid gap-2">
+ <p className="text-sm opacity-80">{current.course!.category || t("dash.continue")}</p>
+ <h2 className="text-2xl font-bold leading-tight">{current.course!.title}</h2>
+ </div>
+ <div className="grid gap-4">
+ <div className="flex items-center gap-3">
+ <ProgressBar value={current.enrollment.progress_percent || 0} fillClassName="bg-subject-ink" />
+ <span className="text-sm font-medium tabular-nums">
+ {Math.round(current.enrollment.progress_percent || 0)}%
+ </span>
+ </div>
+ <Link
+ href={`/courses/${current.course!.id}`}
+ className="press-scale inline-flex h-11 w-fit items-center gap-2 rounded-pill bg-primary px-5 text-sm font-semibold text-primary-fg hover:bg-primary-hover"
+ >
+ {t("dash.continue")}
+ <ArrowRight className="h-4 w-4" aria-hidden />
+ </Link>
+ </div>
+ </section>
+ ) : (
+ <section className="grid content-center justify-items-start gap-3 rounded-lg bg-surface p-6">
+ <h2 className="text-xl font-bold text-text">{loading ? "…" : t("dash.noActivity")}</h2>
+ {!loading && <p className="text-sm text-text-muted">{t("dash.enrollPrompt")}</p>}
  <Link
  href="/courses"
- className="press-scale inline-flex items-center gap-2 rounded-md bg-reward px-5 py-3 text-sm font-bold text-ink-900"
+ className="press-scale inline-flex h-11 items-center gap-2 rounded-pill bg-primary px-5 text-sm font-semibold text-primary-fg hover:bg-primary-hover"
  >
- <BookOpen className="h-4 w-4" />
+ <BookOpen className="h-4 w-4" aria-hidden />
  {t("dash.browseCourses")}
  </Link>
- <Link
- href="/progress"
- className="inline-flex items-center gap-2 rounded-md bg-primary-fg/10 px-5 py-3 text-sm font-bold text-primary-fg transition-colors hover:bg-white/[0.18]"
- >
- <TrendingUp className="h-4 w-4" />
- {t("nav.progress")}
- </Link>
- </div>
- </div>
-
- {/* Streak card */}
- <div className="relative overflow-hidden rounded-xl border border-border bg-surface p-6">
- <div className="mb-3.5 flex items-start justify-between">
- <div>
- <p className="eyebrow mb-1">{t("dash.streak")}</p>
- <p className="text-4xl font-extrabold leading-[0.9] tracking-tight text-clay-500 tabular-nums">
- {streak}
- </p>
- </div>
- <div className="flex h-12 w-12 items-center justify-center rounded-md bg-danger text-ink-900">
- <Flame className="h-5 w-5" />
- </div>
- </div>
- {xp > 0 && (
- <div className="mt-4 inline-flex items-center gap-1.5 rounded-pill bg-sun-300 px-3 py-1.5 text-xs font-extrabold text-sun-700">
- <Star className="h-3.5 w-3.5" />
- {xp} XP
- </div>
+ </section>
  )}
- </div>
+
+ <section className="rounded-lg bg-surface p-6">
+ <h2 className="mb-3 text-lg font-semibold text-text">{t("dash.upcoming")}</h2>
+ {upcomingEvents.length === 0 ? (
+ <p className="py-4 text-sm text-text-subtle">{t("dash.noEvents")}</p>
+ ) : (
+ <ul className="divide-y divide-border">
+ {upcomingEvents.map((ev) => (
+ <li key={ev.id}>
+ <Link href="/calendar" className="flex items-center gap-3 py-3 transition-colors hover:text-primary">
+ <span aria-hidden="true" className={`h-2 w-2 shrink-0 rounded-full ${EVENT_DOT[ev.event_type] ?? "bg-ink-400"}`} />
+ <span className="min-w-0 flex-1">
+ <span className="block truncate text-sm font-medium text-text">{ev.title}</span>
+ <span className="block text-xs text-text-subtle">
+ {new Date(ev.start_time).toLocaleDateString(undefined, { weekday: "short", month: "short", day: "numeric", hour: "2-digit", minute: "2-digit" })}
+ </span>
+ </span>
+ </Link>
+ </li>
+ ))}
+ </ul>
+ )}
+ </section>
  </div>
 
- {/* KPI strip — v2: text only, no icon tiles; streak lives in the hero,
-     so the 4th KPI is XP (average grade needs a new endpoint — todo) */}
- <div className="stagger-children mb-8 grid grid-cols-2 gap-4 lg:grid-cols-4">
- <div className="rounded-lg border border-border bg-surface p-5 shadow-sm">
- <p className="eyebrow mb-1">{t("dash.enrolled")}</p>
- <p className="text-xl font-extrabold leading-tight tracking-tight text-text tabular-nums">{loading ? "…" : enrolledCount}</p>
+ {/* One strip of numbers, not four identical tiles (DESIGN_SPEC §4) */}
+ <dl className="grid grid-cols-2 gap-px overflow-hidden rounded-lg bg-border sm:grid-cols-4">
+ {[
+ [t("dash.enrolled"), enrolledCount],
+ [t("dash.completed"), completedCount],
+ [t("dash.avgProgress"), `${avgProgress}%`],
+ ["XP", xp],
+ ].map(([label, value]) => (
+ <div key={String(label)} className="grid gap-1 bg-surface px-5 py-4">
+ <dt className="text-sm text-text-subtle">{label}</dt>
+ <dd className="font-display text-2xl font-semibold tabular-nums text-text">{loading ? "…" : value}</dd>
  </div>
- <div className="rounded-lg border border-border bg-surface p-5 shadow-sm">
- <p className="eyebrow mb-1">{t("dash.completed")}</p>
- <p className="text-xl font-extrabold leading-tight tracking-tight text-text tabular-nums">{loading ? "…" : completedCount}</p>
- </div>
- <div className="rounded-lg border border-border bg-surface p-5 shadow-sm">
- <p className="eyebrow mb-1">{t("dash.avgProgress")}</p>
- <p className="text-xl font-extrabold leading-tight tracking-tight text-text tabular-nums">{loading ? "…" : `${avgProgress}%`}</p>
- </div>
- <div className="rounded-lg border border-border bg-surface p-5 shadow-sm">
- <p className="eyebrow mb-1">XP</p>
- <p className="text-xl font-extrabold leading-tight tracking-tight text-text tabular-nums">{loading ? "…" : xp}</p>
- </div>
- </div>
+ ))}
+ </dl>
 
- {/* Newcomer onboarding */}
  {!loading && (
  <NewcomerChecklist
  hasProfile={!!user?.full_name}
@@ -172,125 +216,61 @@ export default function DashboardPage() {
  />
  )}
 
- {/* Recommendations */}
  {recommendations.length > 0 && (
- <div className="mb-8">
- <h2 className="mb-4 flex items-center gap-2 text-md font-bold text-text">
- <Lightbulb className="h-5 w-5 text-warning-fg" /> {t("dash.recommended")}
- </h2>
+ <section>
+ <h2 className="mb-4 text-lg font-semibold text-text">{t("dash.recommended")}</h2>
  <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
- {recommendations.slice(0, 4).map((rec, i) => {
- const chipColors = {
- review: "bg-danger-soft text-danger-fg",
- continue: "bg-info-soft text-info-fg",
- new: "bg-success-soft text-success-fg",
- almost_done: "bg-warning-soft text-warning-fg",
- };
- return (
- <Link key={i} href={rec.link}>
- <div className="rounded-md border border-border bg-surface p-4 shadow-sm transition duration-200 hover:-translate-y-0.5 hover:border-green-300 hover:shadow-md">
- <span className={`mb-2 inline-block rounded-pill px-2.5 py-0.5 font-mono text-3xs font-bold uppercase tracking-wide ${chipColors[rec.type] || "bg-surface-2 text-text"}`}>
+ {recommendations.slice(0, 3).map((rec, i) => (
+ <Link
+ key={i}
+ href={rec.link}
+ className="grid gap-2 rounded-lg bg-surface p-5 transition-transform duration-[var(--motion-fast)] ease-[var(--motion-ease)] motion-safe:hover:-translate-y-0.5"
+ >
+ <span className={`w-fit rounded-pill px-2.5 py-0.5 text-xs font-medium first-letter:uppercase ${REC_CHIP[rec.type] ?? "bg-surface-2 text-text"}`}>
  {rec.type.replace("_", " ")}
  </span>
- <p className="text-sm font-bold text-text">{rec.title}</p>
- <p className="mt-1 text-xs text-text-muted">{rec.description}</p>
- </div>
+ <span className="text-sm font-semibold text-text">{rec.title}</span>
+ <span className="text-sm text-text-muted">{rec.description}</span>
  </Link>
- );
- })}
+ ))}
  </div>
- </div>
+ </section>
  )}
 
- {/* Continue Learning */}
- {enrolledCourses.length > 0 && (
- <div className="mb-8">
+ {others.length > 0 && (
+ <section>
  <div className="mb-4 flex items-center justify-between">
- <h2 className="text-md font-bold text-text">{t("dash.continue")}</h2>
- <Link href="/progress" className="flex items-center gap-1 py-1 text-sm font-semibold text-primary hover:text-primary-hover">
- View all <ArrowRight className="h-3.5 w-3.5" />
+ <h2 className="text-lg font-semibold text-text">{t("dash.continue")}</h2>
+ <Link href="/progress" className="flex items-center gap-1 py-1 text-sm font-medium text-primary hover:text-primary-hover">
+ {t("dash.viewAll")} <ArrowRight className="h-3.5 w-3.5" aria-hidden />
  </Link>
  </div>
- <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
- {enrolledCourses.slice(0, 3).map(({ enrollment, course }) => (
+ <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3">
+ {others.slice(0, 3).map(({ enrollment, course }) => (
  <CourseCard key={enrollment.id} course={course!} progress={enrollment.progress_percent} />
  ))}
  </div>
- </div>
+ </section>
  )}
 
  {/* Recent grades — the student had no way to see these without leaving
      the page, though the endpoint has always been there (specs/061). */}
  {grades && grades.length > 0 && (
- <div className="mb-8 rounded-lg border border-border bg-surface p-6 shadow-sm">
- <h3 className="mb-4 text-base font-bold text-text">{t("dash.recentGrades")}</h3>
- <div className="space-y-2">
+ <section className="rounded-lg bg-surface p-6">
+ <h2 className="mb-3 text-lg font-semibold text-text">{t("dash.recentGrades")}</h2>
+ <ul className="divide-y divide-border">
  {grades.slice(0, 5).map((g, i) => (
- <div key={`${g.title}-${i}`} className="flex items-center gap-3 rounded-sm p-2">
+ <li key={`${g.title}-${i}`} className="flex items-center gap-3 py-2.5">
  <span className="min-w-0 flex-1 truncate text-sm text-text">{g.title}</span>
- <span className="font-mono text-sm font-bold tabular-nums text-text">
+ <span className="text-sm font-semibold tabular-nums text-text">
  {g.score ?? "—"}
  <span className="text-text-subtle">/{g.max_score}</span>
  </span>
- </div>
+ </li>
  ))}
- </div>
- </div>
+ </ul>
+ </section>
  )}
-
- {/* Bottom row: upcoming events + quick actions */}
- <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
- <div className="rounded-lg border border-border bg-surface p-6 shadow-sm">
- <h3 className="mb-4 flex items-center gap-2 text-base font-bold text-text">
- <Calendar className="h-4.5 w-4.5 text-clay-500" />
- {t("dash.upcoming")}
- </h3>
- {upcomingEvents.length === 0 ? (
- <p className="py-6 text-center text-sm text-text-subtle">{t("dash.noEvents")}</p>
- ) : (
- <div className="space-y-2">
- {upcomingEvents.map((ev) => (
- <Link key={ev.id} href="/calendar" className="flex items-center gap-3 rounded-sm p-3 transition-colors hover:bg-surface-2">
- {/* Colour alone carries the event type, so the dot is decoration:
-     hide it from the reader rather than announce a bare bullet. */}
- <span aria-hidden="true" className="h-2.5 w-2.5 shrink-0 rounded-full" style={{
- backgroundColor: ev.event_type === "deadline" ? "var(--clay-500)" : ev.event_type === "lesson" ? "var(--color-info)" : ev.event_type === "meeting" ? "var(--green-500)" : "var(--ink-400)"
- }} />
- <div className="min-w-0 flex-1">
- <p className="truncate text-sm font-semibold text-text">{ev.title}</p>
- <p className="font-mono text-3xs text-text-subtle">{new Date(ev.start_time).toLocaleDateString(undefined, { weekday: "short", month: "short", day: "numeric", hour: "2-digit", minute: "2-digit" })}</p>
- </div>
- </Link>
- ))}
- </div>
- )}
- </div>
-
- <div className="rounded-lg border border-border bg-surface p-6 shadow-sm">
- <h3 className="mb-4 flex items-center gap-2 text-base font-bold text-text">
- <Sparkles className="h-4.5 w-4.5 text-primary" />
- Quick Actions
- </h3>
- <div className="space-y-2">
- <Link href="/courses" className="flex items-center justify-between rounded-sm border border-border p-4 transition hover:border-green-300 hover:bg-surface-2">
- <div className="flex items-center gap-3">
- <BookOpen className="h-5 w-5 text-text-subtle" />
- <span className="text-sm font-semibold text-text">Browse available courses</span>
- </div>
- <ArrowRight className="h-4 w-4 text-text-subtle" />
- </Link>
- {enrolledCourses.length === 0 && (
- <div className="flex flex-col items-center py-6 text-center">
- <div className="mb-3 rounded-full bg-surface-2 p-3">
- <Clock className="h-5 w-5 text-text-subtle" />
- </div>
- <p className="text-sm font-medium text-text-muted">No activity yet</p>
- <p className="mt-1 text-xs text-text-subtle">Enroll in a course to start learning!</p>
- </div>
- )}
- </div>
- </div>
- </div>
  </div>
  );
 }

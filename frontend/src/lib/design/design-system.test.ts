@@ -91,10 +91,13 @@ const EXEMPT: { prefix: string; why: string }[] = [
   { prefix: "app/(print)/", why: "print forms are styled for paper" },
   { prefix: "lib/print.ts", why: "print stylesheet builder" },
   { prefix: "lib/brand/", why: "logo colours are the brand asset itself" },
+  { prefix: "components/gamification/league-mark.tsx", why: "league crest artwork: metal tones per league" },
+  { prefix: "components/gamification/rank-medal.tsx", why: "medal artwork: gold, silver, bronze" },
+  { prefix: "components/gamification/badge-icon.tsx", why: "badge artwork, one tint per badge kind" },
 ];
 
 /** Files allowed to call startViewTransition (research R6). */
-const VIEW_TRANSITION_ALLOWED: string[] = [];
+const VIEW_TRANSITION_ALLOWED: string[] = ["lib/view-transition.ts"];
 
 type Counts = Record<string, Partial<Record<RuleId, number>>>;
 

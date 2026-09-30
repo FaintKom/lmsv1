@@ -24,24 +24,7 @@ import {
 import { useAuthStore } from "@/stores/auth-store";
 import { useTranslation } from "@/lib/i18n/context";
 import type { Course } from "@/types/api";
-
-/* ── subject radial gradients (same as course-card) ────────────── */
-const SUBJECT_THEMES: Record<string, { gradient: string; glyph: string }> = {
-  programming: { gradient: "radial-gradient(circle at 75% 25%, var(--green-600), var(--ink-900))", glyph: "</>" },
-  math:        { gradient: "radial-gradient(circle at 75% 25%, var(--green-500), var(--green-800))", glyph: "Σ" },
-  algebra:     { gradient: "radial-gradient(circle at 75% 25%, var(--green-500), var(--green-800))", glyph: "x²" },
-  geometry:    { gradient: "radial-gradient(circle at 75% 25%, var(--green-400), var(--green-700))", glyph: "△" },
-  languages:   { gradient: "radial-gradient(circle at 75% 25%, var(--clay-500), #7a2e15)", glyph: "Ñ" },
-  spanish:     { gradient: "radial-gradient(circle at 75% 25%, var(--clay-500), #7a2e15)", glyph: "Ñ" },
-  sat:         { gradient: "radial-gradient(circle at 75% 25%, var(--sun-400), var(--sun-700))", glyph: "★" },
-  science:     { gradient: "radial-gradient(circle at 75% 25%, var(--green-600), var(--ink-900))", glyph: "⚗" },
-  python:      { gradient: "radial-gradient(circle at 75% 25%, var(--green-600), var(--ink-900))", glyph: "Py" },
-  javascript:  { gradient: "radial-gradient(circle at 75% 25%, var(--sun-400), var(--ink-900))", glyph: "JS" },
-};
-const DEFAULT_THEME = {
-  gradient: "radial-gradient(circle at 75% 25%, var(--green-500), var(--green-800))",
-  glyph: "≡",
-};
+import { SUBJECT_SURFACE, subjectOf } from "@/lib/subject";
 
 const CONTENT_ICONS: Record<string, LucideIcon> = {
   text: FileText,
@@ -151,7 +134,7 @@ export default function CourseDetailPage() {
     );
   }
 
-  const theme = SUBJECT_THEMES[course.category || ""] || DEFAULT_THEME;
+  const subject = subjectOf(course.category);
   const totalLessons =
     course.modules?.reduce((a, m) => a + (m.lessons?.length || 0), 0) || 0;
 
@@ -169,97 +152,76 @@ export default function CourseDetailPage() {
         {t("course.allCourses")}
       </Link>
 
-      {/* ── hero ──────────────────────────────────────────────── */}
-      <div
-        className="relative mb-8 overflow-hidden rounded-lg p-8 text-white"
-        style={{ background: theme.gradient }}
+      {/* ── hero: the course's subject field (specs/071) ───────── */}
+      <section
+        data-subject={subject}
+        className={`mb-8 grid gap-4 rounded-lg p-8 text-subject-ink ${SUBJECT_SURFACE[subject]}`}
       >
-        {/* mono glyph watermark */}
-        <span className="pointer-events-none absolute right-6 top-4 font-mono text-4xl font-extrabold leading-none text-white/10">
-          {theme.glyph}
-        </span>
+        {course.category && <p className="text-sm opacity-80">{course.category}</p>}
+        <h1 className="text-3xl font-bold leading-tight">{course.title}</h1>
+        {course.description && (
+          <p className="max-w-xl text-base leading-relaxed opacity-85">{course.description}</p>
+        )}
 
-        <div className="relative z-10">
-          {course.category && (
-            <span className="mb-3 inline-block rounded-pill bg-white/15 px-3 py-1 font-mono text-3xs font-semibold uppercase tracking-widest text-white/90">
-              {course.category}
-            </span>
+        <ul className="flex flex-wrap items-center gap-2 text-sm">
+          <li className="flex items-center gap-1.5 rounded-pill bg-subject-ink/10 px-3 py-1">
+            <BookOpen className="h-3.5 w-3.5" aria-hidden />
+            {t("courses.modules")}: <span className="tabular-nums">{course.modules?.length || 0}</span>
+          </li>
+          <li className="flex items-center gap-1.5 rounded-pill bg-subject-ink/10 px-3 py-1">
+            <FileText className="h-3.5 w-3.5" aria-hidden />
+            {t("courses.lessons")}: <span className="tabular-nums">{totalLessons}</span>
+          </li>
+          {canPreview && !enrolled && (
+            <li className="rounded-pill bg-subject-ink/10 px-3 py-1 font-medium">{t("course.previewMode")}</li>
           )}
-          <h1 className="mb-3 text-xl font-extrabold leading-tight">
-            {course.title}
-          </h1>
-          {course.description && (
-            <p className="mb-5 max-w-xl text-sm leading-relaxed text-white/75">
-              {course.description}
-            </p>
-          )}
+        </ul>
 
-          {/* stats pills */}
-          <div className="mb-6 flex items-center gap-3">
-            <span className="flex items-center gap-1.5 rounded-pill bg-white/15 px-3 py-1 font-mono text-2xs font-semibold text-white/90">
-              <BookOpen className="h-3.5 w-3.5" />
-              {t("courses.modules")}: {course.modules?.length || 0}
-            </span>
-            <span className="flex items-center gap-1.5 rounded-pill bg-white/15 px-3 py-1 font-mono text-2xs font-semibold text-white/90">
-              <FileText className="h-3.5 w-3.5" />
-              {t("courses.lessons")}: {totalLessons}
-            </span>
-          </div>
-
-          {/* action row */}
-          <div className="flex items-center gap-3">
-            {canPreview && !enrolled && (
-              <span className="rounded-pill bg-white/15 px-3 py-1 text-2xs font-bold text-white">
-                {t("course.previewMode")}
+        <div className="flex flex-wrap items-center gap-3 pt-2">
+          {enrolled ? (
+            <>
+              {firstLessonId && (
+                <Link
+                  href={`/courses/${params.courseId}/lessons/${firstLessonId}${lessonPreviewSuffix}`}
+                  className="press-scale inline-flex h-11 items-center gap-2 rounded-pill bg-primary px-5 text-sm font-semibold text-primary-fg hover:bg-primary-hover"
+                >
+                  {t("course.startLearning")}
+                  <ArrowRight className="h-4 w-4" aria-hidden />
+                </Link>
+              )}
+              <span className="inline-flex items-center gap-1.5 text-sm font-medium">
+                <CheckCircle className="h-4 w-4" aria-hidden />
+                {t("courses.enrolled")}
               </span>
-            )}
-
-            {enrolled ? (
-              <>
-                <span className="inline-flex items-center gap-1.5 rounded-pill bg-white/20 px-4 py-2 text-sm font-bold text-white">
-                  <CheckCircle className="h-4 w-4" />
-                  {t("courses.enrolled")}
-                </span>
-                {firstLessonId && (
-                  <Link
-                    href={`/courses/${params.courseId}/lessons/${firstLessonId}${lessonPreviewSuffix}`}
-                    className="press-scale inline-flex items-center gap-2 rounded-md bg-white px-5 py-2.5 text-sm font-bold text-text"
-                    style={{ "--pop": "rgba(0,0,0,0.15)" } as React.CSSProperties}
-                  >
-                    {t("course.startLearning")}
-                    <ArrowRight className="h-4 w-4" />
-                  </Link>
-                )}
-              </>
-            ) : !canPreview ? (
-              <button
-                onClick={handleEnroll}
-                disabled={enrolling}
-                className="press-scale rounded-md bg-sun-400 px-6 py-2.5 text-sm font-bold text-ink-900"
-              >
-                {enrolling ? t("course.enrolling") : t("course.enrollInCourse")}
-              </button>
-            ) : null}
-          </div>
+            </>
+          ) : !canPreview ? (
+            <button
+              onClick={handleEnroll}
+              disabled={enrolling}
+              className="press-scale inline-flex h-11 items-center rounded-pill bg-primary px-6 text-sm font-semibold text-primary-fg hover:bg-primary-hover disabled:opacity-50"
+            >
+              {enrolling ? t("course.enrolling") : t("course.enrollInCourse")}
+            </button>
+          ) : null}
         </div>
-      </div>
+      </section>
 
       {/* ── modules ───────────────────────────────────────────── */}
       <div className="space-y-4">
         {course.modules?.map((module, mi) => (
           <div
             key={module.id}
-            className="overflow-hidden rounded-lg border border-border bg-surface"
+            className="overflow-hidden rounded-lg bg-surface"
           >
             {/* module header */}
             <div className="flex items-center gap-3 border-b border-border px-5 py-4">
-              <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-xs bg-success-soft font-mono text-xs font-extrabold text-green-800">
+              <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-pill bg-success-soft text-xs font-semibold tabular-nums text-success-fg">
                 {mi + 1}
               </span>
-              <h2 className="flex-1 text-sm font-extrabold text-text">
+              <h2 className="flex-1 text-md font-semibold text-text">
                 {module.title}
               </h2>
-              <span className="font-mono text-2xs text-text-muted">
+              <span className="text-xs tabular-nums text-text-muted">
                 {t("courses.lessons")}: {module.lessons?.length || 0}
               </span>
             </div>
@@ -290,7 +252,7 @@ export default function CourseDetailPage() {
                           {lesson.title}
                         </span>
                         {lesson.duration_minutes && (
-                          <span className="flex items-center gap-1 font-mono text-2xs text-text-subtle">
+                          <span className="flex items-center gap-1 text-xs tabular-nums text-text-subtle">
                             <Clock className="h-3 w-3" />
                             {lesson.duration_minutes}m
                           </span>
@@ -317,7 +279,7 @@ export default function CourseDetailPage() {
                         {lesson.title}
                       </span>
                       {lesson.duration_minutes && (
-                        <span className="flex items-center gap-1 font-mono text-2xs text-text-subtle">
+                        <span className="flex items-center gap-1 text-xs tabular-nums text-text-subtle">
                           <Clock className="h-3 w-3" />
                           {lesson.duration_minutes}m
                         </span>

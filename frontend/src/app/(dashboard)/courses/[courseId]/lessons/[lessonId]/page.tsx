@@ -1,5 +1,6 @@
 "use client";
 
+import { ProgressBar } from "@/components/ui/progress-bar";
 import { useEffect, useMemo, useState, useCallback, useRef } from "react";
 import { useParams, useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
@@ -347,23 +348,18 @@ export default function LessonViewerPage() {
        <PanelLeftClose className="h-4 w-4" />
       </button>
      </div>
-     <p className="mb-1 font-mono text-3xs font-semibold uppercase tracking-widest text-green-700">
+     <p className="mb-1 text-xs font-medium text-text-subtle">
       {t("lesson.courseLabel")} · {t("courses.modules")}: {course.modules?.length || 0} · {t("courses.lessons")}: {allLessons.length}
      </p>
-     <h3 className="mb-3 text-base font-extrabold leading-tight tracking-tight text-text">
+     <h3 className="mb-3 text-md font-semibold leading-tight text-text">
       {course.title}
      </h3>
      <div className="flex items-center gap-2.5">
-      <div className="h-[7px] flex-1 overflow-hidden rounded-pill bg-surface-2">
-       <div
-        className="h-full rounded-pill"
-        style={{
-         width: `${allLessons.length > 0 ? (completedLessons.size / allLessons.length) * 100 : 0}%`,
-         background: "linear-gradient(90deg, var(--green-400), var(--green-600))",
-        }}
-       />
-      </div>
-      <span className="font-mono text-2xs font-bold text-green-700">
+      <ProgressBar
+       value={allLessons.length > 0 ? (completedLessons.size / allLessons.length) * 100 : 0}
+       size="sm"
+      />
+      <span className="text-xs font-semibold tabular-nums text-success-fg">
        {completedLessons.size}/{allLessons.length}
       </span>
      </div>
@@ -388,13 +384,13 @@ export default function LessonViewerPage() {
           isCurrentModule ? "bg-success-soft" : "hover:bg-surface-2"
          )}
         >
-         <span className="flex h-[22px] w-[22px] shrink-0 items-center justify-center rounded-xs bg-success-soft font-mono text-2xs font-extrabold text-green-800">
+         <span className="flex h-[22px] w-[22px] shrink-0 items-center justify-center rounded-xs bg-success-soft font-mono text-2xs font-extrabold text-success-fg">
           {mi + 1}
          </span>
          <span
           className={cn(
            "flex-1 text-left",
-           isCurrentModule ? "text-green-800" : notStarted ? "text-text-muted" : "text-text"
+           isCurrentModule ? "text-success-fg" : notStarted ? "text-text-muted" : "text-text"
           )}
          >
           {module.title}
@@ -402,7 +398,7 @@ export default function LessonViewerPage() {
          <span
           className={cn(
            "font-mono text-3xs font-semibold tracking-wide",
-           isCurrentModule ? "text-green-700" : "text-text-subtle"
+           isCurrentModule ? "text-success-fg" : "text-text-subtle"
           )}
          >
           {allDone
@@ -432,7 +428,7 @@ export default function LessonViewerPage() {
               className={cn(
                "flex items-center gap-2.5 rounded-lg px-2.5 py-[7px] text-sm font-semibold transition-colors",
                isActive
-                ? "bg-success-soft font-bold text-green-800"
+                ? "bg-success-soft font-bold text-success-fg"
                 : isDone
                   ? "text-text-subtle"
                   : "text-text-muted hover:bg-surface-2 hover:text-text"
@@ -445,7 +441,7 @@ export default function LessonViewerPage() {
                 isActive
                  ? "bg-primary text-primary-fg ring-4 ring-primary-soft"
                  : isDone
-                   ? "bg-green-500 text-white"
+                   ? "bg-primary text-primary-fg"
                    : "border-[1.5px] border-border-strong bg-transparent"
                )}
               >
@@ -515,7 +511,7 @@ export default function LessonViewerPage() {
       </div>
      )}
      {isCompleted && (
-      <span className="inline-flex items-center gap-1.5 rounded-pill bg-success-soft px-3 py-1 text-2xs font-bold text-green-800">
+      <span className="inline-flex items-center gap-1.5 rounded-pill bg-success-soft px-3 py-1 text-2xs font-bold text-success-fg">
        <CheckCircle className="h-3 w-3" /> {t("lesson.done")}
       </span>
      )}
@@ -616,8 +612,8 @@ export default function LessonViewerPage() {
      footerVisible ? "opacity-100" : "pointer-events-none h-0 overflow-hidden opacity-0"
     )}>
      {isCompleted && (
-      <div className="flex items-center gap-2 text-xs font-semibold text-green-700">
-       <span className="h-[7px] w-[7px] rounded-full bg-green-500" />
+      <div className="flex items-center gap-2 text-xs font-semibold text-success-fg">
+       <span className="h-[7px] w-[7px] rounded-full bg-primary" />
        {t("lesson.completed")}
       </div>
      )}
@@ -630,7 +626,7 @@ export default function LessonViewerPage() {
       >
        <ArrowLeft className="h-3.5 w-3.5 text-text-subtle" />
        <div>
-        <span className="block font-mono text-3xs font-semibold uppercase tracking-widest text-text-subtle">
+        <span className="block text-xs font-semibold text-text-subtle">
          {t("lesson.previous")}
         </span>
         <span className="block max-w-[160px] truncate">{prevLesson.lesson.title}</span>
@@ -645,7 +641,7 @@ export default function LessonViewerPage() {
        style={{ boxShadow: "0 4px 0 0 var(--green-700)" }}
       >
        <div className="text-right">
-        <span className="block font-mono text-3xs font-semibold uppercase tracking-widest text-white/70">
+        <span className="block text-xs font-semibold text-white/70">
          {t("lesson.upNext")}
         </span>
         <span className="block max-w-[160px] truncate">{nextLesson.lesson.title}</span>
