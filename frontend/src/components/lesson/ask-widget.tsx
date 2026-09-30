@@ -92,7 +92,19 @@ export function AskWidget({ lessonId }: { lessonId: string }) {
                 </p>
               )}
               {item.answer === undefined && item.failure === undefined && (
-                <p className="text-sm text-ink-700">{t("tutor.thinking")}</p>
+                <p role="status" className="flex items-center gap-2 text-sm text-ink-700">
+                  {/* A free model takes up to ~15s; still text reads as a hang. */}
+                  <span aria-hidden="true" className="inline-flex gap-1">
+                    {[0, 150, 300].map((delay) => (
+                      <span
+                        key={delay}
+                        className="size-1.5 rounded-full bg-ink-700 motion-safe:animate-bounce"
+                        style={{ animationDelay: `${delay}ms` }}
+                      />
+                    ))}
+                  </span>
+                  {t("tutor.thinking")}
+                </p>
               )}
             </li>
           ))}
