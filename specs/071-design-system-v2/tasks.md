@@ -33,7 +33,7 @@
 
 ## Phase 2: Foundational — общее для всех фаз
 
-- [ ] T005 Сверить с `main` перед стартом: `git log origin/main..main` пуст, номер спеки 071 свободен на origin/main, в ветке нет чужих коммитов
+- [x] T005 Сверить с `main` перед стартом: `git log origin/main..main` пуст, номер спеки 071 свободен на origin/main, в ветке нет чужих коммитов
 - [ ] T006 [P] Снять значения `courses.category` на проде одним read-only запросом (`SELECT category, count(*) FROM courses GROUP BY 1`) и записать их в specs/071-design-system-v2/data-model.md
 
 **Checkpoint**: база известна, можно начинать PR 1.
@@ -49,16 +49,16 @@
 
 ### Tests
 
-- [ ] T007 [US4] Написать храповик frontend/src/lib/design/design-system.test.ts по образцу frontend/src/lib/i18n/no-hardcoded-strings.test.ts: обход `src/**/*.{tsx,ts,css}`, правила из contracts/tokens.md (`raw-hex`, `raw-palette`, `gradient`, `mono-eyebrow`, `tiny-text`, `btn-pop`, `glass`) и contracts/motion.md (`transition-all`, `ms-literal`, `bezier-literal`, `layout-anim`, `scale-zero`, `vt-nav`); блоки токенов в globals.css (`:root`, `.dark`, `@theme inline`) не считаются
-- [ ] T008 [US4] Список исключений с причиной в том же тесте: графики аналитики, `src/components/room/**`, аватар, рендер контента уроков, `src/app/(print)/**`
-- [ ] T009 [US4] Сгенерировать frontend/design/design-baseline.json текущими счётчиками (запись базы внутри теста по флагу `UPDATE_DESIGN_BASELINE=1`)
-- [ ] T010 [US4] Позитивный контроль: вписать `bg-[#ff0000]` в frontend/src/components/ui/card.tsx и `transition-all` в frontend/src/components/ui/button.tsx, убедиться, что тест падает с понятным сообщением; откатить; записать вывод в тело PR
-- [ ] T011 [US4] Проверить, что уменьшение счётчика без обновления базы тоже валит тест и подсказывает команду обновления
+- [x] T007 [US4] Написать храповик frontend/src/lib/design/design-system.test.ts по образцу frontend/src/lib/i18n/no-hardcoded-strings.test.ts: обход `src/**/*.{tsx,ts,css}`, правила из contracts/tokens.md (`raw-hex`, `raw-palette`, `gradient`, `mono-eyebrow`, `tiny-text`, `btn-pop`, `glass`) и contracts/motion.md (`transition-all`, `ms-literal`, `bezier-literal`, `layout-anim`, `scale-zero`, `vt-nav`); блоки токенов в globals.css (`:root`, `.dark`, `@theme inline`) не считаются
+- [x] T008 [US4] Список исключений с причиной в том же тесте: графики аналитики, `src/components/room/**`, аватар, рендер контента уроков, `src/app/(print)/**`
+- [x] T009 [US4] Сгенерировать frontend/design/design-baseline.json текущими счётчиками (запись базы внутри теста по флагу `UPDATE_DESIGN_BASELINE=1`)
+- [x] T010 [US4] Позитивный контроль: вписать `bg-[#ff0000]` в frontend/src/components/ui/card.tsx и `transition-all` в frontend/src/components/ui/button.tsx, убедиться, что тест падает с понятным сообщением; откатить; записать вывод в тело PR
+- [x] T011 [US4] Проверить, что уменьшение счётчика без обновления базы тоже валит тест и подсказывает команду обновления
 
 ### Implementation
 
-- [ ] T012 [US4] Убедиться, что фронтенд-job в .github/workflows запускает новый тест в общем прогоне Vitest; если да, CI не меняется
-- [ ] T013 [US4] Раздел «Храповик» в frontend/design/README.md: что считает, как обновить базу, почему база только уменьшается
+- [x] T012 [US4] Убедиться, что фронтенд-job в .github/workflows запускает новый тест в общем прогоне Vitest; если да, CI не меняется
+- [x] T013 [US4] Раздел «Храповик» в frontend/design/README.md: что считает, как обновить базу, почему база только уменьшается
 
 **Checkpoint**: PR 1 зелёный, визуально ничего не изменилось. Мёрж, деплой, проверка прода.
 
