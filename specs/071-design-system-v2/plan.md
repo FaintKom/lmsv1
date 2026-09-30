@@ -43,7 +43,7 @@
 ### Documentation (this feature)
 
 ```text
-specs/069-design-system-v2/
+specs/071-design-system-v2/
 ├── spec.md
 ├── plan.md              # этот файл
 ├── research.md          # решения и отвергнутые варианты

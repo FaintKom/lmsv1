@@ -24,17 +24,17 @@
 
 ## Phase 1: Setup — направление и прототипы (US1, US2, сделано)
 
-- [x] T001 [US1] Доска референсов опубликована, 12 референсов, ссылка в specs/069-design-system-v2/spec.md
-- [x] T002 [US1] Выбор владельца записан в раздел Clarifications в specs/069-design-system-v2/spec.md
-- [x] T003 [US2] Прототип B и C, светлая и тёмная тема, в specs/069-design-system-v2/prototype/b-and-c.html
+- [x] T001 [US1] Доска референсов опубликована, 12 референсов, ссылка в specs/071-design-system-v2/spec.md
+- [x] T002 [US1] Выбор владельца записан в раздел Clarifications в specs/071-design-system-v2/spec.md
+- [x] T003 [US2] Прототип B и C, светлая и тёмная тема, в specs/071-design-system-v2/prototype/b-and-c.html
 - [x] T004 [US2] Прототип проверен в Chrome владельца, исправлены View Transition в скрытой вкладке и потеря клика
 
 ---
 
 ## Phase 2: Foundational — общее для всех фаз
 
-- [ ] T005 Сверить с `main` перед стартом: `git log origin/main..main` пуст, номер спеки 069 свободен на origin/main, в ветке нет чужих коммитов
-- [ ] T006 [P] Снять значения `courses.category` на проде одним read-only запросом (`SELECT category, count(*) FROM courses GROUP BY 1`) и записать их в specs/069-design-system-v2/data-model.md
+- [ ] T005 Сверить с `main` перед стартом: `git log origin/main..main` пуст, номер спеки 071 свободен на origin/main, в ветке нет чужих коммитов
+- [ ] T006 [P] Снять значения `courses.category` на проде одним read-only запросом (`SELECT category, count(*) FROM courses GROUP BY 1`) и записать их в specs/071-design-system-v2/data-model.md
 
 **Checkpoint**: база известна, можно начинать PR 1.
 
