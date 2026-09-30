@@ -176,7 +176,7 @@ export default function PricingPage() {
           </div>
         </section>
 
-        <section className="border-t border-border bg-gradient-to-b from-success-soft/50 to-surface py-14">
+        <section className="border-t border-border bg-surface-2 py-14">
           <div className="mx-auto max-w-2xl px-6 text-center">
             <div className="flex flex-col items-center justify-center gap-4 sm:flex-row">
               <Link href="/register">

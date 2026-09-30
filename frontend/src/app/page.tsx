@@ -44,7 +44,6 @@ export default function Home() {
       <main>
         {/* Hero */}
         <section className="relative overflow-hidden">
-          <div className="absolute inset-0 -z-10 bg-[radial-gradient(45%_40%_at_50%_60%,rgba(34,197,94,0.08),transparent)]" />
           {/* max-w-4xl, not 3xl: at 3xl the h1 broke after "for you" and left
               "code included" stranded on its own line. Padding is tight on
               purpose — Run and Check have to be visible at 1440x900. */}
@@ -177,7 +176,7 @@ export default function Home() {
         </section>
 
         {/* CTA */}
-        <section className="border-t border-border bg-gradient-to-b from-success-soft/50 to-surface py-16">
+        <section className="border-t border-border bg-surface-2 py-16">
           <div className="mx-auto max-w-2xl px-6 text-center">
             <h2 className="mb-4 break-words text-2xl font-bold text-text sm:text-3xl">{t("landing.ctaReady")}</h2>
             <p className="mb-8 text-text-muted">{t("landing.ctaReadySub")}</p>

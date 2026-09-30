@@ -18,7 +18,7 @@ const STATUSES: AttendanceStatus[] = ["present", "late", "absent", "excused"];
 // Token-backed colors: present=success, late=warning, absent=danger, excused=muted.
 const STATUS_STYLES: Record<AttendanceStatus, { on: string; off: string }> = {
   present: {
-    on: "bg-success text-white",
+    on: "bg-success text-primary-fg",
     off: "bg-success-soft text-success-fg hover:bg-success/20",
   },
   late: {

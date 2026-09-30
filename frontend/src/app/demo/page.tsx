@@ -3,7 +3,7 @@
 import { Suspense, useEffect, useState } from "react";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
-import { BookOpen, Loader2, Play, Users } from "lucide-react";
+import { Loader2 } from "lucide-react";
 
 import apiClient from "@/lib/api-client";
 import { Button } from "@/components/ui/button";
@@ -64,12 +64,12 @@ function DemoRunner() {
  }, []);
 
  return (
- <div className="min-h-screen bg-gradient-to-br from-success-soft via-bg to-success-soft ">
+ <div className="min-h-screen bg-bg">
  {/* Minimal header */}
- <header className="border-b border-border bg-surface/60 backdrop-blur ">
+ <header className="border-b border-border bg-surface">
  <div className="mx-auto flex h-16 max-w-6xl items-center justify-between px-6">
  <Link href="/" className="flex items-center gap-2.5">
- <div className="relative flex h-9 w-9 items-center justify-center rounded-sm bg-green-500 text-lg font-extrabold text-white">
+ <div className="relative flex h-9 w-9 items-center justify-center rounded-sm bg-primary text-lg font-extrabold text-primary-fg">
  g
  <span className="absolute bottom-[4px] right-[5px] h-[5px] w-[5px] rounded-full bg-sun-400" />
  </div>
@@ -87,11 +87,8 @@ function DemoRunner() {
  </header>
 
  <main className="mx-auto max-w-3xl px-6 py-16 text-center">
- <div className="mb-8 inline-flex items-center gap-2 rounded-pill border border-primary-soft bg-success-soft px-4 py-1.5 text-sm font-medium text-success-fg ">
- <Play className="h-3.5 w-3.5" />
- {t("demo.noSignup")}
- </div>
- <h1 className="mb-4 text-4xl font-extrabold tracking-tight text-text md:text-5xl">
+ <p className="mb-4 text-sm font-medium text-text-subtle">{t("demo.noSignup")}</p>
+ <h1 className="mb-4 text-4xl font-bold text-text md:text-5xl">
  {t("demo.title")}
  </h1>
  <p className="mx-auto mb-10 max-w-xl text-lg text-text-muted ">
@@ -104,24 +101,21 @@ function DemoRunner() {
  </div>
  )}
 
- <div className="mx-auto grid max-w-2xl gap-6 md:grid-cols-2">
+ <div className="mx-auto grid max-w-2xl gap-5 text-left md:grid-cols-2">
  {/* Student card */}
  <button
  type="button"
  onClick={() => enterDemo("student")}
  disabled={loading !== null}
- className="flex flex-col items-center gap-4 rounded-lg border border-border-strong bg-surface p-8 text-left shadow-sm transition hover:border-primary hover:shadow-md disabled:opacity-50 "
+ className="flex flex-col items-start gap-3 rounded-lg bg-subject-lang p-7 text-left text-subject-ink transition-transform duration-[var(--motion-fast)] ease-[var(--motion-ease)] motion-safe:hover:-translate-y-0.5 disabled:opacity-50"
  >
- <div className="flex h-14 w-14 items-center justify-center rounded-lg bg-primary-soft ">
- <Users className="h-7 w-7 text-primary " />
- </div>
- <h2 className="text-xl font-bold text-text ">
+ <h2 className="text-2xl font-bold">
  {t("demo.studentTitle")}
  </h2>
- <p className="text-sm text-text-muted ">
+ <p className="text-sm opacity-80">
  {t("demo.studentDesc")}
  </p>
- <div className="mt-auto inline-flex items-center gap-2 text-sm font-semibold text-primary ">
+ <div className="mt-auto inline-flex items-center gap-2 pt-2 text-sm font-semibold underline underline-offset-4">
  {loading === "student" ? (
  <>
  <Loader2 className="h-4 w-4 animate-spin" />
@@ -138,18 +132,15 @@ function DemoRunner() {
  type="button"
  onClick={() => enterDemo("teacher")}
  disabled={loading !== null}
- className="flex flex-col items-center gap-4 rounded-lg border border-border-strong bg-surface p-8 text-left shadow-sm transition hover:border-primary hover:shadow-md disabled:opacity-50 "
+ className="flex flex-col items-start gap-3 rounded-lg bg-subject-code p-7 text-left text-subject-ink transition-transform duration-[var(--motion-fast)] ease-[var(--motion-ease)] motion-safe:hover:-translate-y-0.5 disabled:opacity-50"
  >
- <div className="flex h-14 w-14 items-center justify-center rounded-lg bg-primary-soft ">
- <BookOpen className="h-7 w-7 text-primary " />
- </div>
- <h2 className="text-xl font-bold text-text ">
+ <h2 className="text-2xl font-bold">
  {t("demo.teacherTitle")}
  </h2>
- <p className="text-sm text-text-muted ">
+ <p className="text-sm opacity-80">
  {t("demo.teacherDesc")}
  </p>
- <div className="mt-auto inline-flex items-center gap-2 text-sm font-semibold text-primary ">
+ <div className="mt-auto inline-flex items-center gap-2 pt-2 text-sm font-semibold underline underline-offset-4">
  {loading === "teacher" ? (
  <>
  <Loader2 className="h-4 w-4 animate-spin" />

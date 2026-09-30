@@ -217,7 +217,7 @@ export default function AdminUsersPage() {
  placeholder={t("admin.users.fullName")}
  value={form.full_name}
  onChange={(e) => setForm({ ...form, full_name: e.target.value })}
- className="rounded-lg border border-border-strong bg-transparent px-3 py-2 text-sm focus:border-primary focus:outline-none focus:ring-1 focus:ring-green-500"
+ className="rounded-lg border border-border-strong bg-transparent px-3 py-2 text-sm focus:border-primary focus:outline-none focus:ring-1 focus:ring-border-focus"
  required
  />
  <input
@@ -225,7 +225,7 @@ export default function AdminUsersPage() {
  placeholder={t("common.email")}
  value={form.email}
  onChange={(e) => setForm({ ...form, email: e.target.value })}
- className="rounded-lg border border-border-strong bg-transparent px-3 py-2 text-sm focus:border-primary focus:outline-none focus:ring-1 focus:ring-green-500"
+ className="rounded-lg border border-border-strong bg-transparent px-3 py-2 text-sm focus:border-primary focus:outline-none focus:ring-1 focus:ring-border-focus"
  required
  />
  <input
@@ -233,13 +233,13 @@ export default function AdminUsersPage() {
  placeholder={t("admin.users.password")}
  value={form.password}
  onChange={(e) => setForm({ ...form, password: e.target.value })}
- className="rounded-lg border border-border-strong bg-transparent px-3 py-2 text-sm focus:border-primary focus:outline-none focus:ring-1 focus:ring-green-500"
+ className="rounded-lg border border-border-strong bg-transparent px-3 py-2 text-sm focus:border-primary focus:outline-none focus:ring-1 focus:ring-border-focus"
  required
  />
  <select
  value={form.role}
  onChange={(e) => setForm({ ...form, role: e.target.value })}
- className="rounded-lg border border-border-strong bg-transparent px-3 py-2 text-sm focus:border-primary focus:outline-none focus:ring-1 focus:ring-green-500"
+ className="rounded-lg border border-border-strong bg-transparent px-3 py-2 text-sm focus:border-primary focus:outline-none focus:ring-1 focus:ring-border-focus"
  >
  <option value="student">student</option>
  <option value="teacher">teacher</option>
@@ -254,7 +254,7 @@ export default function AdminUsersPage() {
  value={form.org_id}
  onChange={(e) => setForm({ ...form, org_id: e.target.value })}
  aria-label={t("admin.users.organization")}
- className="rounded-lg border border-border-strong bg-transparent px-3 py-2 text-sm focus:border-primary focus:outline-none focus:ring-1 focus:ring-green-500"
+ className="rounded-lg border border-border-strong bg-transparent px-3 py-2 text-sm focus:border-primary focus:outline-none focus:ring-1 focus:ring-border-focus"
  >
  <option value="">{t("admin.users.myOrg")}</option>
  {orgs.map((o) => (
