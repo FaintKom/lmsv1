@@ -15,8 +15,6 @@
  * его. Удаление блока задание не трогает.
  */
 
-import { EXERCISE_TYPE_LABELS } from "@/lib/api/exercises";
-
 import { buildPagesContent, extractPages } from "./lesson-pages";
 
 /** Куда ставим: урок и его место в курсе — из этого собирается адрес сохранения. */
@@ -45,12 +43,13 @@ export interface NewExercisePayload {
  * а в урок попадает блоком — следующим шагом. Записывать урок в само задание
  * значило бы снова смешать «где завели» с «где показывают».
  */
-export function newExercisePayload(exerciseType: string): NewExercisePayload {
+export function newExercisePayload(exerciseType: string, title: string): NewExercisePayload {
   return {
     exercise_type: exerciseType,
-    // Незнакомый тип называет себя сам: список подписей закрытый, а тип сюда
-    // приходит строкой — пустое название хуже неизвестного.
-    title: `New ${(EXERCISE_TYPE_LABELS as Record<string, string>)[exerciseType] || exerciseType}`,
+    // Название — имя типа на языке учителя (specs/070), его переводит
+    // вызывающий: здесь нет доступа к словарю. Пустое название хуже
+    // неизвестного, поэтому без него тип называет себя сам.
+    title: title.trim() || exerciseType,
     config: {},
   };
 }
@@ -62,6 +61,8 @@ export interface AddExerciseArgs {
   /** Номер страницы урока, с нуля: задание встаёт последним именно на ней. */
   pageIndex: number;
   exerciseType: string;
+  /** Название нового задания — имя типа на языке учителя. */
+  title: string;
 }
 
 /**
@@ -77,8 +78,9 @@ export async function addExerciseToPage({
   content,
   pageIndex,
   exerciseType,
+  title,
 }: AddExerciseArgs): Promise<{ exerciseId: string }> {
-  const { data } = await client.post("/exercises", newExercisePayload(exerciseType));
+  const { data } = await client.post("/exercises", newExercisePayload(exerciseType, title));
 
   const pages = extractPages(content);
   const target = pages[pageIndex] ?? pages[pages.length - 1];

@@ -138,35 +138,19 @@ export interface SubmissionListResponse {
  per_page: number;
 }
 
-export const EXERCISE_TYPE_LABELS: Record<ExerciseType, string> = {
- quiz: "Quiz",
- code_challenge: "Code Challenge",
- matching: "Matching",
- ordering: "Ordering",
- fill_blanks: "Fill Blanks",
- true_false: "True/False",
- categorize: "Categorize",
- file_upload: "File Upload",
- robot_2d: "2D Robot",
- math_interactive: "Math Interactive",
- world_3d: "3D World",
- translation: "Translation",
- sentence_builder: "Sentence Builder",
- dialogue: "Dialogue",
- conjugation: "Conjugation",
- reading: "Reading",
- listening: "Listening",
- web_editor: "Web Editor",
- scorm_package: "SCORM / xAPI",
- math_stepwise: "Math Step-by-Step",
- math_system: "System of Equations",
- stereometry: "Solids",
- srs_flashcard: "Flashcards (SRS)",
- crossword: "Crossword",
- word_search: "Word Search",
- map_pin_drop: "Map Pin Drop",
- bubble_sheet: "Bubble Sheet",
-};
+/** i18n key for an exercise type's name; render with `t(exerciseTypeLabelKey(type))`.
+ *  Names live only in the locale files so a new type cannot ship untranslated. */
+export function exerciseTypeLabelKey(type: ExerciseType | string): string {
+  return `exerciseTypes.${type}`;
+}
+
+/** The type's name in the interface language. A type the dictionaries do not
+ *  know names itself rather than showing the raw key. */
+export function exerciseTypeName(t: (key: string) => string, type: ExerciseType | string): string {
+  const key = exerciseTypeLabelKey(type);
+  const name = t(key);
+  return name === key ? type : name;
+}
 
 export const EXERCISE_TYPE_COLORS: Record<ExerciseType, string> = {
  quiz: "bg-info-soft text-info-fg ",
@@ -206,39 +190,38 @@ export type ExerciseGroupKey = "basic" | "math" | "languages" | "programming" | 
 
 export interface ExerciseTypeMeta {
  value: ExerciseType;
- label: string;
  Icon: LucideIcon;
  group: ExerciseGroupKey;
 }
 
 export const EXERCISE_TYPES_META: ExerciseTypeMeta[] = [
- { value: "quiz", label: "Quiz", Icon: ClipboardList, group: "basic" },
- { value: "code_challenge", label: "Code Challenge", Icon: Code, group: "programming" },
- { value: "matching", label: "Matching", Icon: Puzzle, group: "basic" },
- { value: "ordering", label: "Ordering", Icon: ArrowUpDown, group: "basic" },
- { value: "fill_blanks", label: "Fill Blanks", Icon: PenLine, group: "basic" },
- { value: "true_false", label: "True/False", Icon: ToggleLeft, group: "basic" },
- { value: "categorize", label: "Categorize", Icon: FolderOpen, group: "basic" },
- { value: "file_upload", label: "File Upload", Icon: Upload, group: "basic" },
- { value: "robot_2d", label: "2D Robot", Icon: Bot, group: "programming" },
- { value: "math_interactive", label: "Math Interactive", Icon: Calculator, group: "math" },
- { value: "math_stepwise", label: "Math Step-by-Step", Icon: Sigma, group: "math" },
- { value: "math_system", label: "System of Equations", Icon: Sigma, group: "math" },
- { value: "stereometry", label: "Solids", Icon: Box, group: "math" },
- { value: "world_3d", label: "3D World", Icon: Box, group: "programming" },
- { value: "translation", label: "Translation", Icon: Languages, group: "languages" },
- { value: "sentence_builder", label: "Sentence Builder", Icon: Type, group: "languages" },
- { value: "dialogue", label: "Dialogue", Icon: MessageCircle, group: "languages" },
- { value: "conjugation", label: "Conjugation", Icon: Table, group: "languages" },
- { value: "reading", label: "Reading", Icon: BookOpenText, group: "languages" },
- { value: "listening", label: "Listening", Icon: Headphones, group: "languages" },
- { value: "web_editor", label: "Web Editor", Icon: Globe, group: "programming" },
- { value: "scorm_package", label: "SCORM / xAPI", Icon: Package, group: "scorm" },
- { value: "srs_flashcard", label: "Flashcards (SRS)", Icon: Layers, group: "languages" },
- { value: "crossword", label: "Crossword", Icon: Grid3x3, group: "languages" },
- { value: "word_search", label: "Word Search", Icon: Search, group: "languages" },
- { value: "map_pin_drop", label: "Map Pin Drop", Icon: MapPin, group: "basic" },
- { value: "bubble_sheet", label: "Bubble Sheet", Icon: CircleDot, group: "basic" },
+ { value: "quiz", Icon: ClipboardList, group: "basic" },
+ { value: "code_challenge", Icon: Code, group: "programming" },
+ { value: "matching", Icon: Puzzle, group: "basic" },
+ { value: "ordering", Icon: ArrowUpDown, group: "basic" },
+ { value: "fill_blanks", Icon: PenLine, group: "basic" },
+ { value: "true_false", Icon: ToggleLeft, group: "basic" },
+ { value: "categorize", Icon: FolderOpen, group: "basic" },
+ { value: "file_upload", Icon: Upload, group: "basic" },
+ { value: "robot_2d", Icon: Bot, group: "programming" },
+ { value: "math_interactive", Icon: Calculator, group: "math" },
+ { value: "math_stepwise", Icon: Sigma, group: "math" },
+ { value: "math_system", Icon: Sigma, group: "math" },
+ { value: "stereometry", Icon: Box, group: "math" },
+ { value: "world_3d", Icon: Box, group: "programming" },
+ { value: "translation", Icon: Languages, group: "languages" },
+ { value: "sentence_builder", Icon: Type, group: "languages" },
+ { value: "dialogue", Icon: MessageCircle, group: "languages" },
+ { value: "conjugation", Icon: Table, group: "languages" },
+ { value: "reading", Icon: BookOpenText, group: "languages" },
+ { value: "listening", Icon: Headphones, group: "languages" },
+ { value: "web_editor", Icon: Globe, group: "programming" },
+ { value: "scorm_package", Icon: Package, group: "scorm" },
+ { value: "srs_flashcard", Icon: Layers, group: "languages" },
+ { value: "crossword", Icon: Grid3x3, group: "languages" },
+ { value: "word_search", Icon: Search, group: "languages" },
+ { value: "map_pin_drop", Icon: MapPin, group: "basic" },
+ { value: "bubble_sheet", Icon: CircleDot, group: "basic" },
 ];
 
 // Subject groups for pickers/filters, derived from the meta so the two can

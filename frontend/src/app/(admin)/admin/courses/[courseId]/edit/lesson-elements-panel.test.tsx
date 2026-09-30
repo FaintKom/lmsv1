@@ -257,7 +257,7 @@ describe("добавление задания", () => {
     for (const group of ["basic", "math", "languages", "programming", "scorm"]) {
       expect(screen.getByText(`exerciseGroups.${group}`)).toBeTruthy();
     }
-    expect(screen.getByText("Fill Blanks")).toBeTruthy();
+    expect(screen.getByText("fill_blanks")).toBeTruthy();
   });
 
   it("поиск сужает список до нужного типа", async () => {
@@ -265,19 +265,20 @@ describe("добавление задания", () => {
     fireEvent.change(screen.getByPlaceholderText("admin.courseEdit.elementsSearch"), {
       target: { value: "cross" },
     });
-    expect(screen.getByText("Crossword")).toBeTruthy();
-    expect(screen.queryByText("Fill Blanks")).toBeNull();
+    expect(screen.getByText("crossword")).toBeTruthy();
+    expect(screen.queryByText("fill_blanks")).toBeNull();
     expect(screen.queryByText("exerciseGroups.math")).toBeNull();
   });
 
   it("выбор типа заводит задание на своей странице", async () => {
     await openMenu(1);
-    fireEvent.click(screen.getByText("Quiz"));
+    fireEvent.click(screen.getByText("quiz"));
 
     await waitFor(() => expect(addExerciseToPage).toHaveBeenCalledTimes(1));
     expect(addExerciseToPage.mock.calls[0][0]).toMatchObject({
       pageIndex: 1,
       exerciseType: "quiz",
+      title: "quiz",
       where: { lessonId: "l1", courseId: "c1", moduleId: "m1" },
     });
   });
@@ -285,7 +286,7 @@ describe("добавление задания", () => {
   it("отказ виден, и список остаётся прежним", async () => {
     addExerciseToPage.mockRejectedValue(new Error("no"));
     await openMenu();
-    fireEvent.click(screen.getByText("Quiz"));
+    fireEvent.click(screen.getByText("quiz"));
 
     await waitFor(() => expect(screen.getByText("admin.courseEdit.elementsAddFailed")).toBeTruthy());
     expect(screen.getByText("Reading a range")).toBeTruthy();
