@@ -1,5 +1,10 @@
 # Migration map — Lively v1 → v2
 
+> Historical. The v2 → v3 move (specs/071) did not use a find/replace table:
+> `src/lib/design/design-system.test.ts` counts what bypasses the system and
+> now requires zero. §0 (the no-FOUC theme script) still describes the live
+> contract.
+
 Concrete `find → replace` for `frontend/src/`. Run top to bottom; each block is
 independently safe. After every block: `npm run lint && npm run build`.
 

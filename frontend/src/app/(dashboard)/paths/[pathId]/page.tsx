@@ -98,7 +98,7 @@ export default function PathDetailPage() {
  <div className="flex-1">
  <div className="h-3 rounded-pill bg-ink-200 ">
  <div
- className="h-3 rounded-pill bg-primary transition-[width] duration-500"
+ className="h-3 rounded-pill bg-primary"
  style={{ width: `${progress}%` }}
  />
  </div>

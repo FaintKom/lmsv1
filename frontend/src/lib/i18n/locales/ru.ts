@@ -2896,7 +2896,7 @@ const ru: TranslationMap = {
  "journal.tab.program": "Программа",
  "journal.tab.schedule": "Расписание",
  "journal.tab.rooms": "Кабинеты",
- "journal.tab.setup": "⚙ Настройки",
+ "journal.tab.setup": "Настройки",
  "journal.actualTopic": "Пройденная тема (программа)",
  "journal.actualTopicNone": "— не задано —",
  "journal.plannedTopicHint": "По плану",

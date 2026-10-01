@@ -1230,7 +1230,7 @@ function WeekGrid({
 
   return (
     <div className="overflow-auto">
-      <div className="grid min-w-[760px] grid-cols-[46px_repeat(6,1fr)] overflow-hidden rounded-2xl border border-border bg-surface-2">
+      <div className="grid min-w-[760px] grid-cols-[46px_repeat(6,1fr)] overflow-hidden rounded-xl border border-border bg-surface-2">
         {/* Header row */}
         <div className="border-b-[1.5px] border-border bg-surface-2" />
         {WEEKDAY_KEYS.map((d) => {
@@ -1442,7 +1442,7 @@ function SchedSlotEditor({
       onClick={onClose}
     >
       <div
-        className="w-full max-w-md space-y-3 rounded-2xl bg-surface p-5 shadow-xl"
+        className="w-full max-w-md space-y-3 rounded-xl bg-surface p-5 shadow-xl"
         onClick={(e) => e.stopPropagation()}
       >
         <div className="flex items-center justify-between">

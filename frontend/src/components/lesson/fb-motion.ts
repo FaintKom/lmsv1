@@ -35,7 +35,7 @@ export function flyClone(
   el.style.height = a.height + "px";
   el.style.margin = "0";
   el.style.transition =
-    "transform .32s cubic-bezier(.3,.9,.4,1.1), opacity .32s";
+    "transform calc(0.32s * var(--mdur)) var(--motion-ease-sheet), opacity calc(0.32s * var(--mdur))";
   document.body.appendChild(el);
   // force layout so the transition starts from the source position
   el.getBoundingClientRect();

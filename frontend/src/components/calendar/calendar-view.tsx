@@ -12,10 +12,10 @@ import { useAuthStore } from "@/stores/auth-store";
 import { Plus, X, Loader2 } from "lucide-react";
 
 const EVENT_COLORS: Record<string, string> = {
- deadline: "#ef4444",
- lesson: "#3b82f6",
- meeting: "#22c55e",
- custom: "#8b5cf6",
+ deadline: "var(--color-danger)",
+ lesson: "var(--color-info)",
+ meeting: "var(--color-primary)",
+ custom: "var(--viz-5)",
 };
 
 interface Props {

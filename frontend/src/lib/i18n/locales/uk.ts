@@ -2946,7 +2946,7 @@ const uk: TranslationMap = {
  "journal.tab.program": "Програма",
  "journal.tab.schedule": "Розклад",
  "journal.tab.rooms": "Кабінети",
- "journal.tab.setup": "⚙ Налаштування",
+ "journal.tab.setup": "Налаштування",
  "journal.actualTopic": "Пройдена тема (програма)",
  "journal.actualTopicNone": "— не задано —",
  "journal.plannedTopicHint": "За планом",

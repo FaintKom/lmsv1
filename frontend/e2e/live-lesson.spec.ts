@@ -41,7 +41,7 @@ test.describe("live lesson", () => {
 
     // student raises hand -> teacher roster shows it
     await studentPage.getByRole("button", { name: /raise hand/i }).click();
-    await expect(teacherPage.getByText("✋").first()).toBeVisible({ timeout: 15000 });
+    await expect(teacherPage.getByRole("img", { name: /raise hand|поднять руку/i }).first()).toBeVisible({ timeout: 15000 });
 
     // End lesson: the trigger opens a confirm modal (it replaced window.confirm),
     // whose confirm button carries the same label — hence first() then last().

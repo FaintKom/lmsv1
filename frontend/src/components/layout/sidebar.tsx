@@ -194,15 +194,14 @@ export function Sidebar({ open, onClose }: SidebarProps) {
  // layers the tab bar won on DOM order and swallowed taps aimed at the
  // footer — which is where the account link and Sign Out live, so the
  // drawer opened and logging out still did nothing.
- // transition-[width] as well as transform: collapsing is a width change on
- // desktop and a slide on mobile, and both want the same 200ms. The global
- // prefers-reduced-motion rule in globals.css flattens either one to 0.01ms,
- // so there is nothing to repeat per-component here.
  "fixed inset-y-0 left-0 z-[60] flex h-dvh flex-col border-r border-border bg-bg md:static md:h-screen md:translate-x-0",
  // Not before the saved preference is back: the first correction after
  // hydration is not a gesture the user made, and animating it turns
  // "it remembered" into "it is closing on me again".
- hydrated && "transition-[width,transform] duration-200 ease-in-out",
+ // Only the mobile slide animates. Collapsing the desktop rail is a frequent
+ // action and snaps (MOTION.md §1); animating width would also re-lay-out
+ // the page every frame.
+ hydrated && "transition-transform duration-200 ease-in-out",
  railMode ? "w-[240px] md:w-[88px]" : "w-[240px]",
  open ? "translate-x-0" : "-translate-x-full"
  )}

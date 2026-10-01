@@ -397,7 +397,7 @@ export function MathSystemV2({
                     color: "var(--color-text)",
                     border: `2px solid ${selected ? "var(--color-primary)" : "var(--color-border-strong)"}`,
                     opacity: feedback ? 0.7 : 1,
-                    transition: "background 150ms, border-color 150ms",
+                    transition: "background-color var(--motion-fast), border-color var(--motion-fast)",
                   }}
                 >
                   {t(`exercise.mathSystem.kind${option[0].toUpperCase()}${option.slice(1)}`)}

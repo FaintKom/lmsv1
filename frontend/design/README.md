@@ -1,4 +1,4 @@
-# GrassLMS — Design export · Lively v2
+# GrassLMS — Design export · v3
 
 Package for `frontend/design/`. Single source of truth for visuals.
 
@@ -51,34 +51,27 @@ Claude Code:
 **Never** put a raw colour (`bg-green-600`, `#22c55e`, `dark:bg-[#1e1e1e]`) in a component —
 semantic utilities only (`bg-primary`, `text-muted`, `border-border`).
 
-## Ratchet
+## Design guard
 
 `src/lib/design/design-system.test.ts` counts, per file, the places that bypass
 this system: raw hex, raw Tailwind palette classes, gradients, mono uppercase
 labels, `btn-pop`, backdrop blur, `transition-all`, hand-typed durations and
-curves, animated layout properties, `scale(0)` and View Transitions outside the
-allowed files. The full list and the reasons are in
+curves, animated layout properties, `scale(0)`, View Transitions outside
+`src/lib/view-transition.ts`, radii above `--radius-xl` (14px) and emoji used
+as icons. The full list and the reasons are in
 `specs/071-design-system-v2/contracts/`.
 
-The counts live in `design-baseline.json` and only go down:
+It began as a ratchet with a per-file baseline and reached zero in specs/071
+PR 6. Now any violation fails CI, with the file and the rule named.
 
-- a file may not gain a violation, and a new file must have none;
-- when a count drops, the test fails until the baseline is rewritten, so a
-  clean-up cannot be undone by accident.
-
-After cleaning something up:
-
-```bash
-cd frontend
-UPDATE_DESIGN_BASELINE=1 npx vitest run src/lib/design
-```
-
-Review the baseline diff before committing it: every line should go down.
-Colour that encodes data or scene content (charts, the voxel room and avatar,
-game scenes, print forms, the logo) is exempt, and each exemption in the test
-states why.
+Exempt are the places where colour is content or data, each with its reason
+in the test: lesson content (widgets, the author's HTML, the editor), the
+voxel room and avatar, game and exercise scenes, charts, print forms, badge
+and medal artwork, and a school's own brand colour. Durations scaled by the
+exercise grammar's `--mdur` and infinite loops (spinners, skeletons) are not
+counted as hand-typed.
 
 ## Versioning
 
 - `tokens.json → meta.version` is semver: token rename → major, new token → minor, value tweak → patch.
-- Current: **2.0.0** (major — `coral` and `info` were renamed).
+- Current: **3.0.0** (major, specs/071: Onest and Geologica replace Manrope, radii cap at 14px, subject colours `--subject-*`, motion tokens). v2 notes above are kept for history.

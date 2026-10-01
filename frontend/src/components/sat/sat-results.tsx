@@ -192,7 +192,7 @@ export default function SATResults({
  </div>
  <div className="h-2.5 overflow-hidden rounded-pill bg-surface-2 ">
  <div
- className="h-full rounded-pill transition-[width] duration-700"
+ className="h-full rounded-pill"
  style={{ width: `${pct}%`, backgroundColor: DOMAIN_COLORS[domain] }}
  />
  </div>

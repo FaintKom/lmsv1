@@ -365,7 +365,7 @@ export function CrosswordV2({
                 fontWeight: isActive ? 800 : 600,
                 color: isActive ? "var(--green-800)" : "var(--color-text-muted)",
                 cursor: feedback || wi < 0 ? "default" : "pointer",
-                transition: "background 120ms, color 120ms",
+                transition: "background-color var(--motion-fast), color var(--motion-fast)",
               }}
             >
               <b

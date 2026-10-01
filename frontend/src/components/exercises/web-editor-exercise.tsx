@@ -24,10 +24,10 @@ interface WebEditorExerciseProps {
 
 type EditorTab = "html" | "css" | "js";
 
-const TAB_LABELS: Record<EditorTab, { label: string; icon: string; lang: string }> = {
- html: { label: "HTML", icon: "🟧", lang: "html" },
- css: { label: "CSS", icon: "🟦", lang: "css" },
- js: { label: "JS", icon: "🟨", lang: "javascript" },
+const TAB_LABELS: Record<EditorTab, { label: string; lang: string }> = {
+ html: { label: "HTML", lang: "html" },
+ css: { label: "CSS", lang: "css" },
+ js: { label: "JS", lang: "javascript" },
 };
 
 // Assemble full HTML doc from three parts
@@ -206,7 +206,6 @@ export default function WebEditorExercise({
  : "text-text-subtle hover:text-text-muted "
  }`}
  >
- <span>{TAB_LABELS[tab].icon}</span>
  {TAB_LABELS[tab].label}
  {activeTab === tab && (
  <span className="absolute bottom-0 left-2 right-2 h-0.5 rounded-pill bg-primary" />

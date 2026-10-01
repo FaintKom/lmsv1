@@ -189,7 +189,7 @@ export function ExerciseGallery() {
                 >
                   <span
                     aria-hidden="true"
-                    className={`block h-1.5 rounded-pill transition-all ${
+                    className={`block h-1.5 rounded-pill transition-colors ${
                       i === index ? "w-6 bg-primary" : "w-1.5 bg-border-strong hover:bg-text-subtle"
                     }`}
                   />

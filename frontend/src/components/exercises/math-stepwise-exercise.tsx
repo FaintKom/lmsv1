@@ -410,7 +410,7 @@ export function MathStepwiseRenderer({
  style={{
  width: "100%",
  padding: "8px",
- border: "1px solid var(--border-strong, #d1d5db)",
+ border: "1px solid var(--color-border-strong)",
  borderRadius: "0.5rem",
  fontSize: "1rem",
  }}
