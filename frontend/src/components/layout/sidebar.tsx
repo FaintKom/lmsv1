@@ -194,6 +194,10 @@ export function Sidebar({ open, onClose }: SidebarProps) {
  // layers the tab bar won on DOM order and swallowed taps aimed at the
  // footer — which is where the account link and Sign Out live, so the
  // drawer opened and logging out still did nothing.
+ "fixed inset-y-0 left-0 z-[60] flex h-dvh flex-col border-r border-border bg-bg md:static md:h-screen md:translate-x-0",
+ // Not before the saved preference is back: the first correction after
+ // hydration is not a gesture the user made, and animating it turns
+ // "it remembered" into "it is closing on me again".
  // Only the mobile slide animates. Collapsing the desktop rail is a frequent
  // action and snaps (MOTION.md §1); animating width would also re-lay-out
  // the page every frame.
