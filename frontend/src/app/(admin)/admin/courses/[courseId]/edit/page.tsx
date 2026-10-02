@@ -69,7 +69,6 @@ const KIND_KEYS: Record<BlockKind, string> = {
 import dynamic from "next/dynamic";
 import { markdownToTiptap } from "@/components/editor/utils/markdown-to-tiptap";
 import {
- EXERCISE_TYPE_LABELS as EXERCISE_TYPE_LABELS_FULL,
  EXERCISE_TYPES_META,
 } from "@/lib/api/exercises";
 

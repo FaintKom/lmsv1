@@ -19,7 +19,7 @@ import {
 } from "lucide-react";
 import {
  exercisesApi,
- EXERCISE_TYPE_LABELS,
+ exerciseTypeName,
  EXERCISE_TYPE_COLORS,
  type Exercise,
  type ExerciseSubmission,
@@ -112,7 +112,7 @@ export default function SubmissionsViewerPage() {
  <span
  className={`rounded-pill px-2.5 py-0.5 text-xs font-medium ${EXERCISE_TYPE_COLORS[exercise.exercise_type]}`}
  >
- {EXERCISE_TYPE_LABELS[exercise.exercise_type]}
+ {exerciseTypeName(t, exercise.exercise_type)}
  </span>
  )}
  </div>

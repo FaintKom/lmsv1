@@ -17,7 +17,12 @@ import { ClipboardList, Code2, FileText, Plus, Presentation, Puzzle, Video } fro
 import { useState } from "react";
 
 import apiClient from "@/lib/api-client";
-import { EXERCISE_TYPES_META, exercisesApi, type ExerciseGroupKey } from "@/lib/api/exercises";
+import {
+  EXERCISE_TYPES_META,
+  exerciseTypeName,
+  exercisesApi,
+  type ExerciseGroupKey,
+} from "@/lib/api/exercises";
 import { useTranslation } from "@/lib/i18n/context";
 import { addExerciseToPage, placeExistingInPage } from "@/lib/lessons/add-exercise";
 
@@ -114,6 +119,7 @@ export function LessonElementsPanel({
         content,
         pageIndex,
         exerciseType,
+        title: exerciseTypeName(t, exerciseType),
       });
       // Название нового задания приходит тем же запросом, что и остальные, —
       // список обновляется целиком, а не дописывается по месту.
@@ -239,7 +245,7 @@ function AddExercise({
 
   const needle = query.trim().toLowerCase();
   const matching = EXERCISE_TYPES_META.filter(
-    (type) => !needle || type.label.toLowerCase().includes(needle),
+    (type) => !needle || exerciseTypeName(t, type.value).toLowerCase().includes(needle),
   );
 
   return (
@@ -312,7 +318,7 @@ function AddExercise({
                           className="flex w-full items-center gap-2 rounded px-1.5 py-1 text-left text-xs text-text hover:bg-surface-2"
                         >
                           <type.Icon className="h-3 w-3 shrink-0 text-text-subtle" aria-hidden />
-                          {type.label}
+                          {exerciseTypeName(t, type.value)}
                         </button>
                       </li>
                     ))}

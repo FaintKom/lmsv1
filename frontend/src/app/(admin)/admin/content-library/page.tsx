@@ -54,7 +54,7 @@ import { newExercisePayload } from "@/lib/lessons/add-exercise";
 import {
  exercisesApi,
  EXERCISE_TYPES_META,
- EXERCISE_TYPE_LABELS,
+ exerciseTypeName,
  EXERCISE_TYPE_COLORS,
  EXERCISE_GROUPS,
  type Exercise,
@@ -508,7 +508,7 @@ function ExercisesTab() {
  setPickerOpen(false);
  setCreating(true);
  try {
- const { data } = await exercisesApi.create(newExercisePayload(exerciseType) as Parameters<typeof exercisesApi.create>[0]);
+ const { data } = await exercisesApi.create(newExercisePayload(exerciseType, exerciseTypeName(t, exerciseType)) as Parameters<typeof exercisesApi.create>[0]);
  router.push(`/admin/content-library/${data.id}`);
  } catch {
  toast.error(t("admin.contentLibrary.createExerciseFailed"));
@@ -606,7 +606,7 @@ function ExercisesTab() {
  className="flex w-full items-center gap-2 rounded px-1.5 py-1 text-left text-xs text-text hover:bg-surface-2"
  >
  <meta.Icon className="h-3 w-3 shrink-0 text-text-subtle" aria-hidden />
- {meta.label}
+ {exerciseTypeName(t, meta.value)}
  </button>
  </li>
  ))}
@@ -649,7 +649,7 @@ function ExercisesTab() {
  }`}
  >
  <Icon className="h-3.5 w-3.5" />
- {EXERCISE_TYPE_LABELS[type]}
+ {exerciseTypeName(t, type)}
  </button>
  );
  })}
@@ -711,7 +711,7 @@ function ExercisesTab() {
  <td className="px-2.5 py-0">
  <span className={`inline-flex items-center gap-1.5 rounded-pill px-2.5 py-0.5 text-xs font-medium ${EXERCISE_TYPE_COLORS[ex.exercise_type]}`}>
  <Icon className="h-3 w-3" />
- {EXERCISE_TYPE_LABELS[ex.exercise_type]}
+ {exerciseTypeName(t, ex.exercise_type)}
  </span>
  </td>
  <td className="px-2.5 py-0 text-text-muted ">

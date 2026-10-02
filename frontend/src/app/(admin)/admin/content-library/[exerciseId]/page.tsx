@@ -16,7 +16,7 @@ import {
 } from "lucide-react";
 import {
  exercisesApi,
- EXERCISE_TYPE_LABELS,
+ exerciseTypeName,
  EXERCISE_TYPE_COLORS,
  type Exercise,
  type ExerciseType,
@@ -188,7 +188,7 @@ export default function ExerciseEditorPage() {
  <div className="flex items-center gap-2">
  <h1 className="text-xl font-bold text-text ">{exercise.title}</h1>
  <span className={`rounded-pill px-2.5 py-0.5 text-xs font-medium ${EXERCISE_TYPE_COLORS[exercise.exercise_type]}`}>
- {EXERCISE_TYPE_LABELS[exercise.exercise_type]}
+ {exerciseTypeName(t, exercise.exercise_type)}
  </span>
  </div>
  <p className="mt-0.5 font-mono text-xs text-text-muted ">{exercise.display_id}</p>
