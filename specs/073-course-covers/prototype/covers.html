@@ -1,0 +1,164 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Course Covers</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Geologica:wght@500;600&family=Onest:wght@400;500;600&display=swap">
+<style>
+  /* Prototype for specs/073. Colours copied from globals.css (v3 tokens). */
+  .light {
+    --bg: #fbfcf7; --text: #0d150d; --muted: #485444; --border: #e3e8dd; --surface: #ffffff;
+    --f-lang: #d4f1c4; --a-lang: #0a8754;
+    --f-math: #fff2b3; --a-math: #7a5500;
+    --f-code: #e4f1f4; --a-code: #12798f;
+    --f-other: #e3e8dd; --a-other: #485444;
+    --ink: #0d150d;
+  }
+  .dark {
+    --bg: #0d150d; --text: #e9efe9; --muted: #93a08d; --border: #232b22; --surface: #121b12;
+    --f-lang: #16301f; --a-lang: #34a06a;
+    --f-math: #33301a; --a-math: #f5b800;
+    --f-code: #142b31; --a-code: #3aa0b5;
+    --f-other: #202a22; --a-other: #93a08d;
+    --ink: #e9efe9;
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; font-family: Onest, system-ui, sans-serif; background: #fbfcf7; color: #0d150d; }
+  .theme { background: var(--bg); color: var(--text); padding-block: 28px; padding-inline: 24px; }
+  h1 { font-family: Geologica, sans-serif; font-weight: 600; font-size: 22px; margin: 0 0 4px; }
+  h2 { font-family: Geologica, sans-serif; font-weight: 600; font-size: 17px; margin: 28px 0 12px; }
+  .note { color: var(--muted); font-size: 14px; margin: 0; max-width: 70ch; }
+  .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 16px; }
+  .card { background: var(--surface); border: 1px solid var(--border); border-radius: 14px; overflow: hidden; min-width: 0; }
+  .cover { position: relative; height: 144px; overflow: hidden; }
+  .cover svg { position: absolute; inset: 0; width: 100%; height: 100%; }
+  .cover .label { position: absolute; inset: 0; padding: 16px; display: flex; flex-direction: column; justify-content: space-between; color: var(--ink); }
+  .cat { font-size: 12px; font-weight: 500; opacity: .8; }
+  .title { font-family: Geologica, sans-serif; font-weight: 600; font-size: 18px; line-height: 1.2; max-width: 62%; text-wrap: balance; }
+  .body { padding: 14px 16px 16px; font-size: 13px; color: var(--muted); }
+</style>
+</head>
+<body>
+<div id="root"></div>
+<script>
+const COURSES = [
+  { id: "a1f3", title: "Spanish A1: first steps", cat: "Languages", s: "lang" },
+  { id: "9bc2", title: "English grammar in use", cat: "Languages", s: "lang" },
+  { id: "4e7d", title: "Algebra foundations", cat: "Mathematics", s: "math" },
+  { id: "c0aa", title: "Geometry and proof", cat: "Mathematics", s: "math" },
+  { id: "77e1", title: "Python for beginners", cat: "Programming", s: "code" },
+  { id: "2d90", title: "Web pages from scratch", cat: "programming", s: "code" },
+  { id: "e5b4", title: "Platform tour", cat: "platform", s: "other" },
+  { id: "18f6", title: "Study skills", cat: "", s: "other" },
+];
+
+// Small deterministic PRNG seeded from the course id: same course, same cover.
+function rng(id) {
+  let h = 2166136261;
+  for (const c of id) h = Math.imul(h ^ c.charCodeAt(0), 16777619);
+  return () => ((h = Math.imul(h ^ (h >>> 15), 2246822507) ^ Math.imul(h ^ (h >>> 13), 3266489909)) >>> 0) / 4294967296;
+}
+
+const W = 320, H = 144;
+const A = (s) => `var(--a-${s})`;
+
+// ---- Variant 1: line drawing --------------------------------------------
+function lines(s, r) {
+  const a = A(s), o = `stroke="${a}" stroke-width="1.5" fill="none" stroke-linecap="round" opacity=".55"`;
+  let x0 = 196 + r() * 16;
+  if (s === "lang") {
+    const n = 3 + Math.floor(r() * 2);
+    let g = `<rect x="${x0}" y="26" width="104" height="${30 + n * 10}" rx="14" ${o}/>`;
+    for (let i = 0; i < n; i++) g += `<line x1="${x0 + 16}" y1="${46 + i * 12}" x2="${x0 + 40 + r() * 46}" y2="${46 + i * 12}" ${o}/>`;
+    g += `<rect x="${x0 - 34}" y="${70 + n * 6}" width="70" height="30" rx="12" ${o}/>`;
+    return g;
+  }
+  if (s === "math") {
+    let g = "";
+    for (let i = 0; i <= 5; i++) g += `<line x1="${x0 - 10 + i * 22}" y1="18" x2="${x0 - 10 + i * 22}" y2="128" stroke="${A(s)}" stroke-width="1" opacity=".18"/>`;
+    for (let i = 0; i <= 5; i++) g += `<line x1="${x0 - 10}" y1="${18 + i * 22}" x2="${x0 + 100}" y2="${18 + i * 22}" stroke="${A(s)}" stroke-width="1" opacity=".18"/>`;
+    // Each course gets its own function: a wave, a parabola or a growth curve.
+    const kind = Math.floor(r() * 3), ph = r() * 6;
+    const f = [
+      (t) => Math.sin(t * 9 + ph) * 0.8,
+      (t) => (2 * t - 1) ** 2 * 1.6 - 0.8,
+      (t) => 0.8 - Math.exp(t * 2.6) / 7,
+    ][kind];
+    let d = "";
+    for (let x = 0; x <= 110; x += 4) d += `${x ? "L" : "M"}${x0 - 10 + x},${73 + f(x / 110) * 42}`;
+    return g + `<path d="${d}" stroke="${a}" stroke-width="2" fill="none" stroke-linecap="round"/>`;
+  }
+  if (s === "code") {
+    x0 -= 12;
+    let g = `<path d="M${x0} 30 q-14 0 -14 14 v16 q0 12 -10 13 q10 1 10 13 v16 q0 14 14 14" ${o}/>`;
+    g += `<path d="M${x0 + 104} 30 q14 0 14 14 v16 q0 12 10 13 q-10 1 -10 13 v16 q0 14 -14 14" ${o}/>`;
+    const shapes = [[0, 1, 2, 2, 1, 0], [0, 0, 1, 1, 2, 0], [0, 1, 1, 2, 3, 0]];
+    shapes[Math.floor(r() * shapes.length)].forEach((ind, i) => { g += `<line x1="${x0 + 14 + ind * 12}" y1="${42 + i * 13}" x2="${x0 + 30 + ind * 12 + r() * 40}" y2="${42 + i * 13}" ${o}/>`; });
+    return g;
+  }
+  let g = "";
+  const cx = x0 + 70, cy = 110 + r() * 20;
+  for (let i = 1; i <= 5; i++) g += `<circle cx="${cx}" cy="${cy}" r="${i * 18}" stroke="${a}" stroke-width="1.5" fill="none" opacity="${0.6 - i * 0.08}"/>`;
+  return g;
+}
+
+// ---- Variant 2: one big glyph -------------------------------------------
+const GLYPH = { lang: ["Aa", "Ññ", "“ ”"], math: ["∑", "π", "∫"], code: ["{ }", "</>", "=>"], other: ["&", "§", "¶"] };
+function glyph(s, r) {
+  const set = GLYPH[s], ch = set[Math.floor(r() * set.length)];
+  // Anchored to the right edge and cropped by it, clear of the title on the left.
+  const size = ch.length > 2 ? 96 : 140, y = 96 + r() * 24;
+  const esc = ch.replace(/</g, "&lt;").replace(/>/g, "&gt;");
+  return `<text x="${W + 6}" y="${y}" text-anchor="end" font-family="Geologica, sans-serif" font-weight="600" font-size="${size}" fill="${A(s)}" opacity=".22">${esc}</text>`;
+}
+
+// ---- Variant 3: flat geometry -------------------------------------------
+function geometry(s, r) {
+  const a = A(s), f1 = `fill="${a}" opacity=".16"`, f2 = `fill="${a}" opacity=".32"`;
+  const x0 = 200 + r() * 20;
+  const flip = r() < 0.5;
+  if (s === "lang") {
+    const [y1, y2] = flip ? [92, 50] : [58, 96];
+    return `<circle cx="${x0 + 40}" cy="${y1}" r="${38 + r() * 10}" ${f1}/><circle cx="${x0 + 92}" cy="${y2}" r="${28 + r() * 10}" ${f2}/>`;
+  }
+  if (s === "math") {
+    return flip
+      ? `<circle cx="${x0 + 60}" cy="72" r="52" ${f1}/><path d="M${x0 + 40} 120 L${x0 + 110} 120 L${x0 + 110} 50 Z" ${f2}/>`
+      : `<path d="M${x0} 128 L${x0 + 70} 20 L${x0 + 120} 128 Z" ${f1}/><circle cx="${x0 + 92}" cy="${60 + r() * 20}" r="26" ${f2}/>`;
+  }
+  if (s === "code") {
+    const n = 3 + (flip ? 1 : 0), step = flip ? 26 : 30;
+    return Array.from({ length: n }, (_, i) => `<rect x="${x0 - 8 + [0, 18, 36, 18][i]}" y="${22 + i * step}" width="${84 - i * 10 + r() * 16}" height="18" rx="6" ${i === 1 ? f2 : f1}/>`).join("");
+  }
+  return flip
+    ? `<rect x="${x0 + 10}" y="28" width="96" height="96" rx="48" ${f1}/><rect x="${x0 + 58}" y="76" width="56" height="56" rx="10" ${f2}/>`
+    : `<path d="M${x0} 144 A 80 80 0 0 1 ${x0 + 160} 144 Z" ${f1}/><circle cx="${x0 + 80}" cy="${54 + r() * 14}" r="18" ${f2}/>`;
+}
+
+const VARIANTS = [
+  ["1 · Lines", "Thin strokes of the subject's own objects: a dialogue, a graph, code with indents.", lines],
+  ["2 · Glyph", "One large character of the subject, cropped by the card edge.", glyph],
+  ["3 · Geometry", "Two or three flat shapes in tones of the field.", geometry],
+];
+
+function card(c, draw) {
+  const svg = `<svg viewBox="0 0 ${W} ${H}" preserveAspectRatio="xMaxYMid slice" aria-hidden="true">${draw(c.s, rng(c.id))}</svg>`;
+  return `<div class="card"><div class="cover" style="background:var(--f-${c.s})">${svg}
+    <div class="label"><span class="cat">${c.cat || "&nbsp;"}</span><span class="title">${c.title}</span></div></div>
+    <div class="body">12 lessons · 3 h</div></div>`;
+}
+
+let html = "";
+for (const theme of ["light", "dark"]) {
+  html += `<section class="theme ${theme}"><h1>Course covers — ${theme}</h1><p class="note">Drawn by code from the course's subject and id. A course with its own picture keeps it.</p>`;
+  for (const [name, note, draw] of VARIANTS) {
+    html += `<h2>${name}</h2><p class="note" style="margin-bottom:12px">${note}</p><div class="grid">${COURSES.map((c) => card(c, draw)).join("")}</div>`;
+  }
+  html += `</section>`;
+}
+document.getElementById("root").innerHTML = html;
+</script>
+</body>
+</html>

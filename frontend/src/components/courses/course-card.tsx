@@ -4,6 +4,7 @@ import { useState } from "react";
 import Link from "next/link";
 import type { Course } from "@/types/api";
 import { ProgressBar } from "@/components/ui/progress-bar";
+import { coverArtProps } from "@/lib/course-cover";
 import { SUBJECT_SURFACE, subjectOf } from "@/lib/subject";
 
 interface CourseCardProps {
@@ -13,7 +14,8 @@ interface CourseCardProps {
 
 /**
  * A course in the catalog. Without a thumbnail the cover is the subject's
- * field colour with the title set on it (specs/071, direction C); the old
+ * field colour with the title set on it (specs/071, direction C) and a line
+ * drawing of the subject on the right (specs/073); the old
  * cover was the same green gradient with a watermark glyph on every course.
  * Hover lifts the card 2px (MOTION.md M5); Tailwind's `hover:` only fires on
  * devices that can hover, so a tap never leaves it raised.
@@ -36,9 +38,10 @@ export function CourseCard({ course, progress }: CourseCardProps) {
  />
  </div>
  ) : (
- <div className={`flex h-36 flex-col justify-between p-4 text-subject-ink ${SUBJECT_SURFACE[subject]}`}>
+ <div className={`relative isolate flex h-36 flex-col justify-between overflow-hidden p-4 text-subject-ink ${SUBJECT_SURFACE[subject]}`}>
+ <svg {...coverArtProps(subject, course.id)} className="pointer-events-none absolute inset-0 -z-10 h-full w-full" />
  <span className="text-xs font-medium opacity-80">{course.category}</span>
- <h3 className="text-lg font-semibold leading-tight line-clamp-2">{course.title}</h3>
+ <h3 className="max-w-[60%] text-lg font-semibold leading-tight line-clamp-2">{course.title}</h3>
  </div>
  )}
 

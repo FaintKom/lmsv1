@@ -1,5 +1,6 @@
 "use client";
 
+import { coverArtProps } from "@/lib/course-cover";
 import { SUBJECT_SURFACE, subjectOf } from "@/lib/subject";
 import { useEffect, useState } from "react";
 import apiClient from "@/lib/api-client";
@@ -224,7 +225,8 @@ export default function AdminCoursesPage() {
  </div>
  </div>
  ) : (
- <div data-subject={subject} className={`relative flex h-32 items-end p-4 text-subject-ink ${SUBJECT_SURFACE[subject]}`}>
+ <div data-subject={subject} className={`relative isolate flex h-32 items-end overflow-hidden p-4 text-subject-ink ${SUBJECT_SURFACE[subject]}`}>
+ <svg {...coverArtProps(subject, course.id)} className="pointer-events-none absolute inset-0 -z-10 h-full w-full" />
  {isTemplate ? (
  <FileStack className="h-6 w-6 opacity-70" aria-hidden />
  ) : (
