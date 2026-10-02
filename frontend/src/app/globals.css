@@ -207,6 +207,12 @@
  --subject-code: var(--lagoon-50);
  --subject-other: var(--ink-100);
  --subject-ink: var(--ink-900);
+ /* Line drawing on a course cover (specs/073); decorative, drawn at reduced
+    opacity, so it is not held to text contrast. */
+ --subject-line-lang: var(--green-600);
+ --subject-line-math: var(--sun-700);
+ --subject-line-code: var(--lagoon-600);
+ --subject-line-other: var(--ink-500);
 
  /* ---- ELEVATION --------------------------------------- */
  /* ---- VIZ — categorical series for chart-like widgets ------
@@ -372,6 +378,10 @@
  --subject-code: #142b31;
  --subject-other: #202a22;
  --subject-ink: #e9efe9;
+ --subject-line-lang: var(--green-400);
+ --subject-line-math: var(--sun-500);
+ --subject-line-code: var(--lagoon-400);
+ --subject-line-other: var(--ink-300);
 
  /* elevation by surface, not by shadow (dark-mode rule) */
  --shadow-xs: none;

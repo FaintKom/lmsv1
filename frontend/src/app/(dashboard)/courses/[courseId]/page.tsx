@@ -24,6 +24,7 @@ import {
 import { useAuthStore } from "@/stores/auth-store";
 import { useTranslation } from "@/lib/i18n/context";
 import type { Course } from "@/types/api";
+import { coverArtProps } from "@/lib/course-cover";
 import { SUBJECT_SURFACE, subjectOf } from "@/lib/subject";
 
 const CONTENT_ICONS: Record<string, LucideIcon> = {
@@ -155,10 +156,16 @@ export default function CourseDetailPage() {
       {/* ── hero: the course's subject field (specs/071) ───────── */}
       <section
         data-subject={subject}
-        className={`mb-8 grid gap-4 rounded-lg p-8 text-subject-ink ${SUBJECT_SURFACE[subject]}`}
+        className={`relative isolate mb-8 grid gap-4 overflow-hidden rounded-lg p-8 text-subject-ink ${SUBJECT_SURFACE[subject]}`}
       >
+        {/* The subject's drawing (specs/073). Not on a phone: there the text
+            runs the full width and the lines would sit under it. */}
+        <svg
+          {...coverArtProps(subject, course.id)}
+          className="pointer-events-none absolute inset-0 -z-10 hidden h-full w-full sm:block"
+        />
         {course.category && <p className="text-sm opacity-80">{course.category}</p>}
-        <h1 className="text-3xl font-bold leading-tight">{course.title}</h1>
+        <h1 className="max-w-xl text-3xl font-bold leading-tight">{course.title}</h1>
         {course.description && (
           <p className="max-w-xl text-base leading-relaxed opacity-85">{course.description}</p>
         )}

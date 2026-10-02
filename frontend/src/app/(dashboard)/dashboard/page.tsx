@@ -8,6 +8,7 @@ import { CourseCard } from "@/components/courses/course-card";
 import { ProgressBar } from "@/components/ui/progress-bar";
 import { StreakPill } from "@/components/ui/streak-pill";
 import { XpPill } from "@/components/ui/xp-pill";
+import { coverArtProps } from "@/lib/course-cover";
 import { SUBJECT_SURFACE, subjectOf } from "@/lib/subject";
 import { ArrowRight, BookOpen } from "lucide-react";
 import type { Enrollment, Course, CalendarEvent } from "@/types/api";
@@ -132,14 +133,19 @@ export default function DashboardPage() {
  <section
  aria-label={t("dash.continue")}
  data-subject={currentSubject}
- className={`grid content-between gap-6 rounded-lg p-6 text-subject-ink ${SUBJECT_SURFACE[currentSubject]}`}
+ className={`relative isolate grid content-between gap-6 overflow-hidden rounded-lg p-6 text-subject-ink ${SUBJECT_SURFACE[currentSubject]}`}
  >
+ {/* The course's drawing (specs/073); off on a phone, where it would sit under the title. */}
+ <svg
+ {...coverArtProps(currentSubject, current.course!.id)}
+ className="pointer-events-none absolute inset-0 -z-10 hidden h-full w-full sm:block"
+ />
  <div className="grid gap-2">
  <p className="text-sm opacity-80">{current.course!.category || t("dash.continue")}</p>
- <h2 className="text-2xl font-bold leading-tight">{current.course!.title}</h2>
+ <h2 className="text-2xl sm:max-w-[60%] font-bold leading-tight">{current.course!.title}</h2>
  </div>
  <div className="grid gap-4">
- <div className="flex items-center gap-3">
+ <div className="flex items-center gap-3 sm:max-w-[60%]">
  <ProgressBar value={current.enrollment.progress_percent || 0} fillClassName="bg-subject-ink" />
  <span className="text-sm font-medium tabular-nums">
  {Math.round(current.enrollment.progress_percent || 0)}%
