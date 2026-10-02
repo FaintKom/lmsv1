@@ -84,6 +84,7 @@ const PAIRS: [string, string, number][] = [
     ),
   ),
   ["--color-primary-fg", "--color-primary", 4.5],
+  ["--color-logo-fg", "--color-logo", 4.5],
   ["--color-success-fg", "--color-success-soft", 4.5],
   ["--color-warning-fg", "--color-warning-soft", 4.5],
   ["--color-danger-fg", "--color-danger-soft", 4.5],
@@ -102,6 +103,17 @@ describe.each([
 ])("contrast, %s theme", (_theme, vars) => {
   it.each(PAIRS)("%s on %s ≥ %s:1", (fg, bg, min) => {
     expect(ratio(vars, fg, bg)).toBeGreaterThanOrEqual(min);
+  });
+});
+
+describe("the GrassLMS mark (specs/072)", () => {
+  it("is the same colour in both themes", () => {
+    // A logo does not change with the theme. Pointing it at --color-primary
+    // once turned the "g" light green with a black letter in dark mode.
+    for (const token of ["--color-logo", "--color-logo-fg"]) {
+      expect(resolveVar(DARK, `var(${token})`), token).toBe(resolveVar(LIGHT, `var(${token})`));
+    }
+    expect(resolveVar(LIGHT, "var(--color-logo)")).toBe("#0a8754");
   });
 });
 

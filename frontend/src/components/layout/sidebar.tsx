@@ -220,7 +220,7 @@ export function Sidebar({ open, onClose }: SidebarProps) {
  className="h-8 w-8 shrink-0 rounded-sm object-cover"
  />
  ) : (
- <div className="relative flex h-8 w-8 shrink-0 items-center justify-center rounded-sm bg-primary text-lg font-extrabold text-primary-fg">
+ <div className="relative flex h-8 w-8 shrink-0 items-center justify-center rounded-sm bg-logo text-lg font-extrabold text-logo-fg">
  g
  <span className="absolute bottom-[4px] right-[5px] h-[5px] w-[5px] rounded-full bg-sun-400" />
  </div>

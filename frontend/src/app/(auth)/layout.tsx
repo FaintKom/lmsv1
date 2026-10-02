@@ -18,7 +18,7 @@ export default function AuthLayout({
       <div className="hidden w-1/2 bg-subject-lang text-subject-ink lg:flex lg:flex-col lg:items-center lg:justify-center">
         <div className="max-w-md px-8 text-center">
           {/* "g" logo mark */}
-          <div className="relative mx-auto mb-6 flex h-16 w-16 items-center justify-center rounded-md bg-primary text-2xl font-extrabold text-primary-fg">
+          <div className="relative mx-auto mb-6 flex h-16 w-16 items-center justify-center rounded-md bg-logo text-2xl font-extrabold text-logo-fg">
             g
             <span className="absolute bottom-[6px] right-[8px] h-[8px] w-[8px] rounded-full bg-sun-400" />
           </div>
@@ -40,7 +40,7 @@ export default function AuthLayout({
             href="/"
             className="mb-8 flex items-center justify-center gap-2.5 lg:hidden"
           >
-            <div className="relative flex h-9 w-9 items-center justify-center rounded-sm bg-primary text-lg font-extrabold text-primary-fg">
+            <div className="relative flex h-9 w-9 items-center justify-center rounded-sm bg-logo text-lg font-extrabold text-logo-fg">
               g
               <span className="absolute bottom-[4px] right-[5px] h-[5px] w-[5px] rounded-full bg-sun-400" />
             </div>

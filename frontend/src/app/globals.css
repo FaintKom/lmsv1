@@ -174,6 +174,10 @@
      brand therefore got white text on a light fill, and nothing said so. */
   --color-primary-fg: var(--primary-fg, #ffffff);
   --color-primary-text: var(--primary-text-light, var(--color-primary));
+  /* The "g" mark (specs/072). Defined here only, never in .dark: a logo
+     does not change with the theme. A school's colour still wins. */
+  --color-logo: var(--primary, var(--green-600));
+  --color-logo-fg: var(--primary-fg, var(--ink-on-fill));
 
  --color-reward: var(--sun-400);
  --color-reward-soft: var(--sun-100);
@@ -443,6 +447,8 @@
  --color-primary-hover: var(--color-primary-hover);
  --color-primary-soft: var(--color-primary-soft);
  --color-primary-fg: var(--color-primary-fg);
+ --color-logo: var(--color-logo);
+ --color-logo-fg: var(--color-logo-fg);
  --color-reward: var(--color-reward);
  --color-reward-soft: var(--color-reward-soft);
  --color-reward-fg: var(--color-reward-fg);
