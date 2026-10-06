@@ -593,8 +593,7 @@ export default function LessonViewerPage() {
         <button
          onClick={handleComplete}
          disabled={completing}
-         className="press-scale flex w-full items-center justify-center gap-2 rounded-md bg-primary px-6 py-3.5 text-sm font-bold text-primary-fg disabled:opacity-50"
-         style={{ boxShadow: "0 4px 0 0 var(--green-700)" }}
+         className="press-scale flex h-12 w-full items-center justify-center gap-2 rounded-pill bg-primary px-6 text-base font-semibold text-primary-fg transition-colors hover:bg-primary-hover disabled:opacity-50 sm:w-auto"
         >
          <CheckCircle className="h-4 w-4" />
          {completing ? t("lesson.completing") : t("lesson.complete")}
@@ -623,7 +622,7 @@ export default function LessonViewerPage() {
      {prevLesson && (
       <Link
        href={`/courses/${courseId}/lessons/${prevLesson.lesson.id}`}
-       className="hidden items-center gap-2.5 rounded-xl bg-surface-2 px-3.5 py-2 text-sm font-bold text-text transition hover:-translate-y-0.5 sm:flex"
+       className="hidden min-h-11 items-center gap-2.5 rounded-pill bg-surface-2 px-5 py-2 text-sm font-semibold text-text transition-colors hover:bg-border sm:flex"
       >
        <ArrowLeft className="h-3.5 w-3.5 text-text-subtle" />
        <div>
@@ -638,8 +637,7 @@ export default function LessonViewerPage() {
      {nextLesson ? (
       <Link
        href={`/courses/${courseId}/lessons/${nextLesson.lesson.id}`}
-       className="press-scale flex items-center gap-2.5 rounded-xl bg-primary px-3.5 py-2 text-sm font-bold text-primary-fg"
-       style={{ boxShadow: "0 4px 0 0 var(--green-700)" }}
+       className="press-scale flex min-h-11 items-center gap-2.5 rounded-pill bg-primary px-5 py-2 text-sm font-semibold text-primary-fg transition-colors hover:bg-primary-hover"
       >
        <div className="text-right">
         <span className="block text-xs font-semibold text-white/70">
@@ -652,8 +650,7 @@ export default function LessonViewerPage() {
      ) : (
       <Link
        href={`/courses/${courseId}`}
-       className="press-scale flex items-center gap-2 rounded-xl bg-primary px-3.5 py-2 text-sm font-bold text-primary-fg"
-       style={{ boxShadow: "0 4px 0 0 var(--green-700)" }}
+       className="press-scale flex min-h-11 items-center gap-2 rounded-pill bg-primary px-5 py-2 text-sm font-semibold text-primary-fg transition-colors hover:bg-primary-hover"
       >
        <CheckCircle className="h-3.5 w-3.5" />
        {t("lesson.backToCourse")}

@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/button";
 import { Route, ArrowRight, CheckCircle, Lock } from "lucide-react";
 import { toast } from "sonner";
 import { useTranslation } from "@/lib/i18n/context";
+import { PageHeader, PageLoading } from "@/components/ui/page-kit";
 
 interface PathItem {
  id: string;
@@ -46,21 +47,12 @@ export default function PathsPage() {
  };
 
  if (loading) {
- return (
- <div className="flex h-64 items-center justify-center">
- <div className="h-8 w-8 animate-spin rounded-pill border-4 border-primary border-t-transparent" />
- </div>
- );
+ return <PageLoading />;
  }
 
  return (
- <div className="mx-auto max-w-4xl">
- <div className="mb-8">
- <h1 className="text-2xl font-bold text-text ">{t("paths.title")}</h1>
- <p className="mt-1 text-base text-text-muted ">
- {t("paths.subtitle")}
- </p>
- </div>
+ <div className="space-y-8">
+ <PageHeader title={t("paths.title")} description={t("paths.subtitle")} />
 
  {paths.length === 0 ? (
  <Card>
@@ -81,7 +73,7 @@ export default function PathsPage() {
  {paths.map((p) => {
  const progress = p.step_count > 0 ? Math.round((p.current_step / p.step_count) * 100) : 0;
  return (
- <Card key={p.id} className="border-l-4 border-l-green-400 transition-shadow hover:shadow-md">
+ <Card key={p.id} className=" transition-shadow hover:shadow-md">
  <CardContent className="p-6">
  <div className="flex items-start justify-between">
  <div className="flex items-start gap-4">

@@ -120,7 +120,6 @@ export const I18N_ALLOWLIST: ReadonlySet<string> = new Set([
   "src/components/layout/org-switcher.tsx",
   "src/components/math/problem-generator.tsx",
   "src/components/onboarding-tour.tsx",
-  "src/components/onboarding/newcomer-checklist.tsx",
   "src/components/onboarding/teacher-onboarding.tsx",
   "src/components/sat/desmos-calculator.tsx",
   "src/components/sat/sat-results.tsx",

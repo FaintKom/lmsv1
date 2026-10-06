@@ -11,6 +11,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { ThemeToggle } from "@/components/ui/theme-toggle";
 import { LangCode } from "@/components/gamification/lang-code";
+import { PageHeader } from "@/components/ui/page-kit";
 import {
  Save,
  User,
@@ -219,16 +220,9 @@ export default function ProfilePage() {
  .slice(0, 2) || "?";
 
  return (
- <div className="mx-auto max-w-2xl">
+ <div className="space-y-8">
  <div className="mb-8 flex items-center justify-between">
- <div>
- <h1 className="text-2xl font-bold text-text ">
- {t("nav.profile") === "nav.profile" ? "Profile" : t("nav.profile")}
- </h1>
- <p className="mt-1 text-sm text-text-muted ">
- Manage your account settings
- </p>
- </div>
+ <PageHeader title={t("nav.profile")} />
  {!editing && (
  <Button variant="outline" onClick={handleEdit}>
  <Pencil className="mr-1.5 h-4 w-4" />

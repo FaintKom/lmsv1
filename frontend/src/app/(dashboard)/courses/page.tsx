@@ -10,6 +10,7 @@ import { subjectOf, type Subject } from "@/lib/subject";
 import { withViewTransition } from "@/lib/view-transition";
 import { BookOpen, ArrowRight } from "lucide-react";
 import type { Course } from "@/types/api";
+import { EmptyState, FilterChips, PageHeader } from "@/components/ui/page-kit";
 
 const SUBJECT_LABEL = {
  lang: "subject.lang",
@@ -56,7 +57,7 @@ export default function CoursesPage() {
 
  if (loading) {
  return (
- <div className="mx-auto max-w-6xl">
+ <div>
  <div className="mb-8">
  <div className="lms-skeleton mb-2 h-8 w-40" />
  <div className="lms-skeleton h-4 w-64" />
@@ -77,40 +78,35 @@ export default function CoursesPage() {
  }
 
  return (
- <div className="mx-auto grid max-w-6xl gap-6">
- <header className="grid gap-1">
- <h1 className="text-3xl font-bold leading-tight text-text">{t("courses.title")}</h1>
- <p className="text-base text-text-muted">{t("courses.subtitle")}</p>
- </header>
+ <div className="grid gap-8">
+ <PageHeader title={t("courses.title")} description={t("courses.subtitle")} />
 
  {present.length > 1 && (
- <div role="group" aria-label={t("courses.catalog")} className="flex flex-wrap gap-2">
- {(["all", ...present] as const).map((s) => (
- <button
- key={s}
- type="button"
- aria-pressed={filter === s}
- onClick={() => choose(s)}
- className="press-scale h-9 rounded-pill border border-border-strong bg-surface px-4 text-sm font-medium text-text aria-pressed:border-text aria-pressed:bg-text aria-pressed:text-bg"
- >
- {s === "all" ? t("courses.filterAll") : t(SUBJECT_LABEL[s])}
- </button>
- ))}
- </div>
+ <FilterChips
+ aria-label={t("courses.catalog")}
+ value={filter}
+ onChange={(v) => choose(v as Subject | "all")}
+ items={(["all", ...present] as const).map((s) => ({
+ value: s,
+ label: s === "all" ? t("courses.filterAll") : t(SUBJECT_LABEL[s]),
+ }))}
+ />
  )}
 
  {courses.length === 0 ? (
- <div className="flex flex-col items-center justify-center rounded-lg bg-surface p-16 text-center">
- <BookOpen className="mb-4 h-8 w-8 text-text-subtle" aria-hidden />
- <h2 className="mb-1 text-lg font-semibold text-text">{t("courses.noAvailable")}</h2>
- <p className="mb-4 text-sm text-text-muted">{t("courses.noAvailableHint")}</p>
+ <EmptyState
+ icon={BookOpen}
+ title={t("courses.noAvailable")}
+ description={t("courses.noAvailableHint")}
+ action={
  <Link
  href="/dashboard"
  className="inline-flex items-center gap-1 text-sm font-medium text-primary hover:text-primary-hover"
  >
  {t("courses.backToDashboard")} <ArrowRight className="h-3 w-3" aria-hidden />
  </Link>
- </div>
+ }
+ />
  ) : (
  <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
  {shown.map((course) => (

@@ -93,7 +93,10 @@ export default function AdminLayout({
  <span className="text-sm font-bold text-text ">{branding.display_name}</span>
  </div>
  </div>
- <main id="main-content" className={isLiveRoute ? "flex-1 overflow-hidden" : "flex-1 overflow-auto p-6 pb-20 md:p-10 md:pb-10 lg:p-12 lg:pb-12"}>{!isLiveRoute && <LiveLessonBanner />}{children}</main>
+ <main id="main-content" className={isLiveRoute ? "flex-1 overflow-hidden" : "flex-1 overflow-auto p-6 pb-20 md:p-10 md:pb-10 lg:p-12 lg:pb-12"}>{isLiveRoute ? children : (
+  // Same width cap as (dashboard) (specs/075).
+  <div className="mx-auto w-full max-w-7xl"><LiveLessonBanner />{children}</div>
+ )}</main>
  </div>
  <MobileTabBar />
  </div>

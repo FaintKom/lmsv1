@@ -9,9 +9,10 @@ import { BadgeCard } from "@/components/gamification/badge-card";
 import { LEAGUE_TINT, LeagueMark, leagueKindFromName } from "@/components/gamification/league-mark";
 import { useTranslation } from "@/lib/i18n/context";
 import {
- Trophy, Flame, Medal, Star, Zap, TrendingUp,
- Award, Download, Loader2, Home, UserCircle,
+ Trophy, Flame, Zap, TrendingUp,
+ Award, Download, Home, UserCircle,
 } from "lucide-react";
+import { EmptyState, PageHeader, PageLoading, StatTile, Tabs, type TabItem } from "@/components/ui/page-kit";
 import {
  RadarChart,
  PolarGrid,
@@ -20,7 +21,6 @@ import {
  Radar,
  ResponsiveContainer,
 } from "recharts";
-import { cn } from "@/lib/utils";
 import { RoomEditor } from "@/components/room/room-editor";
 import { AvatarBuilderPanel } from "@/components/avatar/avatar-builder-panel";
 import { AvatarCanvas } from "@/components/avatar/avatar-canvas";
@@ -96,9 +96,6 @@ const CATEGORY_COLORS: Record<string, string> = {
 
 type Tab = "achievements" | "certificates" | "skills" | "room" | "avatar";
 
-/** Tabs that swap the 3D scene + panel layout — they need full page width. */
-const FULL_WIDTH_TABS: Tab[] = ["room", "avatar"];
-
 /* ── Page ── */
 const VALID_TABS: Tab[] = ["achievements", "certificates", "skills", "room", "avatar"];
 
@@ -145,57 +142,26 @@ export default function AchievementsPage() {
  .finally(() => setLoading(false));
  }, []);
 
- if (loading) {
- return (
- <div className="flex h-64 items-center justify-center">
- <div className="h-8 w-8 animate-spin rounded-pill border-4 border-primary border-t-transparent" />
- </div>
- );
- }
+ if (loading) return <PageLoading />;
 
- const tabs: { key: Tab; label: string; icon: React.ReactNode }[] = [
- { key: "achievements", label: t("nav.achievements") || "Achievements", icon: <Trophy className="h-4 w-4" /> },
- { key: "certificates", label: t("nav.certificates") || "Certificates", icon: <Award className="h-4 w-4" /> },
- { key: "skills", label: t("nav.skills") || "Skills", icon: <Zap className="h-4 w-4" /> },
- { key: "room", label: t("nav.myRoom") || "My room", icon: <Home className="h-4 w-4" /> },
- { key: "avatar", label: t("nav.myAvatar") || "My avatar", icon: <UserCircle className="h-4 w-4" /> },
+ const tabs: TabItem[] = [
+ { value: "achievements", label: t("nav.achievements"), icon: Trophy },
+ { value: "certificates", label: t("nav.certificates"), icon: Award },
+ { value: "skills", label: t("nav.skills"), icon: Zap },
+ { value: "room", label: t("nav.myRoom"), icon: Home },
+ { value: "avatar", label: t("nav.myAvatar"), icon: UserCircle },
  ];
 
- const isFullWidth = FULL_WIDTH_TABS.includes(tab);
-
  return (
- <div className={isFullWidth ? "" : "mx-auto max-w-6xl"}>
- <div className={cn("mb-6", isFullWidth && "mx-auto max-w-6xl px-4 lg:px-6")}>
- <h1 className="text-2xl font-bold text-text ">
- {t("nav.achievements") || "Achievements"}
- </h1>
- <p className="mt-1 text-base text-text-muted ">
- Track your progress, earn XP, and climb the leagues
- </p>
- </div>
-
- {/* Tabs */}
- <div className={cn(
- "mb-6 flex flex-wrap gap-1 rounded-lg bg-surface-2 p-1",
- isFullWidth && "mx-auto max-w-6xl px-4 lg:px-6"
- )} role="tablist">
- {tabs.map((tb) => (
- <button
- key={tb.key}
- role="tab"
- aria-selected={tab === tb.key}
- onClick={() => setTab(tb.key)}
- className={cn(
- "flex flex-1 min-w-[120px] items-center justify-center gap-2 rounded-lg px-4 py-2.5 text-sm font-medium transition",
- tab === tb.key
- ? "bg-surface text-success-fg shadow-sm "
- : "text-text-muted hover:text-text "
- )}
- >
- {tb.icon}
- {tb.label}
- </button>
- ))}
+ <div className="grid gap-8">
+ <div className="grid gap-6">
+ <PageHeader title={t("nav.achievements")} description={t("achieve.subtitle")} />
+ <Tabs
+ aria-label={t("nav.achievements")}
+ items={tabs}
+ value={tab}
+ onChange={(v) => setTab(v as Tab)}
+ />
  </div>
 
  {/* Tab Panels */}
@@ -299,6 +265,7 @@ function AchievementsTab({
  streak: StreakData | null;
  leaderboard: LeaderboardEntry[];
 }) {
+ const { t } = useTranslation();
  const earnedCount = badges.filter((b) => b.earned).length;
  const league = streak?.league;
 
@@ -315,26 +282,20 @@ function AchievementsTab({
  >
  <LeagueMark kind={leagueKindFromName(league.name)} size={56} />
  <div>
- <p className="text-xs font-medium uppercase tracking-wider text-text-muted ">Current League</p>
+ <p className="text-sm text-text-muted">{t("achieve.currentLeague")}</p>
  {/* The medal beside it carries the league; the name is text, so it
  wears a text token. It used to be painted in the API's hex, with
  two hardcoded darkening branches for gold and silver. */}
  <p className="text-2xl font-bold text-text">{league.name}</p>
  </div>
  </div>
+ {/* Total XP lives in the tiles below; this side is only the way up. */}
  <div className="flex flex-1 items-center gap-6 p-6">
- <div className="flex items-center gap-2">
- <Star className="h-5 w-5 text-warning-fg" />
- <div>
- <p className="text-xs text-text-muted ">Total XP</p>
- <p className="text-xl font-bold text-text ">{streak?.total_xp || 0}</p>
- </div>
- </div>
  {league.next_league && (
  <div className="flex-1">
- <div className="mb-1 flex items-center justify-between text-xs text-text-muted ">
- <span>Progress to {league.next_league}</span>
- <span>{streak?.total_xp || 0} / {league.next_xp} XP</span>
+ <div className="mb-1 flex items-center justify-between text-sm text-text-muted">
+ <span>{t("achieve.progressTo").replace("{league}", league.next_league)}</span>
+ <span className="tabular-nums">{streak?.total_xp || 0} / {league.next_xp} XP</span>
  </div>
  <ProgressBar
  value={league.progress}
@@ -350,55 +311,20 @@ function AchievementsTab({
  </Card>
  )}
 
- {/* Stats row */}
- <div className="mb-8 grid grid-cols-1 gap-4 sm:grid-cols-4">
- <Card className="border-l-4 border-l-yellow-400 hover:shadow-md">
- <CardContent className="flex items-center gap-4 p-6">
- <div className="rounded-lg bg-warning-soft p-3 ">
- <Zap className="h-5 w-5 text-warning-fg" />
- </div>
- <div>
- <p className="text-xs font-medium text-text-muted ">Total XP</p>
- <p className="text-2xl font-bold text-text ">{streak?.total_xp || 0}</p>
- </div>
- </CardContent>
- </Card>
-
- <Card className="border-l-4 border-l-orange-400 hover:shadow-md">
- <CardContent className="flex items-center gap-4 p-6">
- <div className="rounded-lg bg-clay-300 p-3 ">
- <Flame className="h-5 w-5 text-clay-700" />
- </div>
- <div>
- <p className="text-xs font-medium text-text-muted ">Current Streak</p>
- <p className="text-2xl font-bold text-text ">{streak?.current_streak || 0} days</p>
- </div>
- </CardContent>
- </Card>
-
- <Card className="border-l-4 border-l-amber-400 hover:shadow-md">
- <CardContent className="flex items-center gap-4 p-6">
- <div className="rounded-lg bg-warning-soft p-3 ">
- <Trophy className="h-5 w-5 text-warning-fg" />
- </div>
- <div>
- <p className="text-xs font-medium text-text-muted ">Badges Earned</p>
- <p className="text-2xl font-bold text-text ">{earnedCount} / {badges.length}</p>
- </div>
- </CardContent>
- </Card>
-
- <Card className="border-l-4 border-l-green-400 hover:shadow-md">
- <CardContent className="flex items-center gap-4 p-6">
- <div className="rounded-lg bg-primary-soft p-3 ">
- <TrendingUp className="h-5 w-5 text-primary" />
- </div>
- <div>
- <p className="text-xs font-medium text-text-muted ">Longest Streak</p>
- <p className="text-2xl font-bold text-text ">{streak?.longest_streak || 0} days</p>
- </div>
- </CardContent>
- </Card>
+ {/* The figures, in the one tile every screen uses (specs/075 FR-005) */}
+ <div className="mb-8 grid grid-cols-2 gap-3 sm:grid-cols-4">
+ <StatTile icon={Zap} label={t("achieve.totalXp")} value={streak?.total_xp || 0} />
+ <StatTile
+ icon={Flame}
+ label={t("achieve.streak")}
+ value={`${streak?.current_streak || 0} ${t("achieve.days")}`}
+ />
+ <StatTile icon={Trophy} label={t("achieve.badgesEarned")} value={`${earnedCount} / ${badges.length}`} />
+ <StatTile
+ icon={TrendingUp}
+ label={t("achieve.longest")}
+ value={`${streak?.longest_streak || 0} ${t("achieve.days")}`}
+ />
  </div>
 
  <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
@@ -407,8 +333,7 @@ function AchievementsTab({
  <Card>
  <CardHeader>
  <CardTitle className="flex items-center gap-2 text-base">
- <Trophy className="h-4 w-4 text-warning-fg" />
- All Badges
+ {t("achieve.allBadges")}
  </CardTitle>
  </CardHeader>
  <CardContent>
@@ -425,7 +350,7 @@ function AchievementsTab({
  ))}
  </div>
  {badges.length === 0 && (
- <p className="py-8 text-center text-sm text-text-muted">No badges available yet</p>
+ <p className="py-8 text-center text-sm text-text-muted">{t("achieve.noBadges")}</p>
  )}
  </CardContent>
  </Card>
@@ -436,13 +361,12 @@ function AchievementsTab({
  <Card>
  <CardHeader>
  <CardTitle className="flex items-center gap-2 text-base">
- <Medal className="h-4 w-4 text-primary" />
- Leaderboard
+ {t("achieve.leaderboard")}
  </CardTitle>
  </CardHeader>
  <CardContent>
  {leaderboard.length === 0 ? (
- <p className="py-8 text-center text-sm text-text-muted">No students yet</p>
+ <p className="py-8 text-center text-sm text-text-muted">{t("achieve.noStudents")}</p>
  ) : (
  <div className="space-y-2">
  {leaderboard.map((entry, i) => (
@@ -471,7 +395,10 @@ function AchievementsTab({
  )}
  </div>
  <p className="text-xs text-text-muted ">
- {entry.total_xp} XP · {entry.completed_lessons} lessons · {entry.badge_count} badges
+ {t("achieve.statsLine")
+ .replace("{xp}", String(entry.total_xp))
+ .replace("{lessons}", String(entry.completed_lessons))
+ .replace("{badges}", String(entry.badge_count))}
  </p>
  </div>
  {/* text-danger-fg, not text-clay-700: the raw value stays dark in dark
@@ -494,30 +421,23 @@ function AchievementsTab({
  {/* XP Earning Guide */}
  <Card className="mt-6">
  <CardHeader>
- <CardTitle className="flex items-center gap-2 text-base">
- <Star className="h-4 w-4 text-warning-fg" />
- How to Earn XP
- </CardTitle>
+ <CardTitle className="text-base">{t("achieve.howToEarn")}</CardTitle>
  </CardHeader>
  <CardContent>
- <div className="grid grid-cols-2 gap-4 sm:grid-cols-4">
- <div className="rounded-lg bg-info-soft p-4 text-center ">
- <p className="text-2xl font-bold text-info-fg">+10</p>
- <p className="mt-1 text-xs text-info-fg">Complete a lesson</p>
+ {/* One quiet list of rates: four tinted boxes made a rule look like an alert. */}
+ <dl className="grid grid-cols-2 gap-x-6 gap-y-3 sm:grid-cols-4">
+ {[
+ ["+10", t("achieve.earnLesson")],
+ ["+25", t("achieve.earnQuiz")],
+ ["+50", t("achieve.earnCode")],
+ ["+5", t("achieve.earnStreak")],
+ ].map(([xp, label]) => (
+ <div key={label} className="flex flex-col-reverse">
+ <dt className="mt-0.5 text-sm text-text-muted">{label}</dt>
+ <dd className="font-display text-xl font-bold tabular-nums text-text">{xp} XP</dd>
  </div>
- <div className="rounded-lg bg-success-soft p-4 text-center ">
- <p className="text-2xl font-bold text-primary">+25</p>
- <p className="mt-1 text-xs text-primary">Pass a quiz</p>
- </div>
- <div className="rounded-lg bg-success-soft p-4 text-center ">
- <p className="text-2xl font-bold text-primary">+50</p>
- <p className="mt-1 text-xs text-primary">Pass a code challenge</p>
- </div>
- <div className="rounded-lg bg-danger-soft p-4 text-center ">
- <p className="text-2xl font-bold text-danger-fg">+5</p>
- <p className="mt-1 text-xs text-danger-fg">Daily streak bonus</p>
- </div>
- </div>
+ ))}
+ </dl>
  </CardContent>
  </Card>
  </>
@@ -526,20 +446,11 @@ function AchievementsTab({
 
 /* ── Certificates Tab ── */
 function CertificatesTab({ certificates }: { certificates: CertificateData[] }) {
+ const { t } = useTranslation();
  return (
  <>
  {certificates.length === 0 ? (
- <Card>
- <CardContent className="flex flex-col items-center justify-center py-16">
- <div className="mb-4 rounded-pill bg-surface-2 p-4 ">
- <Award className="h-8 w-8 text-text-subtle" />
- </div>
- <h3 className="text-lg font-semibold text-text-muted ">No certificates yet</h3>
- <p className="mt-1 text-sm text-text-subtle ">
- Complete a course to earn your first certificate!
- </p>
- </CardContent>
- </Card>
+ <EmptyState icon={Award} title={t("certs.noTitle")} description={t("certs.noCerts")} />
  ) : (
  <div className="space-y-4">
  {certificates.map((cert) => (
@@ -553,7 +464,7 @@ function CertificatesTab({ certificates }: { certificates: CertificateData[] }) 
  {cert.course_title}
  </h3>
  <p className="text-xs text-text-subtle ">
- Certificate #{cert.certificate_number} · Issued{" "}
+ {t("certs.certNumber")}{cert.certificate_number} · {t("certs.issued")}{" "}
  {new Date(cert.issued_at).toLocaleDateString()}
  </p>
  </div>
@@ -567,8 +478,8 @@ function CertificatesTab({ certificates }: { certificates: CertificateData[] }) 
  }}
  className="flex items-center gap-1.5 rounded-lg border border-primary-soft bg-success-soft px-3 py-2 text-xs font-medium text-success-fg hover:bg-primary-soft cursor-pointer"
  >
- <Download className="h-3.5 w-3.5" />
- View
+ <Download className="h-3.5 w-3.5" aria-hidden="true" />
+ {t("certs.view")}
  </button>
  </CardContent>
  </Card>
@@ -587,15 +498,7 @@ function SkillsTab({ skills, radarData }: { skills: UserSkill[]; radarData: Rada
  return (
  <>
  {skills.length === 0 ? (
- <Card>
- <CardContent className="flex flex-col items-center py-12 text-center">
- <div className="mb-3 rounded-pill bg-surface-2 p-3 ">
- <Zap className="h-6 w-6 text-text-subtle" />
- </div>
- <p className="text-sm font-medium text-text-muted">{t("skills.noSkills") || "No skills earned yet"}</p>
- <p className="mt-1 text-xs text-text-subtle">{t("skills.noSkillsHint") || "Complete lessons to start earning skills"}</p>
- </CardContent>
- </Card>
+ <EmptyState icon={Zap} title={t("skills.noSkills")} description={t("skills.noSkillsHint")} />
  ) : (
  <div className="space-y-6">
  {/* Radar Chart */}
@@ -627,7 +530,7 @@ function SkillsTab({ skills, radarData }: { skills: UserSkill[]; radarData: Rada
  .map((s) => {
  const progressToNext = ((s.total_xp % 50) / 50) * 100;
  return (
- <Card key={s.skill_id} className="border-l-4 border-l-green-400">
+ <Card key={s.skill_id} className="">
  <CardContent className="p-4">
  <div className="flex items-center justify-between">
  <div className="flex items-center gap-2">
@@ -643,7 +546,7 @@ function SkillsTab({ skills, radarData }: { skills: UserSkill[]; radarData: Rada
  <div className="mt-3">
  <div className="mb-1 flex justify-between text-xs text-text-subtle">
  <span>{s.total_xp} XP</span>
- <span>Next: {(Math.floor(s.total_xp / 50) + 1) * 50} XP</span>
+ <span>{t("skills.nextLevel").replace("{xp}", String((Math.floor(s.total_xp / 50) + 1) * 50))}</span>
  </div>
  <ProgressBar value={progressToNext} size="sm" />
  </div>

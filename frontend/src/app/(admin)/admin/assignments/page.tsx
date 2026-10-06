@@ -237,9 +237,7 @@ export default function AdminAssignmentsPage() {
  {assignments.map((a) => (
  <Card
  key={a.id}
- className={`border-l-4 transition-shadow hover:shadow-md ${
- isPast(a.due_date) ? "border-l-slate-300" : "border-l-green-400"
- }`}
+ className="transition-shadow hover:shadow-md"
  >
  <CardContent className="flex items-center gap-4">
  <div className="hidden shrink-0 sm:block">

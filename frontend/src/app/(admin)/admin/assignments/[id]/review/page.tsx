@@ -136,7 +136,7 @@ export default function AssignmentReviewPage() {
  const isExpanded = expanded === sub.id;
  const g = grading[sub.id] || { score: sub.score?.toString() || "", feedback: sub.feedback || "" };
  return (
- <Card key={sub.id} className={`border-l-4 ${sub.status === "graded" ? "border-l-emerald-400" : "border-l-blue-400"}`}>
+ <Card key={sub.id}>
  <CardContent className="p-0">
  {/* Header row */}
  <button

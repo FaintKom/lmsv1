@@ -5,6 +5,7 @@ import apiClient from "@/lib/api-client";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Loader2, Zap } from "lucide-react";
 import { useTranslation } from "@/lib/i18n/context";
+import { PageHeader } from "@/components/ui/page-kit";
 import {
  RadarChart,
  PolarGrid,
@@ -58,11 +59,8 @@ export default function SkillsPage() {
  const categories = [...new Set(skills.map((s) => s.category))];
 
  return (
- <div className="mx-auto max-w-5xl space-y-6 p-6">
- <div>
- <h1 className="text-2xl font-bold text-text ">{t("skills.title")}</h1>
- <p className="text-base text-text-muted ">{t("skills.subtitle")}</p>
- </div>
+ <div className="space-y-8">
+ <PageHeader title={t("skills.title")} description={t("skills.subtitle")} />
 
  {skills.length === 0 ? (
  <Card>
@@ -111,7 +109,7 @@ export default function SkillsPage() {
  .map((s) => {
  const progressToNext = ((s.total_xp % 50) / 50) * 100;
  return (
- <Card key={s.skill_id} className="border-l-4 border-l-green-400">
+ <Card key={s.skill_id} className="">
  <CardContent className="p-4">
  <div className="flex items-center justify-between">
  <div className="flex items-center gap-2">

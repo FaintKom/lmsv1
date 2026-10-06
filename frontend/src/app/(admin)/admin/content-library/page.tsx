@@ -315,7 +315,7 @@ function TemplatesTab() {
  {templates.map((course) => (
  <Card
  key={course.id}
- className="border-l-4 border-l-primary transition-shadow hover:shadow-md"
+ className=" transition-shadow hover:shadow-md"
  >
  <CardContent className="p-5">
  <div className="mb-3 flex items-start justify-between">

@@ -7,6 +7,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Users, Loader2, ArrowRight } from "lucide-react";
 import { useAuthStore } from "@/stores/auth-store";
 import { useTranslation } from "@/lib/i18n/context";
+import { PageHeader } from "@/components/ui/page-kit";
 
 interface Child {
  id: string;
@@ -35,15 +36,8 @@ export default function ParentDashboard() {
  useEffect(() => { fetchChildren(); }, []);
 
  return (
- <div className="mx-auto max-w-4xl space-y-6 p-6">
- <div>
- <h1 className="text-2xl font-bold text-text ">
- {t("parent.welcome")} {user?.full_name}
- </h1>
- <p className="text-base text-text-muted ">
- {t("parent.subtitle")}
- </p>
- </div>
+ <div className="space-y-8">
+ <PageHeader title={<>{t("parent.welcome")} {user?.full_name}</>} description={t("parent.subtitle")} />
 
  {/* No form to claim a child here on purpose: the school links parents to
      students, not the other way round. Self-service meant any parent could
@@ -66,7 +60,7 @@ export default function ParentDashboard() {
  <div className="grid gap-4 sm:grid-cols-2">
  {children.map((child) => (
  <Link key={child.id} href={`/parent/children/${child.id}`}>
- <Card className="border-l-4 border-l-green-400 transition-shadow hover:shadow-md">
+ <Card className=" transition-shadow hover:shadow-md">
  <CardContent className="flex items-center gap-4 p-4">
  <div className="flex h-12 w-12 items-center justify-center rounded-pill bg-primary text-lg font-bold text-primary-fg">
  {child.full_name.charAt(0).toUpperCase()}

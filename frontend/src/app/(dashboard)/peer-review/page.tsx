@@ -3,10 +3,11 @@
 import { useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
-import { CheckCircle2, Loader2, Star } from "lucide-react";
+import { CheckCircle2, Loader2, Star, MessagesSquare } from "lucide-react";
 
 import { useTranslation } from "@/lib/i18n/context";
 import { Card, CardContent } from "@/components/ui/card";
+import { EmptyState, PageHeader } from "@/components/ui/page-kit";
 import {
   listMyReviews,
   submitReview,
@@ -99,22 +100,15 @@ export default function StudentPeerReviewPage() {
   const reviews = data ?? [];
 
   return (
-    <div className="mx-auto max-w-3xl space-y-6 p-6">
-      <div>
-        <h1 className="text-2xl font-bold text-text">{t("peerReview.studentTitle")}</h1>
-        <p className="text-base text-text-muted">{t("peerReview.studentSubtitle")}</p>
-      </div>
+    <div className="space-y-8">
+      <PageHeader title={t("peerReview.studentTitle")} description={t("peerReview.studentSubtitle")} />
 
       {isLoading ? (
         <div className="flex justify-center py-8">
           <Loader2 className="h-6 w-6 animate-spin text-primary" />
         </div>
       ) : reviews.length === 0 ? (
-        <Card>
-          <CardContent className="py-8 text-center text-sm text-text-subtle">
-            {t("peerReview.noReviews")}
-          </CardContent>
-        </Card>
+        <EmptyState icon={MessagesSquare} title={t("peerReview.noReviews")} />
       ) : (
         <div className="space-y-3">
           {reviews.map((r) => {

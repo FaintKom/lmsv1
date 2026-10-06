@@ -2,6 +2,7 @@
 
 import { LessonList } from "@/components/live/lesson-list";
 import { useTranslation } from "@/lib/i18n/context";
+import { PageHeader } from "@/components/ui/page-kit";
 
 /**
  * A pupil's own live lessons, and the recordings shared with their group.
@@ -15,9 +16,8 @@ export default function LiveLessonsPage() {
   const { t } = useTranslation();
 
   return (
-    <div className="mx-auto max-w-4xl">
-      <h1 className="mb-1 text-2xl font-extrabold text-text">{t("live.list.title")}</h1>
-      <p className="mb-6 text-sm text-text-muted">{t("live.list.subtitleStudent")}</p>
+    <div className="space-y-8">
+      <PageHeader title={t("live.list.title")} description={t("live.list.subtitleStudent")} />
       <LessonList />
     </div>
   );

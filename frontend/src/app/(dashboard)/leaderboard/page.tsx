@@ -10,6 +10,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useTranslation } from "@/lib/i18n/context";
 import { LeagueMark, leagueKindFromName } from "@/components/gamification/league-mark";
 import { RankMedal } from "@/components/gamification/rank-medal";
+import { PageHeader } from "@/components/ui/page-kit";
 
 interface LeagueInfo {
  name: string;
@@ -82,13 +83,8 @@ export default function LeaderboardPage() {
  }
 
  return (
- <div className="mx-auto max-w-3xl">
- <div className="mb-8 text-center">
- <h1 className="text-2xl font-bold text-text ">{t("leaderboard.title")}</h1>
- <p className="mt-1 text-sm text-text-muted ">
- {t("leaderboard.subtitle")}
- </p>
- </div>
+ <div className="space-y-8">
+ <PageHeader title={t("leaderboard.title")} description={t("leaderboard.subtitle")} />
 
  {/* Top 3 Podium */}
  {entries.length >= 3 && (

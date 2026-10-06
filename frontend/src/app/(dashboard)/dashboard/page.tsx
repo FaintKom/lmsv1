@@ -14,6 +14,7 @@ import { ArrowRight, BookOpen } from "lucide-react";
 import type { Enrollment, Course, CalendarEvent } from "@/types/api";
 import { useTranslation } from "@/lib/i18n/context";
 import { NewcomerChecklist } from "@/components/onboarding/newcomer-checklist";
+import { StatTile } from "@/components/ui/page-kit";
 
 interface Recommendation {
  type: "review" | "continue" | "new" | "almost_done";
@@ -111,15 +112,18 @@ export default function DashboardPage() {
  const today = new Date().toLocaleDateString(undefined, { weekday: "long", day: "numeric", month: "long" });
 
  return (
- <div className={`mx-auto grid max-w-6xl gap-8 ${firstVisit ? "stagger-children" : ""}`}>
- {/* Greeting. Streak and XP stay; they only lost the loud fills. */}
+ <div className={`grid gap-8 ${firstVisit ? "stagger-children" : ""}`}>
+ {/* Greeting. Streak and XP stay; they only lost the loud fills. The one
+     heading allowed above the page-title size (specs/075 FR-004), and it
+     steps down on a phone, where 44px took half the screen. The date goes
+     under it: a line over a heading is the eyebrow DESIGN_SPEC rules out. */}
  <header className="flex flex-wrap items-end justify-between gap-4">
- <div className="grid gap-1">
- <p className="text-sm text-text-subtle">{today}</p>
- <h1 className="text-3xl font-bold leading-tight text-text">
+ <div className="grid gap-1.5">
+ <h1 className="text-balance text-2xl font-bold leading-tight text-text md:text-3xl">
  {t("dash.welcomeBack")}
  {firstName ? `, ${firstName}` : ""}
  </h1>
+ <p className="text-sm text-text-muted">{today}</p>
  </div>
  <div className="flex flex-wrap gap-2">
  <StreakPill days={streak} />
@@ -198,20 +202,17 @@ export default function DashboardPage() {
  </section>
  </div>
 
- {/* One strip of numbers, not four identical tiles (DESIGN_SPEC §4) */}
- <dl className="grid grid-cols-2 gap-px overflow-hidden rounded-lg bg-border sm:grid-cols-4">
+ {/* The figures, in the one tile every screen uses (specs/075 FR-005) */}
+ <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
  {[
  [t("dash.enrolled"), enrolledCount],
  [t("dash.completed"), completedCount],
  [t("dash.avgProgress"), `${avgProgress}%`],
  ["XP", xp],
  ].map(([label, value]) => (
- <div key={String(label)} className="grid gap-1 bg-surface px-5 py-4">
- <dt className="text-sm text-text-subtle">{label}</dt>
- <dd className="font-display text-2xl font-semibold tabular-nums text-text">{loading ? "…" : value}</dd>
- </div>
+ <StatTile key={String(label)} label={label} value={loading ? "…" : value} />
  ))}
- </dl>
+ </div>
 
  {!loading && (
  <NewcomerChecklist

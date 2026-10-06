@@ -7,6 +7,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { useTranslation } from "@/lib/i18n/context";
 import { ClipboardList, Clock, CheckCircle, AlertCircle, FileText, ArrowRight } from "lucide-react";
 import type { AssignmentListItem } from "@/types/api";
+import { EmptyState, FilterChips, PageHeader, PageLoading } from "@/components/ui/page-kit";
 
 type FilterTab = "all" | "active" | "overdue" | "graded";
 
@@ -62,11 +63,7 @@ export default function AssignmentsPage() {
  }, []);
 
  if (loading) {
- return (
- <div className="flex h-64 items-center justify-center">
- <div className="h-8 w-8 animate-spin rounded-pill border-4 border-primary border-t-transparent" />
- </div>
- );
+ return <PageLoading />;
  }
 
  const filtered = assignments.filter((a) => {
@@ -84,66 +81,28 @@ export default function AssignmentsPage() {
  { key: "graded", label: t("assign.tabGraded"), count: assignments.filter((a) => a.status === "graded").length },
  ];
 
- const borderColor = (status: string | null) => {
- switch (status) {
- case "graded": return "border-l-emerald-400";
- case "submitted": return "border-l-blue-400";
- case "overdue":
- case "late": return "border-l-red-400";
- default: return "border-l-green-400";
- }
- };
-
  return (
- <div className="mx-auto max-w-6xl">
- <div className="mb-8">
- <h1 className="text-2xl font-bold text-text ">{t("assign.title")}</h1>
- <p className="mt-1 text-base text-text-muted ">
- {t("assign.subtitle")}
- </p>
- </div>
+ <div className="grid gap-8">
+ <PageHeader title={t("assign.title")} description={t("assign.subtitle")} />
 
- {/* Filter tabs */}
- <div className="mb-6 flex gap-2">
- {tabs.map((t) => (
- <button
- key={t.key}
- onClick={() => setTab(t.key)}
- className={`rounded-lg px-3 py-1.5 text-sm font-medium transition-colors ${
- tab === t.key
- ? "bg-primary-soft text-success-fg "
- : "text-text-muted hover:bg-surface-2 "
- }`}
- >
- {t.label}
- {t.count > 0 && (
- <span className="ml-1.5 text-xs opacity-70">({t.count})</span>
- )}
- </button>
- ))}
- </div>
+ <FilterChips
+ aria-label={t("assign.title")}
+ value={tab}
+ onChange={(v) => setTab(v as FilterTab)}
+ items={tabs.map((x) => ({ value: x.key, label: x.label, count: x.count > 0 ? x.count : undefined }))}
+ />
 
  {filtered.length === 0 ? (
- <Card>
- <CardContent className="flex flex-col items-center justify-center p-12 text-center">
- <div className="mb-4 rounded-pill bg-surface-2 p-4 ">
- <ClipboardList className="h-8 w-8 text-text-subtle " />
- </div>
- <h3 className="mb-1 text-lg font-semibold text-text-muted ">
- {t("assign.noAssignments")}
- </h3>
- <p className="text-base text-text-muted ">
- {tab === "all"
- ? t("assign.noAssignmentsAll")
- : t("assign.noAssignmentsFiltered")}
- </p>
- </CardContent>
- </Card>
+ <EmptyState
+ icon={ClipboardList}
+ title={t("assign.noAssignments")}
+ description={tab === "all" ? t("assign.noAssignmentsAll") : t("assign.noAssignmentsFiltered")}
+ />
  ) : (
  <div className="space-y-3">
  {filtered.map((a) => (
- <Link key={a.id} href={`/assignments/${a.id}`}>
- <Card className={`border-l-4 ${borderColor(a.status)} transition-shadow hover:shadow-md`}>
+ <Link key={a.id} href={`/assignments/${a.id}`} className="block">
+ <Card className="transition-shadow hover:shadow-md">
  <CardContent className="flex items-center gap-4">
  <div className="hidden shrink-0 sm:block">
  {a.status === "graded" ? (

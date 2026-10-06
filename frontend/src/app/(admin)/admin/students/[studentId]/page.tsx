@@ -203,7 +203,7 @@ export default function StudentProfilePage() {
       </Button>
 
       {/* Header */}
-      <Card className="mb-6 border-l-4 border-l-green-400">
+      <Card className="mb-6">
         <CardContent className="flex flex-col gap-4 p-6 sm:flex-row sm:items-center sm:justify-between">
           <div className="flex items-center gap-4">
             <div className="flex h-14 w-14 items-center justify-center rounded-pill bg-primary-soft text-xl font-bold text-success-fg">

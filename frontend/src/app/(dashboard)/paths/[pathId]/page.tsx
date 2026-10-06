@@ -9,6 +9,7 @@ import { Button } from "@/components/ui/button";
 import { ArrowLeft, CheckCircle, Lock, BookOpen, ArrowRight } from "lucide-react";
 import { toast } from "sonner";
 import { useTranslation } from "@/lib/i18n/context";
+import { PageLoading } from "@/components/ui/page-kit";
 
 interface PathStep {
  id: string;
@@ -56,16 +57,12 @@ export default function PathDetailPage() {
  };
 
  if (loading) {
- return (
- <div className="flex h-64 items-center justify-center">
- <div className="h-8 w-8 animate-spin rounded-pill border-4 border-primary border-t-transparent" />
- </div>
- );
+ return <PageLoading />;
  }
 
  if (!path) {
  return (
- <div className="mx-auto max-w-3xl text-center">
+ <div className="max-w-3xl">
  <p className="text-text-muted ">{t("paths.notFound")}</p>
  <Link href="/paths" className="mt-2 inline-flex items-center gap-1 text-sm text-primary hover:text-success-fg">
  <ArrowLeft className="h-3 w-3" /> {t("paths.backToPaths")}
@@ -78,7 +75,7 @@ export default function PathDetailPage() {
  const progress = path.steps.length > 0 ? Math.round((completedCount / path.steps.length) * 100) : 0;
 
  return (
- <div className="mx-auto max-w-3xl">
+ <div className="max-w-3xl">
  <Link
  href="/paths"
  className="mb-4 inline-flex items-center gap-1 text-sm font-medium text-text-muted hover:text-text "
