@@ -11,7 +11,10 @@ import { CheckCircle, XCircle, Upload, Loader2, Play, Send, ChevronDown, Maximiz
 import { useTranslation } from "@/lib/i18n/context";
 import { Button } from "@/components/ui/button";
 
-const ExerciseLoading = () => <div className="flex items-center justify-center py-12 text-sm text-text-muted"><Loader2 className="mr-2 h-4 w-4 animate-spin" />Loading exercise...</div>;
+function ExerciseLoading() {
+ const { t } = useTranslation();
+ return <div className="flex items-center justify-center py-12 text-sm text-text-muted"><Loader2 className="mr-2 h-4 w-4 animate-spin" />{t("exr.loading")}</div>;
+}
 
 const Editor = dynamic(() => import("@monaco-editor/react"), {
  ssr: false,
@@ -32,22 +35,22 @@ const WordSearchExercise = dynamic(() => import("@/components/exercises/word-sea
 
 const Robot2DExercise = dynamic(() => import("@/components/game/robot-2d/robot-2d-exercise"), {
  ssr: false,
- loading: () => <div className="flex items-center justify-center py-12 text-sm text-text-muted"><Loader2 className="mr-2 h-4 w-4 animate-spin" />Loading 2D Robot...</div>,
+ loading: ExerciseLoading,
 });
 
 const MathExercise = dynamic(() => import("@/components/game/math/math-exercise"), {
  ssr: false,
- loading: () => <div className="flex items-center justify-center py-12 text-sm text-text-muted"><Loader2 className="mr-2 h-4 w-4 animate-spin" />Loading Math Exercise...</div>,
+ loading: ExerciseLoading,
 });
 
 const World3DExercise = dynamic(() => import("@/components/game/world-3d/world-3d-exercise"), {
  ssr: false,
- loading: () => <div className="flex items-center justify-center py-12 text-sm text-text-muted"><Loader2 className="mr-2 h-4 w-4 animate-spin" />Loading 3D World...</div>,
+ loading: ExerciseLoading,
 });
 
 const WebEditorExercise = dynamic(() => import("@/components/exercises/web-editor-exercise"), {
  ssr: false,
- loading: () => <div className="flex items-center justify-center py-12 text-sm text-text-muted"><Loader2 className="mr-2 h-4 w-4 animate-spin" />Loading Web Editor...</div>,
+ loading: ExerciseLoading,
 });
 
 interface Question {
@@ -251,16 +254,16 @@ export default function ExerciseRenderer({ exercise, courseId, prevLesson, nextL
  setRevealedAnswer(res.data.correct_answer ?? null);
  }
  if (res.data.passed) {
- toast.success("Correct! Well done.");
+ toast.success(t("exr.correct"));
  } else if (res.data.max_attempts_reached) {
- toast.info("Max attempts reached. Answer revealed.");
+ toast.info(t("exr.maxAttemptsToast"));
  } else {
  toast.info(`Score: ${Math.round(res.data.score ?? 0)}%`);
  }
  // Close fullscreen on submission
  if (res.data.passed) closeFullscreen();
  } catch {
- toast.error("Failed to submit exercise.");
+ toast.error(t("exr.submitFailed"));
  } finally {
  setSubmitting(false);
  }
@@ -280,9 +283,9 @@ export default function ExerciseRenderer({ exercise, courseId, prevLesson, nextL
  headers: { "Content-Type": "multipart/form-data" },
  });
  setResult(res.data);
- toast.success("File uploaded successfully!");
+ toast.success(t("exr.uploaded"));
  } catch {
- toast.error("Failed to upload file.");
+ toast.error(t("exr.uploadFailed"));
  } finally {
  setSubmitting(false);
  }
@@ -402,7 +405,7 @@ export default function ExerciseRenderer({ exercise, courseId, prevLesson, nextL
  <button
  onClick={closeFullscreen}
  className="flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs font-medium text-text-muted transition-colors hover:bg-surface-2 hover:text-text "
- title="Exit fullscreen (Esc)"
+ title={t("exr.exitFullscreen")}
  >
  <Minimize2 className="h-3.5 w-3.5" />
  {t("game.exit")}
@@ -434,7 +437,7 @@ export default function ExerciseRenderer({ exercise, courseId, prevLesson, nextL
  <button
  onClick={openFullscreen}
  className="flex items-center gap-1.5 rounded-lg px-2.5 py-1.5 text-xs font-medium text-primary transition-colors hover:bg-success-soft "
- title="Open fullscreen"
+ title={t("exr.openFullscreen")}
  >
  <Maximize2 className="h-3.5 w-3.5" />
  {t("game.fullscreen")}
@@ -451,6 +454,7 @@ export default function ExerciseRenderer({ exercise, courseId, prevLesson, nextL
 }
 
 function AnswerReveal({ answer }: { answer: Record<string, unknown> }) {
+ const { t } = useTranslation();
  const explanation = answer.explanation as string | undefined;
  const answerValue = answer.answer;
 
@@ -458,18 +462,18 @@ function AnswerReveal({ answer }: { answer: Record<string, unknown> }) {
  <div className="rounded-lg border border-primary-soft bg-success-soft p-5 text-center ">
  <CheckCircle className="mx-auto mb-2 h-10 w-10 text-primary" />
  <p className="text-lg font-semibold text-text ">
- Answer Revealed
+ {t("exr.answerRevealed")}
  </p>
- <p className="mt-1 text-xs text-text-muted">Max attempts reached — exercise marked as complete</p>
+ <p className="mt-1 text-xs text-text-muted">{t("exr.maxAttemptsNote")}</p>
  {answerValue != null && (
  <div className="mt-3 rounded-lg bg-surface p-3 text-left text-sm text-text ">
- <p className="font-semibold text-success-fg ">Correct answer:</p>
+ <p className="font-semibold text-success-fg ">{t("exr.correctAnswer")}</p>
  <p className="mt-1">{typeof answerValue === "object" ? JSON.stringify(answerValue, null, 2) : String(answerValue)}</p>
  </div>
  )}
  {explanation && (
  <div className="mt-2 rounded-lg bg-surface p-3 text-left text-sm text-text-muted ">
- <p className="font-semibold">Explanation:</p>
+ <p className="font-semibold">{t("exr.explanation")}</p>
  <p className="mt-1">{explanation}</p>
  </div>
  )}
@@ -490,6 +494,7 @@ function ResultDisplay({
  maxReached?: boolean;
  revealedAnswer?: Record<string, unknown> | null;
 }) {
+ const { t } = useTranslation();
  const passed = result.passed;
  const scorePercent = Math.round(result.score ?? 0);
 
@@ -506,9 +511,9 @@ function ResultDisplay({
  return (
  <div className="text-center py-6">
  <CheckCircle className="mx-auto mb-2 h-10 w-10 text-text-muted" />
- <p className="text-lg font-semibold text-text">Sent to your teacher</p>
+ <p className="text-lg font-semibold text-text">{t("exr.sentToTeacher")}</p>
  <p className="text-sm text-text-muted">
- This one is marked by a person, so there is no score yet.
+ {t("exr.manualGrading")}
  </p>
  </div>
  );
@@ -544,11 +549,11 @@ function ResultDisplay({
  )}
  {!passed && !maxReached && (
  <Button variant="outline" size="sm" className="mt-4" onClick={onRetry}>
- Try Again
+ {t("exr.tryAgain")}
  </Button>
  )}
  {passed && (
- <p className="mt-2 text-xs text-primary">Exercise complete!</p>
+ <p className="mt-2 text-xs text-primary">{t("exr.complete")}</p>
  )}
  </div>
  );
@@ -727,6 +732,7 @@ function CodeChallengeExercise({
  onAnswersChange?: (answers: Record<string, unknown>) => void;
  previewMode?: boolean;
 }) {
+ const { t } = useTranslation();
  const [code, setCode] = useState(config.starter_code || "");
  const [selectedLang, setSelectedLang] = useState(config.language || "python");
  const [output, setOutput] = useState("");
@@ -790,14 +796,14 @@ function CodeChallengeExercise({
  `${data.total_passed ?? 0}/${data.total_tests ?? 0} tests passed`
  );
  if (data.passed) {
- toast.success("All tests passed!");
+ toast.success(t("exr.allTestsPassed"));
  } else {
  toast.info(`${data.total_passed ?? 0}/${data.total_tests ?? 0} tests passed`);
  }
  onSubmit({ _already_submitted: true });
  } catch {
  setOutput("Error submitting code");
- toast.error("Failed to submit code");
+ toast.error(t("exr.codeSubmitFailed"));
  } finally {
  setIsSubmitting(false);
  }
@@ -827,11 +833,11 @@ function CodeChallengeExercise({
  <span className="font-semibold text-text-muted">Example {i + 1}</span>
  <div className="mt-1 grid grid-cols-2 gap-2">
  <div>
- <span className="text-text-subtle">Input:</span>
+ <span className="text-text-subtle">{t("exr.input")}</span>
  <pre className="mt-0.5 rounded bg-surface p-1.5 font-mono text-text">{ex.input}</pre>
  </div>
  <div>
- <span className="text-text-subtle">Output:</span>
+ <span className="text-text-subtle">{t("exr.output")}</span>
  <pre className="mt-0.5 rounded bg-surface p-1.5 font-mono text-text">{ex.output}</pre>
  </div>
  </div>
@@ -846,7 +852,7 @@ function CodeChallengeExercise({
  {visibleTests.length > 0 && (
  <div className="px-5 pb-3 space-y-2">
  <p className="text-xs font-semibold uppercase tracking-wider text-text-subtle">
- Test Cases
+ {t("exr.testCases")}
  </p>
  {visibleTests.map((tc, i) => (
  <div
@@ -856,11 +862,11 @@ function CodeChallengeExercise({
  <span className="font-semibold text-text-muted ">Test {i + 1}</span>
  <div className="mt-1 grid grid-cols-2 gap-2">
  <div>
- <span className="text-text-subtle">Input:</span>
+ <span className="text-text-subtle">{t("exr.input")}</span>
  <pre className="mt-0.5 rounded bg-surface p-1.5 font-mono text-text ">{tc.input}</pre>
  </div>
  <div>
- <span className="text-text-subtle">Expected:</span>
+ <span className="text-text-subtle">{t("exr.expected")}</span>
  <pre className="mt-0.5 rounded bg-surface p-1.5 font-mono text-text ">{tc.expected_output}</pre>
  </div>
  </div>
@@ -927,7 +933,7 @@ function CodeChallengeExercise({
 
  {/* Output Panel */}
  <div className="flex w-[340px] flex-col bg-surface ">
- <div className="flex border-b border-border-strong " role="tablist" aria-label="Code output tabs">
+ <div className="flex border-b border-border-strong " role="tablist" aria-label={t("exr.outputTabs")}>
  <button
  role="tab"
  aria-selected={activeTab === "output"}
@@ -966,12 +972,12 @@ function CodeChallengeExercise({
  <div id={`panel-${activeTab}`} role="tabpanel" className="flex-1 overflow-auto bg-surface-2 p-4 ">
  {activeTab === "output" ? (
  <pre className="whitespace-pre-wrap font-mono text-sm text-text ">
- {output || <span className="text-text-subtle">Click Run to execute your code</span>}
+ {output || <span className="text-text-subtle">{t("exr.runHint")}</span>}
  </pre>
  ) : (
  <div className="space-y-2.5">
  {results.length === 0 ? (
- <p className="text-sm text-text-subtle">Click Submit to run tests</p>
+ <p className="text-sm text-text-subtle">{t("exr.submitHint")}</p>
  ) : (
  results.map((r, i) => (
  <div
@@ -997,7 +1003,7 @@ function CodeChallengeExercise({
  </div>
  {!r.passed && r.actual_output && (
  <div className="mt-2">
- <p className="text-xs font-medium uppercase text-text-subtle">Output:</p>
+ <p className="text-xs font-medium uppercase text-text-subtle">{t("exr.output")}</p>
  <pre className="mt-1 rounded-lg bg-surface p-2 font-mono text-sm text-text ">
  {r.actual_output}
  </pre>
@@ -1024,6 +1030,7 @@ function FileUploadExercise({
  config: Record<string, unknown>;
  onUpload: (file: File) => void;
 }) {
+ const { t } = useTranslation();
  const [file, setFile] = useState<File | null>(null);
  const allowedTypes = (config.allowed_types as string[]) || [];
  const maxMb = (config.max_file_mb as number) || 50;
@@ -1065,7 +1072,7 @@ function FileUploadExercise({
  disabled={!file}
  className="w-full rounded-lg bg-primary px-4 py-2.5 text-sm font-semibold text-primary-fg transition-colors hover:bg-primary-hover disabled:opacity-50 "
  >
- Upload File
+ {t("exr.uploadFile")}
  </button>
  </div>
  );

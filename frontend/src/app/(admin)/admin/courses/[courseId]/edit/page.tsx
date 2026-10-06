@@ -67,17 +67,11 @@ const KIND_KEYS: Record<BlockKind, string> = {
   exercise: "admin.courseEdit.kindExercise",
   assignment: "admin.courseEdit.kindAssignment",
 };
-import dynamic from "next/dynamic";
 import { markdownToTiptap } from "@/components/editor/utils/markdown-to-tiptap";
 import {
  EXERCISE_TYPE_LABELS as EXERCISE_TYPE_LABELS_FULL,
  EXERCISE_TYPES_META,
 } from "@/lib/api/exercises";
-
-const BlockEditor = dynamic(
- () => import("@/components/editor/block-editor").then((m) => ({ default: m.BlockEditor })),
- { ssr: false, loading: () => <div className="flex h-[300px] items-center justify-center rounded-lg border border-border-strong "><p className="text-sm text-text-subtle">Loading editor...</p></div> }
-);
 
 function SortableLessonItem({
  id,
@@ -251,10 +245,10 @@ export default function CourseEditorPage() {
  setSaving(true);
  try {
  await apiClient.put(`/courses/${courseId}/`, { title, description, category: category || null });
- toast.success("Course details saved");
+ toast.success(t("ce.saved"));
  fetchCourse();
  } catch {
- toast.error("Failed to save");
+ toast.error(t("ce.saveFailed"));
  } finally {
  setSaving(false);
  }
@@ -287,21 +281,21 @@ export default function CourseEditorPage() {
  toast.success(t("admin.courseEdit.thumbnailSaved"));
  fetchCourse();
  } catch {
- toast.error("Failed to save");
+ toast.error(t("ce.saveFailed"));
  } finally {
  setSavingThumbnail(false);
  }
  };
 
  const handleDeleteCourse = async () => {
- if (!(await confirm({ message: "Are you sure you want to delete this course? This cannot be undone.", variant: "danger", confirmLabel: "Delete" }))) return;
+ if (!(await confirm({ message: t("ce.deleteCourseConfirm"), variant: "danger", confirmLabel: t("ce.delete") }))) return;
  setDeleting(true);
  try {
  await apiClient.delete(`/courses/${courseId}/`);
- toast.success("Course deleted");
+ toast.success(t("ce.courseDeleted"));
  router.push("/admin/courses");
  } catch {
- toast.error("Failed to delete course");
+ toast.error(t("ce.courseDeleteFailed"));
  setDeleting(false);
  }
  };
@@ -309,10 +303,10 @@ export default function CourseEditorPage() {
  const handlePublish = async () => {
  try {
  await apiClient.post(`/courses/${courseId}/publish/`);
- toast.success("Course published");
+ toast.success(t("ce.published"));
  fetchCourse();
  } catch {
- toast.error("Failed to publish");
+ toast.error(t("ce.publishFailed"));
  }
  };
 
@@ -337,13 +331,13 @@ export default function CourseEditorPage() {
  );
  const slug = course?.slug || "course";
  downloadBlob(data as Blob, `${slug}-teacher.json`);
- toast.success("Course JSON downloaded");
+ toast.success(t("ce.jsonDownloaded"));
  } catch (e) {
  const err = e as { response?: { status?: number } };
  if (err.response?.status === 403) {
- toast.error("You don't have permission to export this course");
+ toast.error(t("ce.exportForbidden"));
  } else {
- toast.error("Export failed");
+ toast.error(t("ce.exportFailed"));
  }
  }
  };
@@ -356,7 +350,7 @@ export default function CourseEditorPage() {
  );
  const slug = course?.slug || "course";
  downloadBlob(data as Blob, `${slug}-teacher.pdf`);
- toast.success("Course PDF downloaded");
+ toast.success(t("ce.pdfDownloaded"));
  } catch (e) {
  const err = e as { response?: { status?: number } };
  const status = err.response?.status;
@@ -375,7 +369,7 @@ export default function CourseEditorPage() {
 
  const handleImportJson = async (file: File) => {
  if (!file.name.toLowerCase().endsWith(".json")) {
- toast.error("Pick a .json file produced by `Export JSON`");
+ toast.error(t("ce.pickJson"));
  return;
  }
  try {
@@ -404,10 +398,10 @@ export default function CourseEditorPage() {
  try {
  await apiClient.post(`/courses/${courseId}/modules/`, { title: newModuleTitle.trim() });
  setNewModuleTitle("");
- toast.success("Module added");
+ toast.success(t("ce.moduleAdded"));
  fetchCourse();
  } catch {
- toast.error("Failed to add module");
+ toast.error(t("ce.moduleAddFailed"));
  } finally {
  setAddingModule(false);
  }
@@ -418,21 +412,21 @@ export default function CourseEditorPage() {
  try {
  await apiClient.put(`/courses/${courseId}/modules/${moduleId}/`, { title: editingModuleTitle.trim() });
  setEditingModuleId(null);
- toast.success("Module updated");
+ toast.success(t("ce.moduleUpdated"));
  fetchCourse();
  } catch {
- toast.error("Failed to update module");
+ toast.error(t("ce.moduleUpdateFailed"));
  }
  };
 
  const handleDeleteModule = async (moduleId: string) => {
- if (!(await confirm({ message: "Delete this module and all its lessons?", variant: "danger", confirmLabel: "Delete" }))) return;
+ if (!(await confirm({ message: t("ce.deleteModuleConfirm"), variant: "danger", confirmLabel: t("ce.delete") }))) return;
  try {
  await apiClient.delete(`/courses/${courseId}/modules/${moduleId}/`);
- toast.success("Module deleted");
+ toast.success(t("ce.moduleDeleted"));
  fetchCourse();
  } catch {
- toast.error("Failed to delete module");
+ toast.error(t("ce.moduleDeleteFailed"));
  }
  };
 
@@ -450,19 +444,19 @@ export default function CourseEditorPage() {
  setAddingLessonToModule(null);
  router.push(`/admin/lessons/${data.id}/edit?courseId=${courseId}&moduleId=${moduleId}`);
  } catch {
- toast.error("Failed to add lesson");
+ toast.error(t("ce.lessonAddFailed"));
  }
  };
 
  // ─── Block operations ──────────────────────────────────────────
  const handleDeleteLesson = async (moduleId: string, lessonId: string) => {
- if (!(await confirm({ message: "Delete this lesson?", variant: "danger", confirmLabel: "Delete" }))) return;
+ if (!(await confirm({ message: t("ce.deleteLessonConfirm"), variant: "danger", confirmLabel: t("ce.delete") }))) return;
  try {
  await apiClient.delete(`/courses/${courseId}/modules/${moduleId}/lessons/${lessonId}/`);
- toast.success("Lesson deleted");
+ toast.success(t("ce.lessonDeleted"));
  fetchCourse();
  } catch {
- toast.error("Failed to delete lesson");
+ toast.error(t("ce.lessonDeleteFailed"));
  }
  };
 
@@ -471,21 +465,21 @@ export default function CourseEditorPage() {
  try {
  await apiClient.post("/admin/enroll/", { user_id: enrollingUser, course_id: courseId });
  setEnrollingUser("");
- toast.success("Student enrolled");
+ toast.success(t("ce.studentEnrolled"));
  fetchStudents();
  } catch {
- toast.error("Failed to enroll user");
+ toast.error(t("ce.enrollFailed"));
  }
  };
 
  const handleUnenroll = async (enrollmentId: string) => {
- if (!(await confirm({ message: "Remove this student from the course?", variant: "danger", confirmLabel: "Delete" }))) return;
+ if (!(await confirm({ message: t("ce.removeStudentConfirm"), variant: "danger", confirmLabel: t("ce.remove") }))) return;
  try {
  await apiClient.delete(`/admin/enrollments/${enrollmentId}/`);
- toast.success("Student removed");
+ toast.success(t("ce.studentRemoved"));
  fetchStudents();
  } catch {
- toast.error("Failed to unenroll student");
+ toast.error(t("ce.unenrollFailed"));
  }
  };
 
@@ -503,23 +497,23 @@ export default function CourseEditorPage() {
  });
  setAssignmentForm({ title: "", description: "", due_date: "", max_score: "100", allow_late: false });
  setShowAddAssignment(false);
- toast.success("Assignment created");
+ toast.success(t("ce.assignmentCreated"));
  fetchAssignments();
  } catch {
- toast.error("Failed to create assignment");
+ toast.error(t("ce.assignmentCreateFailed"));
  } finally {
  setAddingAssignment(false);
  }
  };
 
  const handleDeleteAssignment = async (assignmentId: string, title: string) => {
- if (!(await confirm({ title: "Delete assignment?", message: `Delete "${title}" and all its submissions?`, variant: "danger", confirmLabel: "Delete" }))) return;
+ if (!(await confirm({ title: t("ce.deleteAssignmentTitle"), message: t("ce.deleteAssignmentBody").replace("{title}", title), variant: "danger", confirmLabel: t("ce.delete") }))) return;
  try {
  await apiClient.delete(`/assignments/${assignmentId}`);
- toast.success("Assignment deleted");
+ toast.success(t("ce.assignmentDeleted"));
  fetchAssignments();
  } catch {
- toast.error("Failed to delete assignment");
+ toast.error(t("ce.assignmentDeleteFailed"));
  }
  };
 
@@ -555,7 +549,7 @@ export default function CourseEditorPage() {
  );
  fetchCourse();
  } catch {
- toast.error("Failed to reorder lessons");
+ toast.error(t("ce.reorderFailed"));
  fetchCourse();
  }
  };
@@ -602,7 +596,7 @@ export default function CourseEditorPage() {
  // course (specs/016 FR-004) — must not be a dead end.
  return (
  <div className="flex flex-col items-center gap-4 py-24 text-center text-text-muted ">
- <p>Course not found</p>
+ <p>{t("ce.notFound")}</p>
  <Button variant="outline" onClick={() => router.push("/admin/courses")}>
  {t("admin.courseEdit.backToCourses")}
  </Button>
@@ -626,15 +620,15 @@ export default function CourseEditorPage() {
  onClick={() => window.open(`/courses/${courseId}?preview=true`, "_blank")}
  >
  <Eye className="mr-1 h-4 w-4" />
- Preview
+ {t("ce.preview")}
  </Button>
- <Button variant="outline" onClick={handleExportJson} title="Download course as JSON (re-importable)">
+ <Button variant="outline" onClick={handleExportJson} title={t("ce.exportJsonHint")}>
  <Download className="mr-1 h-4 w-4" />
- Export JSON
+ {t("ce.exportJson")}
  </Button>
- <Button variant="outline" onClick={handleExportPdf} title="Download course as PDF (teacher variant)">
+ <Button variant="outline" onClick={handleExportPdf} title={t("ce.exportPdfHint")}>
  <Download className="mr-1 h-4 w-4" />
- Export PDF
+ {t("ce.exportPdf")}
  </Button>
  <input
  ref={importFileRef}
@@ -650,18 +644,18 @@ export default function CourseEditorPage() {
  <Button
  variant="outline"
  onClick={() => importFileRef.current?.click()}
- title="Import a previously-exported course JSON"
+ title={t("ce.importJsonHint")}
  >
  <Upload className="mr-1 h-4 w-4" />
- Import JSON
+ {t("ce.importJson")}
  </Button>
  <Button variant="danger-ghost" onClick={handleDeleteCourse} disabled={deleting}>
  <Trash2 className="mr-1 h-4 w-4" />
- {deleting ? "Deleting..." : "Delete"}
+ {deleting ? t("ce.deleting") : t("ce.delete")}
  </Button>
  {course.status === "draft" && (
  <Button onClick={handlePublish}>
- Publish
+ {t("ce.publish")}
  </Button>
  )}
  </>
@@ -671,11 +665,11 @@ export default function CourseEditorPage() {
  {/* Course Metadata */}
  <Card className="mb-6">
  <CardHeader>
- <CardTitle className="text-lg">Course Details</CardTitle>
+ <CardTitle className="text-lg">{t("ce.details")}</CardTitle>
  </CardHeader>
  <CardContent className="space-y-4">
  <div>
- <label className="mb-1 block text-sm font-medium text-text ">Title</label>
+ <label className="mb-1 block text-sm font-medium text-text ">{t("ce.title")}</label>
  <input
  type="text"
  value={title}
@@ -684,7 +678,7 @@ export default function CourseEditorPage() {
  />
  </div>
  <div>
- <label className="mb-1 block text-sm font-medium text-text ">Description</label>
+ <label className="mb-1 block text-sm font-medium text-text ">{t("ce.description")}</label>
  <textarea
  value={description}
  onChange={(e) => setDescription(e.target.value)}
@@ -693,7 +687,7 @@ export default function CourseEditorPage() {
  />
  </div>
  <div>
- <label className="mb-1 block text-sm font-medium text-text ">Category</label>
+ <label className="mb-1 block text-sm font-medium text-text ">{t("ce.category")}</label>
  <input
  type="text"
  value={category}
@@ -761,7 +755,7 @@ export default function CourseEditorPage() {
 
  {/* Modules */}
  <div className="mb-4 flex items-center justify-between">
- <h2 className="text-lg font-semibold text-text ">Modules & Lessons</h2>
+ <h2 className="text-lg font-semibold text-text ">{t("ce.modulesLessons")}</h2>
  </div>
 
  <div className="space-y-3">
@@ -894,7 +888,7 @@ export default function CourseEditorPage() {
  onClick={(e) => e.stopPropagation()}
  className="shrink-0 rounded border border-primary-soft bg-primary-soft/40 px-2 py-1 text-3xs font-semibold text-primary hover:bg-primary-soft"
  >
- Edit
+ {t("ce.edit")}
  </a>
  <button
  onClick={(e) => {
@@ -932,13 +926,13 @@ export default function CourseEditorPage() {
  {/* Add lesson form */}
  {addingLessonToModule === module.id ? (
  <div className="mt-3 rounded-lg border border-dashed border-border-strong p-4">
- <p className="mb-3 text-xs font-semibold uppercase tracking-wider text-text-subtle">New Lesson</p>
+ <p className="mb-3 text-xs font-semibold uppercase tracking-wider text-text-subtle">{t("ce.newLesson")}</p>
  <div className="space-y-3">
  <input
  type="text"
  value={lessonForm.title}
  onChange={(e) => setLessonForm({ ...lessonForm, title: e.target.value })}
- placeholder="Lesson title"
+ placeholder={t("ce.lessonTitle")}
  className="w-full rounded-lg border border-border-strong px-3 py-2 text-sm focus:border-primary focus:outline-none"
  autoFocus
  />
@@ -948,12 +942,12 @@ export default function CourseEditorPage() {
  type="number"
  value={lessonForm.duration_minutes}
  onChange={(e) => setLessonForm({ ...lessonForm, duration_minutes: e.target.value })}
- placeholder="Duration (minutes, optional)"
+ placeholder={t("ce.duration")}
  className="w-48 rounded-lg border border-border-strong px-3 py-1.5 text-sm focus:border-primary focus:outline-none"
  />
  <div className="flex gap-2">
  <Button size="sm" onClick={() => handleAddLesson(module.id)}>
- <Plus className="mr-1 h-3 w-3" /> Add Lesson
+ <Plus className="mr-1 h-3 w-3" /> {t("ce.addLesson")}
  </Button>
  <Button
  size="sm"
@@ -963,7 +957,7 @@ export default function CourseEditorPage() {
  setLessonForm({ title: "", content_type: "text", content: {}, duration_minutes: "" });
  }}
  >
- Cancel
+ {t("ce.cancel")}
  </Button>
  </div>
  </div>
@@ -974,7 +968,7 @@ export default function CourseEditorPage() {
  className="mt-2 flex w-full items-center justify-center gap-1 rounded-lg border border-dashed border-border-strong py-2.5 text-xs font-medium text-text-subtle transition-colors hover:border-primary hover:text-primary"
  >
  <Plus className="h-3.5 w-3.5" />
- Add Lesson
+ {t("ce.addLesson")}
  </button>
  )}
  </CardContent>
@@ -990,7 +984,7 @@ export default function CourseEditorPage() {
  value={newModuleTitle}
  onChange={(e) => setNewModuleTitle(e.target.value)}
  onKeyDown={(e) => e.key === "Enter" && handleAddModule()}
- placeholder="New module title..."
+ placeholder={t("ce.newModulePlaceholder")}
  className="flex-1 rounded-lg border border-border-strong px-3 py-2 text-sm focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary"
  />
  <Button onClick={handleAddModule} disabled={addingModule || !newModuleTitle.trim()}>
@@ -1007,7 +1001,7 @@ export default function CourseEditorPage() {
  >
  <CardTitle className="flex items-center gap-2 text-lg">
  <Users className="h-5 w-5 text-primary" />
- Enrolled Students
+ {t("ce.enrolledStudents")}
  {showStudents ? (
  <ChevronDown className="ml-auto h-4 w-4 text-text-subtle" />
  ) : (
@@ -1027,7 +1021,7 @@ export default function CourseEditorPage() {
  onChange={(e) => setEnrollingUser(e.target.value)}
  className="flex-1 rounded-lg border border-border-strong px-3 py-2 text-sm focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary"
  >
- <option value="">Select a user to enroll...</option>
+ <option value="">{t("ce.pickUser")}</option>
  {allUsers
  .filter((u) => !students.some((s) => s.id === u.id))
  .map((u) => (
@@ -1038,7 +1032,7 @@ export default function CourseEditorPage() {
  </select>
  <Button onClick={handleEnrollUser} disabled={!enrollingUser} size="sm">
  <UserPlus className="mr-1 h-4 w-4" />
- Enroll
+ {t("ce.enroll")}
  </Button>
  </div>
 
@@ -1079,7 +1073,7 @@ export default function CourseEditorPage() {
  <button
  onClick={() => handleUnenroll(student.enrollment_id)}
  className="invisible rounded p-1.5 text-text-subtle hover:bg-danger-soft hover:text-danger-fg group-hover:visible"
- title="Remove from course"
+ title={t("ce.removeFromCourse")}
  >
  <Trash2 className="h-3.5 w-3.5" />
  </button>
@@ -1153,7 +1147,7 @@ export default function CourseEditorPage() {
  </span>
  {assignment.allow_late && (
  <span className="rounded-pill bg-warning-soft px-2 py-0.5 text-3xs font-medium text-warning-fg ">
- Late OK
+ {t("ce.lateOk")}
  </span>
  )}
  {assignment.submission_count !== undefined && (
@@ -1167,21 +1161,21 @@ export default function CourseEditorPage() {
  <button
  onClick={() => window.open(`/admin/assignments/${assignment.id}/edit`, "_blank")}
  className="rounded p-1.5 text-text-subtle hover:bg-success-soft hover:text-primary "
- title="Edit assignment"
+ title={t("ce.editAssignment")}
  >
  <Pencil className="h-3.5 w-3.5" />
  </button>
  <button
  onClick={() => window.open(`/admin/assignments/${assignment.id}/review`, "_blank")}
  className="rounded p-1.5 text-text-subtle hover:bg-success-soft hover:text-primary "
- title="Review submissions"
+ title={t("ce.reviewSubmissions")}
  >
  <ExternalLink className="h-3.5 w-3.5" />
  </button>
  <button
  onClick={() => handleDeleteAssignment(assignment.id, assignment.title)}
  className="rounded p-1.5 text-text-subtle hover:bg-danger-soft hover:text-danger-fg "
- title="Delete assignment"
+ title={t("ce.deleteAssignment")}
  >
  <Trash2 className="h-3.5 w-3.5" />
  </button>
@@ -1195,32 +1189,32 @@ export default function CourseEditorPage() {
  {/* Add Assignment toggle */}
  {showAddAssignment ? (
  <div className="rounded-lg border border-dashed border-border-strong p-4">
- <p className="mb-3 text-xs font-semibold uppercase tracking-wider text-text-subtle">New Assignment</p>
+ <p className="mb-3 text-xs font-semibold uppercase tracking-wider text-text-subtle">{t("ce.newAssignment")}</p>
  <div className="space-y-3">
  <div>
- <label className="mb-1 block text-sm font-medium text-text ">Title *</label>
+ <label className="mb-1 block text-sm font-medium text-text ">{t("ce.titleRequired")}</label>
  <input
  type="text"
  value={assignmentForm.title}
  onChange={(e) => setAssignmentForm({ ...assignmentForm, title: e.target.value })}
- placeholder="Assignment title"
+ placeholder={t("ce.assignmentTitle")}
  className="w-full rounded-lg border border-border-strong px-3 py-2 text-sm focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary"
  autoFocus
  />
  </div>
  <div>
- <label className="mb-1 block text-sm font-medium text-text ">Description</label>
+ <label className="mb-1 block text-sm font-medium text-text ">{t("ce.description")}</label>
  <textarea
  value={assignmentForm.description}
  onChange={(e) => setAssignmentForm({ ...assignmentForm, description: e.target.value })}
- placeholder="Optional description..."
+ placeholder={t("ce.descriptionPlaceholder")}
  rows={3}
  className="w-full rounded-lg border border-border-strong px-3 py-2 text-sm focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary"
  />
  </div>
  <div className="grid grid-cols-2 gap-3">
  <div>
- <label className="mb-1 block text-sm font-medium text-text ">Due Date *</label>
+ <label className="mb-1 block text-sm font-medium text-text ">{t("ce.dueRequired")}</label>
  <input
  type="datetime-local"
  value={assignmentForm.due_date}
@@ -1229,7 +1223,7 @@ export default function CourseEditorPage() {
  />
  </div>
  <div>
- <label className="mb-1 block text-sm font-medium text-text ">Max Score</label>
+ <label className="mb-1 block text-sm font-medium text-text ">{t("ce.maxScore")}</label>
  <input
  type="number"
  value={assignmentForm.max_score}
@@ -1247,7 +1241,7 @@ export default function CourseEditorPage() {
  onChange={(e) => setAssignmentForm({ ...assignmentForm, allow_late: e.target.checked })}
  className="h-4 w-4 rounded border-border-strong text-primary focus:ring-primary"
  />
- Allow late submissions
+ {t("ce.allowLate")}
  </label>
  <div className="flex gap-2">
  <Button size="sm" onClick={handleAddAssignment} disabled={addingAssignment || !assignmentForm.title.trim() || !assignmentForm.due_date}>
@@ -1262,7 +1256,7 @@ export default function CourseEditorPage() {
  setAssignmentForm({ title: "", description: "", due_date: "", max_score: "100", allow_late: false });
  }}
  >
- Cancel
+ {t("ce.cancel")}
  </Button>
  </div>
  </div>
@@ -1273,7 +1267,7 @@ export default function CourseEditorPage() {
  className="flex w-full items-center justify-center gap-1 rounded-lg border border-dashed border-border-strong py-2.5 text-xs font-medium text-text-subtle transition-colors hover:border-primary hover:text-primary"
  >
  <Plus className="h-3.5 w-3.5" />
- Add Assignment
+ {t("ce.addAssignment")}
  </button>
  )}
  </CardContent>

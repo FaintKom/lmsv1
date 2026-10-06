@@ -440,10 +440,11 @@ function QuizConfigEditor({
  config: Record<string, unknown>;
  onChange: (c: Record<string, unknown>) => void;
 }) {
+  const { t } = useTranslation();
  return (
  <div className="grid grid-cols-2 gap-4">
  <div>
- <label className="mb-1 block text-sm font-medium text-text ">Passing Score (%)</label>
+ <label className="mb-1 block text-sm font-medium text-text ">{t("xe.passingScore")}</label>
  <input
  type="number"
  value={(config.passing_score as number) ?? 70}
@@ -452,12 +453,12 @@ function QuizConfigEditor({
  />
  </div>
  <div>
- <label className="mb-1 block text-sm font-medium text-text ">Time Limit (min)</label>
+ <label className="mb-1 block text-sm font-medium text-text ">{t("xp.timeMin")}</label>
  <input
  type="number"
  value={(config.time_limit_minutes as number) ?? ""}
  onChange={(e) => onChange({ ...config, time_limit_minutes: e.target.value ? parseInt(e.target.value) : null })}
- placeholder="No limit"
+ placeholder={t("xp.noLimit")}
  className="w-full rounded-lg border border-border-strong bg-surface px-3 py-2 text-sm "
  />
  </div>
@@ -474,11 +475,12 @@ function CodeConfigEditor({
  config: Record<string, unknown>;
  onChange: (c: Record<string, unknown>) => void;
 }) {
+  const { t } = useTranslation();
  return (
  <div className="space-y-4">
  <div className="grid grid-cols-3 gap-4">
  <div>
- <label className="mb-1 block text-sm font-medium text-text ">Language</label>
+ <label className="mb-1 block text-sm font-medium text-text ">{t("xe.language")}</label>
  <select
  value={(config.language as string) || "python"}
  onChange={(e) => onChange({ ...config, language: e.target.value })}
@@ -492,7 +494,7 @@ function CodeConfigEditor({
  </select>
  </div>
  <div>
- <label className="mb-1 block text-sm font-medium text-text ">Time Limit (s)</label>
+ <label className="mb-1 block text-sm font-medium text-text ">{t("xp.timeSec")}</label>
  <input
  type="number"
  value={(config.time_limit_seconds as number) ?? 10}
@@ -501,7 +503,7 @@ function CodeConfigEditor({
  />
  </div>
  <div>
- <label className="mb-1 block text-sm font-medium text-text ">Memory (MB)</label>
+ <label className="mb-1 block text-sm font-medium text-text ">{t("xp.memory")}</label>
  <input
  type="number"
  value={(config.memory_limit_mb as number) ?? 256}
@@ -511,7 +513,7 @@ function CodeConfigEditor({
  </div>
  </div>
  <div>
- <label className="mb-1 block text-sm font-medium text-text ">Starter Code</label>
+ <label className="mb-1 block text-sm font-medium text-text ">{t("xp.starter")}</label>
  <textarea
  value={(config.starter_code as string) || ""}
  onChange={(e) => onChange({ ...config, starter_code: e.target.value })}
@@ -520,7 +522,7 @@ function CodeConfigEditor({
  />
  </div>
  <div>
- <label className="mb-1 block text-sm font-medium text-text ">Solution Code</label>
+ <label className="mb-1 block text-sm font-medium text-text ">{t("xp.solution")}</label>
  <textarea
  value={(config.solution_code as string) || ""}
  onChange={(e) => onChange({ ...config, solution_code: e.target.value })}
@@ -541,11 +543,12 @@ function FileUploadConfigEditor({
  config: Record<string, unknown>;
  onChange: (c: Record<string, unknown>) => void;
 }) {
+  const { t } = useTranslation();
  const allowedTypes = (config.allowed_types as string[]) || [".pdf", ".png", ".jpg", ".doc", ".docx"];
  return (
  <div className="grid grid-cols-2 gap-4">
  <div>
- <label className="mb-1 block text-sm font-medium text-text ">Allowed File Types</label>
+ <label className="mb-1 block text-sm font-medium text-text ">{t("xp.fileTypes")}</label>
  <CommaListInput
  value={allowedTypes}
  onChange={(next) => onChange({ ...config, allowed_types: next })}
@@ -554,7 +557,7 @@ function FileUploadConfigEditor({
  />
  </div>
  <div>
- <label className="mb-1 block text-sm font-medium text-text ">Max File Size (MB)</label>
+ <label className="mb-1 block text-sm font-medium text-text ">{t("xp.maxFileSize")}</label>
  <input
  type="number"
  value={(config.max_file_mb as number) ?? 50}
@@ -644,10 +647,10 @@ function QuizQuestionsEditor({
 
  if (editId) {
  await exercisesApi.updateQuestion(exerciseId, editId, payload);
- toast.success("Question updated");
+ toast.success(t("xp.questionUpdated"));
  } else {
  await exercisesApi.addQuestion(exerciseId, payload);
- toast.success("Question added");
+ toast.success(t("xp.questionAdded"));
  }
  resetForm();
  onRefresh();
@@ -661,10 +664,10 @@ function QuizQuestionsEditor({
  const handleDelete = async (questionId: string) => {
  try {
  await exercisesApi.deleteQuestion(exerciseId, questionId);
- toast.success("Question deleted");
+ toast.success(t("xp.questionDeleted"));
  onRefresh();
  } catch {
- toast.error("Failed to delete question");
+ toast.error(t("xp.questionDeleteFailed"));
  }
  };
 
@@ -674,7 +677,7 @@ function QuizQuestionsEditor({
  <CardTitle>Questions ({questions.length})</CardTitle>
  <Button size="sm" variant="outline" onClick={() => { resetForm(); setShowForm(true); setForm(f => ({ ...f, options: [{ id: 0, text: "", is_correct: true }, { id: 1, text: "", is_correct: false }] })); }}>
  <Plus className="mr-1.5 h-4 w-4" />
- Add Question
+ {t("xp.addQuestion")}
  </Button>
  </CardHeader>
  <CardContent className="space-y-3">
@@ -719,7 +722,7 @@ function QuizQuestionsEditor({
  <div className="space-y-3">
  <input
  type="text"
- placeholder="Question text"
+ placeholder={t("xp.questionText")}
  value={form.question_text}
  onChange={(e) => setForm({ ...form, question_text: e.target.value })}
  className="w-full rounded-lg border border-border-strong px-3 py-2 text-sm "
@@ -738,7 +741,7 @@ function QuizQuestionsEditor({
  value={form.points}
  onChange={(e) => setForm({ ...form, points: parseInt(e.target.value) || 1 })}
  className="w-20 rounded-lg border border-border-strong px-3 py-2 text-sm "
- placeholder="Points"
+ placeholder={t("xp.points")}
  />
  </div>
 
@@ -798,14 +801,14 @@ function QuizQuestionsEditor({
  }
  >
  <Plus className="mr-1 h-3.5 w-3.5" />
- Add Option
+ {t("xe.addOption")}
  </Button>
  </div>
  ) : (
  <div className="space-y-2">
  <input
  type="text"
- placeholder="Correct answer"
+ placeholder={t("xe.correctAnswerLower")}
  value={form.correct_answer}
  onChange={(e) => setForm({ ...form, correct_answer: e.target.value })}
  className="w-full rounded-lg border border-border-strong px-3 py-2 text-sm "
@@ -847,7 +850,7 @@ function QuizQuestionsEditor({
 
  <div className="flex justify-end gap-2">
  <Button variant="outline" size="sm" onClick={resetForm}>
- Cancel
+ {t("xe.cancel")}
  </Button>
  <Button size="sm" onClick={handleSubmit} disabled={saving}>
  {saving ? "Saving..." : editId ? "Update" : "Add"}
@@ -872,6 +875,7 @@ function TestCasesEditor({
  testCases: ExerciseTestCase[];
  onRefresh: () => void;
 }) {
+  const { t } = useTranslation();
  const [showForm, setShowForm] = useState(false);
  const [form, setForm] = useState({ input: "", expected_output: "", is_hidden: false });
  const [saving, setSaving] = useState(false);
@@ -916,7 +920,7 @@ function TestCasesEditor({
  setSaving(true);
  try {
  await exercisesApi.addTestCase(exerciseId, form);
- toast.success("Test case added");
+ toast.success(t("xp.testAdded"));
  setForm({ input: "", expected_output: "", is_hidden: false });
  setShowForm(false);
  onRefresh();
@@ -930,10 +934,10 @@ function TestCasesEditor({
  const handleDelete = async (tcId: string) => {
  try {
  await exercisesApi.deleteTestCase(exerciseId, tcId);
- toast.success("Test case deleted");
+ toast.success(t("xp.testDeleted"));
  onRefresh();
  } catch {
- toast.error("Failed to delete test case");
+ toast.error(t("xp.testDeleteFailed"));
  }
  };
 
@@ -954,14 +958,14 @@ function TestCasesEditor({
  }}
  />
  <Button size="sm" variant="outline" disabled={saving} onClick={() => csvInputRef.current?.click()}>
- Import CSV
+ {t("xp.importCsv")}
  </Button>
  <Button size="sm" variant="ghost" onClick={handleTemplateDownload}>
- Download template
+ {t("xp.downloadTemplate")}
  </Button>
  <Button size="sm" variant="outline" onClick={() => setShowForm(true)}>
  <Plus className="mr-1.5 h-4 w-4" />
- Add Test Case
+ {t("xp.addTestCase")}
  </Button>
  </div>
  </CardHeader>
@@ -977,19 +981,19 @@ function TestCasesEditor({
  <span className="text-xs font-medium text-text-muted">#{idx + 1}</span>
  {tc.is_hidden && (
  <span className="rounded bg-warning-soft px-1.5 py-0.5 text-3xs font-medium text-warning-fg ">
- Hidden
+ {t("xp.hidden")}
  </span>
  )}
  </div>
  <div className="grid grid-cols-2 gap-3">
  <div>
- <p className="text-3xs uppercase text-text-subtle">Input</p>
+ <p className="text-3xs uppercase text-text-subtle">{t("xp.input")}</p>
  <pre className="mt-0.5 rounded bg-surface-2 p-2 font-mono text-xs text-text ">
  {tc.input || "(empty)"}
  </pre>
  </div>
  <div>
- <p className="text-3xs uppercase text-text-subtle">Expected Output</p>
+ <p className="text-3xs uppercase text-text-subtle">{t("xp.expectedOutput")}</p>
  <pre className="mt-0.5 rounded bg-surface-2 p-2 font-mono text-xs text-text ">
  {tc.expected_output}
  </pre>
@@ -1013,7 +1017,7 @@ function TestCasesEditor({
  <div className="space-y-3">
  <div className="grid grid-cols-2 gap-3">
  <div>
- <label className="mb-1 block text-xs font-medium text-text-muted ">Input (stdin)</label>
+ <label className="mb-1 block text-xs font-medium text-text-muted ">{t("xp.stdin")}</label>
  <textarea
  value={form.input}
  onChange={(e) => setForm({ ...form, input: e.target.value })}
@@ -1022,7 +1026,7 @@ function TestCasesEditor({
  />
  </div>
  <div>
- <label className="mb-1 block text-xs font-medium text-text-muted ">Expected Output</label>
+ <label className="mb-1 block text-xs font-medium text-text-muted ">{t("xp.expectedOutput")}</label>
  <textarea
  value={form.expected_output}
  onChange={(e) => setForm({ ...form, expected_output: e.target.value })}
@@ -1038,11 +1042,11 @@ function TestCasesEditor({
  onChange={(e) => setForm({ ...form, is_hidden: e.target.checked })}
  className="accent-green-600"
  />
- Hidden test case (not visible to students)
+ {t("xp.hiddenHint")}
  </label>
  <div className="flex justify-end gap-2">
  <Button variant="outline" size="sm" onClick={() => setShowForm(false)}>
- Cancel
+ {t("xe.cancel")}
  </Button>
  <Button size="sm" onClick={handleAdd} disabled={saving}>
  {saving ? "Adding..." : "Add"}

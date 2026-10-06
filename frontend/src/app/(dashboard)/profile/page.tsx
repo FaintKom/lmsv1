@@ -71,12 +71,12 @@ export default function ProfilePage() {
  setDeleting(true);
  try {
  await apiClient.delete("/auth/me", { data: { password: deletePassword } });
- toast.success("Your account and data have been permanently deleted");
+ toast.success(t("prof.deleted"));
  logout();
  router.push("/");
  } catch (err: unknown) {
  const e = err as { response?: { data?: { detail?: string } } };
- toast.error(e?.response?.data?.detail || "Failed to delete account");
+ toast.error(e?.response?.data?.detail || t("prof.deleteFailed"));
  } finally {
  setDeleting(false);
  setDeletePassword("");
@@ -98,9 +98,9 @@ export default function ProfilePage() {
  setResendingVerification(true);
  try {
  await apiClient.post("/auth/resend-verification", { email: user.email });
- toast.success("Verification email sent. Check your inbox.");
+ toast.success(t("prof.verifySent"));
  } catch {
- toast.error("Failed to send verification email");
+ toast.error(t("prof.verifyFailed"));
  } finally {
  setResendingVerification(false);
  }
@@ -116,9 +116,9 @@ export default function ProfilePage() {
  setSavingPrefs(true);
  try {
  await apiClient.put("/auth/me/email-preferences", emailPrefs);
- toast.success("Notification preferences saved");
+ toast.success(t("prof.prefsSaved"));
  } catch {
- toast.error("Failed to save preferences");
+ toast.error(t("prof.prefsFailed"));
  } finally {
  setSavingPrefs(false);
  }
@@ -137,9 +137,9 @@ export default function ProfilePage() {
  a.click();
  document.body.removeChild(a);
  URL.revokeObjectURL(url);
- toast.success("Data exported successfully");
+ toast.success(t("prof.exported"));
  } catch {
- toast.error("Failed to export data");
+ toast.error(t("prof.exportFailed"));
  } finally {
  setExportingData(false);
  }
@@ -161,15 +161,15 @@ export default function ProfilePage() {
  const handleChangePassword = async (e: React.FormEvent) => {
  e.preventDefault();
  if (newPassword.length < 8) {
- toast.error("New password must be at least 8 characters");
+ toast.error(t("prof.pwTooShort"));
  return;
  }
  if (newPassword !== confirmPassword) {
- toast.error("New password and confirmation do not match");
+ toast.error(t("prof.pwMismatch"));
  return;
  }
  if (newPassword === currentPassword) {
- toast.error("New password must differ from the current one");
+ toast.error(t("prof.pwSame"));
  return;
  }
  setChangingPassword(true);
@@ -178,13 +178,13 @@ export default function ProfilePage() {
  current_password: currentPassword,
  new_password: newPassword,
  });
- toast.success("Password changed successfully");
+ toast.success(t("prof.pwChanged"));
  setCurrentPassword("");
  setNewPassword("");
  setConfirmPassword("");
  } catch (err: unknown) {
  const e = err as { response?: { data?: { detail?: string } } };
- toast.error(e?.response?.data?.detail || "Failed to change password");
+ toast.error(e?.response?.data?.detail || t("prof.pwFailed"));
  } finally {
  setChangingPassword(false);
  }
@@ -203,10 +203,10 @@ export default function ProfilePage() {
  await fetchUser();
  setSaved(true);
  setEditing(false);
- toast.success("Profile updated");
+ toast.success(t("prof.updated"));
  setTimeout(() => setSaved(false), 3000);
  } catch {
- toast.error("Failed to update profile");
+ toast.error(t("prof.updateFailed"));
  } finally {
  setSaving(false);
  }
@@ -221,15 +221,17 @@ export default function ProfilePage() {
 
  return (
  <div className="space-y-8">
- <div className="mb-8 flex items-center justify-between">
- <PageHeader title={t("nav.profile")} />
- {!editing && (
+ <PageHeader
+ title={t("nav.profile")}
+ actions={
+ !editing && (
  <Button variant="outline" onClick={handleEdit}>
  <Pencil className="mr-1.5 h-4 w-4" />
- Edit Profile
+ {t("prof.edit")}
  </Button>
- )}
- </div>
+ )
+ }
+ />
 
  {/* Email verification banner */}
  {!emailVerified && (
@@ -240,10 +242,10 @@ export default function ProfilePage() {
  </div>
  <div>
  <p className="text-sm font-semibold text-warning-fg ">
- Email not verified
+ {t("prof.notVerified")}
  </p>
  <p className="text-xs text-warning-fg ">
- We sent a verification link to <span className="font-medium">{user?.email}</span>. Click it to confirm your address.
+ {t("prof.verifyBody").replace("{email}", user?.email ?? "")}
  </p>
  </div>
  </div>
@@ -253,7 +255,7 @@ export default function ProfilePage() {
  disabled={resendingVerification}
  className="shrink-0"
  >
- {resendingVerification ? "Sending..." : "Resend email"}
+ {resendingVerification ? t("prof.sending") : t("prof.resend")}
  </Button>
  </div>
  )}
@@ -297,7 +299,7 @@ export default function ProfilePage() {
  <Card className="mb-6">
  <CardHeader>
  <div className="flex items-center justify-between">
- <CardTitle className="text-base">Edit Profile</CardTitle>
+ <CardTitle className="text-base">{t("prof.edit")}</CardTitle>
  <button
  onClick={handleCancel}
  className="rounded-lg p-1 text-text-subtle transition-colors hover:bg-surface-2 hover:text-text-muted "
@@ -311,7 +313,7 @@ export default function ProfilePage() {
  <div>
  <label className="mb-1 flex items-center gap-1 text-sm font-medium text-text ">
  <User className="h-3.5 w-3.5" />
- Full Name
+ {t("prof.fullName")}
  </label>
  <input
  type="text"
@@ -325,7 +327,7 @@ export default function ProfilePage() {
  <div>
  <label className="mb-1 flex items-center gap-1 text-sm font-medium text-text ">
  <Mail className="h-3.5 w-3.5" />
- Email
+ {t("prof.email")}
  </label>
  <input
  type="email"
@@ -334,13 +336,13 @@ export default function ProfilePage() {
  className="w-full rounded-lg border border-border-strong bg-surface-2 px-3 py-2 text-sm text-text-subtle "
  />
  <p className="mt-1 text-xs text-text-subtle">
- Email cannot be changed
+ {t("prof.emailFixed")}
  </p>
  </div>
 
  <div>
  <label className="mb-1 block text-sm font-medium text-text ">
- Avatar URL
+ {t("prof.avatarUrl")}
  </label>
  <input
  type="url"
@@ -354,12 +356,12 @@ export default function ProfilePage() {
  <div>
  <label className="mb-1 flex items-center gap-1 text-sm font-medium text-text ">
  <FileText className="h-3.5 w-3.5" />
- Bio
+ {t("prof.bio")}
  </label>
  <textarea
  value={bio}
  onChange={(e) => setBio(e.target.value)}
- placeholder="Tell us about yourself..."
+ placeholder={t("prof.bioPlaceholder")}
  rows={3}
  className="w-full rounded-lg border border-border-strong px-3 py-2 text-sm focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary "
  />
@@ -368,14 +370,14 @@ export default function ProfilePage() {
  <div className="flex items-center gap-3">
  <Button type="submit" disabled={saving}>
  <Save className="mr-1 h-4 w-4" />
- {saving ? "Saving..." : "Save Changes"}
+ {saving ? t("prof.saving") : t("prof.save")}
  </Button>
  <Button type="button" variant="outline" onClick={handleCancel}>
- Cancel
+ {t("prof.cancel")}
  </Button>
  {saved && (
  <span className="text-sm font-medium text-primary">
- Profile updated!
+ {t("prof.updated")}
  </span>
  )}
  </div>
@@ -386,27 +388,27 @@ export default function ProfilePage() {
  /* Read-only info cards */
  <Card className="mb-6">
  <CardHeader>
- <CardTitle className="text-base">Account Details</CardTitle>
+ <CardTitle className="text-base">{t("prof.account")}</CardTitle>
  </CardHeader>
  <CardContent className="space-y-3">
  <div className="flex items-start gap-3">
  <User className="mt-0.5 h-4 w-4 text-text-subtle " />
  <div>
- <p className="text-xs font-medium text-text-subtle ">Full Name</p>
+ <p className="text-xs font-medium text-text-subtle ">{t("prof.fullName")}</p>
  <p className="text-sm text-text ">{user?.full_name}</p>
  </div>
  </div>
  <div className="flex items-start gap-3">
  <Mail className="mt-0.5 h-4 w-4 text-text-subtle " />
  <div>
- <p className="text-xs font-medium text-text-subtle ">Email</p>
+ <p className="text-xs font-medium text-text-subtle ">{t("prof.email")}</p>
  <p className="break-all text-sm text-text">{user?.email}</p>
  </div>
  </div>
  <div className="flex items-start gap-3">
  <Shield className="mt-0.5 h-4 w-4 text-text-subtle " />
  <div>
- <p className="text-xs font-medium text-text-subtle ">Role</p>
+ <p className="text-xs font-medium text-text-subtle ">{t("prof.role")}</p>
  <p className="text-sm capitalize text-text ">{user?.role}</p>
  </div>
  </div>
@@ -414,7 +416,7 @@ export default function ProfilePage() {
  <div className="flex items-start gap-3">
  <FileText className="mt-0.5 h-4 w-4 text-text-subtle " />
  <div>
- <p className="text-xs font-medium text-text-subtle ">Bio</p>
+ <p className="text-xs font-medium text-text-subtle ">{t("prof.bio")}</p>
  <p className="text-sm text-text ">{user.bio}</p>
  </div>
  </div>
@@ -441,22 +443,20 @@ export default function ProfilePage() {
  <CardHeader>
  <CardTitle className="flex items-center gap-2 text-base">
  <Bell className="h-4 w-4" />
- Email Notifications
+ {t("prof.emailNotifications")}
  </CardTitle>
  </CardHeader>
  <CardContent className="space-y-3">
  {emailEnabled === false && (
  <div className="mb-2 rounded-lg border border-warning bg-warning-soft p-3 text-xs text-warning-fg ">
- Email delivery is not configured on this server yet. Your
- preferences are saved, but no messages will be sent until an
- administrator enables SMTP.
+ {t("prof.emailOff")}
  </div>
  )}
  {[
- { key: "assignments" as const, label: "New assignments", desc: "When a new assignment is posted" },
- { key: "grades" as const, label: "Grades & feedback", desc: "When your work is graded" },
- { key: "deadlines" as const, label: "Deadline reminders", desc: "24 hours before a deadline" },
- { key: "courses" as const, label: "New courses", desc: "When you're enrolled in a new course" },
+ { key: "assignments" as const, label: t("prof.nAssignments"), desc: t("prof.nAssignmentsDesc") },
+ { key: "grades" as const, label: t("prof.nGrades"), desc: t("prof.nGradesDesc") },
+ { key: "deadlines" as const, label: t("prof.nDeadlines"), desc: t("prof.nDeadlinesDesc") },
+ { key: "courses" as const, label: t("prof.nCourses"), desc: t("prof.nCoursesDesc") },
  ].map((item) => (
  <label key={item.key} className="flex items-start gap-3 cursor-pointer">
  <input
@@ -473,7 +473,7 @@ export default function ProfilePage() {
  ))}
  <Button onClick={handleSavePrefs} disabled={savingPrefs} className="mt-2">
  <Save className="mr-1 h-4 w-4" />
- {savingPrefs ? "Saving..." : "Save Preferences"}
+ {savingPrefs ? t("prof.saving") : t("prof.savePrefs")}
  </Button>
  </CardContent>
  </Card>
@@ -483,14 +483,14 @@ export default function ProfilePage() {
  <CardHeader>
  <CardTitle className="flex items-center gap-2 text-base">
  <Key className="h-4 w-4" />
- Change Password
+ {t("prof.changePassword")}
  </CardTitle>
  </CardHeader>
  <CardContent>
  <form onSubmit={handleChangePassword} className="space-y-4">
  <div>
  <label className="mb-1.5 block text-xs font-medium text-text-muted ">
- Current password
+ {t("prof.currentPassword")}
  </label>
  <input
  type="password"
@@ -503,7 +503,7 @@ export default function ProfilePage() {
  </div>
  <div>
  <label className="mb-1.5 block text-xs font-medium text-text-muted ">
- New password
+ {t("prof.newPassword")}
  </label>
  <input
  type="password"
@@ -515,12 +515,12 @@ export default function ProfilePage() {
  className="w-full rounded-lg border border-border-strong bg-surface px-3 py-2 text-sm text-text placeholder-ink-300 hover:border-primary focus:outline-none focus:ring-2 focus:ring-primary-soft "
  />
  <p className="mt-1 text-xs text-text-subtle ">
- Minimum 8 characters. Use a password manager.
+ {t("prof.pwHint")}
  </p>
  </div>
  <div>
  <label className="mb-1.5 block text-xs font-medium text-text-muted ">
- Confirm new password
+ {t("prof.confirmPassword")}
  </label>
  <input
  type="password"
@@ -534,7 +534,7 @@ export default function ProfilePage() {
  </div>
  <Button type="submit" disabled={changingPassword}>
  <Key className="mr-1.5 h-4 w-4" />
- {changingPassword ? "Changing..." : "Change Password"}
+ {changingPassword ? t("prof.changing") : t("prof.changePassword")}
  </Button>
  </form>
  </CardContent>
@@ -545,16 +545,16 @@ export default function ProfilePage() {
  <CardHeader>
  <CardTitle className="flex items-center gap-2 text-base">
  <Shield className="h-4 w-4" />
- Privacy &amp; Data
+ {t("prof.privacy")}
  </CardTitle>
  </CardHeader>
  <CardContent>
  <p className="mb-3 text-sm text-text-muted ">
- Export all your personal data as a JSON file
+ {t("prof.exportBody")}
  </p>
  <Button onClick={handleExportData} disabled={exportingData} variant="outline">
  <Download className="mr-1.5 h-4 w-4" />
- {exportingData ? "Exporting..." : "Download My Data"}
+ {exportingData ? t("prof.exporting") : t("prof.download")}
  </Button>
  </CardContent>
  </Card>
@@ -564,15 +564,14 @@ export default function ProfilePage() {
  <CardHeader>
  <CardTitle className="flex items-center gap-2 text-base text-danger-fg">
  <AlertTriangle className="h-4 w-4" />
- Delete Account
+ {t("prof.deleteTitle")}
  </CardTitle>
  </CardHeader>
  <CardContent>
  {!showDeleteConfirm ? (
  <>
  <p className="mb-3 text-sm text-text-muted">
- Permanently delete your account and all associated data. This action
- cannot be undone.
+ {t("prof.deleteBody")}
  </p>
  <Button
  variant="outline"
@@ -580,18 +579,17 @@ export default function ProfilePage() {
  className="border-danger text-danger-fg hover:bg-danger-soft"
  >
  <Trash2 className="mr-1.5 h-4 w-4" />
- Delete My Account
+ {t("prof.deleteButton")}
  </Button>
  </>
  ) : (
  <form onSubmit={handleDeleteAccount} className="space-y-4">
  <div className="rounded-lg border border-danger bg-danger-soft px-4 py-3 text-sm text-danger-fg">
- This permanently erases your account, progress, submissions, and all
- personal data. It cannot be undone. Enter your password to confirm.
+ {t("prof.deleteConfirmBody")}
  </div>
  <div>
  <label className="mb-1.5 block text-xs font-medium text-text-muted">
- Password
+ {t("prof.password")}
  </label>
  <input
  type="password"
@@ -609,7 +607,7 @@ export default function ProfilePage() {
  className="bg-danger text-ink-900 hover:bg-danger-fg"
  >
  <Trash2 className="mr-1.5 h-4 w-4" />
- {deleting ? "Deleting..." : "Permanently Delete"}
+ {deleting ? t("prof.deleting") : t("prof.deleteForever")}
  </Button>
  <Button
  type="button"
@@ -619,7 +617,7 @@ export default function ProfilePage() {
  setDeletePassword("");
  }}
  >
- Cancel
+ {t("prof.cancel")}
  </Button>
  </div>
  </form>
@@ -632,7 +630,7 @@ export default function ProfilePage() {
  <CardHeader>
  <CardTitle className="flex items-center gap-2 text-base">
  <Globe className="h-4 w-4" />
- Language
+ {t("prof.language")}
  </CardTitle>
  </CardHeader>
  <CardContent>

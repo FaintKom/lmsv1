@@ -13,12 +13,18 @@ import dynamic from "next/dynamic";
 
 const MonacoEditor = dynamic(() => import("@monaco-editor/react"), {
  ssr: false,
- loading: () => (
- <div className="flex h-32 items-center justify-center rounded-lg border border-border-strong bg-surface-2 text-xs text-text-subtle">
- Loading editor…
- </div>
- ),
+ loading: () => <EditorLoading />,
 });
+
+/** A component, not inline JSX: the placeholder has to read the locale. */
+function EditorLoading() {
+ const { t } = useTranslation();
+ return (
+ <div className="flex h-32 items-center justify-center rounded-lg border border-border-strong bg-surface-2 text-xs text-text-subtle">
+ {t("xe.loadingEditor")}
+ </div>
+ );
+}
 import apiClient from "@/lib/api-client";
 import { useTranslation } from "@/lib/i18n/context";
 import { readSystem, solveSystem } from "@/lib/math/linear-system";
@@ -51,23 +57,24 @@ const hintCls = "mt-1 text-xs text-text-muted";
 // ─── True / False ────────────────────────────────────────────────────
 
 export function TrueFalseConfigEditor({ config, onChange }: EditorProps) {
+  const { t } = useTranslation();
  const statement = (config.statement as string) || "";
  const correct = config.correct_answer as boolean ?? true;
 
  return (
    <div className="space-y-4">
      <div>
-       <label className={labelCls}>Statement</label>
+       <label className={labelCls}>{t("xe.statement")}</label>
        <textarea
          value={statement}
          onChange={(e) => onChange({ ...config, statement: e.target.value })}
-         placeholder="Enter a statement that is either true or false..."
+         placeholder={t("xe.statementPh")}
          rows={2}
          className={inputCls}
        />
      </div>
      <div>
-       <label className={labelCls}>Correct Answer</label>
+       <label className={labelCls}>{t("xe.correctAnswer")}</label>
        <div className="flex gap-3 mt-1">
          <button
            type="button"
@@ -78,7 +85,7 @@ export function TrueFalseConfigEditor({ config, onChange }: EditorProps) {
                : "border-border-strong text-text-muted hover:border-primary-soft"
            }`}
          >
-           True
+           {t("xe.true")}
          </button>
          <button
            type="button"
@@ -89,7 +96,7 @@ export function TrueFalseConfigEditor({ config, onChange }: EditorProps) {
                : "border-border-strong text-text-muted hover:border-danger"
            }`}
          >
-           False
+           {t("xe.false")}
          </button>
        </div>
      </div>
@@ -100,6 +107,7 @@ export function TrueFalseConfigEditor({ config, onChange }: EditorProps) {
 // ─── Fill Blanks ─────────────────────────────────────────────────────
 
 export function FillBlanksConfigEditor({ config, onChange }: EditorProps) {
+  const { t } = useTranslation();
  const text = (config.text as string) || "";
  const blanks = (config.blanks as string[]) || [];
 
@@ -121,7 +129,7 @@ export function FillBlanksConfigEditor({ config, onChange }: EditorProps) {
  return (
    <div className="space-y-4">
      <div>
-       <label className={labelCls}>Sentence with Blanks</label>
+       <label className={labelCls}>{t("xe.sentenceBlanks")}</label>
        <textarea
          value={text}
          onChange={(e) => syncBlanks(e.target.value)}
@@ -129,7 +137,7 @@ export function FillBlanksConfigEditor({ config, onChange }: EditorProps) {
          rows={3}
          className={inputCls}
        />
-       <p className={hintCls}>Two underscores mark a blank, three work too. The answers below fill them in order.</p>
+       <p className={hintCls}>{t("xe.blanksHint")}</p>
      </div>
      {blankCount > 0 && (
        <div>
@@ -159,6 +167,7 @@ export function FillBlanksConfigEditor({ config, onChange }: EditorProps) {
 // ─── Matching ────────────────────────────────────────────────────────
 
 export function MatchingConfigEditor({ config, onChange }: EditorProps) {
+  const { t } = useTranslation();
  const pairs = (config.pairs as { left: string; right: string }[]) || [];
 
  const updatePair = (i: number, side: "left" | "right", val: string) => {
@@ -173,22 +182,22 @@ export function MatchingConfigEditor({ config, onChange }: EditorProps) {
  return (
    <div className="space-y-4">
      <div className="grid grid-cols-[1fr_auto_1fr_auto] gap-2 text-xs font-semibold text-text-muted uppercase tracking-wider px-1">
-       <span>Left Side</span>
+       <span>{t("xe.leftSide")}</span>
        <span />
-       <span>Right Side</span>
+       <span>{t("xe.rightSide")}</span>
        <span className="w-9" />
      </div>
      {pairs.map((pair, i) => (
        <div key={i} className="grid grid-cols-[1fr_auto_1fr_auto] gap-2 items-center">
-         <input type="text" value={pair.left} onChange={(e) => updatePair(i, "left", e.target.value)} placeholder="Term" className={inputCls} />
+         <input type="text" value={pair.left} onChange={(e) => updatePair(i, "left", e.target.value)} placeholder={t("xe.term")} className={inputCls} />
          <span className="text-text-muted text-sm px-1">{"↔"}</span>
-         <input type="text" value={pair.right} onChange={(e) => updatePair(i, "right", e.target.value)} placeholder="Match" className={inputCls} />
+         <input type="text" value={pair.right} onChange={(e) => updatePair(i, "right", e.target.value)} placeholder={t("xe.match")} className={inputCls} />
          {pairs.length > 1 ? (
            <Button variant="ghost" size="sm" onClick={() => removePair(i)} className="text-danger-fg"><Trash2 className="h-3.5 w-3.5" /></Button>
          ) : <span className="w-9" />}
        </div>
      ))}
-     <Button variant="outline" size="sm" onClick={addPair}><Plus className="mr-1.5 h-3.5 w-3.5" />Add Pair</Button>
+     <Button variant="outline" size="sm" onClick={addPair}><Plus className="mr-1.5 h-3.5 w-3.5" />{t("xe.addPair")}</Button>
    </div>
  );
 }
@@ -196,6 +205,7 @@ export function MatchingConfigEditor({ config, onChange }: EditorProps) {
 // ─── Ordering ────────────────────────────────────────────────────────
 
 export function OrderingConfigEditor({ config, onChange }: EditorProps) {
+  const { t } = useTranslation();
  const items = (config.items as string[]) || [];
 
  const updateItem = (i: number, val: string) => {
@@ -215,7 +225,7 @@ export function OrderingConfigEditor({ config, onChange }: EditorProps) {
 
  return (
    <div className="space-y-3">
-     <p className={hintCls}>Enter items in the correct order. Students will see them shuffled.</p>
+     <p className={hintCls}>{t("xe.orderingHint")}</p>
      {items.map((item, i) => (
        <div key={i} className="flex items-center gap-2">
          <span className="flex-shrink-0 w-7 h-7 rounded-full bg-primary-soft flex items-center justify-center text-xs font-bold text-primary">{i + 1}</span>
@@ -229,7 +239,7 @@ export function OrderingConfigEditor({ config, onChange }: EditorProps) {
          )}
        </div>
      ))}
-     <Button variant="outline" size="sm" onClick={addItem}><Plus className="mr-1.5 h-3.5 w-3.5" />Add Item</Button>
+     <Button variant="outline" size="sm" onClick={addItem}><Plus className="mr-1.5 h-3.5 w-3.5" />{t("xe.addItem")}</Button>
    </div>
  );
 }
@@ -237,6 +247,7 @@ export function OrderingConfigEditor({ config, onChange }: EditorProps) {
 // ─── Categorize ──────────────────────────────────────────────────────
 
 export function CategorizeConfigEditor({ config, onChange }: EditorProps) {
+  const { t } = useTranslation();
  const categories = (config.categories as { name: string; items: string[] }[]) || [];
 
  const updateCatName = (i: number, name: string) => {
@@ -265,11 +276,11 @@ export function CategorizeConfigEditor({ config, onChange }: EditorProps) {
 
  return (
    <div className="space-y-4">
-     <p className={hintCls}>Create categories and add items to each. Students will sort items into the correct categories.</p>
+     <p className={hintCls}>{t("xe.categorizeHint")}</p>
      {categories.map((cat, ci) => (
        <div key={ci} className="rounded-lg border border-border-strong p-4 space-y-3">
          <div className="flex items-center gap-2">
-           <input type="text" value={cat.name} onChange={(e) => updateCatName(ci, e.target.value)} placeholder="Category name" className={`flex-1 ${inputBase} font-semibold`} />
+           <input type="text" value={cat.name} onChange={(e) => updateCatName(ci, e.target.value)} placeholder={t("xe.categoryName")} className={`flex-1 ${inputBase} font-semibold`} />
            {categories.length > 1 && (
              <Button variant="ghost" size="sm" onClick={() => removeCategory(ci)} className="text-danger-fg"><Trash2 className="h-3.5 w-3.5" /></Button>
            )}
@@ -283,11 +294,11 @@ export function CategorizeConfigEditor({ config, onChange }: EditorProps) {
                )}
              </div>
            ))}
-           <Button variant="ghost" size="sm" onClick={() => addItemToCat(ci)} className="text-primary"><Plus className="mr-1 h-3 w-3" />Add Item</Button>
+           <Button variant="ghost" size="sm" onClick={() => addItemToCat(ci)} className="text-primary"><Plus className="mr-1 h-3 w-3" />{t("xe.addItem")}</Button>
          </div>
        </div>
      ))}
-     <Button variant="outline" size="sm" onClick={addCategory}><Plus className="mr-1.5 h-3.5 w-3.5" />Add Category</Button>
+     <Button variant="outline" size="sm" onClick={addCategory}><Plus className="mr-1.5 h-3.5 w-3.5" />{t("xe.addCategory")}</Button>
    </div>
  );
 }
@@ -295,6 +306,7 @@ export function CategorizeConfigEditor({ config, onChange }: EditorProps) {
 // ─── Translation ─────────────────────────────────────────────────────
 
 export function TranslationConfigEditor({ config, onChange }: EditorProps) {
+  const { t } = useTranslation();
  const sourceText = (config.source_text as string) || "";
  const sourceLang = (config.source_language as string) || "English";
  const targetLang = (config.target_language as string) || "Russian";
@@ -308,28 +320,28 @@ export function TranslationConfigEditor({ config, onChange }: EditorProps) {
    <div className="space-y-4">
      <div className="grid grid-cols-2 gap-4">
        <div>
-         <label className={labelCls}>Source Language</label>
+         <label className={labelCls}>{t("xe.sourceLang")}</label>
          <input type="text" value={sourceLang} onChange={(e) => onChange({ ...config, source_language: e.target.value })} placeholder="English" className={inputCls} />
        </div>
        <div>
-         <label className={labelCls}>Target Language</label>
+         <label className={labelCls}>{t("xe.targetLang")}</label>
          <input type="text" value={targetLang} onChange={(e) => onChange({ ...config, target_language: e.target.value })} placeholder="Russian" className={inputCls} />
        </div>
      </div>
      <div>
-       <label className={labelCls}>Text to Translate</label>
-       <textarea value={sourceText} onChange={(e) => onChange({ ...config, source_text: e.target.value })} placeholder="Enter the text students need to translate..." rows={2} className={inputCls} />
+       <label className={labelCls}>{t("xe.textToTranslate")}</label>
+       <textarea value={sourceText} onChange={(e) => onChange({ ...config, source_text: e.target.value })} placeholder={t("xe.translatePh")} rows={2} className={inputCls} />
      </div>
      {/* specs/019 US4: the checking rules, visible and switchable */}
      <div className="rounded-lg border border-border-strong bg-surface-2 p-3 space-y-2">
-       <p className="text-xs font-semibold uppercase tracking-wider text-text-subtle">How answers are checked</p>
+       <p className="text-xs font-semibold uppercase tracking-wider text-text-subtle">{t("xe.howChecked")}</p>
        <label className="flex items-center gap-2 text-xs text-text-muted">
          <input
            type="checkbox"
            checked={!!config.case_sensitive}
            onChange={(e) => onChange({ ...config, case_sensitive: e.target.checked })}
          />
-         Case sensitive (off: «bonjour» = «Bonjour»)
+         {t("xe.caseHint")}
        </label>
        <label className="flex items-center gap-2 text-xs text-text-muted">
          <input
@@ -337,12 +349,12 @@ export function TranslationConfigEditor({ config, onChange }: EditorProps) {
            checked={config.fuzzy_match !== false}
            onChange={(e) => onChange({ ...config, fuzzy_match: e.target.checked })}
          />
-         Accept close answers (small typos pass — roughly 4 of 5 characters in place; off: exact match only)
+         {t("xe.fuzzy")}
        </label>
      </div>
      <div>
-       <label className={labelCls}>Accepted Answers</label>
-       <p className={hintCls}>Every translation listed here counts as correct, checked by the rules above.</p>
+       <label className={labelCls}>{t("xe.accepted")}</label>
+       <p className={hintCls}>{t("xe.translationsHint")}</p>
        <div className="space-y-2 mt-2">
          {accepted.map((ans, i) => (
            <div key={i} className="flex items-center gap-2">
@@ -352,7 +364,7 @@ export function TranslationConfigEditor({ config, onChange }: EditorProps) {
              )}
            </div>
          ))}
-         <Button variant="outline" size="sm" onClick={addAccepted}><Plus className="mr-1.5 h-3.5 w-3.5" />Add Answer</Button>
+         <Button variant="outline" size="sm" onClick={addAccepted}><Plus className="mr-1.5 h-3.5 w-3.5" />{t("xe.addAnswer")}</Button>
        </div>
      </div>
    </div>
@@ -362,6 +374,7 @@ export function TranslationConfigEditor({ config, onChange }: EditorProps) {
 // ─── Sentence Builder ────────────────────────────────────────────────
 
 export function SentenceBuilderConfigEditor({ config, onChange }: EditorProps) {
+  const { t } = useTranslation();
  const correctOrder = (config.correct_order as string[]) || [];
  const hint = (config.hint as string) || "";
 
@@ -372,7 +385,7 @@ export function SentenceBuilderConfigEditor({ config, onChange }: EditorProps) {
  return (
    <div className="space-y-4">
      <div>
-       <label className={labelCls}>Paste a sentence</label>
+       <label className={labelCls}>{t("xe.pasteSentence")}</label>
        <input
          type="text"
          defaultValue=""
@@ -382,14 +395,14 @@ export function SentenceBuilderConfigEditor({ config, onChange }: EditorProps) {
            const parts = e.target.value.trim().split(/\s+/).filter(Boolean);
            if (parts.length > 0) onChange({ ...config, correct_order: parts, words: parts });
          }}
-         placeholder="Type or paste the whole sentence — it splits into words below"
+         placeholder={t("xe.pasteWhole")}
          className={inputCls}
        />
-       <p className={hintCls}>The words appear below in the correct order; students get them shuffled.</p>
+       <p className={hintCls}>{t("xe.wordsShuffled")}</p>
      </div>
      <div>
-       <label className={labelCls}>Words in Correct Order</label>
-       <p className={hintCls}>Enter words in the correct sentence order. Students will see them shuffled and must arrange them.</p>
+       <label className={labelCls}>{t("xe.wordsOrder")}</label>
+       <p className={hintCls}>{t("xe.sentenceHint")}</p>
        <div className="space-y-2 mt-2">
          {correctOrder.map((word, i) => (
            <div key={i} className="flex items-center gap-2">
@@ -400,7 +413,7 @@ export function SentenceBuilderConfigEditor({ config, onChange }: EditorProps) {
              )}
            </div>
          ))}
-         <Button variant="outline" size="sm" onClick={addWord}><Plus className="mr-1.5 h-3.5 w-3.5" />Add Word</Button>
+         <Button variant="outline" size="sm" onClick={addWord}><Plus className="mr-1.5 h-3.5 w-3.5" />{t("xe.addWord")}</Button>
        </div>
      </div>
      {correctOrder.length > 0 && (
@@ -408,13 +421,13 @@ export function SentenceBuilderConfigEditor({ config, onChange }: EditorProps) {
          {/* Not a preview — the live preview below shows the shuffled parts a
          student gets. This is the answer they are marked against, which the
          widget withholds on purpose. */}
-       <p className="text-xs font-medium text-text-muted mb-1">Marks as correct:</p>
+       <p className="text-xs font-medium text-text-muted mb-1">{t("xe.marksCorrect")}</p>
          <p className="text-sm text-text font-medium">{correctOrder.filter(Boolean).join(" ")}</p>
        </div>
      )}
      <div>
-       <label className={labelCls}>Hint (optional)</label>
-       <input type="text" value={hint} onChange={(e) => onChange({ ...config, hint: e.target.value })} placeholder="Optional hint for students..." className={inputCls} />
+       <label className={labelCls}>{t("xe.hintOptional")}</label>
+       <input type="text" value={hint} onChange={(e) => onChange({ ...config, hint: e.target.value })} placeholder={t("xe.hintPh")} className={inputCls} />
      </div>
    </div>
  );
@@ -429,6 +442,7 @@ interface DialogueMessage {
 }
 
 export function DialogueConfigEditor({ config, onChange }: EditorProps) {
+  const { t } = useTranslation();
  const messages = (config.messages as DialogueMessage[]) || [];
 
  const updateMessage = (i: number, field: string, val: string) => {
@@ -478,23 +492,23 @@ export function DialogueConfigEditor({ config, onChange }: EditorProps) {
 
  return (
    <div className="space-y-4">
-     <p className={hintCls}>Build a dialogue flow. Regular messages are displayed as conversation. Messages with options let the student choose a response.</p>
+     <p className={hintCls}>{t("xe.dialogueHint")}</p>
      {messages.map((msg, mi) => (
        <div key={mi} className={`rounded-lg border p-4 space-y-3 ${msg.options ? "border-primary-soft bg-success-soft/20" : "border-border-strong"}`}>
          <div className="flex items-center gap-2">
            <span className="text-xs font-bold text-text-muted">#{mi + 1}</span>
-           <input type="text" value={msg.speaker} onChange={(e) => updateMessage(mi, "speaker", e.target.value)} placeholder="Speaker name" className={`w-32 ${inputBase}`} />
-           <input type="text" value={msg.text} onChange={(e) => updateMessage(mi, "text", e.target.value)} placeholder="Message text..." className={`flex-1 ${inputBase}`} />
+           <input type="text" value={msg.speaker} onChange={(e) => updateMessage(mi, "speaker", e.target.value)} placeholder={t("xe.speaker")} className={`w-32 ${inputBase}`} />
+           <input type="text" value={msg.text} onChange={(e) => updateMessage(mi, "text", e.target.value)} placeholder={t("xe.messagePh")} className={`flex-1 ${inputBase}`} />
            <Button variant="ghost" size="sm" onClick={() => removeMessage(mi)} className="text-danger-fg flex-shrink-0"><Trash2 className="h-3.5 w-3.5" /></Button>
          </div>
          {msg.options && (
            <div className="pl-6 space-y-2">
-             <p className="text-xs font-semibold text-primary">Student choices — mark the correct reply:</p>
+             <p className="text-xs font-semibold text-primary">{t("xe.choicesHint")}</p>
              {msg.options.map((opt, oi) => (
                <div key={oi} className={`flex items-center gap-2 rounded-lg px-2 py-1 ${opt.is_correct ? "bg-success-soft/40" : ""}`}>
                  <label className="flex flex-shrink-0 cursor-pointer items-center gap-1 text-2xs font-medium text-text-muted">
                    <input type="radio" name={`correct_${mi}`} checked={opt.is_correct} onChange={() => updateOption(mi, oi, "is_correct", true)} className="accent-green-600" aria-label={`Mark option ${oi + 1} as the correct reply`} />
-                   Correct
+                   {t("xe.correct")}
                  </label>
                  <input type="text" value={opt.text} onChange={(e) => updateOption(mi, oi, "text", e.target.value)} placeholder={`Option ${oi + 1}`} className={`flex-1 ${inputBase}`} />
                  {msg.options!.length > 2 && (
@@ -502,14 +516,14 @@ export function DialogueConfigEditor({ config, onChange }: EditorProps) {
                  )}
                </div>
              ))}
-             <Button variant="ghost" size="sm" onClick={() => addOption(mi)} className="text-primary"><Plus className="mr-1 h-3 w-3" />Add Option</Button>
+             <Button variant="ghost" size="sm" onClick={() => addOption(mi)} className="text-primary"><Plus className="mr-1 h-3 w-3" />{t("xe.addOption")}</Button>
            </div>
          )}
        </div>
      ))}
      <div className="flex gap-2">
-       <Button variant="outline" size="sm" onClick={() => addMessage(false)}><Plus className="mr-1.5 h-3.5 w-3.5" />Add Message</Button>
-       <Button variant="outline" size="sm" onClick={() => addMessage(true)} className="border-primary-soft text-primary"><Plus className="mr-1.5 h-3.5 w-3.5" />Add Choice Point</Button>
+       <Button variant="outline" size="sm" onClick={() => addMessage(false)}><Plus className="mr-1.5 h-3.5 w-3.5" />{t("xe.addMessage")}</Button>
+       <Button variant="outline" size="sm" onClick={() => addMessage(true)} className="border-primary-soft text-primary"><Plus className="mr-1.5 h-3.5 w-3.5" />{t("xe.addChoice")}</Button>
      </div>
    </div>
  );
@@ -518,6 +532,7 @@ export function DialogueConfigEditor({ config, onChange }: EditorProps) {
 // ─── Conjugation ─────────────────────────────────────────────────────
 
 export function ConjugationConfigEditor({ config, onChange }: EditorProps) {
+  const { t } = useTranslation();
  const verb = (config.verb as string) || "";
  const language = (config.language as string) || "";
  const tense = (config.tense as string) || "";
@@ -559,11 +574,11 @@ export function ConjugationConfigEditor({ config, onChange }: EditorProps) {
    <div className="space-y-4">
      <div className="grid grid-cols-3 gap-4">
        <div>
-         <label className={labelCls}>Verb</label>
+         <label className={labelCls}>{t("xe.verb")}</label>
          <input type="text" value={verb} onChange={(e) => onChange({ ...config, verb: e.target.value })} placeholder="e.g., hablar" className={inputCls} />
        </div>
        <div>
-         <label className={labelCls}>Language</label>
+         <label className={labelCls}>{t("xe.language")}</label>
          <input
            type="text"
            list="conjugation-langs"
@@ -579,7 +594,7 @@ export function ConjugationConfigEditor({ config, onChange }: EditorProps) {
          </datalist>
        </div>
        <div>
-         <label className={labelCls}>Tense (optional)</label>
+         <label className={labelCls}>{t("xe.tense")}</label>
          <input type="text" value={tense} onChange={(e) => onChange({ ...config, tense: e.target.value })} placeholder="e.g., present" className={inputCls} />
        </div>
      </div>
@@ -587,7 +602,7 @@ export function ConjugationConfigEditor({ config, onChange }: EditorProps) {
      {/* Preset bar — always visible so methodist can rebuild pronoun table anytime. */}
      <div className="rounded-lg border border-dashed border-border-strong bg-surface-2 p-3">
        <p className="mb-1.5 text-xs font-semibold uppercase tracking-wider text-text-muted">
-         Load pronoun preset
+         {t("xe.loadPronouns")}
        </p>
        <div className="flex flex-wrap gap-1.5">
          {KNOWN_LANGS.map((lang) => (
@@ -602,26 +617,26 @@ export function ConjugationConfigEditor({ config, onChange }: EditorProps) {
          ))}
        </div>
        <p className="mt-1 text-2xs text-text-subtle">
-         Replaces the pronoun list with the 6 standard pronouns for the language. Existing correct forms for matching pronouns are kept.
+         {t("xe.pronounHint")}
        </p>
      </div>
 
      <div>
-       <label className={labelCls}>Conjugation Table</label>
+       <label className={labelCls}>{t("xe.conjTable")}</label>
        <div className="space-y-2">
          <div className="grid grid-cols-[1fr_1fr_auto] gap-2 text-xs font-semibold text-text-muted uppercase tracking-wider px-1">
-           <span>Pronoun</span><span>Correct Form</span><span className="w-9" />
+           <span>{t("xe.pronoun")}</span><span>{t("xe.correctForm")}</span><span className="w-9" />
          </div>
          {table.map((row, i) => (
            <div key={i} className="grid grid-cols-[1fr_1fr_auto] gap-2">
-             <input type="text" value={row.pronoun} onChange={(e) => updateRow(i, "pronoun", e.target.value)} placeholder="Pronoun" className={inputCls} />
-             <input type="text" value={row.correct} onChange={(e) => updateRow(i, "correct", e.target.value)} placeholder="Correct conjugation" className={inputCls} />
+             <input type="text" value={row.pronoun} onChange={(e) => updateRow(i, "pronoun", e.target.value)} placeholder={t("xe.pronoun")} className={inputCls} />
+             <input type="text" value={row.correct} onChange={(e) => updateRow(i, "correct", e.target.value)} placeholder={t("xe.correctConj")} className={inputCls} />
              {table.length > 1 ? (
                <Button variant="ghost" size="sm" onClick={() => removeRow(i)} className="text-danger-fg"><Trash2 className="h-3.5 w-3.5" /></Button>
              ) : <span className="w-9" />}
            </div>
          ))}
-         <Button variant="outline" size="sm" onClick={addRow}><Plus className="mr-1.5 h-3.5 w-3.5" />Add Row</Button>
+         <Button variant="outline" size="sm" onClick={addRow}><Plus className="mr-1.5 h-3.5 w-3.5" />{t("xe.addRow")}</Button>
        </div>
      </div>
    </div>
@@ -655,6 +670,7 @@ export function ReadingConfigEditor({
  onChange,
  audio = false,
 }: EditorProps & { audio?: boolean }) {
+  const { t } = useTranslation();
  const passage = (config.passage as string) || "";
  const questions = (config.questions as ReadingQuestion[]) || [];
  const audioUrl = (config.audio_url as string) || "";
@@ -744,7 +760,7 @@ export function ReadingConfigEditor({
      {audio ? (
        <>
          <div>
-           <label className={labelCls}>Recording</label>
+           <label className={labelCls}>{t("xe.recording")}</label>
            <div className="flex gap-2">
              <input
                type="text"
@@ -781,7 +797,7 @@ export function ReadingConfigEditor({
          </div>
 
          <div>
-           <label className={labelCls}>Listens allowed</label>
+           <label className={labelCls}>{t("xe.listens")}</label>
            <input
              type="number"
              min={0}
@@ -799,12 +815,12 @@ export function ReadingConfigEditor({
          </div>
 
          <div>
-           <label className={labelCls}>Transcript (optional)</label>
+           <label className={labelCls}>{t("xe.transcript")}</label>
            <textarea
              value={transcript}
              onChange={(e) => onChange({ ...config, transcript: e.target.value })}
              rows={4}
-             placeholder="What is said in the recording…"
+             placeholder={t("xe.recordingPh")}
              className={inputCls}
            />
            <p className={hintCls}>
@@ -816,11 +832,11 @@ export function ReadingConfigEditor({
      ) : (
      <div>
        <div className="flex items-center justify-between">
-         <label className={labelCls}>Reading Passage</label>
+         <label className={labelCls}>{t("xe.readingPassage")}</label>
          {/* specs/019 US3: inline images via the shared upload */}
          <label className="cursor-pointer text-xs font-medium text-primary hover:underline">
            <Upload className="mr-1 inline h-3.5 w-3.5" />
-           Insert image
+           {t("xe.insertImage")}
            <input
              type="file"
              accept="image/*"
@@ -833,7 +849,7 @@ export function ReadingConfigEditor({
            />
          </label>
        </div>
-       <textarea value={passage} onChange={(e) => onChange({ ...config, passage: e.target.value })} placeholder="Enter the reading passage that students will analyze... (HTML and images supported)" rows={6} className={inputCls} />
+       <textarea value={passage} onChange={(e) => onChange({ ...config, passage: e.target.value })} placeholder={t("xe.readingPh")} rows={6} className={inputCls} />
      </div>
      )}
 
@@ -841,8 +857,8 @@ export function ReadingConfigEditor({
        <div className="flex items-center justify-between mb-3">
          <label className={labelCls}>Questions ({questions.length})</label>
          <div className="flex gap-2">
-           <Button variant="outline" size="sm" onClick={() => addQuestion("multiple_choice")}><Plus className="mr-1 h-3.5 w-3.5" />Multiple Choice</Button>
-           <Button variant="outline" size="sm" onClick={() => addQuestion("text")}><Plus className="mr-1 h-3.5 w-3.5" />Text Answer</Button>
+           <Button variant="outline" size="sm" onClick={() => addQuestion("multiple_choice")}><Plus className="mr-1 h-3.5 w-3.5" />{t("xe.multipleChoice")}</Button>
+           <Button variant="outline" size="sm" onClick={() => addQuestion("text")}><Plus className="mr-1 h-3.5 w-3.5" />{t("xe.textAnswer")}</Button>
          </div>
        </div>
 
@@ -851,7 +867,7 @@ export function ReadingConfigEditor({
            <div key={qi} className="rounded-lg border border-border-strong p-4 space-y-3">
              <div className="flex items-center gap-2">
                <span className="flex-shrink-0 w-7 h-7 rounded-full bg-primary-soft flex items-center justify-center text-xs font-bold text-primary">{qi + 1}</span>
-               <input type="text" value={q.question ?? q.text ?? ""} onChange={(e) => updateQuestion(qi, "question", e.target.value)} placeholder="Question text..." className={`flex-1 ${inputBase}`} />
+               <input type="text" value={q.question ?? q.text ?? ""} onChange={(e) => updateQuestion(qi, "question", e.target.value)} placeholder={t("xe.questionPh")} className={`flex-1 ${inputBase}`} />
                <span className="text-xs text-text-muted px-2 py-1 rounded bg-surface-2">{q.type === "multiple_choice" ? "MC" : "Text"}</span>
                <Button variant="ghost" size="sm" onClick={() => removeQuestion(qi)} className="text-danger-fg"><Trash2 className="h-3.5 w-3.5" /></Button>
              </div>
@@ -859,7 +875,7 @@ export function ReadingConfigEditor({
              {q.type === "multiple_choice" && q.options && (
                <div className="pl-9 space-y-2">
                  {q.options.filter((o) => o.is_correct).length > 1 && (
-                   <p className="text-xs text-primary">Several correct — the student gets checkboxes and must pick the exact set.</p>
+                   <p className="text-xs text-primary">{t("xe.severalCorrect")}</p>
                  )}
                  {q.options.map((opt, oi) => (
                    <div key={oi} className="flex items-center gap-2">
@@ -870,13 +886,13 @@ export function ReadingConfigEditor({
                      )}
                    </div>
                  ))}
-                 <Button variant="ghost" size="sm" onClick={() => addOption(qi)} className="text-primary"><Plus className="mr-1 h-3 w-3" />Add Option</Button>
+                 <Button variant="ghost" size="sm" onClick={() => addOption(qi)} className="text-primary"><Plus className="mr-1 h-3 w-3" />{t("xe.addOption")}</Button>
                </div>
              )}
 
              {q.type === "text" && (
                <div className="pl-9 space-y-2">
-                 <input type="text" value={q.correct_answer || ""} onChange={(e) => updateQuestion(qi, "correct_answer", e.target.value)} placeholder="Correct answer" className={inputCls} />
+                 <input type="text" value={q.correct_answer || ""} onChange={(e) => updateQuestion(qi, "correct_answer", e.target.value)} placeholder={t("xe.correctAnswerLower")} className={inputCls} />
                  {/* specs/019: the same visible rules as quiz text questions */}
                  <CommaListInput
                    value={Array.isArray(q.accepted) ? q.accepted : []}
@@ -887,11 +903,11 @@ export function ReadingConfigEditor({
                  <div className="flex gap-4">
                    <label className="flex items-center gap-1.5 text-xs text-text-muted">
                      <input type="checkbox" checked={!!q.case_sensitive} onChange={(e) => updateQuestion(qi, "case_sensitive", e.target.checked)} />
-                     Case sensitive
+                     {t("xe.caseSensitive")}
                    </label>
                    <label className="flex items-center gap-1.5 text-xs text-text-muted">
                      <input type="checkbox" checked={!!q.ignore_punctuation} onChange={(e) => updateQuestion(qi, "ignore_punctuation", e.target.checked)} />
-                     Ignore punctuation
+                     {t("xe.ignorePunct")}
                    </label>
                  </div>
                </div>
@@ -911,6 +927,7 @@ export function ListeningConfigEditor(props: EditorProps) {
 // ─── SRS Flashcard ──────────────────────────────────────────────────
 
 export function SRSFlashcardConfigEditor({ config, onChange }: EditorProps) {
+  const { t } = useTranslation();
  const cards = (config.cards as { front: string; back: string }[]) || [];
  const mastery = (config.mastery_threshold as number) ?? 0.7;
 
@@ -924,23 +941,23 @@ export function SRSFlashcardConfigEditor({ config, onChange }: EditorProps) {
 
  return (
    <div className="space-y-4">
-     <p className={hintCls}>Create flashcards with front (question/term) and back (answer/definition). Students self-rate each card.</p>
+     <p className={hintCls}>{t("xe.flashcardsHint")}</p>
      <div className="grid grid-cols-[1fr_auto_1fr_auto] gap-2 text-xs font-semibold text-text-muted uppercase tracking-wider px-1">
-       <span>Front</span><span /><span>Back</span><span className="w-9" />
+       <span>{t("xe.front")}</span><span /><span>{t("xe.back")}</span><span className="w-9" />
      </div>
      {cards.map((card, i) => (
        <div key={i} className="grid grid-cols-[1fr_auto_1fr_auto] gap-2 items-center">
-         <input type="text" value={card.front} onChange={(e) => updateCard(i, "front", e.target.value)} placeholder="Term / question" className={inputCls} />
+         <input type="text" value={card.front} onChange={(e) => updateCard(i, "front", e.target.value)} placeholder={t("xe.termQuestion")} className={inputCls} />
          <span className="text-text-muted text-sm px-1">{"→"}</span>
-         <input type="text" value={card.back} onChange={(e) => updateCard(i, "back", e.target.value)} placeholder="Definition / answer" className={inputCls} />
+         <input type="text" value={card.back} onChange={(e) => updateCard(i, "back", e.target.value)} placeholder={t("xe.definition")} className={inputCls} />
          {cards.length > 1 ? (
            <Button variant="ghost" size="sm" onClick={() => removeCard(i)} className="text-danger-fg"><Trash2 className="h-3.5 w-3.5" /></Button>
          ) : <span className="w-9" />}
        </div>
      ))}
-     <Button variant="outline" size="sm" onClick={addCard}><Plus className="mr-1.5 h-3.5 w-3.5" />Add Card</Button>
+     <Button variant="outline" size="sm" onClick={addCard}><Plus className="mr-1.5 h-3.5 w-3.5" />{t("xe.addCard")}</Button>
      <div>
-       <label className={labelCls}>Mastery Threshold</label>
+       <label className={labelCls}>{t("xe.mastery")}</label>
        <div className="flex items-center gap-3">
          <input
            type="range" min="0.5" max="1" step="0.1"
@@ -950,7 +967,7 @@ export function SRSFlashcardConfigEditor({ config, onChange }: EditorProps) {
          />
          <span className="text-sm font-medium text-text w-12 text-right">{Math.round(mastery * 100)}%</span>
        </div>
-       <p className={hintCls}>Student must rate this % of cards as &quot;good&quot; or &quot;easy&quot; to pass.</p>
+       <p className={hintCls}>{t("xe.masteryHint")}</p>
      </div>
    </div>
  );
@@ -967,6 +984,7 @@ interface CrosswordWord {
 }
 
 export function CrosswordConfigEditor({ config, onChange }: EditorProps) {
+  const { t } = useTranslation();
  const words = (config.words as CrosswordWord[]) || [];
  const gridSize = (config.grid_size as number) || 10;
  const [placingIdx, setPlacingIdx] = useState<number | null>(null);
@@ -1059,7 +1077,7 @@ export function CrosswordConfigEditor({ config, onChange }: EditorProps) {
  return (
    <div className="space-y-4">
      <div>
-       <label className={labelCls}>Grid Size</label>
+       <label className={labelCls}>{t("xe.gridSize")}</label>
        <input
          type="number"
          min={5}
@@ -1077,11 +1095,11 @@ export function CrosswordConfigEditor({ config, onChange }: EditorProps) {
        what the student gets; this one exists to be acted on. */}
      <div>
        <div className="mb-1 flex items-center gap-3">
-         <label className={labelCls}>Layout</label>
+         <label className={labelCls}>{t("xe.layout")}</label>
          <Button variant="default" size="sm" onClick={autoLayout}
            disabled={words.filter((w) => (w.word || "").trim()).length === 0}
-           title="Cross the words automatically — no manual Row/Col needed">
-           Build the grid
+           title={t("xe.autoCross")}>
+           {t("xe.buildGrid")}
          </Button>
          {unplaced.length > 0 && (
            <span className="rounded-pill bg-danger-soft px-2 py-0.5 text-2xs font-medium text-danger-fg">
@@ -1095,7 +1113,7 @@ export function CrosswordConfigEditor({ config, onChange }: EditorProps) {
          )}
          {placingIdx !== null && (
            <Button variant="ghost" size="sm" onClick={() => setPlacingIdx(null)}>
-             Cancel placement
+             {t("xe.cancelPlacement")}
            </Button>
          )}
          {conflicts.size > 0 && (
@@ -1177,30 +1195,30 @@ export function CrosswordConfigEditor({ config, onChange }: EditorProps) {
                    type="text"
                    value={w.clue}
                    onChange={(e) => updateWord(i, "clue", e.target.value)}
-                   placeholder="Clue for this word..."
+                   placeholder={t("xe.cluePh")}
                    className={`flex-1 ${inputBase}`}
                  />
                  <Button variant="ghost" size="sm" onClick={() => removeWord(i)} className="text-danger-fg">
                    <Trash2 className="h-3.5 w-3.5" />
                  </Button>
                </div>
-               {/* "Build the grid" is the normal path; hand-placement is the
+               {/* t("xe.buildGrid") is the normal path; hand-placement is the
                    escape hatch, folded away so it stops reading as required. */}
                <details className="pl-9" open={isPlacing}>
                  <summary className="cursor-pointer text-xs text-text-subtle">
-                   Advanced: manual placement
+                   {t("xe.advancedPlacement")}
                  </summary>
                  <div className="mt-2 flex items-center gap-3">
                    <Button
                      variant={isPlacing ? "default" : "outline"}
                      size="sm"
                      onClick={() => setPlacingIdx(isPlacing ? null : i)}
-                     title="Pick a cell on the grid to place this word"
+                     title={t("xe.pickCell")}
                    >
-                     {isPlacing ? "Cancel" : "Place on grid"}
+                     {isPlacing ? t("xe.cancel") : "Place on grid"}
                    </Button>
                    <div className="flex items-center gap-1">
-                     <label className="text-xs text-text-muted">Row:</label>
+                     <label className="text-xs text-text-muted">{t("xe.row")}</label>
                      <input
                        type="number"
                        min={0}
@@ -1211,7 +1229,7 @@ export function CrosswordConfigEditor({ config, onChange }: EditorProps) {
                      />
                    </div>
                    <div className="flex items-center gap-1">
-                     <label className="text-xs text-text-muted">Col:</label>
+                     <label className="text-xs text-text-muted">{t("xe.col")}</label>
                      <input
                        type="number"
                        min={0}
@@ -1226,15 +1244,15 @@ export function CrosswordConfigEditor({ config, onChange }: EditorProps) {
                      onChange={(e) => updateWord(i, "direction", e.target.value)}
                      className={`w-28 ${inputBase}`}
                    >
-                     <option value="across">Across →</option>
-                     <option value="down">Down ↓</option>
+                     <option value="across">{t("xe.across")}</option>
+                     <option value="down">{t("xe.down")}</option>
                    </select>
                  </div>
                </details>
                {overflow && (
                  <span className="flex items-center gap-1 pl-9 text-2xs text-danger-fg">
                    <TriangleAlert className="h-3 w-3 shrink-0" aria-hidden />
-                   Word extends past grid edge
+                   {t("xe.wordPastEdge")}
                  </span>
                )}
              </div>
@@ -1243,7 +1261,7 @@ export function CrosswordConfigEditor({ config, onChange }: EditorProps) {
        </div>
        <Button variant="outline" size="sm" onClick={addWord} className="mt-2">
          <Plus className="mr-1.5 h-3.5 w-3.5" />
-         Add Word
+         {t("xe.addWord")}
        </Button>
      </div>
    </div>
@@ -1253,6 +1271,7 @@ export function CrosswordConfigEditor({ config, onChange }: EditorProps) {
 // ─── Word Search ────────────────────────────────────────────────────
 
 export function WordSearchConfigEditor({ config, onChange }: EditorProps) {
+  const { t } = useTranslation();
  const words = (config.words as string[]) || [];
  const gridSize = (config.grid_size as number) || 12;
  // The exact grid the pupil will get: same pure generator, same seed.
@@ -1273,7 +1292,7 @@ export function WordSearchConfigEditor({ config, onChange }: EditorProps) {
  return (
    <div className="space-y-4">
      <div>
-       <label className={labelCls}>Grid Size</label>
+       <label className={labelCls}>{t("xe.gridSize")}</label>
        <input type="number" min={8} max={20} value={gridSize}
          onChange={(e) => onChange({ ...config, grid_size: parseInt(e.target.value) || 12 })}
          className={`w-24 ${inputBase}`} />
@@ -1284,10 +1303,10 @@ export function WordSearchConfigEditor({ config, onChange }: EditorProps) {
          {/* The live preview below draws the student's grid now, so this one
            stopped being a preview and became what it always did best: the
            thing Regenerate acts on while the words are being placed. */}
-         <label className={labelCls}>Layout</label>
+         <label className={labelCls}>{t("xe.layout")}</label>
          <Button variant="outline" size="sm"
            onClick={() => onChange({ ...config, seed: ((seed * 1103515245 + 12345) >>> 0) })}>
-           Regenerate layout
+           {t("xe.regenerate")}
          </Button>
          {layout.skipped.length > 0 && (
            <span className="rounded-pill bg-danger-soft px-2 py-0.5 text-2xs font-medium text-danger-fg">
@@ -1308,11 +1327,11 @@ export function WordSearchConfigEditor({ config, onChange }: EditorProps) {
            )}
          </div>
        )}
-       <p className={hintCls}>Saved with the exercise — the student sees this exact grid on every open.</p>
+       <p className={hintCls}>{t("xe.gridSaved")}</p>
      </div>
      <div>
        <label className={labelCls}>Hidden Words ({words.length})</label>
-       <p className={hintCls}>Enter words to hide in the grid. The grid fills remaining cells with random letters.</p>
+       <p className={hintCls}>{t("xe.wordSearchHint")}</p>
        <div className="space-y-2 mt-2">
          {words.map((word, i) => (
            <div key={i} className="flex items-center gap-2">
@@ -1323,7 +1342,7 @@ export function WordSearchConfigEditor({ config, onChange }: EditorProps) {
              )}
            </div>
          ))}
-         <Button variant="outline" size="sm" onClick={addWord}><Plus className="mr-1.5 h-3.5 w-3.5" />Add Word</Button>
+         <Button variant="outline" size="sm" onClick={addWord}><Plus className="mr-1.5 h-3.5 w-3.5" />{t("xe.addWord")}</Button>
        </div>
      </div>
    </div>
@@ -1340,6 +1359,7 @@ interface MapPin {
 }
 
 export function MapPinDropConfigEditor({ config, onChange }: EditorProps) {
+  const { t } = useTranslation();
  const imageUrl = (config.image_url as string) || "";
  const pins = (config.pins as MapPin[]) || [];
  const instructions = (config.instructions as string) || "";
@@ -1417,7 +1437,7 @@ export function MapPinDropConfigEditor({ config, onChange }: EditorProps) {
  return (
    <div className="space-y-4">
      <div>
-       <label className={labelCls}>Background Image</label>
+       <label className={labelCls}>{t("xe.background")}</label>
        <div className="flex gap-2">
          <input type="text" value={imageUrl} onChange={(e) => onChange({ ...config, image_url: e.target.value })} placeholder="https://example.com/map.png" className={`flex-1 ${inputBase}`} />
          <input ref={fileRef} type="file" accept="image/*" onChange={handleFileUpload} className="hidden" />
@@ -1425,11 +1445,11 @@ export function MapPinDropConfigEditor({ config, onChange }: EditorProps) {
            <Upload className="mr-1.5 h-3.5 w-3.5" />{uploading ? "Uploading..." : "Upload"}
          </Button>
        </div>
-       <p className={hintCls}>Paste a URL or upload an image. Students drop pins on it. Coordinates are in % (0-100).</p>
+       <p className={hintCls}>{t("xe.mapHint")}</p>
      </div>
      <div>
-       <label className={labelCls}>Instructions (optional)</label>
-       <input type="text" value={instructions} onChange={(e) => onChange({ ...config, instructions: e.target.value })} placeholder="Drop pins on the correct locations..." className={inputCls} />
+       <label className={labelCls}>{t("xe.instructionsOptional")}</label>
+       <input type="text" value={instructions} onChange={(e) => onChange({ ...config, instructions: e.target.value })} placeholder={t("xe.dropPinsPh")} className={inputCls} />
      </div>
      {imageUrl && (
        <div className="space-y-2">
@@ -1440,7 +1460,7 @@ export function MapPinDropConfigEditor({ config, onChange }: EditorProps) {
                : "Select a pin below, then click on the image to position it"}
            </p>
            {activePinIndex !== null && (
-             <Button variant="ghost" size="sm" onClick={() => setActivePinIndex(null)} className="text-xs h-6 px-2">Cancel</Button>
+             <Button variant="ghost" size="sm" onClick={() => setActivePinIndex(null)} className="text-xs h-6 px-2">{t("xe.cancel")}</Button>
            )}
          </div>
          <div
@@ -1463,7 +1483,7 @@ export function MapPinDropConfigEditor({ config, onChange }: EditorProps) {
                  draggingPinIndex === i ? "cursor-grabbing" : "cursor-grab"
                }`}
                style={{ left: `${pin.x}%`, top: `${pin.y}%` }}
-               title="Drag to reposition"
+               title={t("xe.dragReposition")}
              >
                <div className="flex flex-col items-center pointer-events-none">
                  <span className={`rounded-full px-1.5 py-0.5 text-3xs font-bold whitespace-nowrap ${i === activePinIndex ? "bg-primary text-primary-fg" : "bg-ink-700 text-primary-fg"}`}>
@@ -1477,7 +1497,7 @@ export function MapPinDropConfigEditor({ config, onChange }: EditorProps) {
            ))}
          </div>
          <p className="text-2xs text-text-subtle">
-           Drag pins on the image, or select a pin below and click on the image.
+           {t("xe.dragPins")}
          </p>
        </div>
      )}
@@ -1498,21 +1518,21 @@ export function MapPinDropConfigEditor({ config, onChange }: EditorProps) {
              >
                {i === activePinIndex ? <MapPinIcon className="h-3.5 w-3.5" /> : i + 1}
              </button>
-             <input type="text" value={pin.label} onChange={(e) => updatePin(i, "label", e.target.value)} placeholder="Label" className={`w-32 ${inputBase}`} />
+             <input type="text" value={pin.label} onChange={(e) => updatePin(i, "label", e.target.value)} placeholder={t("xe.label")} className={`w-32 ${inputBase}`} />
              <div className="flex items-center gap-1"><label className="text-xs text-text-muted">X%:</label>
                <input type="number" min={0} max={100} value={pin.x} onChange={(e) => updatePin(i, "x", parseInt(e.target.value) || 0)} className={`w-16 ${inputBase}`} />
              </div>
              <div className="flex items-center gap-1"><label className="text-xs text-text-muted">Y%:</label>
                <input type="number" min={0} max={100} value={pin.y} onChange={(e) => updatePin(i, "y", parseInt(e.target.value) || 0)} className={`w-16 ${inputBase}`} />
              </div>
-             <div className="flex items-center gap-1"><label className="text-xs text-text-muted">Tolerance:</label>
+             <div className="flex items-center gap-1"><label className="text-xs text-text-muted">{t("xe.tolerance")}</label>
                <input type="number" min={1} max={50} value={pin.tolerance} onChange={(e) => updatePin(i, "tolerance", parseInt(e.target.value) || 30)} className={`w-16 ${inputBase}`} />
              </div>
              <Button variant="ghost" size="sm" onClick={() => removePin(i)} className="text-danger-fg"><Trash2 className="h-3.5 w-3.5" /></Button>
            </div>
          ))}
        </div>
-       <Button variant="outline" size="sm" onClick={addPin} className="mt-2"><Plus className="mr-1.5 h-3.5 w-3.5" />Add Pin</Button>
+       <Button variant="outline" size="sm" onClick={addPin} className="mt-2"><Plus className="mr-1.5 h-3.5 w-3.5" />{t("xe.addPin")}</Button>
      </div>
    </div>
  );
@@ -1563,7 +1583,7 @@ export function BubbleSheetConfigEditor({ config, onChange }: EditorProps) {
      </p>
      <div className="grid grid-cols-2 gap-4">
        <div>
-         <label className={labelCls}>Options per Question</label>
+         <label className={labelCls}>{t("xe.optionsPerQuestion")}</label>
          <select value={numOptions} onChange={(e) => {
            const n = parseInt(e.target.value);
            const labels = "ABCDEFGH".slice(0, n).split("");
@@ -1576,7 +1596,7 @@ export function BubbleSheetConfigEditor({ config, onChange }: EditorProps) {
          </select>
        </div>
        <div>
-         <label className={labelCls}>Passing Score (%)</label>
+         <label className={labelCls}>{t("xe.passingScore")}</label>
          <input type="number" min={1} max={100} value={passingScore}
            onChange={(e) => onChange({ ...config, passing_score: parseInt(e.target.value) || 70 })}
            className={inputCls} />
@@ -1600,7 +1620,7 @@ export function BubbleSheetConfigEditor({ config, onChange }: EditorProps) {
                    type="text"
                    value={q.question_text || ""}
                    onChange={(e) => updateQuestion(i, { question_text: e.target.value })}
-                   placeholder="Question text (optional)"
+                   placeholder={t("xe.questionOptional")}
                    className="w-full rounded border border-border-strong bg-surface px-2 py-1 text-xs"
                  />
                  <div className="flex items-center gap-1.5">
@@ -1641,6 +1661,7 @@ export function BubbleSheetConfigEditor({ config, onChange }: EditorProps) {
 // ─── Web Editor ──────────────────────────────────────────────────────
 
 export function WebEditorConfigEditor({ config, onChange }: EditorProps) {
+  const { t } = useTranslation();
  const instructions = (config.instructions as string) || "";
  const starterHtml = (config.starter_html as string) || "";
  const starterCss = (config.starter_css as string) || "";
@@ -1659,18 +1680,18 @@ export function WebEditorConfigEditor({ config, onChange }: EditorProps) {
  return (
    <div className="space-y-4">
      <div>
-       <label className={labelCls}>Instructions for Student</label>
+       <label className={labelCls}>{t("xe.instructions")}</label>
        <textarea
          value={instructions}
          onChange={(e) => onChange({ ...config, instructions: e.target.value })}
-         placeholder="Describe what the student should build with HTML/CSS/JS..."
+         placeholder={t("xe.webPh")}
          rows={3}
          className={inputCls}
        />
-       <p className={hintCls}>This exercise is manually graded by the teacher after submission.</p>
+       <p className={hintCls}>{t("xe.manualGraded")}</p>
      </div>
      <div>
-       <label className={labelCls}>Starter HTML (optional)</label>
+       <label className={labelCls}>{t("xe.starterHtml")}</label>
        <div className="h-40 overflow-hidden rounded-lg border border-border-strong">
          <MonacoEditor
            height="100%"
@@ -1684,7 +1705,7 @@ export function WebEditorConfigEditor({ config, onChange }: EditorProps) {
      </div>
      <div className="grid grid-cols-2 gap-4">
        <div>
-         <label className={labelCls}>Starter CSS (optional)</label>
+         <label className={labelCls}>{t("xe.starterCss")}</label>
          <div className="h-40 overflow-hidden rounded-lg border border-border-strong">
            <MonacoEditor
              height="100%"
@@ -1697,7 +1718,7 @@ export function WebEditorConfigEditor({ config, onChange }: EditorProps) {
          </div>
        </div>
        <div>
-         <label className={labelCls}>Starter JS (optional)</label>
+         <label className={labelCls}>{t("xe.starterJs")}</label>
          <div className="h-40 overflow-hidden rounded-lg border border-border-strong">
            <MonacoEditor
              height="100%"
@@ -1723,6 +1744,7 @@ export function WebEditorConfigEditor({ config, onChange }: EditorProps) {
  * write by accident and impossible to notice by re-reading the equations.
  */
 export function MathSystemConfigEditor({ config, onChange }: EditorProps) {
+  const { t } = useTranslation();
  const equations = (config.equations as string[]) || ["", ""];
  const variables = (config.variables as string[]) || ["x", "y"];
 
@@ -1742,18 +1764,18 @@ export function MathSystemConfigEditor({ config, onChange }: EditorProps) {
  return (
    <div className="space-y-4">
      <div>
-       <label className={labelCls}>Variables</label>
+       <label className={labelCls}>{t("xe.variables")}</label>
        <CommaListInput
          value={variables}
          onChange={(next) => onChange({ ...config, variables: next })}
          placeholderKey="admin.commaList.variables"
          className={inputCls}
        />
-       <p className={hintCls}>The order here is the order of the answer boxes the student sees.</p>
+       <p className={hintCls}>{t("xe.boxOrder")}</p>
      </div>
 
      <div>
-       <label className={labelCls}>Equations</label>
+       <label className={labelCls}>{t("xe.equations")}</label>
        <div className="space-y-2">
          {equations.map((equation, i) => (
            <div key={i} className="flex gap-2">
@@ -1789,7 +1811,7 @@ export function MathSystemConfigEditor({ config, onChange }: EditorProps) {
          className="mt-2"
          onClick={() => onChange({ ...config, equations: [...equations, ""] })}
        >
-         <Plus className="h-4 w-4" /> Add equation
+         <Plus className="h-4 w-4" /> {t("xe.addEquation")}
        </Button>
        <p className={hintCls}>
          Plain text. Implicit multiplication is fine (<code>2x</code>), and either side may hold the
@@ -1798,12 +1820,12 @@ export function MathSystemConfigEditor({ config, onChange }: EditorProps) {
      </div>
 
      <div>
-       <label className={labelCls}>Problem text (optional)</label>
+       <label className={labelCls}>{t("xe.problemText")}</label>
        <textarea
          rows={2}
          value={(config.problem as string) || ""}
          onChange={(e) => onChange({ ...config, problem: e.target.value })}
-         placeholder="Two tickets and three passes cost 12 lari…"
+         placeholder={t("xe.problemPh")}
          className={inputCls}
        />
      </div>
@@ -1844,6 +1866,7 @@ const DIMENSION_LABELS: Record<string, string> = {
  * accept, rounded exactly as the student is asked to round it.
  */
 export function StereometryConfigEditor({ config, onChange }: EditorProps) {
+  const { t } = useTranslation();
  const solid = typeof config.solid === "string" ? config.solid : "box";
  const quantity = typeof config.quantity === "string" ? config.quantity : "volume";
  const dimensions = (config.dimensions as Record<string, unknown>) || {};
@@ -1861,7 +1884,7 @@ export function StereometryConfigEditor({ config, onChange }: EditorProps) {
    <div className="space-y-4">
      <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
        <div>
-         <label className={labelCls}>Solid</label>
+         <label className={labelCls}>{t("xe.solid")}</label>
          <select
            value={solid}
            onChange={(e) => onChange({ ...config, solid: e.target.value, dimensions: {} })}
@@ -1873,10 +1896,10 @@ export function StereometryConfigEditor({ config, onChange }: EditorProps) {
              </option>
            ))}
          </select>
-         <p className={hintCls}>Changing the solid clears the measurements — they differ.</p>
+         <p className={hintCls}>{t("xe.solidChange")}</p>
        </div>
        <div>
-         <label className={labelCls}>What to find</label>
+         <label className={labelCls}>{t("xe.whatToFind")}</label>
          <select
            value={quantity}
            onChange={(e) => onChange({ ...config, quantity: e.target.value })}
@@ -1895,7 +1918,7 @@ export function StereometryConfigEditor({ config, onChange }: EditorProps) {
      </div>
 
      <div>
-       <label className={labelCls}>Measurements</label>
+       <label className={labelCls}>{t("xe.measurements")}</label>
        <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
          {needed.map((name) => (
            <div key={name}>
@@ -1924,7 +1947,7 @@ export function StereometryConfigEditor({ config, onChange }: EditorProps) {
 
      <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
        <div>
-         <label className={labelCls}>Round the answer to</label>
+         <label className={labelCls}>{t("xe.roundTo")}</label>
          <input
            type="number"
            min={0}
@@ -1934,11 +1957,11 @@ export function StereometryConfigEditor({ config, onChange }: EditorProps) {
            className={inputCls}
          />
          <p className={hintCls}>
-           Decimal places. Anything within half a unit of the last place is accepted.
+           {t("xe.decimals")}
          </p>
        </div>
        <div>
-         <label className={labelCls}>Unit (optional)</label>
+         <label className={labelCls}>{t("xe.unit")}</label>
          <input
            type="text"
            value={unit}
@@ -1946,12 +1969,12 @@ export function StereometryConfigEditor({ config, onChange }: EditorProps) {
            placeholder="cm"
            className={inputCls}
          />
-         <p className={hintCls}>Shown beside the measurements and the answer box.</p>
+         <p className={hintCls}>{t("xe.unitHint")}</p>
        </div>
      </div>
 
      <div>
-       <label className={labelCls}>Problem text (optional)</label>
+       <label className={labelCls}>{t("xe.problemText")}</label>
        <textarea
          rows={2}
          value={(config.problem as string) || ""}
@@ -1959,7 +1982,7 @@ export function StereometryConfigEditor({ config, onChange }: EditorProps) {
          placeholder="A grain silo is a cylinder 3 m across and 5 m tall…"
          className={inputCls}
        />
-       <p className={hintCls}>Left blank, the task asks for the quantity in plain words.</p>
+       <p className={hintCls}>{t("xe.unitBlank")}</p>
      </div>
 
      <p className="rounded-lg bg-surface-2 px-3 py-2 text-sm text-text-muted">{preview}</p>
