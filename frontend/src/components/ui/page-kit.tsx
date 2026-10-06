@@ -207,7 +207,11 @@ interface FilterChipsProps {
   className?: string;
 }
 
-/** Narrows a list. Pressed reads as ink on paper, the same in both themes. */
+/**
+ * Narrows a list. Pressed is the brand fill, like the active sidebar item.
+ * Not an inverted ink chip: bg-text is near-white in dark mode, a light
+ * slab on a dark page, which e2e/dark-theme.spec.ts rightly refuses.
+ */
 export function FilterChips({ items, value, onChange, className, ...aria }: FilterChipsProps) {
   return (
     <div role="group" aria-label={aria["aria-label"]} className={cn("flex flex-wrap gap-2", className)}>
@@ -217,7 +221,7 @@ export function FilterChips({ items, value, onChange, className, ...aria }: Filt
           type="button"
           aria-pressed={item.value === value}
           onClick={() => onChange(item.value)}
-          className="press-scale inline-flex h-9 items-center gap-1.5 rounded-pill border border-border-strong bg-surface px-4 text-sm font-medium text-text transition-colors hover:border-text-subtle aria-pressed:border-text aria-pressed:bg-text aria-pressed:text-bg"
+          className="press-scale inline-flex h-9 items-center gap-1.5 rounded-pill border border-border-strong bg-surface px-4 text-sm font-medium text-text transition-colors hover:border-text-subtle aria-pressed:border-primary aria-pressed:bg-primary aria-pressed:text-primary-fg"
         >
           {item.label}
           {item.count !== undefined && (
