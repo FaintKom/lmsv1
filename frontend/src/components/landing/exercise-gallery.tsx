@@ -111,7 +111,6 @@ export function ExerciseGallery() {
           >
             {current.id === "quiz" && (
               <QuizV2
-                eyebrow={t("landing.gallery.eyebrow")}
                 questions={[
                   {
                     question_text: t("landing.gallery.quizQuestion"),
@@ -128,7 +127,6 @@ export function ExerciseGallery() {
 
             {current.id === "matching" && (
               <MatchingV2
-                eyebrow={t("landing.gallery.eyebrow")}
                 title={t("landing.gallery.matchingTitle")}
                 pairs={[
                   { left: t("landing.gallery.matchL1"), right: t("landing.gallery.matchR1") },
@@ -140,7 +138,6 @@ export function ExerciseGallery() {
 
             {current.id === "categorize" && (
               <CategorizeV2
-                eyebrow={t("landing.gallery.eyebrow")}
                 title={t("landing.gallery.categorizeTitle")}
                 categories={[
                   {

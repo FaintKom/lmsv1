@@ -50,6 +50,7 @@ import {
  MapPin,
  CircleDot,
 } from "lucide-react";
+import { PageHeader, Tabs } from "@/components/ui/page-kit";
 import { newExercisePayload } from "@/lib/lessons/add-exercise";
 import {
  exercisesApi,
@@ -125,50 +126,19 @@ export default function ContentLibraryPage() {
  const [activeTab, setActiveTab] = useState<"templates" | "exercises" | "assignments">("templates");
 
  return (
- <div className="mx-auto max-w-7xl space-y-6 p-6">
- <div className="flex items-center gap-3">
- <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-primary-soft ">
- <Library className="h-5 w-5 text-primary " />
- </div>
- <h1 className="text-2xl font-bold text-text ">{t("admin.contentLibrary.title")}</h1>
- </div>
+ <div className="space-y-6">
+ <PageHeader className="mb-2" title={t("admin.contentLibrary.title")} />
 
- {/* Tabs */}
- <div className="flex gap-1 overflow-x-auto rounded-lg bg-surface-2 p-1 ">
- <button
- onClick={() => setActiveTab("templates")}
- className={`flex items-center gap-2 rounded-md px-4 py-2 text-sm font-medium transition-colors ${
- activeTab === "templates"
- ? "bg-surface text-text shadow-sm "
- : "text-text-muted hover:text-text "
- }`}
- >
- <FileStack className="h-4 w-4" />
- {t("admin.contentLibrary.tabTemplates")}
- </button>
- <button
- onClick={() => setActiveTab("exercises")}
- className={`flex items-center gap-2 rounded-md px-4 py-2 text-sm font-medium transition-colors ${
- activeTab === "exercises"
- ? "bg-surface text-text shadow-sm "
- : "text-text-muted hover:text-text "
- }`}
- >
- <ClipboardList className="h-4 w-4" />
- {t("admin.contentLibrary.tabExercises")}
- </button>
- <button
- onClick={() => setActiveTab("assignments")}
- className={`flex items-center gap-2 rounded-md px-4 py-2 text-sm font-medium transition-colors ${
- activeTab === "assignments"
- ? "bg-surface text-text shadow-sm "
- : "text-text-muted hover:text-text "
- }`}
- >
- <ClipboardList className="h-4 w-4" />
- {t("admin.contentLibrary.tabAssignments")}
- </button>
- </div>
+ <Tabs
+ aria-label={t("admin.contentLibrary.title")}
+ value={activeTab}
+ onChange={(v) => setActiveTab(v as typeof activeTab)}
+ items={[
+ { value: "templates", label: t("admin.contentLibrary.tabTemplates"), icon: FileStack },
+ { value: "exercises", label: t("admin.contentLibrary.tabExercises"), icon: ClipboardList },
+ { value: "assignments", label: t("admin.contentLibrary.tabAssignments"), icon: ClipboardList },
+ ]}
+ />
 
  {activeTab === "templates" ? (
  <TemplatesTab />

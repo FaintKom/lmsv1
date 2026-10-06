@@ -93,7 +93,7 @@ export default function EditAssignmentPage() {
 
  if (loading) {
  return (
- <div className="mx-auto max-w-2xl space-y-6">
+ <div className="max-w-2xl space-y-6">
  <div className="h-6 w-40 animate-pulse rounded bg-ink-200 " />
  <div className="h-8 w-64 animate-pulse rounded bg-ink-200 " />
  <div className="space-y-4 rounded-lg border border-border-strong p-6 ">
@@ -110,7 +110,7 @@ export default function EditAssignmentPage() {
  }
 
  return (
- <div className="mx-auto max-w-2xl">
+ <div className="max-w-2xl">
  <button
  onClick={() => router.back()}
  className="mb-4 flex items-center gap-1 text-sm text-text-muted transition-colors hover:text-text "

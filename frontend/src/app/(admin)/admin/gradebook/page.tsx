@@ -10,6 +10,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { Table2, Download } from "lucide-react";
 import { useTranslation } from "@/lib/i18n/context";
 import QuizSubmissionBreakdown from "@/components/assessments/quiz-submission-breakdown";
+import { PageHeader } from "@/components/ui/page-kit";
 
 interface CourseOption {
  id: string;
@@ -141,7 +142,7 @@ export default function GradebookPage() {
 
  if (loadingCourses) {
  return (
- <div className="mx-auto max-w-7xl">
+ <div className="space-y-8">
  <Skeleton className="mb-2 h-4 w-48" />
  <Skeleton className="mb-6 h-8 w-56" />
  <Skeleton className="h-10 w-64" />
@@ -164,12 +165,7 @@ export default function GradebookPage() {
  return (
  <div>
  <div className="mb-6 flex items-center justify-between">
- <div>
- <h1 className="text-2xl font-bold text-text ">{t("admin.gradebook.title")}</h1>
- <p className="mt-1 text-sm text-text-muted ">
- {t("admin.gradebook.subtitle")}
- </p>
- </div>
+ <PageHeader title={t("admin.gradebook.title")} description={t("admin.gradebook.subtitle")} />
  {data && data.columns.length > 0 && (
  <div className="flex items-center gap-2">
  <Button variant="outline" onClick={handleExportWithAuth}>

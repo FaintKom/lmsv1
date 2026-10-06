@@ -6,6 +6,7 @@ import { OrgSettingsForm } from "@/components/admin/org-settings-form";
 import { ThemeToggle } from "@/components/ui/theme-toggle";
 import { useTranslation } from "@/lib/i18n/context";
 import { useAuthStore } from "@/stores/auth-store";
+import { PageHeader } from "@/components/ui/page-kit";
 
 /**
  * Your own school's settings.
@@ -20,14 +21,8 @@ export default function SettingsPage() {
   const orgId = useAuthStore((s) => s.user?.org_id);
 
   return (
-    <div className="mx-auto max-w-2xl space-y-6">
-      <div>
-        <h1 className="flex items-center gap-2 text-2xl font-bold text-text">
-          <Settings className="h-6 w-6 text-primary" />
-          {t("admin.settings.title")}
-        </h1>
-        <p className="text-sm text-text-muted">{t("admin.settings.subtitle")}</p>
-      </div>
+    <div className="space-y-8">
+      <PageHeader title={t("admin.settings.title")} description={t("admin.settings.subtitle")} />
 
       {/* Appearance (theme contract: frontend/design/README.md) */}
       <div className="rounded-lg border border-border-strong bg-surface">

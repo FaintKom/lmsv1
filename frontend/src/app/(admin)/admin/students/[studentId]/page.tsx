@@ -156,7 +156,7 @@ export default function StudentProfilePage() {
 
   if (isLoading) {
     return (
-      <div className="mx-auto max-w-6xl space-y-4">
+      <div className="space-y-6">
         <Skeleton className="h-5 w-24" />
         <Skeleton className="h-24 w-full" />
         <Skeleton className="h-40 w-full" />
@@ -174,7 +174,7 @@ export default function StudentProfilePage() {
           ? t("admin.studentProfile.forbidden")
           : t("admin.studentProfile.loadError");
     return (
-      <div className="mx-auto max-w-6xl">
+      <div>
         <Button variant="outline" onClick={() => router.back()} className="mb-6">
           <ArrowLeft className="mr-2 h-4 w-4" />
           {t("admin.studentProfile.back")}
@@ -196,7 +196,7 @@ export default function StudentProfilePage() {
   ];
 
   return (
-    <div className="mx-auto max-w-6xl">
+    <div>
       <Button variant="outline" onClick={() => router.back()} className="mb-6">
         <ArrowLeft className="mr-2 h-4 w-4" />
         {t("admin.studentProfile.back")}
@@ -210,7 +210,7 @@ export default function StudentProfilePage() {
               {student.full_name?.[0]?.toUpperCase() ?? "?"}
             </div>
             <div>
-              <h1 className="text-2xl font-bold text-text">{student.full_name}</h1>
+              <h1 className="text-xl font-bold leading-tight text-text md:text-2xl">{student.full_name}</h1>
               <p className="text-sm text-text-muted">{student.email}</p>
               <p className="mt-1 text-xs text-text-subtle">
                 {t("admin.studentProfile.joined")}: {fmtDate(student.created_at)}

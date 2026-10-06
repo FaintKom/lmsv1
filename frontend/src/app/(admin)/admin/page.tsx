@@ -30,6 +30,7 @@ import { useAuthStore } from "@/stores/auth-store";
 import { toast } from "sonner";
 import { OnboardingTour, startOnboardingTour } from "@/components/onboarding-tour";
 import { useTranslation } from "@/lib/i18n/context";
+import { PageHeader, StatTile } from "@/components/ui/page-kit";
 
 interface Stats {
   total_users: number;
@@ -65,39 +66,21 @@ function KpiCard({
   value: string | number;
   suffix?: string;
   icon: LucideIcon;
+  /** Kept for the call sites; the kit's tile carries no colour (specs/075 FR-005). */
   color: "green" | "sun" | "clay" | "ink";
 }) {
-  const iconStyles: Record<string, string> = {
-    green: "bg-success-soft text-success-fg",
-    sun: "bg-warning-soft text-warning-fg",
-    clay: "bg-danger-soft text-danger-fg",
-    ink: "bg-surface-2 text-text",
-  };
-
+  void color;
   return (
-    <div className="rounded-md border border-border bg-surface p-4">
-      <div className="mb-2 flex items-center justify-between">
-        <span className="text-xs font-bold text-text-subtle">
-          {label}
-        </span>
-        <div
-          className={cn(
-            "flex h-[22px] w-[22px] items-center justify-center rounded-xs",
-            iconStyles[color],
-          )}
-        >
-          <Icon className="h-3 w-3" />
-        </div>
-      </div>
-      <div className="text-xl font-extrabold leading-none tracking-tight text-text">
-        {value}
-        {suffix && (
-          <small className="ml-1 font-mono text-sm font-semibold text-text-subtle">
-            {suffix}
-          </small>
-        )}
-      </div>
-    </div>
+    <StatTile
+      icon={Icon}
+      label={label}
+      value={
+        <>
+          {value}
+          {suffix && <span className="ml-1 text-base font-semibold text-text-subtle">{suffix}</span>}
+        </>
+      }
+    />
   );
 }
 
@@ -113,23 +96,19 @@ function QuickLink({
   label: string;
   iconColor: string;
 }) {
+  // A quiet row, not a grid of "icon in a coloured square + title" tiles
+  // (DESIGN_SPEC "never", item 4). iconColor is kept for the call sites.
+  void iconColor;
   return (
     <Link
       href={href}
-      className="flex items-center justify-between rounded-md border border-border bg-surface p-4 transition hover:-translate-y-0.5 hover:border-border-strong hover:shadow-sm"
+      className="group flex min-h-11 items-center justify-between gap-3 rounded-lg bg-surface px-4 py-3 transition-colors hover:bg-surface-2"
     >
-      <div className="flex items-center gap-3">
-        <div
-          className={cn(
-            "flex h-9 w-9 items-center justify-center rounded-sm",
-            iconColor,
-          )}
-        >
-          <Icon className="h-4 w-4" />
-        </div>
-        <span className="text-sm font-bold text-text">{label}</span>
-      </div>
-      <ArrowRight className="h-4 w-4 text-text-subtle" />
+      <span className="flex items-center gap-3">
+        <Icon className="h-4 w-4 text-text-subtle" aria-hidden="true" />
+        <span className="text-sm font-semibold text-text">{label}</span>
+      </span>
+      <ArrowRight className="h-4 w-4 text-text-subtle transition-transform group-hover:translate-x-0.5" aria-hidden="true" />
     </Link>
   );
 }
@@ -230,16 +209,10 @@ export default function AdminDashboardPage() {
      ================================================================ */
   if (isTeacher) {
     return (
-      <div className="mx-auto max-w-6xl">
-        {/* Header */}
-        <div className="mb-7">
-          <p className="mb-1 text-xs font-bold text-success-fg">
-            {t("admin.dashboard.teacherCrumb")}
-          </p>
-          <h1 className="text-xl font-extrabold tracking-tight text-text">
-            {t("admin.dashboard.welcomeBack")}, {user?.full_name}
-          </h1>
-        </div>
+      <div>
+        {/* No "Teacher · Dashboard" over the title: the sidebar already says
+            where you are, and a label over a heading is DESIGN_SPEC's item 7. */}
+        <PageHeader className="mb-8" title={`${t("admin.dashboard.welcomeBack")}, ${user?.full_name ?? ""}`} />
 
         {/* Today. A teacher opens this page asking "where am I due", not
             "how do I set up a school" — the onboarding that used to sit here
@@ -264,7 +237,7 @@ export default function AdminDashboardPage() {
               <Link
                 key={lesson.slot_id}
                 href="/admin/journal"
-                className="flex items-center gap-3 px-5 py-3 hover:bg-surface-muted/50"
+                className="flex items-center gap-3 px-5 py-3 hover:bg-surface-2"
               >
                 <span className="font-mono text-xs font-bold text-text">
                   {lesson.start_time}–{lesson.end_time}
@@ -300,7 +273,7 @@ export default function AdminDashboardPage() {
                       <Link
                         key={s.id}
                         href="/admin/journal"
-                        className="flex items-center justify-between px-5 py-3 hover:bg-surface-muted/50"
+                        className="flex items-center justify-between px-5 py-3 hover:bg-surface-2"
                       >
                         <span className="truncate text-sm text-text">
                           {s.full_name}
@@ -327,7 +300,7 @@ export default function AdminDashboardPage() {
                       <Link
                         key={s.session_id}
                         href="/admin/journal"
-                        className="flex items-center gap-3 px-5 py-3 hover:bg-surface-muted/50"
+                        className="flex items-center gap-3 px-5 py-3 hover:bg-surface-2"
                       >
                         <span className="font-mono text-2xs font-bold text-text-subtle">
                           {s.session_date}
@@ -553,47 +526,40 @@ export default function AdminDashboardPage() {
      ADMIN / OWNER DASHBOARD
      ================================================================ */
   return (
-    <div className="mx-auto max-w-6xl">
+    <div>
       <OnboardingTour />
 
-      {/* ── Page header ───────────────────────────────────────── */}
-      <div className="mb-7 flex flex-wrap items-start justify-between gap-4 border-b border-border pb-5">
-        <div>
-          <p className="mb-1.5 text-xs font-bold text-success-fg">
-            {t("admin.dashboard.adminCrumb")}
-          </p>
-          <h1 className="mb-2 text-xl font-extrabold tracking-tight text-text">
-            {t("admin.dashboard.title")}
-          </h1>
-          <p className="max-w-md text-sm text-text-muted">
-            {t("admin.dashboard.subtitle")}
-          </p>
-        </div>
-        <div className="flex items-center gap-2">
-          <button
-            onClick={startOnboardingTour}
-            title={t("admin.dashboard.tourTitle")}
-            className="flex h-9 items-center gap-1.5 rounded-sm border border-border bg-surface px-3 text-xs font-bold text-text-muted transition-colors hover:border-border-strong hover:text-text"
-          >
-            <HelpCircle className="h-3.5 w-3.5" />
-            {t("admin.dashboard.tour")}
-          </button>
-          <Link
-            href="/admin/users"
-            className="flex h-9 items-center gap-1.5 rounded-sm border border-border bg-surface px-3 text-xs font-bold text-text-muted transition-colors hover:border-border-strong hover:text-text"
-          >
-            <UserPlus className="h-3.5 w-3.5" />
-            {t("admin.dashboard.addUser")}
-          </Link>
-          <Link
-            href="/admin/courses"
-            className="press-scale flex h-9 items-center gap-1.5 rounded-sm bg-primary px-4 text-xs font-bold text-primary-fg"
-          >
-            <Plus className="h-3.5 w-3.5" />
-            {t("admin.dashboard.newCourse")}
-          </Link>
-        </div>
-      </div>
+      <PageHeader
+        className="mb-8"
+        title={t("admin.dashboard.title")}
+        description={t("admin.dashboard.subtitle")}
+        actions={
+          <>
+            <button
+              onClick={startOnboardingTour}
+              title={t("admin.dashboard.tourTitle")}
+              className="inline-flex h-11 items-center gap-2 rounded-pill border border-border bg-surface px-4 text-sm font-semibold text-text transition-colors hover:border-border-strong"
+            >
+              <HelpCircle className="h-4 w-4" aria-hidden="true" />
+              {t("admin.dashboard.tour")}
+            </button>
+            <Link
+              href="/admin/users"
+              className="inline-flex h-11 items-center gap-2 rounded-pill border border-border bg-surface px-4 text-sm font-semibold text-text transition-colors hover:border-border-strong"
+            >
+              <UserPlus className="h-4 w-4" aria-hidden="true" />
+              {t("admin.dashboard.addUser")}
+            </Link>
+            <Link
+              href="/admin/courses"
+              className="press-scale inline-flex h-11 items-center gap-2 rounded-pill bg-primary px-5 text-sm font-semibold text-primary-fg hover:bg-primary-hover"
+            >
+              <Plus className="h-4 w-4" aria-hidden="true" />
+              {t("admin.dashboard.newCourse")}
+            </Link>
+          </>
+        }
+      />
 
       {/* ── Onboarding card ───────────────────────────────────── */}
       {!onboardingDismissed &&
@@ -650,7 +616,7 @@ export default function AdminDashboardPage() {
       <div className="mb-6 grid grid-cols-1 gap-3 sm:grid-cols-2">
         <Link
           href="/admin/journal"
-          className="rounded-md border border-border bg-surface p-5 transition-colors hover:bg-surface-muted/50"
+          className="rounded-md border border-border bg-surface p-5 transition-colors hover:bg-surface-2"
         >
           <p className="eyebrow mb-1">{t("journal.today")}</p>
           <p className="text-xl font-extrabold tabular-nums text-text">
@@ -663,7 +629,7 @@ export default function AdminDashboardPage() {
             href={
               groupsNoTeacher ? "/admin/groups" : "/admin/journal?tab=schedule"
             }
-            className="rounded-md border border-clay-300 bg-surface p-5 transition-colors hover:bg-surface-muted/50"
+            className="rounded-md border border-clay-300 bg-surface p-5 transition-colors hover:bg-surface-2"
           >
             <p className="eyebrow mb-1">{t("admin.dashboard.needsDecision")}</p>
             {groupsNoTeacher !== null && groupsNoTeacher > 0 && (

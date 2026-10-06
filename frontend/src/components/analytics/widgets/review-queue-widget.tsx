@@ -48,7 +48,7 @@ export function ReviewQueueWidget({ props }: WidgetProps) {
           Open review →
         </Link>
       </div>
-      <div className="text-xs uppercase tracking-wide text-text-muted">
+      <div className="text-sm text-text-muted">
         Awaiting grading
       </div>
       {shown.length === 0 ? (

@@ -16,6 +16,7 @@ import apiClient from "@/lib/api-client";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useTranslation } from "@/lib/i18n/context";
+import { PageHeader } from "@/components/ui/page-kit";
 
 interface Course {
  id: string;
@@ -287,15 +288,8 @@ export default function BulkEnrollPage() {
  };
 
  return (
- <div className="mx-auto max-w-4xl">
- <div className="mb-8">
- <h1 className="text-2xl font-bold text-text ">
- {t("admin.bulkEnroll.title")}
- </h1>
- <p className="mt-1 text-sm text-text-muted ">
- {t("admin.bulkEnroll.subtitle")}
- </p>
- </div>
+ <div className="space-y-8">
+ <PageHeader title={t("admin.bulkEnroll.title")} description={t("admin.bulkEnroll.subtitle")} />
 
  {/* Mode toggle */}
  <div className="mb-6 flex gap-2">

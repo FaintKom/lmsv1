@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { InboxIcon, FileText, Clock, User, ChevronRight, Download } from "lucide-react";
 import { useTranslation } from "@/lib/i18n/context";
+import { PageHeader } from "@/components/ui/page-kit";
 
 interface QueueItem {
  id: string;
@@ -71,7 +72,7 @@ export default function ReviewQueuePage() {
 
  if (loading) {
  return (
- <div className="mx-auto max-w-7xl">
+ <div className="space-y-8">
  <Skeleton className="mb-2 h-4 w-48" />
  <Skeleton className="mb-6 h-8 w-56" />
  <div className="space-y-3">
@@ -85,12 +86,7 @@ export default function ReviewQueuePage() {
 
  return (
  <div>
- <div className="mb-6">
- <h1 className="text-2xl font-bold text-text ">{t("admin.review.title")}</h1>
- <p className="mt-1 text-sm text-text-muted ">
- {items.length} {items.length !== 1 ? t("admin.review.subtitleMany") : t("admin.review.subtitleOne")}
- </p>
- </div>
+ <PageHeader title={t("admin.review.title")} description={<>{items.length} {items.length !== 1 ? t("admin.review.subtitleMany") : t("admin.review.subtitleOne")}</>} />
 
  {items.length === 0 && !selected ? (
  <Card>

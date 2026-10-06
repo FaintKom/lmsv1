@@ -9,7 +9,7 @@
  * Header includes a dashboard switcher with rename, set-default, +
  * delete actions. The Add Widget dropdown reads from WIDGET_REGISTRY.
  */
-import { Check, Loader2, MoreHorizontal, Pencil, Plus, Trash2 } from "lucide-react";
+import { Check, MoreHorizontal, Pencil, Plus, Trash2 } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
 
 import { DashboardCanvas } from "@/components/analytics/dashboard-canvas";
@@ -26,6 +26,7 @@ import {
   useUpdateDashboard,
 } from "@/hooks/use-dashboards";
 import { useTranslation } from "@/lib/i18n/context";
+import { PageLoading } from "@/components/ui/page-kit";
 import type { DashboardResponse, DashboardWidget } from "@/lib/api/analytics";
 import { useAuthStore } from "@/stores/auth-store";
 
@@ -81,7 +82,7 @@ export default function AnalyticsPage() {
 
   if (error) {
     return (
-      <div className="p-6">
+      <div>
         <div className="text-danger font-semibold mb-2">
           {t("analytics.loadFailed")}
         </div>
@@ -94,7 +95,7 @@ export default function AnalyticsPage() {
 
   if (create.error) {
     return (
-      <div className="p-6">
+      <div>
         <div className="text-danger font-semibold mb-2">
           {t("analytics.bootstrapFailed")}
         </div>
@@ -105,13 +106,7 @@ export default function AnalyticsPage() {
     );
   }
 
-  if (isLoading || !active) {
-    return (
-      <div className="flex items-center justify-center h-64 text-text-muted">
-        <Loader2 className="w-6 h-6 animate-spin" />
-      </div>
-    );
-  }
+  if (isLoading || !active) return <PageLoading rows={3} />;
 
   const handleAddWidget = (type: string) => {
     const meta = WIDGET_REGISTRY[type];
@@ -149,7 +144,7 @@ export default function AnalyticsPage() {
   };
 
   return (
-    <div className="p-6 space-y-4">
+    <div className="space-y-6">
       <DashboardHeader
         active={active}
         dashboards={dashboards ?? []}

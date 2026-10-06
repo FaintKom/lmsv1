@@ -3,11 +3,12 @@
 import { useEffect, useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
-import { Loader2, Plus, Trash2, Users } from "lucide-react";
+import { Loader2, Plus, Trash2, Users, FolderKanban } from "lucide-react";
 
 import apiClient from "@/lib/api-client";
 import { useTranslation } from "@/lib/i18n/context";
 import { Card, CardContent } from "@/components/ui/card";
+import { EmptyState, PageHeader } from "@/components/ui/page-kit";
 import {
   createProject,
   deleteProject,
@@ -104,12 +105,9 @@ export default function AdminTeamProjectsPage() {
   const projects = projectsQuery.data ?? [];
 
   return (
-    <div className="mx-auto max-w-5xl space-y-6 p-6">
+    <div className="space-y-8">
       <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-2xl font-bold text-text">{t("teamProjects.adminTitle")}</h1>
-          <p className="text-base text-text-muted">{t("teamProjects.adminSubtitle")}</p>
-        </div>
+        <PageHeader title={t("teamProjects.adminTitle")} description={t("teamProjects.adminSubtitle")} />
         <button
           onClick={() => setShowForm((v) => !v)}
           className="flex items-center gap-1.5 rounded-lg bg-primary px-4 py-2 text-sm font-medium text-primary-fg hover:bg-primary-hover"
@@ -205,11 +203,7 @@ export default function AdminTeamProjectsPage() {
             <Loader2 className="h-6 w-6 animate-spin text-primary" />
           </div>
         ) : projects.length === 0 ? (
-          <Card>
-            <CardContent className="py-8 text-center text-sm text-text-subtle">
-              {t("teamProjects.noProjects")}
-            </CardContent>
-          </Card>
+          <EmptyState icon={FolderKanban} title={t("teamProjects.noProjects")} />
         ) : (
           projects.map((p: TeamProject) => (
             <Card key={p.id}>

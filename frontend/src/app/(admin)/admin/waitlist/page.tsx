@@ -7,6 +7,7 @@ import { AccessDenied } from "@/components/ui/access-denied";
 import { Button } from "@/components/ui/button";
 import apiClient from "@/lib/api-client";
 import { useTranslation } from "@/lib/i18n/context";
+import { PageHeader } from "@/components/ui/page-kit";
 
 interface WaitlistEntry {
  id: string;
@@ -86,16 +87,9 @@ export default function WaitlistPage() {
  const pendingCount = entries.filter((e) => !e.contacted).length;
 
  return (
- <div className="mx-auto max-w-4xl space-y-6">
+ <div className="space-y-8">
  <div className="flex items-center justify-between">
- <div>
- <h1 className="text-2xl font-bold text-text">{t("admin.waitlist.title")}</h1>
- <p className="text-sm text-text-muted">
- {t("admin.waitlist.subtitle")
- .replace("{total}", String(entries.length))
- .replace("{pending}", String(pendingCount))}
- </p>
- </div>
+ <PageHeader title={t("admin.waitlist.title")} description={<>{t("admin.waitlist.subtitle") .replace("{total}", String(entries.length)) .replace("{pending}", String(pendingCount))}</>} />
  {pendingCount > 0 && (
  <Button variant="ghost" onClick={copyEmails}>
  <Copy className="h-4 w-4" />

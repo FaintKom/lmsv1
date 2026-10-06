@@ -1,6 +1,7 @@
 import type { TranslationMap } from "../meta";
 
 const tr: TranslationMap = {
+ "common.archived": "Arşivlendi",
  "achieve.statsLine": "{xp} XP · ders: {lessons} · rozet: {badges}",
  "skills.nextLevel": "Sonraki seviye: {xp} XP",
  "achieve.subtitle": "XP'n, serilerin, rozetlerin ve ligin",

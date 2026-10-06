@@ -90,7 +90,7 @@ function Section({
 }) {
   return (
     <div>
-      <div className="text-xs uppercase tracking-wide text-text-muted mb-1">
+      <div className="text-sm text-text-muted mb-1">
         {title}
       </div>
       {children}

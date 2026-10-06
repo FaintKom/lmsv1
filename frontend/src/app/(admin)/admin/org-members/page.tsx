@@ -8,6 +8,7 @@ import { AccessDenied } from "@/components/ui/access-denied";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useTranslation } from "@/lib/i18n/context";
+import { PageHeader } from "@/components/ui/page-kit";
 
 interface Member {
  user_id: string;
@@ -132,14 +133,7 @@ export default function OrgMembersPage() {
  <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-success-soft text-primary">
  <Users className="h-5 w-5" aria-hidden="true" />
  </div>
- <div>
- <h1 className="text-2xl font-bold text-text">
- {t("admin.orgMembers.title")}
- </h1>
- <p className="text-sm text-text-muted">
- {t("admin.orgMembers.subtitle")}
- </p>
- </div>
+ <PageHeader title={t("admin.orgMembers.title")} description={t("admin.orgMembers.subtitle")} />
  </div>
 
  <Card>
