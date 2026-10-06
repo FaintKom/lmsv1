@@ -226,7 +226,7 @@ export default function LessonViewerPage() {
 
  if (loading) {
   return (
-   <div className="-m-6 md:-m-10 lg:-m-12 -mb-20 md:-mb-10 lg:-mb-12 flex min-h-screen">
+   <div className="flex min-h-0 flex-1">
     {/* Lesson sidebar skeleton */}
     <div className="hidden w-80 flex-col border-r border-border bg-surface md:flex">
      <div className="border-b border-border px-5 pb-4 pt-5">
@@ -301,7 +301,8 @@ export default function LessonViewerPage() {
  /* ─── Main render ────────────────────────────────────────────────── */
 
  return (
-  <div className="-m-6 md:-m-10 lg:-m-12 -mb-20 md:-mb-10 lg:-mb-12 flex min-h-screen">
+  // The layout gives a lesson a padding-free column (specs/074); fill it.
+  <div className="flex min-h-0 flex-1">
    {/* Mobile sidebar overlay */}
    {sidebarOpen && (
     <div
