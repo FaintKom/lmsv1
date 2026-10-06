@@ -136,7 +136,7 @@ export default function DashboardLayout({
  {/* A live lesson owns its window: the dashboard's generous padding and the
      bottom tab-bar clearance would push the lesson's own controls below a fold
      the page refuses to scroll to (FR-035). Everything else keeps the frame. */}
- <main id="main-content" className={isLessonPage ? "flex-1 overflow-hidden" : "flex-1 overflow-auto p-6 pb-20 md:p-10 md:pb-10 lg:p-12 lg:pb-12"}><LiveLessonBanner />{children}</main>
+ <main id="main-content" className={isLessonPage ? "flex flex-1 flex-col overflow-hidden" : "flex-1 overflow-auto p-6 pb-20 md:p-10 md:pb-10 lg:p-12 lg:pb-12"}><LiveLessonBanner />{children}</main>
  </div>
  <MobileTabBar />
  </div>
