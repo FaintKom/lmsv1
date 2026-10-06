@@ -5,6 +5,7 @@ import apiClient from "@/lib/api-client";
 import { Card, CardContent } from "@/components/ui/card";
 import { Award, Download } from "lucide-react";
 import { useTranslation } from "@/lib/i18n/context";
+import { PageHeader, PageLoading } from "@/components/ui/page-kit";
 
 interface CertificateData {
  id: string;
@@ -28,21 +29,12 @@ export default function CertificatesPage() {
  }, []);
 
  if (loading) {
- return (
- <div className="flex h-64 items-center justify-center">
- <div className="h-8 w-8 animate-spin rounded-pill border-4 border-primary border-t-transparent" />
- </div>
- );
+ return <PageLoading />;
  }
 
  return (
- <div className="mx-auto max-w-4xl">
- <div className="mb-8">
- <h1 className="text-2xl font-bold text-text ">{t("certs.title")}</h1>
- <p className="mt-1 text-sm text-text-muted ">
- {t("certs.subtitle")}
- </p>
- </div>
+ <div className="space-y-8">
+ <PageHeader title={t("certs.title")} description={t("certs.subtitle")} />
 
  {certificates.length === 0 ? (
  <Card>

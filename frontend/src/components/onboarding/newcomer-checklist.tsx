@@ -3,7 +3,8 @@
 import { ProgressBar } from "@/components/ui/progress-bar";
 import { useState, useEffect } from "react";
 import Link from "next/link";
-import { CheckCircle2, Circle, X, Sparkles } from "lucide-react";
+import { CheckCircle2, Circle, X } from "lucide-react";
+import { useTranslation } from "@/lib/i18n/context";
 
 const STORAGE_KEY = "onboarding-dismissed";
 
@@ -26,17 +27,22 @@ export function NewcomerChecklist({
  hasEnrollment,
  hasCompletedLesson,
 }: NewcomerChecklistProps) {
+ const { t } = useTranslation();
  const [dismissed, setDismissed] = useState(true); // start hidden to avoid flash
 
  useEffect(() => {
+ try {
  setDismissed(localStorage.getItem(STORAGE_KEY) === "true");
+ } catch {
+ setDismissed(false); // storage blocked: show it, just cannot remember the dismissal
+ }
  }, []);
 
  const items: ChecklistItem[] = [
- { label: "Complete your profile", href: "/profile", done: hasProfile },
- { label: "Browse available courses", href: "/courses", done: hasBrowsed },
- { label: "Enroll in your first course", href: "/courses", done: hasEnrollment },
- { label: "Complete your first lesson", href: "/courses", done: hasCompletedLesson },
+ { label: t("onboarding.profile"), href: "/profile", done: hasProfile },
+ { label: t("onboarding.browse"), href: "/courses", done: hasBrowsed },
+ { label: t("onboarding.enroll"), href: "/courses", done: hasEnrollment },
+ { label: t("onboarding.lesson"), href: "/courses", done: hasCompletedLesson },
  ];
 
  const doneCount = items.filter((i) => i.done).length;
@@ -46,62 +52,56 @@ export function NewcomerChecklist({
  if (dismissed || allDone) return null;
 
  function handleDismiss() {
+ try {
  localStorage.setItem(STORAGE_KEY, "true");
+ } catch {
+ /* private mode: hidden for this visit only */
+ }
  setDismissed(true);
  }
 
+ // Flat like every card (DESIGN_SPEC: cards sit flat); no side stripe (specs/075).
  return (
- <div className="mb-8 rounded-lg border border-border-strong/60 border-l-4 border-l-green-500 bg-surface shadow-sm">
- {/* Header */}
- <div className="flex items-center justify-between p-5 pb-3">
- <div className="flex items-center gap-2">
- <Sparkles className="h-5 w-5 text-primary" />
- <h3 className="text-sm font-semibold text-text ">
- Getting Started
- </h3>
- <span className="rounded-pill bg-success-soft px-2 py-0.5 text-xs font-medium text-primary ">
+ <section className="rounded-lg bg-surface">
+ <div className="flex items-center justify-between gap-3 p-5 pb-3">
+ <div className="flex items-center gap-2.5">
+ <h2 className="text-md font-semibold text-text">{t("onboarding.title")}</h2>
+ <span className="rounded-pill bg-success-soft px-2 py-0.5 text-xs font-medium tabular-nums text-success-fg">
  {doneCount}/{items.length}
  </span>
  </div>
  <button
  onClick={handleDismiss}
- className="rounded-lg p-1 text-text-subtle transition-colors hover:bg-surface-2 hover:text-text-muted"
- aria-label="Dismiss checklist"
+ className="tap-target rounded-sm p-1.5 text-text-subtle transition-colors hover:bg-surface-2 hover:text-text"
+ aria-label={t("onboarding.dismiss")}
  >
  <X className="h-4 w-4" />
  </button>
  </div>
 
- {/* Progress bar */}
- <div className="mx-5 mb-4">
+ <div className="mx-5 mb-3">
  <ProgressBar value={pct} size="sm" />
  </div>
 
- {/* Checklist items */}
- <div className="space-y-1 px-5 pb-5">
+ <ul className="px-3 pb-3">
  {items.map((item) => (
+ <li key={item.label}>
  <Link
- key={item.label}
  href={item.href}
- className="flex items-center gap-3 rounded-lg px-3 py-2 transition-colors hover:bg-surface-2 "
+ className="flex min-h-11 items-center gap-3 rounded-sm px-2 py-2 transition-colors hover:bg-surface-2"
  >
  {item.done ? (
- <CheckCircle2 className="h-5 w-5 flex-shrink-0 text-primary" />
+ <CheckCircle2 className="h-5 w-5 flex-shrink-0 text-primary" aria-hidden="true" />
  ) : (
- <Circle className="h-5 w-5 flex-shrink-0 text-text-subtle" />
+ <Circle className="h-5 w-5 flex-shrink-0 text-text-subtle" aria-hidden="true" />
  )}
- <span
- className={
- item.done
- ? "text-sm text-text-subtle line-through"
- : "text-sm font-medium text-text "
- }
- >
+ <span className={item.done ? "text-sm text-text-subtle line-through" : "text-sm font-medium text-text"}>
  {item.label}
  </span>
  </Link>
+ </li>
  ))}
- </div>
- </div>
+ </ul>
+ </section>
  );
 }

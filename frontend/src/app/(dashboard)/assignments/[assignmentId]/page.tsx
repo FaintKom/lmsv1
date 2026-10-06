@@ -9,6 +9,7 @@ import { useTranslation } from "@/lib/i18n/context";
 import { ArrowLeft, Clock, CheckCircle, Upload, FileText, AlertCircle } from "lucide-react";
 import { startExerciseTimer, type ExerciseTimer } from "@/lib/api/exercises";
 import type { Assignment, AssignmentSubmission } from "@/types/api";
+import { PageHeader, PageLoading } from "@/components/ui/page-kit";
 
 function useTimeLeft() {
  const { t } = useTranslation();
@@ -81,16 +82,12 @@ export default function AssignmentDetailPage() {
  };
 
  if (loading) {
- return (
- <div className="flex h-64 items-center justify-center">
- <div className="h-8 w-8 animate-spin rounded-pill border-4 border-primary border-t-transparent" />
- </div>
- );
+ return <PageLoading />;
  }
 
  if (!assignment) {
  return (
- <div className="mx-auto max-w-3xl text-center">
+ <div className="max-w-3xl">
  <p className="text-text-muted ">{t("assignment.notFound")}</p>
  <Link href="/assignments" className="mt-2 inline-flex items-center gap-1 text-sm text-primary hover:text-success-fg">
  <ArrowLeft className="h-3 w-3" /> {t("assignment.backTo")}
@@ -104,51 +101,42 @@ export default function AssignmentDetailPage() {
  const isGraded = submission?.status === "graded";
 
  return (
- <div className="mx-auto max-w-3xl">
- <Link
- href="/assignments"
- className="mb-4 inline-flex items-center gap-1 text-sm font-medium text-text-muted hover:text-text "
- >
- <ArrowLeft className="h-4 w-4" /> {t("assignment.backTo")}
- </Link>
+ <div className="max-w-3xl">
+ <PageHeader
+ className="mb-6"
+ back={{ href: "/assignments", label: t("assignment.backTo") }}
+ title={assignment.title}
+ description={assignment.course_title || undefined}
+ actions={
+ <span className={`inline-flex items-center gap-1.5 rounded-pill px-3 py-1.5 text-sm font-medium tabular-nums ${
+ isPastDue ? "bg-danger-soft text-danger-fg" : "bg-primary-soft text-success-fg"
+ }`}>
+ <Clock className="h-4 w-4" aria-hidden="true" />
+ {timeLeft(assignment.due_date)}
+ </span>
+ }
+ />
 
  {/* Assignment info */}
  <Card className="mb-6">
- <CardHeader>
- <div className="flex items-start justify-between">
- <div>
- <CardTitle as="h1" className="text-xl">{assignment.title}</CardTitle>
- {assignment.course_title && (
- <p className="mt-1 text-sm text-text-muted ">{assignment.course_title}</p>
- )}
- </div>
- <div className={`flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs font-medium ${
- isPastDue
- ? "bg-danger-soft text-danger-fg "
- : "bg-primary-soft text-success-fg "
- }`}>
- <Clock className="h-3.5 w-3.5" />
- {timeLeft(assignment.due_date)}
- </div>
- </div>
- </CardHeader>
- <CardContent>
+ <CardContent className="pt-6">
  {assignment.description && (
- <div className="mb-4 whitespace-pre-wrap text-sm text-text ">
+ <div className="mb-4 max-w-[65ch] whitespace-pre-wrap text-base text-text">
  {assignment.description}
  </div>
  )}
- <div className="flex flex-wrap gap-4 text-xs text-text-muted ">
+ <div className="flex flex-wrap gap-4 text-sm text-text-muted">
  <span>{t("assignment.due")}: {new Date(assignment.due_date).toLocaleString()}</span>
  <span>{t("assignment.maxScore")}: {assignment.max_score}</span>
- {assignment.allow_late && <span className="text-clay-700">{t("assignment.lateAllowed")}</span>}
+ {/* text-warning-fg flips with the theme; raw clay-700 stayed dark on dark */}
+ {assignment.allow_late && <span className="text-warning-fg">{t("assignment.lateAllowed")}</span>}
  </div>
  </CardContent>
  </Card>
 
  {/* Graded result */}
  {isGraded && submission && (
- <Card className="mb-6 border-l-4 border-l-emerald-400">
+ <Card className="mb-6">
  <CardContent className="flex items-center gap-4">
  <div className="rounded-lg bg-primary-soft p-3 ">
  <CheckCircle className="h-5 w-5 text-primary " />
@@ -170,7 +158,7 @@ export default function AssignmentDetailPage() {
 
  {/* Existing submission info */}
  {submission && !isGraded && (
- <Card className="mb-6 border-l-4 border-l-blue-400">
+ <Card className="mb-6">
  <CardContent className="flex items-center gap-4">
  <div className="rounded-lg bg-info-soft p-3 ">
  <FileText className="h-5 w-5 text-info-fg " />
@@ -241,7 +229,7 @@ export default function AssignmentDetailPage() {
  )}
 
  {!canSubmit && !submission && (
- <Card className="border-l-4 border-l-red-400">
+ <Card className="">
  <CardContent className="flex items-center gap-4">
  <div className="rounded-lg bg-danger-soft p-3 ">
  <AlertCircle className="h-5 w-5 text-danger-fg " />

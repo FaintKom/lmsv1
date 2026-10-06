@@ -5,9 +5,10 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import apiClient from "@/lib/api-client";
 import { Card, CardContent } from "@/components/ui/card";
-import { BookOpen, Trophy, CheckCircle, Clock, ArrowRight, FileText } from "lucide-react";
+import { BookOpen, Trophy, CheckCircle, ArrowRight } from "lucide-react";
 import type { Enrollment, Course } from "@/types/api";
 import { useTranslation } from "@/lib/i18n/context";
+import { EmptyState, PageHeader, PageLoading, StatTile } from "@/components/ui/page-kit";
 
 interface Grade {
  type: string;
@@ -43,74 +44,47 @@ export default function ProgressPage() {
 
  const courseMap = new Map(courses.map((c) => [c.id, c]));
 
- if (loading) {
- return (
- <div className="flex h-64 items-center justify-center">
- <div className="h-8 w-8 animate-spin rounded-pill border-4 border-primary border-t-transparent" />
- </div>
- );
- }
+ if (loading) return <PageLoading />;
 
  const completedEnrollments = enrollments.filter((e) => e.completed_at);
  const inProgressEnrollments = enrollments.filter((e) => !e.completed_at);
 
  return (
- <div className="mx-auto max-w-4xl">
- <div className="mb-8">
- <h1 className="text-2xl font-bold text-text ">{t("progress.title")}</h1>
- <p className="mt-1 text-base text-text-muted ">
- {t("progress.subtitle")}
- </p>
- </div>
+ <div className="grid gap-8">
+ <PageHeader title={t("progress.title")} description={t("progress.subtitle")} />
 
  {enrollments.length === 0 ? (
- <Card>
- <CardContent className="flex flex-col items-center justify-center p-12 text-center">
- <Trophy className="mb-4 h-12 w-12 text-text-subtle " />
- <h3 className="mb-2 text-lg font-semibold text-text-muted ">
- {t("progress.noEnrollments")}
- </h3>
- <p className="mb-4 text-base text-text-muted ">
- {t("progress.noEnrollmentsHint")}
- </p>
+ <EmptyState
+ icon={Trophy}
+ title={t("progress.noEnrollments")}
+ description={t("progress.noEnrollmentsHint")}
+ action={
  <Link
  href="/courses"
- className="inline-flex items-center gap-1 text-sm font-medium text-primary hover:text-success-fg"
+ className="inline-flex items-center gap-1 text-sm font-medium text-primary hover:text-primary-hover"
  >
- {t("progress.browseCourses")} <ArrowRight className="h-3 w-3" />
+ {t("progress.browseCourses")} <ArrowRight className="h-3 w-3" aria-hidden />
  </Link>
- </CardContent>
- </Card>
+ }
+ />
  ) : (
- <div className="space-y-6">
- {/* Summary stats */}
- <div className="grid grid-cols-3 gap-2 sm:gap-4">
- <Card className="px-2 py-4 text-center sm:p-4">
- <p className="text-2xl font-bold text-primary">{enrollments.length}</p>
- <p className="text-xs text-text-muted">{t("progress.enrolled")}</p>
- </Card>
- <Card className="px-2 py-4 text-center sm:p-4">
- <p className="text-2xl font-bold text-warning-fg">{inProgressEnrollments.length}</p>
- <p className="text-xs text-text-muted">{t("progress.inProgress")}</p>
- </Card>
- <Card className="px-2 py-4 text-center sm:p-4">
- <p className="text-2xl font-bold text-primary">{completedEnrollments.length}</p>
- <p className="text-xs text-text-muted">{t("progress.completed")}</p>
- </Card>
+ <div className="grid gap-8">
+ <div className="grid grid-cols-3 gap-3">
+ <StatTile label={t("progress.enrolled")} value={enrollments.length} />
+ <StatTile label={t("progress.inProgress")} value={inProgressEnrollments.length} />
+ <StatTile label={t("progress.completed")} value={completedEnrollments.length} />
  </div>
 
  {/* In progress */}
  {inProgressEnrollments.length > 0 && (
- <div>
- <h2 className="mb-3 flex items-center gap-2 text-sm font-semibold text-text ">
- <Clock className="h-4 w-4 text-warning-fg" />
- {t("progress.inProgress")}
- </h2>
+ <section>
+ <h2 className="mb-3 text-lg font-semibold text-text">{t("progress.inProgress")}</h2>
+ {/* Links are block: space-y on an inline <a> adds no gap */}
  <div className="space-y-3">
  {inProgressEnrollments.map((e) => {
  const course = courseMap.get(e.course_id);
  return (
- <Link key={e.id} href={`/courses/${e.course_id}`}>
+ <Link key={e.id} href={`/courses/${e.course_id}`} className="block">
  <Card className="transition-shadow hover:shadow-md">
  <CardContent className="flex items-center gap-4 p-5">
  <div className="hidden rounded-lg bg-success-soft p-3 sm:block">
@@ -142,16 +116,13 @@ export default function ProgressPage() {
  );
  })}
  </div>
- </div>
+ </section>
  )}
 
  {/* My Grades */}
  {grades.length > 0 && (
- <div>
- <h2 className="mb-3 flex items-center gap-2 text-sm font-semibold text-text ">
- <FileText className="h-4 w-4 text-primary" />
- {t("progress.myGrades")}
- </h2>
+ <section>
+ <h2 className="mb-3 text-lg font-semibold text-text">{t("progress.myGrades")}</h2>
  <div className="space-y-2">
  {grades.map((g, i) => (
  <Card key={i}>
@@ -197,22 +168,19 @@ export default function ProgressPage() {
  </Card>
  ))}
  </div>
- </div>
+ </section>
  )}
 
  {/* Completed */}
  {completedEnrollments.length > 0 && (
- <div>
- <h2 className="mb-3 flex items-center gap-2 text-sm font-semibold text-text ">
- <CheckCircle className="h-4 w-4 text-primary" />
- {t("progress.completed")}
- </h2>
+ <section>
+ <h2 className="mb-3 text-lg font-semibold text-text">{t("progress.completed")}</h2>
  <div className="space-y-3">
  {completedEnrollments.map((e) => {
  const course = courseMap.get(e.course_id);
  return (
- <Link key={e.id} href={`/courses/${e.course_id}`}>
- <Card className="border-primary-soft transition-shadow hover:shadow-md">
+ <Link key={e.id} href={`/courses/${e.course_id}`} className="block">
+ <Card className="transition-shadow hover:shadow-md">
  <CardContent className="flex items-center gap-4 p-5">
  <div className="rounded-lg bg-success-soft p-3">
  <Trophy className="h-6 w-6 text-primary" />
@@ -236,7 +204,7 @@ export default function ProgressPage() {
  );
  })}
  </div>
- </div>
+ </section>
  )}
  </div>
  )}

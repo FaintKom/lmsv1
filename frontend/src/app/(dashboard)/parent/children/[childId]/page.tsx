@@ -55,7 +55,7 @@ export default function ChildDetailPage() {
  }
 
  return (
- <div className="mx-auto max-w-4xl space-y-6 p-6">
+ <div className="max-w-4xl space-y-6">
  <Link href="/parent" className="flex items-center gap-1 text-sm text-primary hover:text-success-fg">
  <ArrowLeft className="h-4 w-4" /> {t("parent.backToChildren")}
  </Link>
@@ -63,7 +63,7 @@ export default function ChildDetailPage() {
  {/* Stats */}
  {progress && (
  <div className="grid grid-cols-2 gap-4 sm:grid-cols-4">
- <Card className="border-l-4 border-l-green-400">
+ <Card className="">
  <CardContent className="flex items-center gap-3 p-4">
  <div className="rounded-lg bg-primary-soft p-2 ">
  <BookOpen className="h-4 w-4 text-primary " />
@@ -74,7 +74,7 @@ export default function ChildDetailPage() {
  </div>
  </CardContent>
  </Card>
- <Card className="border-l-4 border-l-emerald-400">
+ <Card className="">
  <CardContent className="flex items-center gap-3 p-4">
  <div className="rounded-lg bg-primary-soft p-2 ">
  <CheckCircle className="h-4 w-4 text-primary " />
@@ -85,7 +85,7 @@ export default function ChildDetailPage() {
  </div>
  </CardContent>
  </Card>
- <Card className="border-l-4 border-l-emerald-400">
+ <Card className="">
  <CardContent className="flex items-center gap-3 p-4">
  <div className="rounded-lg bg-primary-soft p-2 ">
  <TrendingUp className="h-4 w-4 text-primary " />
@@ -96,7 +96,7 @@ export default function ChildDetailPage() {
  </div>
  </CardContent>
  </Card>
- <Card className="border-l-4 border-l-orange-400">
+ <Card className="">
  <CardContent className="flex items-center gap-3 p-4">
  <div className="rounded-lg bg-clay-300 p-2 ">
  <Flame className="h-4 w-4 text-clay-700 " />

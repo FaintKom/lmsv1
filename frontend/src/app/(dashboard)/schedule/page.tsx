@@ -1,13 +1,14 @@
 "use client";
 
 import { useMemo } from "react";
-import { CalendarClock, Loader2, MapPin, Video } from "lucide-react";
+import { Loader2, MapPin, Video, CalendarClock } from "lucide-react";
 
 import { useTranslation } from "@/lib/i18n/context";
 import { buildJoinUrl } from "@/lib/meetings";
 import { useAuthStore } from "@/stores/auth-store";
 import { Card, CardContent } from "@/components/ui/card";
 import { useMySchedule, type ScheduleSlot } from "@/lib/api/schedule";
+import { EmptyState, PageHeader } from "@/components/ui/page-kit";
 
 const DAYS = [0, 1, 2, 3, 4, 5, 6] as const;
 
@@ -35,27 +36,15 @@ export default function StudentSchedulePage() {
   const hasAny = (data?.slots?.length ?? 0) > 0;
 
   return (
-    <div className="mx-auto max-w-3xl space-y-6 p-6">
-      <div>
-        <h1 className="flex items-center gap-2 text-2xl font-bold text-text">
-          <CalendarClock className="h-6 w-6 text-primary" />
-          {t("schedule.studentTitle")}
-        </h1>
-        <p className="text-base text-text-muted">
-          {t("schedule.studentSubtitle")}
-        </p>
-      </div>
+    <div className="space-y-8">
+      <PageHeader title={t("schedule.studentTitle")} description={t("schedule.studentSubtitle")} />
 
       {isLoading ? (
         <div className="flex justify-center py-8">
           <Loader2 className="h-6 w-6 animate-spin text-primary" />
         </div>
       ) : !hasAny ? (
-        <Card>
-          <CardContent className="py-8 text-center text-sm text-text-subtle">
-            {t("schedule.noSlots")}
-          </CardContent>
-        </Card>
+        <EmptyState icon={CalendarClock} title={t("schedule.noSlots")} />
       ) : (
         <div className="space-y-4">
           {DAYS.filter((day) => byDay[day].length > 0).map((day) => (

@@ -161,7 +161,7 @@ export default function ReviewQueuePage() {
  {/* Right: detail + grade form */}
  <div>
  {selected ? (
- <Card className="border-l-4 border-l-primary">
+ <Card className="">
  <CardHeader>
  <CardTitle className="text-base">{selected.assignment_title}</CardTitle>
  <p className="text-sm text-text-muted ">

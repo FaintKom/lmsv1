@@ -1,9 +1,10 @@
 "use client";
 
-import { CalendarCheck, Loader2 } from "lucide-react";
+import { Loader2, CalendarCheck } from "lucide-react";
 
 import { useTranslation } from "@/lib/i18n/context";
 import { Card, CardContent } from "@/components/ui/card";
+import { EmptyState, PageHeader } from "@/components/ui/page-kit";
 import {
   useMyAttendance,
   type AttendanceStatus,
@@ -22,27 +23,15 @@ export default function StudentAttendancePage() {
   const records = data?.records ?? [];
 
   return (
-    <div className="mx-auto max-w-3xl space-y-6 p-6">
-      <div>
-        <h1 className="flex items-center gap-2 text-2xl font-bold text-text">
-          <CalendarCheck className="h-6 w-6 text-primary" />
-          {t("attendance.studentTitle")}
-        </h1>
-        <p className="text-base text-text-muted">
-          {t("attendance.studentSubtitle")}
-        </p>
-      </div>
+    <div className="space-y-8">
+      <PageHeader title={t("attendance.studentTitle")} description={t("attendance.studentSubtitle")} />
 
       {isLoading ? (
         <div className="flex justify-center py-8">
           <Loader2 className="h-6 w-6 animate-spin text-primary" />
         </div>
       ) : records.length === 0 ? (
-        <Card>
-          <CardContent className="py-8 text-center text-sm text-text-subtle">
-            {t("attendance.noMyRecords")}
-          </CardContent>
-        </Card>
+        <EmptyState icon={CalendarCheck} title={t("attendance.noMyRecords")} />
       ) : (
         <Card>
           <CardContent className="overflow-x-auto p-4">

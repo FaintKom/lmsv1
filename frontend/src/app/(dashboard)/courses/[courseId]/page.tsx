@@ -106,7 +106,7 @@ export default function CourseDetailPage() {
   /* ── course we may not read ──────────────────────────────────── */
   if (missing) {
     return (
-      <div className="mx-auto max-w-3xl p-6 text-center">
+      <div className="max-w-3xl text-center">
         <p className="text-lg font-semibold text-ink-900">
           {t("admin.courseEdit.notFound")}
         </p>
@@ -123,7 +123,7 @@ export default function CourseDetailPage() {
   /* ── loading skeleton ────────────────────────────────────────── */
   if (loading || !course) {
     return (
-      <div className="mx-auto max-w-3xl space-y-6 p-6">
+      <div className="max-w-3xl space-y-6">
         <div className="lms-skeleton h-5 w-32 rounded-xs" />
         <div className="lms-skeleton h-52 w-full rounded-lg" />
         <div className="space-y-4">
@@ -143,7 +143,7 @@ export default function CourseDetailPage() {
   const firstLessonId = course.modules?.[0]?.lessons?.[0]?.id;
 
   return (
-    <div className="mx-auto max-w-3xl">
+    <div className="max-w-4xl">
       {/* ── back link ─────────────────────────────────────────── */}
       <Link
         href="/courses"
@@ -165,7 +165,7 @@ export default function CourseDetailPage() {
           className="pointer-events-none absolute inset-0 -z-10 hidden h-full w-full sm:block"
         />
         {course.category && <p className="text-sm opacity-80">{course.category}</p>}
-        <h1 className="max-w-xl text-3xl font-bold leading-tight">{course.title}</h1>
+        <h1 className="max-w-xl text-balance text-2xl font-bold leading-tight md:text-3xl">{course.title}</h1>
         {course.description && (
           <p className="max-w-xl text-base leading-relaxed opacity-85">{course.description}</p>
         )}

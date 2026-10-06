@@ -23,7 +23,7 @@ const VARIANT_CLASSES: Record<ChipVariant, string> = {
   ink: "bg-surface-2 text-text-muted",
   "solid-green": "bg-primary text-primary-fg",
   "solid-ink": "bg-ink-900 text-white",
-  "solid-clay": "bg-clay-500 text-white",
+  "solid-clay": "bg-clay-500 text-ink-900", // white on clay fails AA (DESIGN_SPEC §1)
 };
 
 export function Chip({

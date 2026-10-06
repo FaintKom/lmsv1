@@ -34,7 +34,9 @@ type RuleId =
   | "scale-zero"
   | "vt-nav"
   | "radius-over-cap"
-  | "emoji";
+  | "emoji"
+  | "side-stripe"
+  | "hard-shadow";
 
 const PALETTE =
   "gray|slate|zinc|neutral|stone|red|orange|amber|yellow|lime|green|emerald|teal|cyan|sky|blue|indigo|violet|purple|fuchsia|pink|rose";
@@ -46,7 +48,8 @@ const RULES: Record<RuleId, RegExp> = {
   "raw-hex":
     /(?<!(?:href|to)=["'`])(?:#[0-9a-fA-F]{8}\b|#[0-9a-fA-F]{6}\b|(?<=[[\s:("'`])#[0-9a-fA-F]{3}(?=[\s;,)\]"'`]))/g,
   "raw-palette": new RegExp(
-    `\\b(?:bg|text|border|ring|fill|stroke|from|via|to|outline|divide|shadow)-(?:${PALETTE})-\\d{2,3}\\b`,
+    // border-l-emerald-400 slipped past the bare `border-` form until specs/075.
+    `\\b(?:bg|text|border(?:-[trblxyse])?|ring|fill|stroke|from|via|to|outline|divide|shadow)-(?:${PALETTE})-\\d{2,3}\\b`,
     "g",
   ),
   gradient: /bg-gradient-to-|bg-linear-to-|bg-radial|(?:linear|radial|conic)-gradient\(/g,
@@ -70,6 +73,12 @@ const RULES: Record<RuleId, RegExp> = {
   // Emoji in place of an icon (spec, AI sign 2). Typographic marks such as
   // ✓, ✕, arrows and © are typography and pass.
   emoji: /(?![©®™↔-↙])\p{Extended_Pictographic}/gu,
+  // A coloured stripe down the side of a card, callout or tile (specs/075).
+  // Hairlines (border-l, 1px) are structure and pass; thicker is decoration.
+  "side-stripe": /\bborder-[lrse]-(?:[2-8]|\[\d+px\])(?![\w-])/g,
+  // A shadow with no blur is a costume, not depth (specs/075): the "step"
+  // under a pressed-looking button. Inline styles and arbitrary Tailwind.
+  "hard-shadow": /boxShadow:\s*["'`]0 \d+px 0(?: 0)? |\bshadow-\[0_\d+px_0(?:_0)?_/g,
 };
 
 /**
@@ -181,6 +190,8 @@ describe("design-system guard", () => {
       "document.startViewTransition(() => go());",
       '<div className="rounded-2xl" />',
       '<span>⚠ {label}</span>',
+      '<div className="border-l-4 border-primary" />',
+      '<button style={{ boxShadow: "0 4px 0 0 var(--green-700)" }} />',
     ].join("\n");
     const hit = countFile("sample.tsx", sample);
     for (const rule of Object.keys(RULES)) expect(hit, rule).toHaveProperty(rule);
@@ -197,6 +208,9 @@ describe("design-system guard", () => {
       '  "game.goal.at_goal": "🏁 Get the robot to the flag",',
       "/* contrast on",
       "   #111713 stays put */",
+      '<ul className="border-l border-border pl-3" />',
+      '<a className="-mb-px border-b-2 border-primary" />',
+      '<div className="shadow-md" style={{ boxShadow: "0 8px 24px -8px rgba(0,0,0,.2)" }} />',
     ].join("\n");
     expect(countFile("clean.tsx", clean)).toEqual({});
   });

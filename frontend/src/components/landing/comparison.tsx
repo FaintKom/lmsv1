@@ -69,7 +69,7 @@ export function Comparison() {
             <div className="px-5 py-3">
               <span className="eyebrow text-text-subtle">{t("landing.compare.statusQuo")}</span>
             </div>
-            <div className="border-l-2 border-border px-5 py-3">
+            <div className="border-l border-border px-5 py-3">
               <span className="eyebrow text-primary">{t("landing.compare.here")}</span>
             </div>
           </div>
@@ -82,7 +82,7 @@ export function Comparison() {
               <div className="bg-surface-2 px-5 py-4 text-sm leading-relaxed text-text-muted">
                 {t(row.before)}
               </div>
-              <div className="flex items-start gap-2 border-l-2 border-border bg-surface px-5 py-4 text-sm font-medium leading-relaxed text-text">
+              <div className="flex items-start gap-2 border-l border-border bg-surface px-5 py-4 text-sm font-medium leading-relaxed text-text">
                 <ArrowRight className="mt-0.5 h-4 w-4 shrink-0 text-primary" aria-hidden="true" />
                 <span>{t(row.after)}</span>
               </div>

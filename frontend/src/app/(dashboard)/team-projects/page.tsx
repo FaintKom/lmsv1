@@ -3,10 +3,11 @@
 import { useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
-import { Loader2, LogIn, LogOut, Send, Users } from "lucide-react";
+import { Loader2, LogIn, LogOut, Send, Users, FolderKanban } from "lucide-react";
 
 import { useTranslation } from "@/lib/i18n/context";
 import { Card, CardContent } from "@/components/ui/card";
+import { EmptyState, PageHeader } from "@/components/ui/page-kit";
 import {
   joinProject,
   leaveProject,
@@ -157,22 +158,15 @@ export default function StudentTeamProjectsPage() {
   const projects = data ?? [];
 
   return (
-    <div className="mx-auto max-w-3xl space-y-6 p-6">
-      <div>
-        <h1 className="text-2xl font-bold text-text">{t("teamProjects.studentTitle")}</h1>
-        <p className="text-base text-text-muted">{t("teamProjects.studentSubtitle")}</p>
-      </div>
+    <div className="space-y-8">
+      <PageHeader title={t("teamProjects.studentTitle")} description={t("teamProjects.studentSubtitle")} />
 
       {isLoading ? (
         <div className="flex justify-center py-8">
           <Loader2 className="h-6 w-6 animate-spin text-primary" />
         </div>
       ) : projects.length === 0 ? (
-        <Card>
-          <CardContent className="py-8 text-center text-sm text-text-subtle">
-            {t("teamProjects.noProjectsStudent")}
-          </CardContent>
-        </Card>
+        <EmptyState icon={FolderKanban} title={t("teamProjects.noProjectsStudent")} />
       ) : (
         <div className="space-y-3">
           {projects.map((p: TeamProject) => {

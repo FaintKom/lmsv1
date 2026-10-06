@@ -239,7 +239,7 @@ export default function AdminPathsPage() {
  ) : (
  <div className="space-y-3">
  {paths.map((p) => (
- <Card key={p.id} className="border-l-4 border-l-green-400 transition-shadow hover:shadow-md">
+ <Card key={p.id} className=" transition-shadow hover:shadow-md">
  <CardContent className="flex items-center gap-4">
  <div className="hidden shrink-0 sm:block">
  <div className="rounded-lg bg-primary-soft p-3 ">

@@ -236,7 +236,7 @@ export default function GradebookPage() {
  )}
 
  {data && !loading && data.students.length > 0 && (
- <Card className="border-l-4 border-l-green-400">
+ <Card className="">
  <CardContent className="overflow-x-auto p-0">
  {/* Dense mode (DESIGN_SPEC §8): 32px rows, sticky axes, mono caps
      header, tabular numbers, radius <= 6 inside cells. */}

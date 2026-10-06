@@ -274,7 +274,7 @@ export function CategorizeConfigEditor({ config, onChange }: EditorProps) {
              <Button variant="ghost" size="sm" onClick={() => removeCategory(ci)} className="text-danger-fg"><Trash2 className="h-3.5 w-3.5" /></Button>
            )}
          </div>
-         <div className="space-y-2 pl-4 border-l-2 border-primary-soft">
+         <div className="space-y-2 border-l border-border pl-4">
            {cat.items.map((item, ii) => (
              <div key={ii} className="flex items-center gap-2">
                <input type="text" value={item} onChange={(e) => updateCatItem(ci, ii, e.target.value)} placeholder={`Item ${ii + 1}`} className={`flex-1 ${inputBase}`} />
