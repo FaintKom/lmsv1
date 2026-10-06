@@ -1,4 +1,13 @@
 import Link from "next/link";
+import { coverArtProps } from "@/lib/course-cover";
+import { SUBJECT_SURFACE, type Subject } from "@/lib/subject";
+
+/** Fixed seeds: the panel looks the same on every visit. Staggered, not stacked. */
+const FIELDS: { subject: Subject; seed: string; shift: string }[] = [
+  { subject: "lang", seed: "grass-field-lang", shift: "mr-16" },
+  { subject: "math", seed: "grass-field-math", shift: "ml-16" },
+  { subject: "code", seed: "grass-field-code", shift: "mr-8" },
+];
 
 export default function AuthLayout({
   children,
@@ -14,22 +23,33 @@ export default function AuthLayout({
         Skip to content
       </a>
 
-      {/* Left side — branding on the green field (specs/071, direction C) */}
-      <div className="hidden w-1/2 bg-subject-lang text-subject-ink lg:flex lg:flex-col lg:items-center lg:justify-center">
-        <div className="max-w-md px-8 text-center">
-          {/* "g" logo mark */}
-          <div className="relative mx-auto mb-6 flex h-16 w-16 items-center justify-center rounded-md bg-logo text-2xl font-extrabold text-logo-fg">
+      {/* Left side — the field (specs/076). The three subjects GrassLMS
+          teaches, each on its own colour with its cover drawing (specs/073):
+          what the product does, shown rather than decorated. */}
+      <div className="hidden w-1/2 flex-col justify-between bg-ground p-12 text-text lg:flex">
+        <Link href="/" className="flex w-fit items-center gap-2.5">
+          <span className="relative flex h-10 w-10 items-center justify-center rounded-sm bg-logo text-xl font-extrabold text-logo-fg">
             g
-            <span className="absolute bottom-[6px] right-[8px] h-[8px] w-[8px] rounded-full bg-sun-400" />
-          </div>
-          <h2 className="mb-3 text-3xl font-bold">
-            GrassLMS
-          </h2>
-          <p className="text-base leading-relaxed opacity-80">
-            The modern learning platform for schools and online courses.
-            Programming, languages, and mathematics.
-          </p>
+            <span className="absolute bottom-[5px] right-[6px] h-[6px] w-[6px] rounded-full bg-sun-400" />
+          </span>
+          <span className="font-display text-lg font-bold tracking-tight">GrassLMS</span>
+        </Link>
+
+        <div className="mx-auto grid w-full max-w-md gap-4" aria-hidden="true">
+          {FIELDS.map(({ subject, seed, shift }) => (
+            <div
+              key={subject}
+              className={`relative h-28 overflow-hidden rounded-lg ${SUBJECT_SURFACE[subject]} ${shift}`}
+            >
+              <svg {...coverArtProps(subject, seed)} className="absolute inset-0 h-full w-full" />
+            </div>
+          ))}
         </div>
+
+        <p className="max-w-sm text-base leading-relaxed text-text-muted">
+          The modern learning platform for schools and online courses.
+          Programming, languages, and mathematics.
+        </p>
       </div>
 
       {/* Right side — form */}

@@ -181,7 +181,12 @@ export default function DashboardPage() {
  <section className="rounded-lg bg-surface p-6">
  <h2 className="mb-3 text-lg font-semibold text-text">{t("dash.upcoming")}</h2>
  {upcomingEvents.length === 0 ? (
- <p className="py-4 text-sm text-text-subtle">{t("dash.noEvents")}</p>
+ <div className="grid justify-items-start gap-2 py-2">
+ <p className="text-sm text-text-muted">{t("dash.noEvents")}</p>
+ <Link href="/calendar" className="inline-flex items-center gap-1 text-sm font-medium text-primary hover:text-primary-hover">
+ {t("nav.calendar")} <ArrowRight className="h-3.5 w-3.5" aria-hidden />
+ </Link>
+ </div>
  ) : (
  <ul className="divide-y divide-border">
  {upcomingEvents.map((ev) => (
@@ -202,7 +207,10 @@ export default function DashboardPage() {
  </section>
  </div>
 
- {/* The figures, in the one tile every screen uses (specs/075 FR-005) */}
+ {/* The figures, in the one tile every screen uses (specs/075 FR-005).
+     Not before the first step: "0 · 0 · 0% · 0" tells a newcomer nothing,
+     and the checklist below already says what to do (specs/076). */}
+ {(xp > 0 || completedCount > 0 || avgProgress > 0) && (
  <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
  {[
  [t("dash.enrolled"), enrolledCount],
@@ -213,6 +221,7 @@ export default function DashboardPage() {
  <StatTile key={String(label)} label={label} value={loading ? "…" : value} />
  ))}
  </div>
+ )}
 
  {!loading && (
  <NewcomerChecklist
