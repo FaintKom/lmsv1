@@ -9,7 +9,9 @@ interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
     | "destructive"
     | "secondary"
     | "dark"
-    | "sun";
+    | "sun"
+    /** Destructive but not the point of the screen: red words, no fill until hover. */
+    | "danger-ghost";
   size?: "sm" | "md" | "lg" | "icon";
 }
 
@@ -37,6 +39,8 @@ const Button = forwardRef<HTMLButtonElement, ButtonProps>(
               variant === "dark",
             "press-scale bg-sun-400 text-ink-900 hover:bg-sun-300":
               variant === "sun",
+            "press-scale bg-transparent text-danger-fg hover:bg-danger-soft transition-colors":
+              variant === "danger-ghost",
           },
           {
             "h-9 px-4 text-xs": size === "sm",

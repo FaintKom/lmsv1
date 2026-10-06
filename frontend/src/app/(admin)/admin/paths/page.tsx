@@ -8,6 +8,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Route, Plus, Trash2, Eye, EyeOff, GripVertical } from "lucide-react";
 import { useTranslation } from "@/lib/i18n/context";
+import { PageHeader, PageLoading } from "@/components/ui/page-kit";
 
 interface PathItem {
  id: string;
@@ -113,22 +114,13 @@ export default function AdminPathsPage() {
  };
 
  if (loading) {
- return (
- <div className="flex h-64 items-center justify-center">
- <div className="h-8 w-8 animate-spin rounded-pill border-4 border-primary border-t-transparent" />
- </div>
- );
+ return <PageLoading />;
  }
 
  return (
  <div>
  <div className="mb-6 flex items-center justify-between">
- <div>
- <h1 className="text-2xl font-bold text-text ">{t("admin.paths.title")}</h1>
- <p className="mt-1 text-sm text-text-muted ">
- {t("admin.paths.subtitle")}
- </p>
- </div>
+ <PageHeader title={t("admin.paths.title")} description={t("admin.paths.subtitle")} />
  <Button onClick={() => setShowForm(!showForm)}>
  <Plus className="mr-2 h-4 w-4" />
  {t("admin.paths.newPath")}

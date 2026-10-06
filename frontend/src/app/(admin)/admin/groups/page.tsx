@@ -20,6 +20,7 @@ import {
  X,
 } from "lucide-react";
 import { useTranslation } from "@/lib/i18n/context";
+import { PageHeader, PageLoading } from "@/components/ui/page-kit";
 
 interface Group {
  id: string;
@@ -224,22 +225,13 @@ export default function GroupsPage() {
  );
 
  if (loading) {
- return (
- <div className="flex h-64 items-center justify-center">
- <div className="h-8 w-8 animate-spin rounded-pill border-4 border-primary border-t-transparent" />
- </div>
- );
+ return <PageLoading />;
  }
 
  return (
- <div className="mx-auto max-w-5xl">
+ <div className="space-y-8">
  <div className="mb-8 flex items-center justify-between">
- <div>
- <h1 className="text-2xl font-bold text-text ">{t("admin.groups.title")}</h1>
- <p className="mt-1 text-sm text-text-muted ">
- {t("admin.groups.subtitle")}
- </p>
- </div>
+ <PageHeader title={t("admin.groups.title")} description={t("admin.groups.subtitle")} />
  <Button onClick={() => setShowCreate(!showCreate)} size="sm">
  <Plus className="h-4 w-4" />
  {t("admin.groups.newGroup")}

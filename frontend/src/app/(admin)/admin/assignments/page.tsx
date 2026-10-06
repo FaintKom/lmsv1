@@ -9,6 +9,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { ClipboardList, Plus, Pencil, Trash2, Clock, Users, ArrowRight } from "lucide-react";
 import { useTranslation } from "@/lib/i18n/context";
+import { PageHeader, PageLoading } from "@/components/ui/page-kit";
 
 interface AdminAssignment {
  id: string;
@@ -101,11 +102,7 @@ export default function AdminAssignmentsPage() {
  };
 
  if (loading) {
- return (
- <div className="flex h-64 items-center justify-center">
- <div className="h-8 w-8 animate-spin rounded-pill border-4 border-primary border-t-transparent" />
- </div>
- );
+ return <PageLoading />;
  }
 
  const isPast = (d: string) => new Date(d).getTime() < Date.now();
@@ -113,12 +110,7 @@ export default function AdminAssignmentsPage() {
  return (
  <div>
  <div className="mb-6 flex flex-wrap items-center justify-between gap-3">
- <div>
- <h1 className="text-2xl font-bold text-text ">{t("admin.assignments.title")}</h1>
- <p className="mt-1 text-sm text-text-muted ">
- {t("admin.assignments.subtitle")}
- </p>
- </div>
+ <PageHeader title={t("admin.assignments.title")} description={t("admin.assignments.subtitle")} />
  <Button onClick={() => setShowForm(!showForm)}>
  <Plus className="mr-2 h-4 w-4" />
  {t("admin.assignments.newAssignment")}

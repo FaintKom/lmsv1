@@ -9,6 +9,7 @@ import apiClient from "@/lib/api-client";
 import { toast } from "sonner";
 import { Building2, Pencil, Trash2, X, Check, Power, Plus } from "lucide-react";
 import { useTranslation } from "@/lib/i18n/context";
+import { PageHeader } from "@/components/ui/page-kit";
 
 interface Org {
  id: string;
@@ -120,14 +121,9 @@ export default function OrganizationsPage() {
  }
 
  return (
- <div className="mx-auto max-w-4xl space-y-6">
+ <div className="space-y-8">
  <div className="flex flex-wrap items-center justify-between gap-3">
- <div>
- <h1 className="text-2xl font-bold text-text ">{t("admin.organizations.title")}</h1>
- <p className="text-sm text-text-muted ">
- {isSuperAdmin ? t("admin.organizations.manageAll") : t("admin.organizations.yourOrg")}
- </p>
- </div>
+ <PageHeader title={t("admin.organizations.title")} description={isSuperAdmin ? t("admin.organizations.manageAll") : t("admin.organizations.yourOrg")} />
  {isSuperAdmin && (
  <Button onClick={() => setShowCreate(!showCreate)}>
  <Plus className="h-4 w-4" />

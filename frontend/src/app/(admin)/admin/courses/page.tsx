@@ -10,6 +10,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { useRouter } from "next/navigation";
 import { BookOpen, Plus, Pencil, Trash2, Copy, FileStack, Loader2, Search } from "lucide-react";
+import { PageHeader } from "@/components/ui/page-kit";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useAuthStore } from "@/stores/auth-store";
 import type { Course } from "@/types/api";
@@ -160,7 +161,7 @@ export default function AdminCoursesPage() {
 
  if (loading) {
  return (
- <div className="mx-auto max-w-5xl">
+ <div>
  <Skeleton className="mb-2 h-4 w-48" />
  <Skeleton className="mb-6 h-8 w-56" />
  <div className="space-y-3">
@@ -189,9 +190,15 @@ export default function AdminCoursesPage() {
  published: "bg-success-soft text-success-fg",
  archived: "bg-surface-2 text-text-muted",
  };
+ // The API's raw value ("published") was on screen in every language.
+ const label: Record<string, string> = {
+ draft: t("common.draft"),
+ published: t("common.published"),
+ archived: t("common.archived"),
+ };
  return (
- <span className={`rounded-pill px-2.5 py-0.5 text-xs font-bold shadow-sm ${colors[status] || "bg-surface-2 text-text-muted"}`}>
- {status}
+ <span className={`rounded-pill px-2.5 py-0.5 text-xs font-semibold ${colors[status] || "bg-surface-2 text-text-muted"}`}>
+ {label[status] ?? status}
  </span>
  );
  };
@@ -352,33 +359,31 @@ export default function AdminCoursesPage() {
 
  return (
  <div>
- <div className="mb-6 flex flex-wrap items-center justify-between gap-3">
- <div>
- <h1 className="text-2xl font-bold text-text ">{t("admin.courses.title")}</h1>
- {isSuperAdmin && (
- <p className="mt-1 text-sm text-text-muted ">{t("admin.courses.countAcross")}: {courses.length}</p>
- )}
- </div>
- <div className="flex flex-1 flex-wrap items-center gap-3">
+ <PageHeader
+ className="mb-6"
+ title={t("admin.courses.title")}
+ description={isSuperAdmin ? `${t("admin.courses.countAcross")}: ${courses.length}` : undefined}
+ actions={
+ <Button onClick={() => setShowForm(!showForm)}>
+ <Plus className="mr-2 h-4 w-4" />
+ {t("admin.courses.newCourse")}
+ </Button>
+ }
+ />
  {/* The search that used to sit in the sidebar, moved to where the list
      is. Filters what is already loaded — this page fetches every course
-     at once, so asking the server again would only be slower. */}
- <div className="relative min-w-0 flex-1">
- <Search className="pointer-events-none absolute left-2.5 top-1/2 h-4 w-4 -translate-y-1/2 text-text-subtle" aria-hidden="true" />
+     at once, so asking the server again would only be slower. Its own row:
+     squeezed between the title and the button it had no width to speak of. */}
+ <div className="relative mb-6 max-w-sm">
+ <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-text-subtle" aria-hidden="true" />
  <input
  type="search"
  value={filter}
  onChange={(e) => setFilter(e.target.value)}
  placeholder={t("admin.courses.filterPlaceholder")}
  aria-label={t("admin.courses.filterPlaceholder")}
- className="w-full rounded-lg border border-border-strong bg-surface py-2 pl-8 pr-3 text-sm text-text sm:w-56 focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary-soft"
+ className="h-11 w-full rounded-pill border border-border-strong bg-surface pl-9 pr-4 text-sm text-text focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary-soft"
  />
- </div>
- <Button onClick={() => setShowForm(!showForm)}>
- <Plus className="mr-2 h-4 w-4" />
- {t("admin.courses.newCourse")}
- </Button>
- </div>
  </div>
 
  {showForm && (

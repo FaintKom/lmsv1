@@ -1077,7 +1077,7 @@ function ExerciseBlockBody({
     const metaByValue = Object.fromEntries(EXERCISE_TYPES_META.map((m) => [m.value, m]));
     return (
       <div className="rounded-lg border-2 border-dashed border-primary-soft bg-primary-soft/20 p-4">
-        <p className="mb-3 text-xs font-semibold uppercase tracking-wider text-primary">
+        <p className="mb-3 text-sm font-semibold text-text">
           {t("admin.lessonEditor.pickExerciseType")}
         </p>
         <div className="space-y-3">
@@ -1289,7 +1289,7 @@ function AssignmentBlockBody({
   // Create / edit form
   return (
     <div className="space-y-2 rounded-lg border-2 border-dashed border-primary-soft bg-primary-soft/20 p-4">
-      <p className="text-xs font-semibold uppercase tracking-wider text-primary">
+      <p className="text-sm font-semibold text-text">
         {t("admin.lessonEditor.assignmentBlockTitle")}
       </p>
       <input

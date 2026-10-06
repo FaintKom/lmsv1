@@ -1,6 +1,7 @@
 import type { TranslationMap } from "../meta";
 
 const uk: TranslationMap = {
+ "common.archived": "В архіві",
  "achieve.statsLine": "{xp} XP · уроків: {lessons} · значків: {badges}",
  "skills.nextLevel": "Наступний рівень: {xp} XP",
  "achieve.subtitle": "Ваші XP, серії, значки й ліга",

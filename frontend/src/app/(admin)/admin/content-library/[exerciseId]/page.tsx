@@ -158,7 +158,7 @@ export default function ExerciseEditorPage() {
 
  if (loading) {
  return (
- <div className="mx-auto max-w-4xl space-y-6 p-6">
+ <div className="max-w-4xl space-y-6">
  <Skeleton className="h-8 w-64" />
  <Skeleton className="h-64 w-full" />
  </div>
@@ -177,7 +177,7 @@ export default function ExerciseEditorPage() {
  }
 
  return (
- <div className="mx-auto max-w-4xl space-y-6 p-6">
+ <div className="max-w-4xl space-y-6">
  {/* Header */}
  <div className="flex items-center justify-between">
  <div className="flex items-center gap-3">

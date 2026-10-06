@@ -3,11 +3,12 @@
 import { useEffect, useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
-import { Loader2, Plus, Send, Users } from "lucide-react";
+import { Loader2, Plus, Send, Users, MessagesSquare } from "lucide-react";
 
 import apiClient from "@/lib/api-client";
 import { useTranslation } from "@/lib/i18n/context";
 import { Card, CardContent } from "@/components/ui/card";
+import { EmptyState, PageHeader } from "@/components/ui/page-kit";
 import {
   createAssignment,
   distributeAssignment,
@@ -80,12 +81,9 @@ export default function AdminPeerReviewPage() {
   const assignments = assignmentsQuery.data ?? [];
 
   return (
-    <div className="mx-auto max-w-5xl space-y-6 p-6">
+    <div className="space-y-8">
       <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-2xl font-bold text-text">{t("peerReview.adminTitle")}</h1>
-          <p className="text-base text-text-muted">{t("peerReview.adminSubtitle")}</p>
-        </div>
+        <PageHeader title={t("peerReview.adminTitle")} description={t("peerReview.adminSubtitle")} />
       </div>
 
       <div className="flex flex-wrap items-center gap-3">
@@ -180,11 +178,7 @@ export default function AdminPeerReviewPage() {
               <Loader2 className="h-6 w-6 animate-spin text-primary" />
             </div>
           ) : assignments.length === 0 ? (
-            <Card>
-              <CardContent className="py-8 text-center text-sm text-text-subtle">
-                {t("peerReview.noAssignments")}
-              </CardContent>
-            </Card>
+            <EmptyState icon={MessagesSquare} title={t("peerReview.noAssignments")} />
           ) : (
             assignments.map((a: PeerReviewAssignmentStats) => (
               <Card key={a.id}>

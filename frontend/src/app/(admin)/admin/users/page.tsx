@@ -11,6 +11,7 @@ import { UserPlus, Trash2, KeyRound } from "lucide-react";
 import type { User } from "@/types/api";
 import { useAuthStore } from "@/stores/auth-store";
 import { useTranslation } from "@/lib/i18n/context";
+import { PageHeader, PageLoading } from "@/components/ui/page-kit";
 
 function describeError(err: unknown, fallback: string): string {
  if (axios.isAxiosError(err)) {
@@ -169,17 +170,13 @@ export default function AdminUsersPage() {
  };
 
  if (loading) {
- return (
- <div className="flex h-64 items-center justify-center">
- <div className="h-8 w-8 animate-spin rounded-pill border-4 border-primary border-t-transparent" />
- </div>
- );
+ return <PageLoading />;
  }
 
  if (denied) {
  return (
- <div className="mx-auto max-w-6xl">
- <h1 className="text-2xl font-bold text-text">{t("admin.users.title")}</h1>
+ <div>
+ <PageHeader title={t("admin.users.title")} />
  <Card className="mt-6">
  <CardContent className="p-6">
  <p className="font-semibold text-text">{t("admin.users.noAccessTitle")}</p>
@@ -191,19 +188,18 @@ export default function AdminUsersPage() {
  }
 
  return (
- <div className="mx-auto max-w-6xl">
- <div className="mb-6 flex items-center justify-between">
  <div>
- <h1 className="text-2xl font-bold text-text ">{t("admin.users.title")}</h1>
- <p className="mt-1 text-sm text-text-muted ">
- {users.length} {isSuperAdmin ? t("admin.users.countAll") : t("admin.users.countOrg")}
- </p>
- </div>
+ <PageHeader
+ className="mb-6"
+ title={t("admin.users.title")}
+ description={`${users.length} ${isSuperAdmin ? t("admin.users.countAll") : t("admin.users.countOrg")}`}
+ actions={
  <Button onClick={() => setShowForm(!showForm)}>
  <UserPlus className="mr-2 h-4 w-4" />
  {t("admin.users.addUser")}
  </Button>
- </div>
+ }
+ />
 
  {showForm && (
  <Card className="mb-6">

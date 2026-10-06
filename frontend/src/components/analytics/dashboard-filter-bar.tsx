@@ -34,7 +34,7 @@ export function DashboardFilterBar({ dashboard }: Props) {
 
   return (
     <div className="flex flex-wrap items-center gap-3 px-3 py-2 bg-surface-2 border border-border rounded-md">
-      <div className="text-xs uppercase tracking-wide text-text-muted">
+      <div className="text-sm text-text-muted">
         Filters:
       </div>
 

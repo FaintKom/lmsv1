@@ -6,6 +6,7 @@ import { ArrowLeft } from "lucide-react";
 
 import { OrgSettingsForm } from "@/components/admin/org-settings-form";
 import { useTranslation } from "@/lib/i18n/context";
+import { PageHeader } from "@/components/ui/page-kit";
 
 /**
  * One school's settings, opened from the list of organisations.
@@ -24,7 +25,7 @@ export default function OrganizationSettingsPage() {
   const { t } = useTranslation();
 
   return (
-    <div className="mx-auto max-w-2xl space-y-6">
+    <div className="space-y-8">
       <Link
         href="/admin/organizations"
         className="inline-flex items-center gap-1.5 text-sm font-semibold text-text-muted hover:text-text"
@@ -33,10 +34,7 @@ export default function OrganizationSettingsPage() {
         {t("admin.organizations.backToList")}
       </Link>
 
-      <div>
-        <h1 className="text-2xl font-bold text-text">{t("admin.organizations.settingsTitle")}</h1>
-        <p className="text-sm text-text-muted">{t("admin.organizations.settingsSubtitle")}</p>
-      </div>
+      <PageHeader title={t("admin.organizations.settingsTitle")} description={t("admin.organizations.settingsSubtitle")} />
 
       <OrgSettingsForm orgId={orgId} />
     </div>

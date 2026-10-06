@@ -10,6 +10,7 @@ import { Button } from "@/components/ui/button";
 import { ArrowLeft, CheckCircle, Clock, FileText, Download, ChevronDown, ChevronUp } from "lucide-react";
 import { useTranslation } from "@/lib/i18n/context";
 import type { Assignment, AssignmentSubmission } from "@/types/api";
+import { PageLoading } from "@/components/ui/page-kit";
 
 export default function AssignmentReviewPage() {
  const { t } = useTranslation();
@@ -59,11 +60,7 @@ export default function AssignmentReviewPage() {
  };
 
  if (loading) {
- return (
- <div className="flex h-64 items-center justify-center">
- <div className="h-8 w-8 animate-spin rounded-pill border-4 border-primary border-t-transparent" />
- </div>
- );
+ return <PageLoading />;
  }
 
  if (!assignment) {

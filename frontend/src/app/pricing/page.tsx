@@ -109,7 +109,7 @@ export default function PricingPage() {
                       : "border-border-strong"
                   }`}
                 >
-                  <h2 className="text-sm font-semibold uppercase tracking-wide text-text-muted">
+                  <h2 className="text-base font-semibold text-text">
                     {plan.name}
                   </h2>
                   <p className="mt-3 flex items-baseline gap-1.5">

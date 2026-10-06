@@ -21,6 +21,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import apiClient from "@/lib/api-client";
 import { toast } from "sonner";
 import { useTranslation } from "@/lib/i18n/context";
+import { PageHeader } from "@/components/ui/page-kit";
 
 interface Connection {
  id: string;
@@ -186,12 +187,7 @@ export default function IntegrationsPage() {
 
  return (
  <div className="space-y-6">
- <div>
- <h1 className="text-2xl font-bold text-text ">{t("admin.integrations.title")}</h1>
- <p className="text-sm text-text-muted ">
- {t("admin.integrations.subtitle")}
- </p>
- </div>
+ <PageHeader title={t("admin.integrations.title")} description={t("admin.integrations.subtitle")} />
 
  <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
  {INTEGRATIONS.map((intg) => {

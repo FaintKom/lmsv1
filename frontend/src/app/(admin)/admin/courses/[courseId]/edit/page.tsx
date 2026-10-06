@@ -26,6 +26,7 @@ import {
 } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
 import { useTranslation } from "@/lib/i18n/context";
+import { PageHeader } from "@/components/ui/page-kit";
 import {
  ArrowLeft,
  Plus,
@@ -610,17 +611,16 @@ export default function CourseEditorPage() {
  }
 
  return (
- <div className="mx-auto max-w-4xl pb-12">
- {/* Header */}
- <div className="mb-6 flex flex-wrap items-center justify-between gap-3">
- <button
- onClick={() => router.push("/admin/courses")}
- className="inline-flex items-center gap-1.5 text-sm font-medium text-text-muted hover:text-text "
- >
- <ArrowLeft className="h-4 w-4" />
- Back to Courses
- </button>
- <div className="flex flex-wrap items-center gap-2">
+ <div className="max-w-5xl pb-12">
+ {/* Header: the course's own name, so the page says what is being edited.
+     The one fill is Publish (the step that matters for a draft); Delete is
+     red words, not a red slab level with everything else. */}
+ <PageHeader
+ className="mb-6"
+ back={{ href: "/admin/courses", label: t("admin.courseEdit.backToCourses") }}
+ title={course.title}
+ actions={
+ <>
  <Button
  variant="outline"
  onClick={() => window.open(`/courses/${courseId}?preview=true`, "_blank")}
@@ -655,17 +655,18 @@ export default function CourseEditorPage() {
  <Upload className="mr-1 h-4 w-4" />
  Import JSON
  </Button>
- {course.status === "draft" && (
- <Button variant="outline" onClick={handlePublish}>
- Publish
- </Button>
- )}
- <Button variant="destructive" onClick={handleDeleteCourse} disabled={deleting}>
+ <Button variant="danger-ghost" onClick={handleDeleteCourse} disabled={deleting}>
  <Trash2 className="mr-1 h-4 w-4" />
  {deleting ? "Deleting..." : "Delete"}
  </Button>
- </div>
- </div>
+ {course.status === "draft" && (
+ <Button onClick={handlePublish}>
+ Publish
+ </Button>
+ )}
+ </>
+ }
+ />
 
  {/* Course Metadata */}
  <Card className="mb-6">

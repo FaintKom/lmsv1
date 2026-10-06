@@ -46,6 +46,7 @@ import { buildJoinUrl } from "@/lib/meetings";
 import { Card, CardContent } from "@/components/ui/card";
 import { SessionDetail } from "@/components/journal/session-detail";
 import { PacingFlow } from "@/components/journal/pacing-flow";
+import { EmptyState, PageHeader, StatTile } from "@/components/ui/page-kit";
 import {
   useCurriculum,
   useCreateTopic,
@@ -179,14 +180,8 @@ function JournalModule() {
   }, []);
 
   return (
-    <div className="mx-auto max-w-6xl space-y-5 p-6">
-      <div>
-        <h1 className="flex items-center gap-2 text-2xl font-bold text-text">
-          <BookOpenCheck className="h-6 w-6 text-primary" />
-          {t("journal.moduleTitle")}
-        </h1>
-        <p className="text-base text-text-muted">{t("journal.moduleSubtitle")}</p>
-      </div>
+    <div className="space-y-8">
+      <PageHeader title={t("journal.moduleTitle")} description={t("journal.moduleSubtitle")} />
 
       {/* Tab bar */}
       {/* Scrolls rather than wraps: this is a strip, and six tabs at 375px
@@ -347,39 +342,12 @@ function TodayTab({ courses, isManager }: TodayTabProps) {
         )}
       </div>
 
-      {/* Mini-metrics */}
-      <div className="flex gap-2.5 overflow-x-auto">
-        {[
-          {
-            key: "lessons",
-            label: t("journal.metricLessons"),
-            value: lessonsCount,
-            color: "text-text",
-          },
-          {
-            key: "marked",
-            label: t("journal.metricMarked"),
-            value: markedCount,
-            color: "text-success-fg",
-          },
-          {
-            key: "awaiting",
-            label: t("journal.metricAwaiting"),
-            value: awaitingCount,
-            color: "text-danger-fg",
-          },
-        ].map((m) => (
-          <Card key={m.key} className="flex-1">
-            <CardContent className="flex items-center justify-between px-3.5 py-3">
-              <span className="text-xs font-semibold text-text-subtle">
-                {m.label}
-              </span>
-              <span className={`text-2xl font-extrabold tracking-tight ${m.color}`}>
-                {m.value}
-              </span>
-            </CardContent>
-          </Card>
-        ))}
+      {/* Mini-metrics, in the one tile every screen uses (specs/075 FR-005).
+          A grid, not a scroll strip: three short tiles fit a phone. */}
+      <div className="grid grid-cols-3 gap-3">
+        <StatTile label={t("journal.metricLessons")} value={lessonsCount} />
+        <StatTile label={t("journal.metricMarked")} value={markedCount} />
+        <StatTile label={t("journal.metricAwaiting")} value={awaitingCount} />
       </div>
 
       {/* Agenda */}
@@ -767,21 +735,13 @@ function RegisterTab({ courses }: RegisterTabProps) {
       </div>
 
       {!courseId ? (
-        <Card>
-          <CardContent className="py-8 text-center text-sm text-text-subtle">
-            {t("journal.pickCoursePrompt")}
-          </CardContent>
-        </Card>
+        <EmptyState icon={BookOpenCheck} title={t("journal.pickCoursePrompt")} />
       ) : loading || sessionsQuery.isLoading ? (
         <div className="flex justify-center py-10">
           <Loader2 className="h-6 w-6 animate-spin text-primary" />
         </div>
       ) : dates.length === 0 || students.length === 0 ? (
-        <Card>
-          <CardContent className="py-8 text-center text-sm text-text-subtle">
-            {t("journal.noRegisterData")}
-          </CardContent>
-        </Card>
+        <EmptyState icon={BookOpenCheck} title={t("journal.noRegisterData")} />
       ) : (
         <div className="grid gap-4 lg:grid-cols-[1fr_236px]">
           {/* Matrix */}

@@ -48,7 +48,7 @@ interface TileProps {
 function Tile({ label, value, formatter }: TileProps) {
   return (
     <div className="bg-surface-2 rounded-md p-3 flex flex-col justify-between">
-      <div className="text-xs uppercase tracking-wide text-text-muted">
+      <div className="text-sm text-text-muted">
         {label}
       </div>
       <div className="text-2xl font-bold text-text mt-1">

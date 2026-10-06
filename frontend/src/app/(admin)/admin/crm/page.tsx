@@ -16,6 +16,7 @@ import { AccessDenied } from "@/components/ui/access-denied";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { useTranslation } from "@/lib/i18n/context";
+import { PageHeader } from "@/components/ui/page-kit";
 import {
   addEvent,
   completeTask,
@@ -250,24 +251,28 @@ export default function CrmPage() {
   }
 
   return (
-    <div className="mx-auto max-w-6xl space-y-5 p-6">
-      <div>
-        <h1 className="text-2xl font-bold text-text">{t("crm.title")}</h1>
-        <p className="text-base text-text-muted">{t("crm.subtitle")}</p>
-        {enquiryPath && (
-          <p className="text-sm text-text-muted">
-            {t("crm.enquiryPageIs")}{" "}
-            <a
-              href={enquiryPath}
-              target="_blank"
-              rel="noreferrer"
-              className="font-medium text-primary underline"
-            >
-              {enquiryPath}
-            </a>
-          </p>
-        )}
-      </div>
+    <div className="space-y-6">
+      <PageHeader
+        title={t("crm.title")}
+        description={
+          <>
+            {t("crm.subtitle")}
+            {enquiryPath && (
+              <span className="mt-1 block text-sm">
+                {t("crm.enquiryPageIs")}{" "}
+                <a
+                  href={enquiryPath}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="font-medium text-primary underline underline-offset-2"
+                >
+                  {enquiryPath}
+                </a>
+              </span>
+            )}
+          </>
+        }
+      />
 
       {error && (
         <p role="status" className="text-sm text-danger">
@@ -296,12 +301,12 @@ export default function CrmPage() {
                 ] as const
               ).map(([key, value]) => (
                 <div key={key}>
-                  <p className="text-2xs uppercase tracking-wide text-text-subtle">{t(key)}</p>
+                  <p className="text-xs text-text-muted">{t(key)}</p>
                   <p className="text-lg font-semibold text-text">{value}</p>
                 </div>
               ))}
               <div>
-                <p className="text-2xs uppercase tracking-wide text-text-subtle">
+                <p className="text-xs text-text-muted">
                   {t("crm.reportFirstContact")}
                 </p>
                 <p className="text-lg font-semibold text-text">
@@ -318,7 +323,7 @@ export default function CrmPage() {
             </div>
             {Object.keys(report.by_source).length > 0 && (
               <div>
-                <p className="mb-1 text-2xs uppercase tracking-wide text-text-subtle">
+                <p className="mb-1 text-xs text-text-muted">
                   {t("crm.reportBySource")}
                 </p>
                 <div className="flex flex-wrap gap-x-4 gap-y-1">

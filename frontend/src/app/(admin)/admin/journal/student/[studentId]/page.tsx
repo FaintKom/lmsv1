@@ -24,10 +24,12 @@ import {
   Target,
   CheckCircle2,
   Zap,
+  BookOpenCheck,
 } from "lucide-react";
 
 import { useTranslation } from "@/lib/i18n/context";
 import { Card, CardContent } from "@/components/ui/card";
+import { EmptyState } from "@/components/ui/page-kit";
 import {
   useStudentActivity,
   type ActivityResult,
@@ -236,11 +238,7 @@ function ActivityBody({ data }: { data: StudentActivityResponse }) {
             {t("journal.activity.lessonsToday")}
           </div>
           {data.lessons.length === 0 ? (
-            <Card>
-              <CardContent className="py-8 text-center text-sm text-text-subtle">
-                {t("journal.activity.empty")}
-              </CardContent>
-            </Card>
+            <EmptyState icon={BookOpenCheck} title={t("journal.activity.empty")} />
           ) : (
             data.lessons.map((lesson, i) => (
               <LessonCard

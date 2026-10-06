@@ -1,6 +1,7 @@
 import type { TranslationMap } from "../meta";
 
 const de: TranslationMap = {
+ "common.archived": "Archiviert",
  "achieve.statsLine": "{xp} XP · Lektionen: {lessons} · Abzeichen: {badges}",
  "skills.nextLevel": "Nächste Stufe bei {xp} XP",
  "achieve.subtitle": "Deine XP, Serien, Abzeichen und Liga",
