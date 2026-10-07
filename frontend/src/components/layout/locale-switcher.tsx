@@ -30,7 +30,7 @@ export default function LocaleSwitcher() {
  aria-haspopup="listbox"
  >
  <Globe className="h-3.5 w-3.5" aria-hidden="true" />
- <span>{current?.flag}</span>
+ <span>{current?.code.toUpperCase()}</span>
  </button>
  {open && (
  <div role="listbox" aria-label={t("lang.select")} className="absolute bottom-full left-0 z-50 mb-1 w-40 rounded-lg border border-border-strong bg-surface py-1 shadow-2xl">
@@ -45,7 +45,7 @@ export default function LocaleSwitcher() {
  locale === l.code ? "font-semibold text-primary" : "text-text-muted"
  }`}
  >
- <span>{l.flag}</span>
+ <span className="w-6 text-xs font-medium text-text-subtle">{l.code.toUpperCase()}</span>
  <span>{l.name}</span>
  </button>
  ))}

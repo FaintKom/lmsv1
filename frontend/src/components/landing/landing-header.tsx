@@ -32,7 +32,7 @@ function HeaderLocaleSwitcher() {
  aria-haspopup="listbox"
  >
  <Globe className="h-3.5 w-3.5" aria-hidden="true" />
- <span>{current?.flag}</span>
+ <span>{current?.code.toUpperCase()}</span>
  </button>
  {open && (
  <div
@@ -51,7 +51,7 @@ function HeaderLocaleSwitcher() {
  locale === l.code ? "font-semibold text-primary" : "text-text-muted"
  }`}
  >
- <span>{l.flag}</span>
+ <span className="w-6 text-xs font-medium text-text-subtle">{l.code.toUpperCase()}</span>
  <span>{l.name}</span>
  </button>
  ))}
