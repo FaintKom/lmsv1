@@ -178,7 +178,7 @@ export default function FillBlanksExercise({
 
  {/* Word bank */}
  <div className="rounded-lg border border-border-strong bg-surface-2 p-4 ">
- <p className="mb-3 text-xs font-semibold uppercase tracking-wider text-text-subtle">
+ <p className="mb-3 text-sm font-medium text-text-subtle">
  Word Bank — drag words to fill the blanks
  </p>
  <div className="flex flex-wrap gap-2">

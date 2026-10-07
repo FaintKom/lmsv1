@@ -181,7 +181,7 @@ export function MatchingConfigEditor({ config, onChange }: EditorProps) {
 
  return (
    <div className="space-y-4">
-     <div className="grid grid-cols-[1fr_auto_1fr_auto] gap-2 text-xs font-semibold text-text-muted uppercase tracking-wider px-1">
+     <div className="grid grid-cols-[1fr_auto_1fr_auto] gap-2 text-sm font-medium text-text-muted px-1">
        <span>{t("xe.leftSide")}</span>
        <span />
        <span>{t("xe.rightSide")}</span>
@@ -334,7 +334,7 @@ export function TranslationConfigEditor({ config, onChange }: EditorProps) {
      </div>
      {/* specs/019 US4: the checking rules, visible and switchable */}
      <div className="rounded-lg border border-border-strong bg-surface-2 p-3 space-y-2">
-       <p className="text-xs font-semibold uppercase tracking-wider text-text-subtle">{t("xe.howChecked")}</p>
+       <p className="text-sm font-medium text-text-subtle">{t("xe.howChecked")}</p>
        <label className="flex items-center gap-2 text-xs text-text-muted">
          <input
            type="checkbox"
@@ -601,7 +601,7 @@ export function ConjugationConfigEditor({ config, onChange }: EditorProps) {
 
      {/* Preset bar — always visible so methodist can rebuild pronoun table anytime. */}
      <div className="rounded-lg border border-dashed border-border-strong bg-surface-2 p-3">
-       <p className="mb-1.5 text-xs font-semibold uppercase tracking-wider text-text-muted">
+       <p className="mb-1.5 text-sm font-medium text-text-muted">
          {t("xe.loadPronouns")}
        </p>
        <div className="flex flex-wrap gap-1.5">
@@ -624,7 +624,7 @@ export function ConjugationConfigEditor({ config, onChange }: EditorProps) {
      <div>
        <label className={labelCls}>{t("xe.conjTable")}</label>
        <div className="space-y-2">
-         <div className="grid grid-cols-[1fr_1fr_auto] gap-2 text-xs font-semibold text-text-muted uppercase tracking-wider px-1">
+         <div className="grid grid-cols-[1fr_1fr_auto] gap-2 text-sm font-medium text-text-muted px-1">
            <span>{t("xe.pronoun")}</span><span>{t("xe.correctForm")}</span><span className="w-9" />
          </div>
          {table.map((row, i) => (
@@ -942,7 +942,7 @@ export function SRSFlashcardConfigEditor({ config, onChange }: EditorProps) {
  return (
    <div className="space-y-4">
      <p className={hintCls}>{t("xe.flashcardsHint")}</p>
-     <div className="grid grid-cols-[1fr_auto_1fr_auto] gap-2 text-xs font-semibold text-text-muted uppercase tracking-wider px-1">
+     <div className="grid grid-cols-[1fr_auto_1fr_auto] gap-2 text-sm font-medium text-text-muted px-1">
        <span>{t("xe.front")}</span><span /><span>{t("xe.back")}</span><span className="w-9" />
      </div>
      {cards.map((card, i) => (

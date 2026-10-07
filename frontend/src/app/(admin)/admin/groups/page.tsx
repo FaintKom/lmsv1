@@ -543,7 +543,7 @@ export default function GroupsPage() {
 
  {/* Members List */}
  <div>
- <h4 className="mb-2 text-xs font-semibold uppercase tracking-wider text-text-subtle">
+ <h4 className="mb-2 text-sm font-medium text-text-subtle">
  {t("admin.groups.membersLabel")}
  </h4>
  {!members[g.id] ? (

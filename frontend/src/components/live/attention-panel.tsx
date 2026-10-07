@@ -30,7 +30,7 @@ function Kpi({ label, value, tone }: { label: string; value: number; tone: strin
   return (
     <div className="flex-1 rounded-md bg-surface-2 px-2 py-1.5 text-center">
       <div className={`font-mono text-base font-bold tabular-nums ${tone}`}>{value}</div>
-      <div className="text-3xs uppercase tracking-wide text-text-subtle">{label}</div>
+      <div className="text-xs text-text-muted">{label}</div>
     </div>
   );
 }

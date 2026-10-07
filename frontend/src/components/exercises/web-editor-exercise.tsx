@@ -170,7 +170,7 @@ export default function WebEditorExercise({
  <p className="text-sm text-text ">{config.description}</p>
  {config.requirements && config.requirements.length > 0 && (
  <div className="mt-3">
- <p className="text-xs font-semibold text-text-muted uppercase tracking-wide mb-1">
+ <p className="text-sm font-medium text-text-muted mb-1">
  Requirements
  </p>
  <ul className="space-y-1">

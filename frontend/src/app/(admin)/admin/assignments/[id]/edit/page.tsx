@@ -1,12 +1,12 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { useParams, useRouter } from "next/navigation";
+import { useParams } from "next/navigation";
 import Link from "next/link";
 import apiClient from "@/lib/api-client";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
-import { ArrowLeft } from "lucide-react";
+import { PageHeader, PageLoading } from "@/components/ui/page-kit";
 import { useTranslation } from "@/lib/i18n/context";
 
 interface AssignmentData {
@@ -24,7 +24,6 @@ interface AssignmentData {
 export default function EditAssignmentPage() {
  const { t } = useTranslation();
  const params = useParams();
- const router = useRouter();
  const id = params.id as string;
 
  const [loading, setLoading] = useState(true);
@@ -91,37 +90,14 @@ export default function EditAssignmentPage() {
  }
  };
 
- if (loading) {
- return (
- <div className="max-w-2xl space-y-6">
- <div className="h-6 w-40 animate-pulse rounded bg-ink-200 " />
- <div className="h-8 w-64 animate-pulse rounded bg-ink-200 " />
- <div className="space-y-4 rounded-lg border border-border-strong p-6 ">
- <div className="h-10 w-full animate-pulse rounded-lg bg-ink-200 " />
- <div className="h-24 w-full animate-pulse rounded-lg bg-ink-200 " />
- <div className="grid grid-cols-2 gap-4">
- <div className="h-10 animate-pulse rounded-lg bg-ink-200 " />
- <div className="h-10 animate-pulse rounded-lg bg-ink-200 " />
- </div>
- <div className="h-10 w-32 animate-pulse rounded-lg bg-ink-200 " />
- </div>
- </div>
- );
- }
+ if (loading) return <PageLoading rows={3} />;
 
  return (
- <div className="max-w-2xl">
- <button
- onClick={() => router.back()}
- className="mb-4 flex items-center gap-1 text-sm text-text-muted transition-colors hover:text-text "
- >
- <ArrowLeft className="h-4 w-4" />
- {t("admin.assignmentEdit.backToAssignments")}
- </button>
-
- <h1 className="mb-6 text-2xl font-bold text-text ">
- {t("admin.assignmentEdit.title")}
- </h1>
+ <div className="grid max-w-2xl gap-8">
+ <PageHeader
+ title={t("admin.assignmentEdit.title")}
+ back={{ href: "/admin/assignments", label: t("admin.assignmentEdit.backToAssignments") }}
+ />
 
  <form onSubmit={handleSave} className="space-y-5 rounded-lg border border-border-strong bg-surface p-6 ">
  {/* Course badge (read-only) */}

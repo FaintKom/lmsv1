@@ -193,7 +193,7 @@ export default function AssignmentReviewPage() {
 
  {/* Grade form */}
  <div className="rounded-lg border border-border-strong p-4 ">
- <p className="mb-3 text-xs font-semibold uppercase tracking-wider text-text-muted ">
+ <p className="mb-3 text-sm font-medium text-text-muted">
  {sub.status === "graded" ? t("admin.assignmentReview.updateGrade") : t("admin.assignmentReview.gradeSubmission")}
  </p>
  <div className="flex flex-col gap-3 sm:flex-row sm:items-end">

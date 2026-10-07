@@ -1,13 +1,13 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { useParams, useRouter, useSearchParams } from "next/navigation";
+import { useParams, useSearchParams } from "next/navigation";
 import { toast } from "sonner";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
+import { PageHeader } from "@/components/ui/page-kit";
 import {
- ArrowLeft,
  Check,
  ChevronDown,
  ChevronRight,
@@ -30,7 +30,6 @@ import { useTranslation } from "@/lib/i18n/context";
 export default function SubmissionsViewerPage() {
  const { t } = useTranslation();
  const { exerciseId } = useParams<{ exerciseId: string }>();
- const router = useRouter();
  // Keep the origin-course context alive so the editor's back still knows it.
  const fromCourseId = useSearchParams().get("courseId");
  const [exercise, setExercise] = useState<Exercise | null>(null);
@@ -93,21 +92,11 @@ export default function SubmissionsViewerPage() {
  return (
  <div className="space-y-6">
 
- {/* Header */}
- <div className="flex items-center justify-between">
- <div className="flex items-center gap-3">
- <Button
- variant="ghost"
- size="sm"
- onClick={() => router.push(`/admin/content-library/${exerciseId}${fromCourseId ? `?courseId=${fromCourseId}` : ""}`)}
- >
- <ArrowLeft className="h-4 w-4" />
- </Button>
- <div>
- <div className="flex items-center gap-2">
- <h1 className="text-xl font-bold text-text ">
- {t("admin.submissionsViewer.title")}
- </h1>
+ <PageHeader
+ back={{ href: `/admin/content-library/${exerciseId}${fromCourseId ? `?courseId=${fromCourseId}` : ""}` }}
+ title={t("admin.submissionsViewer.title")}
+ description={
+ <span className="flex flex-wrap items-center gap-2">
  {exercise && (
  <span
  className={`rounded-pill px-2.5 py-0.5 text-xs font-medium ${EXERCISE_TYPE_COLORS[exercise.exercise_type]}`}
@@ -115,13 +104,12 @@ export default function SubmissionsViewerPage() {
  {exerciseTypeName(t, exercise.exercise_type)}
  </span>
  )}
- </div>
- <p className="text-sm text-text-muted ">
+ <span>
  {exercise?.title} · {t("admin.submissionsViewer.title")}: {total}
- </p>
- </div>
- </div>
- </div>
+ </span>
+ </span>
+ }
+ />
 
  {/* Table */}
  <Card>
@@ -277,7 +265,7 @@ function SubmissionRow({
  {/* Interactive answers */}
  {!["quiz", "code_challenge", "file_upload"].includes(exerciseType) && sub.answers && (
  <div>
- <p className="mb-2 text-xs font-medium uppercase text-text-subtle">{t("admin.submissionsViewer.studentAnswers")}</p>
+ <p className="mb-2 text-sm font-medium text-text-subtle">{t("admin.submissionsViewer.studentAnswers")}</p>
  <pre className="rounded-lg bg-surface-2 p-3 font-mono text-xs text-text ">
  {JSON.stringify(sub.answers, null, 2)}
  </pre>
@@ -305,7 +293,7 @@ function QuizAnswersDetail({ answers }: { answers: Record<string, unknown> }) {
 
  return (
  <div className="space-y-2">
- <p className="text-xs font-medium uppercase text-text-subtle">{t("admin.submissionsViewer.answers")}</p>
+ <p className="text-sm font-medium text-text-subtle">{t("admin.submissionsViewer.answers")}</p>
  {quizAnswers.map((a, i) => (
  <div key={i} className="flex items-center gap-2 text-xs text-text-muted ">
  <span className="text-text-subtle">Q{i + 1}:</span>
@@ -325,7 +313,7 @@ function CodeSubmissionDetail({ submission }: { submission: ExerciseSubmission }
  {submission.source_code && (
  <div>
  <div className="mb-1 flex items-center justify-between">
- <p className="text-xs font-medium uppercase text-text-subtle">
+ <p className="text-sm font-medium text-text-subtle">
  Source Code ({submission.language})
  </p>
  {submission.execution_time_ms !== null && (
@@ -340,7 +328,7 @@ function CodeSubmissionDetail({ submission }: { submission: ExerciseSubmission }
 
  {submission.results && (
  <div>
- <p className="mb-2 text-xs font-medium uppercase text-text-subtle">{t("admin.submissionsViewer.testResults")}</p>
+ <p className="mb-2 text-sm font-medium text-text-subtle">{t("admin.submissionsViewer.testResults")}</p>
  <div className="space-y-1">
  {((submission.results as Record<string, unknown>).test_results as Array<Record<string, unknown>> || []).map(
  (r, i) => (

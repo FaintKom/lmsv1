@@ -84,7 +84,7 @@ export default function JsonConfigPanel({ config, onChange }: JsonConfigPanelPro
       <div className="flex items-center justify-between border-b border-border px-3 py-2 bg-surface-2 rounded-t-lg">
         <div className="flex items-center gap-2">
           <Code2 className="h-4 w-4 text-text-muted" />
-          <span className="text-xs font-semibold text-text-muted uppercase tracking-wider">
+          <span className="text-sm font-medium text-text-muted">
             JSON Config
           </span>
         </div>

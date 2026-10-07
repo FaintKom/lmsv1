@@ -221,7 +221,7 @@ function ActivityBody({ data }: { data: StudentActivityResponse }) {
                 >
                   {kpi.value}
                 </div>
-                <div className="mt-1 text-2xs font-semibold uppercase tracking-wide text-text-subtle">
+                <div className="mt-1 text-sm font-medium text-text-subtle">
                   {kpi.label}
                 </div>
               </div>

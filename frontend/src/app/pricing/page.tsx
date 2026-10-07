@@ -21,7 +21,7 @@
 import Link from "next/link";
 import { ArrowRight, Check, ChevronDown } from "lucide-react";
 
-import { Button } from "@/components/ui/button";
+import { buttonClass } from "@/components/ui/button";
 import { LandingHeader } from "@/components/landing/landing-header";
 import { useTranslation } from "@/lib/i18n/context";
 
@@ -179,16 +179,12 @@ export default function PricingPage() {
         <section className="border-t border-border bg-surface-2 py-14">
           <div className="mx-auto max-w-2xl px-6 text-center">
             <div className="flex flex-col items-center justify-center gap-4 sm:flex-row">
-              <Link href="/register">
-                <Button size="lg">
+              <Link href="/register" className={buttonClass({ size: "lg" })}>
                   {t("pricing.ctaStart")}
                   <ArrowRight className="h-5 w-5" />
-                </Button>
               </Link>
-              <Link href="/contact">
-                <Button variant="outline" size="lg">
+              <Link href="/contact" className={buttonClass({ variant: "outline", size: "lg" })}>
                   {t("pricing.ctaAsk")}
-                </Button>
               </Link>
             </div>
           </div>

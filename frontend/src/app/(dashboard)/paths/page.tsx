@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import apiClient from "@/lib/api-client";
 import { Card, CardContent } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
+import { Button, buttonClass } from "@/components/ui/button";
 import { Route, ArrowRight, CheckCircle, Lock } from "lucide-react";
 import { toast } from "sonner";
 import { useTranslation } from "@/lib/i18n/context";
@@ -93,10 +93,8 @@ export default function PathsPage() {
  <div className="flex flex-col items-end gap-2">
  {p.enrolled ? (
  <>
- <Link href={`/paths/${p.id}`}>
- <Button size="sm" variant="outline">
+ <Link href={`/paths/${p.id}`} className={buttonClass({ size: "sm", variant: "outline" })}>
  {t("paths.continue")} <ArrowRight className="ml-1 h-3 w-3" />
- </Button>
  </Link>
  <div className="flex items-center gap-2">
  <div className="h-2 w-24 rounded-pill bg-ink-200 ">

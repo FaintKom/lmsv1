@@ -5,9 +5,8 @@ import { useParams, useRouter, useSearchParams } from "next/navigation";
 import { toast } from "sonner";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Skeleton } from "@/components/ui/skeleton";
+import { PageHeader, PageLoading } from "@/components/ui/page-kit";
 import {
- ArrowLeft,
  Eye,
  Save,
  Trash2,
@@ -156,14 +155,7 @@ export default function ExerciseEditorPage() {
  }
  };
 
- if (loading) {
- return (
- <div className="max-w-4xl space-y-6">
- <Skeleton className="h-8 w-64" />
- <Skeleton className="h-64 w-full" />
- </div>
- );
- }
+ if (loading) return <PageLoading rows={3} />;
 
  if (!exercise) {
  return (
@@ -178,25 +170,21 @@ export default function ExerciseEditorPage() {
 
  return (
  <div className="max-w-4xl space-y-6">
- {/* Header */}
- <div className="flex items-center justify-between">
- <div className="flex items-center gap-3">
- <Button variant="ghost" size="sm" onClick={() => router.push(backHref)}>
- <ArrowLeft className="h-4 w-4" />
- </Button>
- <div>
- <div className="flex items-center gap-2">
- <h1 className="text-xl font-bold text-text ">{exercise.title}</h1>
+ <PageHeader
+ back={{ href: backHref, label: t("admin.exerciseEditor.backToLibrary") }}
+ title={exercise.title}
+ description={
+ <span className="flex flex-wrap items-center gap-2">
  <span className={`rounded-pill px-2.5 py-0.5 text-xs font-medium ${EXERCISE_TYPE_COLORS[exercise.exercise_type]}`}>
  {exerciseTypeName(t, exercise.exercise_type)}
  </span>
- </div>
- <p className="mt-0.5 font-mono text-xs text-text-muted ">{exercise.display_id}</p>
- </div>
- </div>
- <div className="flex items-center gap-2">
+ <span className="font-mono text-xs">{exercise.display_id}</span>
+ </span>
+ }
+ actions={<>
  <div className="flex rounded-lg bg-surface-2 p-1">
    <button
+     aria-pressed={viewMode === "form"}
      onClick={() => setViewMode("form")}
      className={`rounded-md px-3 py-1.5 text-xs font-medium transition-colors ${
        viewMode === "form" ? "bg-surface text-text shadow-sm" : "text-text-muted hover:text-text"
@@ -205,6 +193,7 @@ export default function ExerciseEditorPage() {
      {t("admin.exerciseEditor.formMode")}
    </button>
    <button
+     aria-pressed={viewMode === "json"}
      onClick={() => setViewMode("json")}
      className={`rounded-md px-3 py-1.5 text-xs font-medium transition-colors ${
        viewMode === "json" ? "bg-surface text-text shadow-sm" : "text-text-muted hover:text-text"
@@ -225,8 +214,8 @@ export default function ExerciseEditorPage() {
  <Save className="mr-1.5 h-4 w-4" />
  {saving ? t("common.saving") : t("common.save")}
  </Button>
- </div>
- </div>
+ </>}
+ />
 
  {/* Title */}
  <Card>
@@ -815,7 +804,7 @@ function QuizQuestionsEditor({
  />
  {/* specs/019 US2: the checking rules, visible and editable */}
  <div className="rounded-lg border border-border-strong bg-surface-2 p-3 space-y-2">
- <p className="text-xs font-semibold uppercase tracking-wider text-text-subtle">
+ <p className="text-sm font-medium text-text-subtle">
  {t("admin.exerciseEditor.textRulesTitle")}
  </p>
  <input
@@ -987,13 +976,13 @@ function TestCasesEditor({
  </div>
  <div className="grid grid-cols-2 gap-3">
  <div>
- <p className="text-3xs uppercase text-text-subtle">{t("xp.input")}</p>
+ <p className="text-sm text-text-subtle">{t("xp.input")}</p>
  <pre className="mt-0.5 rounded bg-surface-2 p-2 font-mono text-xs text-text ">
  {tc.input || "(empty)"}
  </pre>
  </div>
  <div>
- <p className="text-3xs uppercase text-text-subtle">{t("xp.expectedOutput")}</p>
+ <p className="text-sm text-text-subtle">{t("xp.expectedOutput")}</p>
  <pre className="mt-0.5 rounded bg-surface-2 p-2 font-mono text-xs text-text ">
  {tc.expected_output}
  </pre>
