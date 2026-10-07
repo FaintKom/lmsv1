@@ -543,10 +543,11 @@ body {
 
 button { font-family: inherit; }
 
+/* No border-radius here: the outline follows the element's own corners, and
+   setting one squared every pill button the moment it took keyboard focus. */
 :focus-visible {
  outline: 2px solid var(--color-border-focus);
  outline-offset: 2px;
- border-radius: var(--radius-xs);
 }
 
 /* Native selects default to the UA's own colours, and `color-scheme: dark`
@@ -606,14 +607,17 @@ button { font-family: inherit; }
 
 ::-webkit-scrollbar { width: 10px; height: 10px; }
 ::-webkit-scrollbar-track { background: transparent; }
+/* Themed tokens, not raw ink: ink-200 stayed light grey on the dark page. */
 ::-webkit-scrollbar-thumb {
- background: var(--ink-200);
+ background: var(--color-border-strong);
  border-radius: 999px;
  border: 2px solid var(--color-bg);
 }
-::-webkit-scrollbar-thumb:hover { background: var(--ink-300); }
+::-webkit-scrollbar-thumb:hover { background: var(--color-text-subtle); }
 
-::selection { background: var(--sun-300); color: var(--color-text); }
+/* Ink on sun in both themes: --color-text turns near-white in dark. */
+::selection { background: var(--sun-300); color: var(--ink-900); }
+input, textarea, [contenteditable="true"] { caret-color: var(--color-primary); }
 
 .font-mono { font-family: var(--font-mono); }
 .tabular-nums { font-variant-numeric: tabular-nums; }
