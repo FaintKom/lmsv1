@@ -795,7 +795,7 @@ export default function CourseEditorPage() {
  ) : (
  <>
  <span className="flex-1 text-sm font-medium text-text ">{module.title}</span>
- <span className="text-xs text-text-subtle">{module.lessons?.length || 0} lessons</span>
+ <span className="text-xs tabular-nums text-text-subtle">{t("courses.lessons")}: {module.lessons?.length || 0}</span>
  <button
  onClick={(e) => {
  e.stopPropagation();
