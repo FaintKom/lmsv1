@@ -567,6 +567,21 @@ button { font-family: inherit; }
  background-color: var(--color-surface);
  color: var(--color-text);
  }
+ /* One chevron for all 72 selects instead of each OS's own arrow
+    (specs/078). The room on the right is !important on purpose: inside a
+    layer, an important declaration outranks the px-* utilities that would
+    otherwise slide the text under the arrow. */
+ select:not([multiple]):not([size]) {
+ appearance: none;
+ background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' fill='none' stroke='%23677265' stroke-width='2' stroke-linecap='round' stroke-linejoin='round' viewBox='0 0 24 24'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
+ background-repeat: no-repeat;
+ background-position: right 0.75rem center;
+ background-size: 1rem;
+ padding-inline-end: 2.25rem !important;
+ }
+ .dark select:not([multiple]):not([size]) {
+ background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' fill='none' stroke='%239aa89b' stroke-width='2' stroke-linecap='round' stroke-linejoin='round' viewBox='0 0 24 24'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
+ }
  select option {
  background-color: var(--color-surface);
  color: var(--color-text);

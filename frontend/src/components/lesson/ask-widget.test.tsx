@@ -30,7 +30,7 @@ describe("AskWidget", () => {
 
     const status = await screen.findByRole("status");
     expect(status).toHaveTextContent("tutor.thinking");
-    expect(status.querySelectorAll(".motion-safe\\:animate-bounce")).toHaveLength(3);
+    expect(status.querySelectorAll(".motion-safe\\:animate-pulse")).toHaveLength(3);
 
     resolvePost({ data: { answer: "because" } });
     expect(await screen.findByText("because")).toBeInTheDocument();
