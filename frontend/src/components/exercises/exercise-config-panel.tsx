@@ -60,6 +60,7 @@ import { SCORMConfigEditor } from "@/components/exercises/scorm-package-exercise
 import { MathStepwiseConfigEditor } from "@/components/exercises/math-stepwise-exercise";
 import { LivePreview } from "@/components/exercises/live-preview";
 import { CommaListInput } from "@/components/exercises/comma-list-input";
+import { useTranslation } from "@/lib/i18n/context";
 
 const Robot2DEditor = dynamic(
   () => import("@/components/game/robot-2d/robot-2d-editor"),
@@ -129,6 +130,7 @@ export interface ExerciseConfigPanelProps {
 }
 
 export function ExerciseConfigPanel({ exerciseId, hideTitle, onSaved }: ExerciseConfigPanelProps) {
+  const { t } = useTranslation();
   const [exercise, setExercise] = useState<Exercise | null>(null);
   const [loading, setLoading] = useState(true);
   const [title, setTitle] = useState("");
@@ -146,7 +148,7 @@ export function ExerciseConfigPanel({ exerciseId, hideTitle, onSaved }: Exercise
         setTitle(data.title);
         setConfig(applyDefaults(data.exercise_type, data.config || {}));
       })
-      .catch(() => toast.error("Exercise not found"))
+      .catch(() => toast.error(t("admin.exerciseEditor.notFound")))
       .finally(() => {
         setLoading(false);
         initialLoadRef.current = true;
@@ -174,7 +176,7 @@ export function ExerciseConfigPanel({ exerciseId, hideTitle, onSaved }: Exercise
         setTimeout(() => setSaveStatus((s) => (s === "saved" ? "idle" : s)), 1500);
       } catch (e) {
         setSaveStatus("error");
-        toast.error(getApiError(e, "Failed to save"));
+        toast.error(getApiError(e, t("admin.exerciseEditor.failedSave")));
       }
     }, 1200);
     return () => {
@@ -193,7 +195,7 @@ export function ExerciseConfigPanel({ exerciseId, hideTitle, onSaved }: Exercise
   }
 
   if (!exercise) {
-    return <div className="text-sm text-text-subtle">Exercise not found.</div>;
+    return <div className="text-sm text-text-subtle">{t("admin.exerciseEditor.notFound")}</div>;
   }
 
   const type = exercise.exercise_type;
@@ -206,7 +208,7 @@ export function ExerciseConfigPanel({ exerciseId, hideTitle, onSaved }: Exercise
             type="text"
             value={title}
             onChange={(e) => setTitle(e.target.value)}
-            placeholder="Exercise title"
+            placeholder={t("ecp.titlePlaceholder")}
             className="flex-1 rounded-lg border border-border-strong bg-surface px-3 py-2 text-sm font-medium text-text outline-none focus:border-primary focus:ring-2 focus:ring-primary-soft"
           />
           <SaveBadge status={saveStatus} />
@@ -284,21 +286,22 @@ export function ExerciseConfigPanel({ exerciseId, hideTitle, onSaved }: Exercise
 /* ─── Save badge ─────────────────────────────────────────────────────── */
 
 function SaveBadge({ status }: { status: SaveStatus }) {
+  const { t } = useTranslation();
   if (status === "idle") return <span className="text-xs text-text-subtle">·</span>;
-  if (status === "dirty") return <span className="text-xs text-text-subtle">Unsaved…</span>;
+  if (status === "dirty") return <span className="text-xs text-text-subtle">{t("admin.lessonEditor.unsaved")}</span>;
   if (status === "saving")
     return (
       <span className="flex items-center gap-1 text-xs text-text-subtle">
-        <Loader2 className="h-3 w-3 animate-spin" /> Saving
+        <Loader2 className="h-3 w-3 animate-spin" /> {t("common.saving")}
       </span>
     );
   if (status === "saved")
     return (
       <span className="flex items-center gap-1 text-xs text-primary">
-        <Check className="h-3 w-3" /> Saved
+        <Check className="h-3 w-3" /> {t("admin.lessonEditor.saved")}
       </span>
     );
-  if (status === "error") return <span className="text-xs text-danger-fg">Save failed</span>;
+  if (status === "error") return <span className="text-xs text-danger-fg">{t("admin.lessonEditor.saveFailed")}</span>;
   return null;
 }
 
@@ -311,15 +314,16 @@ function QuizConfigEditor({
   config: Record<string, unknown>;
   onChange: (c: Record<string, unknown>) => void;
 }) {
+  const { t } = useTranslation();
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Quiz Settings</CardTitle>
+        <CardTitle>{t("admin.exerciseEditor.quizSettings")}</CardTitle>
       </CardHeader>
       <CardContent>
         <div className="grid grid-cols-2 gap-4">
           <div>
-            <label className="mb-1 block text-sm font-medium text-text">Passing Score (%)</label>
+            <label className="mb-1 block text-sm font-medium text-text">{t("admin.exerciseEditor.passingScore")}</label>
             <input
               type="number"
               value={(config.passing_score as number) ?? 70}
@@ -328,7 +332,7 @@ function QuizConfigEditor({
             />
           </div>
           <div>
-            <label className="mb-1 block text-sm font-medium text-text">Time Limit (min)</label>
+            <label className="mb-1 block text-sm font-medium text-text">{t("admin.exerciseEditor.timeLimitMin")}</label>
             <input
               type="number"
               value={(config.time_limit_minutes as number) ?? ""}
@@ -338,7 +342,7 @@ function QuizConfigEditor({
                   time_limit_minutes: e.target.value ? parseInt(e.target.value) : null,
                 })
               }
-              placeholder="No limit"
+              placeholder={t("admin.exerciseEditor.noLimit")}
               className="w-full rounded-lg border border-border-strong bg-surface px-3 py-2 text-sm"
             />
           </div>
@@ -355,6 +359,7 @@ function CodeConfigEditor({
   config: Record<string, unknown>;
   onChange: (c: Record<string, unknown>) => void;
 }) {
+  const { t } = useTranslation();
   const description = (config.description as string) || "";
   const examples =
     (config.examples as { input: string; output: string; explanation?: string }[]) || [];
@@ -373,27 +378,27 @@ function CodeConfigEditor({
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Code Challenge Settings</CardTitle>
+        <CardTitle>{t("admin.exerciseEditor.codeSettings")}</CardTitle>
       </CardHeader>
       <CardContent>
         <div className="space-y-4">
           <div>
-            <label className="mb-1 block text-sm font-medium text-text">Description</label>
+            <label className="mb-1 block text-sm font-medium text-text">{t("common.description")}</label>
             <textarea
               value={description}
               onChange={(e) => onChange({ ...config, description: e.target.value })}
               rows={5}
-              placeholder="Describe the problem the student should solve. Plain text or simple markdown."
+              placeholder={t("ecp.descriptionPlaceholder")}
               className="w-full rounded-lg border border-border-strong bg-surface px-3 py-2 text-sm"
             />
             <p className="mt-1 text-xs text-text-subtle">
-              Shown to the student above the editor.
+              {t("ecp.descriptionHint")}
             </p>
           </div>
 
           <div className="grid grid-cols-3 gap-4">
             <div>
-              <label className="mb-1 block text-sm font-medium text-text">Language</label>
+              <label className="mb-1 block text-sm font-medium text-text">{t("admin.exerciseEditor.language")}</label>
               <select
                 value={(config.language as string) || "python"}
                 onChange={(e) => onChange({ ...config, language: e.target.value })}
@@ -407,7 +412,7 @@ function CodeConfigEditor({
               </select>
             </div>
             <div>
-              <label className="mb-1 block text-sm font-medium text-text">Time Limit (s)</label>
+              <label className="mb-1 block text-sm font-medium text-text">{t("admin.exerciseEditor.timeLimitSec")}</label>
               <input
                 type="number"
                 value={(config.time_limit_seconds as number) ?? 10}
@@ -416,7 +421,7 @@ function CodeConfigEditor({
               />
             </div>
             <div>
-              <label className="mb-1 block text-sm font-medium text-text">Memory (MB)</label>
+              <label className="mb-1 block text-sm font-medium text-text">{t("admin.exerciseEditor.memoryMb")}</label>
               <input
                 type="number"
                 value={(config.memory_limit_mb as number) ?? 256}
@@ -430,15 +435,15 @@ function CodeConfigEditor({
           <div>
             <div className="mb-1 flex items-center justify-between">
               <label className="block text-sm font-medium text-text">
-                Examples ({examples.length})
+                {t("ecp.examples").replace("{n}", String(examples.length))}
               </label>
               <Button variant="outline" size="sm" onClick={addExample}>
                 <Plus className="mr-1 h-3.5 w-3.5" />
-                Add Example
+                {t("ecp.addExample")}
               </Button>
             </div>
             <p className="mb-2 text-xs text-text-subtle">
-              Public sample input/output shown to the student. Separate from grading test cases below.
+              {t("ecp.examplesHint")}
             </p>
             <div className="space-y-2">
               {examples.map((ex, i) => (
@@ -447,20 +452,21 @@ function CodeConfigEditor({
                   className="group relative rounded-lg border border-border-strong bg-surface p-3"
                 >
                   <div className="mb-1 flex items-center justify-between">
-                    <span className="text-xs font-semibold text-text-muted">Example {i + 1}</span>
+                    <span className="text-xs font-semibold text-text-muted">{t("ecp.exampleN").replace("{n}", String(i + 1))}</span>
                     <Button
                       variant="ghost"
                       size="sm"
                       className="text-danger-fg opacity-0 transition-opacity group-hover:opacity-100"
                       onClick={() => removeExample(i)}
+                      aria-label={t("common.remove")}
                     >
-                      <Trash2 className="h-3.5 w-3.5" />
+                      <Trash2 className="h-3.5 w-3.5" aria-hidden="true" />
                     </Button>
                   </div>
                   <div className="grid grid-cols-2 gap-2">
                     <div>
                       <label className="mb-0.5 block text-sm text-text-subtle">
-                        Input
+                        {t("admin.exerciseEditor.inputLabel")}
                       </label>
                       <textarea
                         value={ex.input}
@@ -471,7 +477,7 @@ function CodeConfigEditor({
                     </div>
                     <div>
                       <label className="mb-0.5 block text-sm text-text-subtle">
-                        Output
+                        {t("ecp.output")}
                       </label>
                       <textarea
                         value={ex.output}
@@ -483,13 +489,13 @@ function CodeConfigEditor({
                   </div>
                   <div className="mt-2">
                     <label className="mb-0.5 block text-sm text-text-subtle">
-                      Explanation (optional)
+                      {t("ecp.explanation")}
                     </label>
                     <input
                       type="text"
                       value={ex.explanation || ""}
                       onChange={(e) => updateExample(i, { explanation: e.target.value })}
-                      placeholder="Why this output…"
+                      placeholder={t("ecp.explanationPlaceholder")}
                       className="w-full rounded border border-border-strong px-2 py-1 text-xs"
                     />
                   </div>
@@ -499,7 +505,7 @@ function CodeConfigEditor({
           </div>
 
           <div>
-            <label className="mb-1 block text-sm font-medium text-text">Starter Code</label>
+            <label className="mb-1 block text-sm font-medium text-text">{t("admin.exerciseEditor.starterCode")}</label>
             <textarea
               value={(config.starter_code as string) || ""}
               onChange={(e) => onChange({ ...config, starter_code: e.target.value })}
@@ -508,7 +514,7 @@ function CodeConfigEditor({
             />
           </div>
           <div>
-            <label className="mb-1 block text-sm font-medium text-text">Solution Code</label>
+            <label className="mb-1 block text-sm font-medium text-text">{t("admin.exerciseEditor.solutionCode")}</label>
             <textarea
               value={(config.solution_code as string) || ""}
               onChange={(e) => onChange({ ...config, solution_code: e.target.value })}
@@ -529,16 +535,17 @@ function FileUploadConfigEditor({
   config: Record<string, unknown>;
   onChange: (c: Record<string, unknown>) => void;
 }) {
+  const { t } = useTranslation();
   const allowedTypes = (config.allowed_types as string[]) || [".pdf", ".png", ".jpg", ".doc", ".docx"];
   return (
     <Card>
       <CardHeader>
-        <CardTitle>File Upload Settings</CardTitle>
+        <CardTitle>{t("admin.exerciseEditor.fileUploadSettings")}</CardTitle>
       </CardHeader>
       <CardContent>
         <div className="grid grid-cols-2 gap-4">
           <div>
-            <label className="mb-1 block text-sm font-medium text-text">Allowed File Types</label>
+            <label className="mb-1 block text-sm font-medium text-text">{t("admin.exerciseEditor.allowedFileTypes")}</label>
             <CommaListInput
               value={allowedTypes}
               onChange={(next) => onChange({ ...config, allowed_types: next })}
@@ -547,7 +554,7 @@ function FileUploadConfigEditor({
             />
           </div>
           <div>
-            <label className="mb-1 block text-sm font-medium text-text">Max File Size (MB)</label>
+            <label className="mb-1 block text-sm font-medium text-text">{t("admin.exerciseEditor.maxFileMb")}</label>
             <input
               type="number"
               value={(config.max_file_mb as number) ?? 50}
@@ -572,6 +579,7 @@ function QuizQuestionsEditor({
   questions: ExerciseQuestion[];
   onRefresh: () => void;
 }) {
+  const { t } = useTranslation();
   const [showForm, setShowForm] = useState(false);
   const [editId, setEditId] = useState<string | null>(null);
   const [form, setForm] = useState({
@@ -637,15 +645,15 @@ function QuizQuestionsEditor({
       }
       if (editId) {
         await exercisesApi.updateQuestion(exerciseId, editId, payload);
-        toast.success("Question updated");
+        toast.success(t("admin.exerciseEditor.questionUpdated"));
       } else {
         await exercisesApi.addQuestion(exerciseId, payload);
-        toast.success("Question added");
+        toast.success(t("admin.exerciseEditor.questionAdded"));
       }
       resetForm();
       onRefresh();
     } catch (e) {
-      toast.error(getApiError(e, "Failed to save question"));
+      toast.error(getApiError(e, t("admin.exerciseEditor.failedSaveQuestion")));
     } finally {
       setSaving(false);
     }
@@ -654,17 +662,17 @@ function QuizQuestionsEditor({
   const handleDelete = async (questionId: string) => {
     try {
       await exercisesApi.deleteQuestion(exerciseId, questionId);
-      toast.success("Question deleted");
+      toast.success(t("admin.exerciseEditor.questionDeleted"));
       onRefresh();
     } catch {
-      toast.error("Failed to delete question");
+      toast.error(t("admin.exerciseEditor.failedDeleteQuestion"));
     }
   };
 
   return (
     <Card>
       <CardHeader className="flex flex-row items-center justify-between">
-        <CardTitle>Questions ({questions.length})</CardTitle>
+        <CardTitle>{t("ecp.questions").replace("{n}", String(questions.length))}</CardTitle>
         <Button
           size="sm"
           variant="outline"
@@ -681,7 +689,7 @@ function QuizQuestionsEditor({
           }}
         >
           <Plus className="mr-1.5 h-4 w-4" />
-          Add Question
+          {t("admin.exerciseEditor.addQuestion")}
         </Button>
       </CardHeader>
       <CardContent className="space-y-3">
@@ -717,16 +725,17 @@ function QuizQuestionsEditor({
                 )}
               </div>
               <div className="flex gap-1 opacity-0 transition-opacity group-hover:opacity-100">
-                <Button variant="ghost" size="sm" onClick={() => startEdit(q)}>
-                  <Pencil className="h-3.5 w-3.5" />
+                <Button variant="ghost" size="sm" onClick={() => startEdit(q)} aria-label={t("common.edit")}>
+                  <Pencil className="h-3.5 w-3.5" aria-hidden="true" />
                 </Button>
                 <Button
                   variant="ghost"
                   size="sm"
                   className="text-danger-fg"
                   onClick={() => handleDelete(q.id)}
+                  aria-label={t("common.delete")}
                 >
-                  <Trash2 className="h-3.5 w-3.5" />
+                  <Trash2 className="h-3.5 w-3.5" aria-hidden="true" />
                 </Button>
               </div>
             </div>
@@ -738,7 +747,7 @@ function QuizQuestionsEditor({
             <div className="space-y-3">
               <input
                 type="text"
-                placeholder="Question text"
+                placeholder={t("admin.exerciseEditor.questionTextPlaceholder")}
                 value={form.question_text}
                 onChange={(e) => setForm({ ...form, question_text: e.target.value })}
                 className="w-full rounded-lg border border-border-strong px-3 py-2 text-sm"
@@ -751,15 +760,15 @@ function QuizQuestionsEditor({
                   }
                   className="rounded-lg border border-border-strong px-3 py-2 text-sm"
                 >
-                  <option value="multiple_choice">Multiple Choice</option>
-                  <option value="text_answer">Text Answer</option>
+                  <option value="multiple_choice">{t("admin.exerciseEditor.multipleChoice")}</option>
+                  <option value="text_answer">{t("admin.exerciseEditor.textAnswer")}</option>
                 </select>
                 <input
                   type="number"
                   value={form.points}
                   onChange={(e) => setForm({ ...form, points: parseInt(e.target.value) || 1 })}
                   className="w-20 rounded-lg border border-border-strong px-3 py-2 text-sm"
-                  placeholder="Points"
+                  placeholder={t("admin.exerciseEditor.pointsPlaceholder")}
                 />
               </div>
               {form.question_type === "multiple_choice" ? (
@@ -789,7 +798,7 @@ function QuizQuestionsEditor({
                           opts[i] = { ...opts[i], text: e.target.value };
                           setForm({ ...form, options: opts });
                         }}
-                        placeholder={`Option ${i + 1}`}
+                        placeholder={`${t("admin.exerciseEditor.optionLabel")} ${i + 1}`}
                         className="flex-1 rounded-lg border border-border-strong px-3 py-1.5 text-sm"
                       />
                       {form.options.length > 2 && (
@@ -803,8 +812,9 @@ function QuizQuestionsEditor({
                             })
                           }
                           className="text-danger-fg"
+                          aria-label={t("common.remove")}
                         >
-                          <Trash2 className="h-3.5 w-3.5" />
+                          <Trash2 className="h-3.5 w-3.5" aria-hidden="true" />
                         </Button>
                       )}
                     </div>
@@ -823,13 +833,13 @@ function QuizQuestionsEditor({
                     }
                   >
                     <Plus className="mr-1 h-3.5 w-3.5" />
-                    Add Option
+                    {t("admin.exerciseEditor.addOption")}
                   </Button>
                 </div>
               ) : (
                 <input
                   type="text"
-                  placeholder="Correct answer"
+                  placeholder={t("admin.exerciseEditor.correctAnswerPlaceholder")}
                   value={form.correct_answer}
                   onChange={(e) => setForm({ ...form, correct_answer: e.target.value })}
                   className="w-full rounded-lg border border-border-strong px-3 py-2 text-sm"
@@ -837,10 +847,10 @@ function QuizQuestionsEditor({
               )}
               <div className="flex justify-end gap-2">
                 <Button variant="outline" size="sm" onClick={resetForm}>
-                  Cancel
+                  {t("common.cancel")}
                 </Button>
                 <Button size="sm" onClick={handleSubmit} disabled={saving}>
-                  {saving ? "Saving..." : editId ? "Update" : "Add"}
+                  {saving ? t("common.saving") : editId ? t("common.update") : t("common.add")}
                 </Button>
               </div>
             </div>
@@ -862,6 +872,7 @@ function TestCasesEditor({
   testCases: ExerciseTestCase[];
   onRefresh: () => void;
 }) {
+  const { t } = useTranslation();
   const [showForm, setShowForm] = useState(false);
   const [form, setForm] = useState({ input: "", expected_output: "", is_hidden: false });
   const [saving, setSaving] = useState(false);
@@ -874,12 +885,12 @@ function TestCasesEditor({
     setSaving(true);
     try {
       await exercisesApi.addTestCase(exerciseId, form);
-      toast.success("Test case added");
+      toast.success(t("admin.exerciseEditor.testCaseAdded"));
       setForm({ input: "", expected_output: "", is_hidden: false });
       setShowForm(false);
       onRefresh();
     } catch (e) {
-      toast.error(getApiError(e, "Failed to add test case"));
+      toast.error(getApiError(e, t("admin.exerciseEditor.failedAddTestCase")));
     } finally {
       setSaving(false);
     }
@@ -890,17 +901,17 @@ function TestCasesEditor({
       await exercisesApi.updateTestCase(exerciseId, tc.id, { is_hidden: !tc.is_hidden });
       onRefresh();
     } catch (e) {
-      toast.error(getApiError(e, "Failed to update test case"));
+      toast.error(getApiError(e, t("ecp.testUpdateFailed")));
     }
   };
 
   const handleDelete = async (tcId: string) => {
     try {
       await exercisesApi.deleteTestCase(exerciseId, tcId);
-      toast.success("Test case deleted");
+      toast.success(t("admin.exerciseEditor.testCaseDeleted"));
       onRefresh();
     } catch {
-      toast.error("Failed to delete test case");
+      toast.error(t("admin.exerciseEditor.failedDeleteTestCase"));
     }
   };
 
@@ -952,7 +963,7 @@ function TestCasesEditor({
     const inputIdx = header.indexOf("input");
     const outputIdx = header.findIndex((h) => h === "expected_output" || h === "output");
     const hiddenIdx = header.findIndex((h) => h === "is_hidden" || h === "hidden");
-    if (outputIdx === -1) throw new Error("CSV header must contain 'expected_output' (or 'output')");
+    if (outputIdx === -1) throw new Error(t("ecp.csvNeedsOutput"));
     const out: { input: string; expected_output: string; is_hidden: boolean }[] = [];
     for (let i = 1; i < rows.length; i++) {
       const r = rows[i];
@@ -977,7 +988,7 @@ function TestCasesEditor({
       const text = await file.text();
       const parsed = parseCsv(text);
       if (parsed.length === 0) {
-        toast.error("CSV had no data rows");
+        toast.error(t("ecp.csvEmpty"));
         return;
       }
       // Sequential to preserve sort_order; small batches in olympiad practice.
@@ -990,10 +1001,10 @@ function TestCasesEditor({
           /* keep going */
         }
       }
-      toast.success(`Imported ${ok} of ${parsed.length} test cases`);
+      toast.success(t("ecp.csvImported").replace("{ok}", String(ok)).replace("{total}", String(parsed.length)));
       onRefresh();
     } catch (err) {
-      toast.error(err instanceof Error ? err.message : "Failed to parse CSV");
+      toast.error(err instanceof Error ? err.message : t("ecp.csvReadFailed"));
     } finally {
       setImporting(false);
       if (csvInputRef.current) csvInputRef.current.value = "";
@@ -1024,7 +1035,7 @@ function TestCasesEditor({
   return (
     <Card>
       <CardHeader className="flex flex-row items-center justify-between">
-        <CardTitle>Test Cases ({testCases.length})</CardTitle>
+        <CardTitle>{t("ecp.tests").replace("{n}", String(testCases.length))}</CardTitle>
         <div className="flex gap-2">
           <input
             ref={csvInputRef}
@@ -1037,23 +1048,25 @@ function TestCasesEditor({
             size="sm"
             variant="ghost"
             onClick={() => setShowCsvHelp((v) => !v)}
-            title="What CSV format?"
+            title={t("ecp.csvHelpToggle")}
+            aria-label={t("ecp.csvHelpToggle")}
+            aria-expanded={showCsvHelp}
           >
-            <HelpCircle className="h-4 w-4" />
+            <HelpCircle className="h-4 w-4" aria-hidden="true" />
           </Button>
           <Button
             size="sm"
             variant="outline"
             onClick={() => csvInputRef.current?.click()}
             disabled={importing}
-            title="CSV columns: input, expected_output, is_hidden (optional)"
+            title={t("ecp.csvColumns")}
           >
             <Plus className="mr-1.5 h-4 w-4" />
-            {importing ? "Importing…" : "Import CSV"}
+            {importing ? t("ecp.importing") : t("xp.importCsv")}
           </Button>
           <Button size="sm" variant="outline" onClick={() => setShowForm(true)}>
             <Plus className="mr-1.5 h-4 w-4" />
-            Add Test Case
+            {t("admin.exerciseEditor.addTestCase")}
           </Button>
         </div>
       </CardHeader>
@@ -1061,39 +1074,25 @@ function TestCasesEditor({
         {showCsvHelp && (
           <div className="rounded-lg border border-border-strong bg-surface-2 p-3 text-xs text-text-muted">
             <div className="mb-2 flex items-center justify-between">
-              <strong className="text-text">CSV format for test cases</strong>
+              <strong className="text-text">{t("ecp.csvHelpTitle")}</strong>
               <Button size="sm" variant="ghost" onClick={downloadExampleCsv}>
                 <Download className="mr-1 h-3.5 w-3.5" />
-                Download example
+                {t("ecp.downloadExample")}
               </Button>
             </div>
             <ul className="mb-2 list-disc space-y-0.5 pl-4">
-              <li>
-                First row is the header. Required column:
-                <code className="mx-1 rounded bg-surface px-1">expected_output</code>
-                (also accepts <code className="mx-1 rounded bg-surface px-1">output</code>).
-              </li>
-              <li>
-                Optional columns:
-                <code className="mx-1 rounded bg-surface px-1">input</code>,
-                <code className="mx-1 rounded bg-surface px-1">is_hidden</code>
-                (accepts <code className="rounded bg-surface px-1">true / 1 / yes / hidden</code>).
-              </li>
-              <li>
-                Wrap a field in <code className="mx-1 rounded bg-surface px-1">&quot;double quotes&quot;</code>
-                if it contains a comma or a newline. Escape an inner quote by doubling it:
-                <code className="mx-1 rounded bg-surface px-1">&quot;&quot;</code>.
-              </li>
-              <li>Line endings: LF or CRLF, both work.</li>
+              <li>{t("ecp.csvRule1")}</li>
+              <li>{t("ecp.csvRule2")}</li>
+              <li>{t("ecp.csvRule3")}</li>
+              <li>{t("ecp.csvRule4")}</li>
             </ul>
             <p className="mb-1 text-sm text-text-subtle">
-              Example
+              {t("exercise.example")}
             </p>
             <pre className="overflow-x-auto rounded bg-surface p-2 font-mono text-2xs leading-snug text-text">
 {SAMPLE_CSV}</pre>
             <p className="mt-2 text-2xs text-text-subtle">
-              Row 4 is a single field with the literal value <code>1,2,3</code>.<br />
-              Row 5 is a single field containing the literal text <code>hello &quot;world&quot;</code>.
+              {t("ecp.csvRowsNote")}
             </p>
           </div>
         )}
@@ -1110,18 +1109,18 @@ function TestCasesEditor({
                       onChange={() => toggleHidden(tc)}
                       className="h-3 w-3 accent-green-600"
                     />
-                    Hidden
+                    {t("admin.exerciseEditor.hiddenBadge")}
                   </label>
                 </div>
                 <div className="grid grid-cols-2 gap-3">
                   <div>
-                    <p className="text-sm text-text-subtle">Input</p>
+                    <p className="text-sm text-text-subtle">{t("admin.exerciseEditor.inputLabel")}</p>
                     <pre className="mt-0.5 rounded bg-surface-2 p-2 font-mono text-xs text-text">
-                      {tc.input || "(empty)"}
+                      {tc.input || t("admin.exerciseEditor.inputEmpty")}
                     </pre>
                   </div>
                   <div>
-                    <p className="text-sm text-text-subtle">Expected Output</p>
+                    <p className="text-sm text-text-subtle">{t("admin.exerciseEditor.expectedOutputLabel")}</p>
                     <pre className="mt-0.5 rounded bg-surface-2 p-2 font-mono text-xs text-text">
                       {tc.expected_output}
                     </pre>
@@ -1133,8 +1132,9 @@ function TestCasesEditor({
                 size="sm"
                 className="text-danger-fg opacity-0 transition-opacity group-hover:opacity-100"
                 onClick={() => handleDelete(tc.id)}
+                aria-label={t("common.delete")}
               >
-                <Trash2 className="h-3.5 w-3.5" />
+                <Trash2 className="h-3.5 w-3.5" aria-hidden="true" />
               </Button>
             </div>
           </div>
@@ -1145,7 +1145,7 @@ function TestCasesEditor({
               <div className="grid grid-cols-2 gap-3">
                 <div>
                   <label className="mb-1 block text-xs font-medium text-text-muted">
-                    Input (stdin)
+                    {t("admin.exerciseEditor.inputStdin")}
                   </label>
                   <textarea
                     value={form.input}
@@ -1156,7 +1156,7 @@ function TestCasesEditor({
                 </div>
                 <div>
                   <label className="mb-1 block text-xs font-medium text-text-muted">
-                    Expected Output
+                    {t("admin.exerciseEditor.expectedOutputLabel")}
                   </label>
                   <textarea
                     value={form.expected_output}
@@ -1173,14 +1173,14 @@ function TestCasesEditor({
                   onChange={(e) => setForm({ ...form, is_hidden: e.target.checked })}
                   className="accent-green-600"
                 />
-                Hidden test case (not visible to students)
+                {t("admin.exerciseEditor.hiddenTestHint")}
               </label>
               <div className="flex justify-end gap-2">
                 <Button variant="outline" size="sm" onClick={() => setShowForm(false)}>
-                  Cancel
+                  {t("common.cancel")}
                 </Button>
                 <Button size="sm" onClick={handleAdd} disabled={saving}>
-                  {saving ? "Adding..." : "Add"}
+                  {saving ? t("common.adding") : t("common.add")}
                 </Button>
               </div>
             </div>
