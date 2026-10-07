@@ -188,6 +188,7 @@ function SubmissionRow({
  isExpanded: boolean;
  onToggle: () => void;
 }) {
+ const { t } = useTranslation();
  const sub = submission;
  const passedIcon = sub.passed === true ? (
  <Check className="h-4 w-4 text-primary" />
@@ -276,7 +277,7 @@ function SubmissionRow({
  {/* Interactive answers */}
  {!["quiz", "code_challenge", "file_upload"].includes(exerciseType) && sub.answers && (
  <div>
- <p className="mb-2 text-xs font-medium uppercase text-text-subtle">Student Answers</p>
+ <p className="mb-2 text-xs font-medium uppercase text-text-subtle">{t("admin.submissionsViewer.studentAnswers")}</p>
  <pre className="rounded-lg bg-surface-2 p-3 font-mono text-xs text-text ">
  {JSON.stringify(sub.answers, null, 2)}
  </pre>
@@ -291,6 +292,7 @@ function SubmissionRow({
 // ─── Quiz Answers Detail ────────────────────────────────────────────
 
 function QuizAnswersDetail({ answers }: { answers: Record<string, unknown> }) {
+ const { t } = useTranslation();
  const quizAnswers = (answers.quiz_answers || answers) as Array<Record<string, unknown>>;
 
  if (!Array.isArray(quizAnswers)) {
@@ -303,7 +305,7 @@ function QuizAnswersDetail({ answers }: { answers: Record<string, unknown> }) {
 
  return (
  <div className="space-y-2">
- <p className="text-xs font-medium uppercase text-text-subtle">Answers</p>
+ <p className="text-xs font-medium uppercase text-text-subtle">{t("admin.submissionsViewer.answers")}</p>
  {quizAnswers.map((a, i) => (
  <div key={i} className="flex items-center gap-2 text-xs text-text-muted ">
  <span className="text-text-subtle">Q{i + 1}:</span>
@@ -317,6 +319,7 @@ function QuizAnswersDetail({ answers }: { answers: Record<string, unknown> }) {
 // ─── Code Submission Detail ─────────────────────────────────────────
 
 function CodeSubmissionDetail({ submission }: { submission: ExerciseSubmission }) {
+ const { t } = useTranslation();
  return (
  <div className="space-y-4">
  {submission.source_code && (
@@ -337,7 +340,7 @@ function CodeSubmissionDetail({ submission }: { submission: ExerciseSubmission }
 
  {submission.results && (
  <div>
- <p className="mb-2 text-xs font-medium uppercase text-text-subtle">Test Results</p>
+ <p className="mb-2 text-xs font-medium uppercase text-text-subtle">{t("admin.submissionsViewer.testResults")}</p>
  <div className="space-y-1">
  {((submission.results as Record<string, unknown>).test_results as Array<Record<string, unknown>> || []).map(
  (r, i) => (
@@ -371,6 +374,7 @@ function CodeSubmissionDetail({ submission }: { submission: ExerciseSubmission }
 // ─── File Submission Detail ─────────────────────────────────────────
 
 function FileSubmissionDetail({ submission }: { submission: ExerciseSubmission }) {
+ const { t } = useTranslation();
  return (
  <div className="flex items-center gap-4">
  <FileText className="h-8 w-8 text-text-subtle" />
@@ -389,7 +393,7 @@ function FileSubmissionDetail({ submission }: { submission: ExerciseSubmission }
  download
  >
  <Download className="h-3.5 w-3.5" />
- Download
+ {t("common.download")}
  </a>
  </div>
  );

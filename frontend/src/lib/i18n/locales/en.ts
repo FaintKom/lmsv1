@@ -1,6 +1,7 @@
 import type { TranslationMap } from "../meta";
 
 const en: TranslationMap = {
+ "admin.contentLibrary.newTemplateTitle": "New template",
  "bulk.csvFormat": "CSV with a header row; email is required, name and password are optional:",
  "xe.equationHint": "Plain text. You can write multiplication without a sign, and variables may stand on either side:",
  "intg.how1": "Each integration links your school's own account on that service, over OAuth",
