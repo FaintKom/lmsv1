@@ -235,7 +235,7 @@ function TemplatesTab() {
  const handleCreateTemplate = async () => {
  try {
  const { data } = await apiClient.post("/courses", {
- title: "New Template",
+ title: t("admin.contentLibrary.newTemplateTitle"),
  description: "",
  is_template: true,
  });

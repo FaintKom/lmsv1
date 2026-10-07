@@ -1,6 +1,7 @@
 import type { TranslationMap } from "../meta";
 
 const uk: TranslationMap = {
+ "admin.contentLibrary.newTemplateTitle": "Новий шаблон",
  "bulk.csvFormat": "CSV з рядком заголовків; email обов'язковий, name і password — ні:",
  "xe.equationHint": "Звичайний текст. Знак множення можна не писати, змінні можуть стояти з будь-якого боку:",
  "intg.how1": "Кожна інтеграція підключає акаунт вашої школи в цьому сервісі через OAuth",

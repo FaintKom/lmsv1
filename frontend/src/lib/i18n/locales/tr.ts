@@ -1,6 +1,7 @@
 import type { TranslationMap } from "../meta";
 
 const tr: TranslationMap = {
+ "admin.contentLibrary.newTemplateTitle": "Yeni şablon",
  "bulk.csvFormat": "Başlık satırlı CSV; email zorunlu, name ve password isteğe bağlı:",
  "xe.equationHint": "Düz metin. Çarpma işaretini yazmayabilirsin, değişkenler iki tarafta da olabilir:",
  "intg.how1": "Her entegrasyon, okulunun o hizmetteki hesabını OAuth ile bağlar",

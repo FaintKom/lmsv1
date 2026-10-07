@@ -968,7 +968,7 @@ function HtmlBlockBody({
     <textarea
       value={typeof block.body === "string" ? block.body : ""}
       onChange={(e) => onUpdate({ body: e.target.value, format: "html" })}
-      placeholder="<div>Raw HTML…</div>"
+      placeholder="<div>…</div>"
       rows={6}
       className="w-full rounded-lg border border-border-strong bg-surface-2 p-3 font-mono text-xs focus:border-primary focus:outline-none"
     />

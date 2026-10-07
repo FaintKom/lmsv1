@@ -1,6 +1,7 @@
 import type { TranslationMap } from "../meta";
 
 const ru: TranslationMap = {
+ "admin.contentLibrary.newTemplateTitle": "Новый шаблон",
  "bulk.csvFormat": "CSV со строкой заголовков; email обязателен, name и password — нет:",
  "xe.equationHint": "Обычный текст. Знак умножения можно не писать, переменные могут стоять с любой стороны:",
  "intg.how1": "Каждая интеграция подключает аккаунт вашей школы в этом сервисе через OAuth",

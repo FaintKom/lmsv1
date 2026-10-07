@@ -1,6 +1,7 @@
 import type { TranslationMap } from "../meta";
 
 const de: TranslationMap = {
+ "admin.contentLibrary.newTemplateTitle": "Neue Vorlage",
  "bulk.csvFormat": "CSV mit Kopfzeile; email ist Pflicht, name und password sind optional:",
  "xe.equationHint": "Einfacher Text. Das Malzeichen kann fehlen, und Variablen dürfen auf beiden Seiten stehen:",
  "intg.how1": "Jede Integration verbindet das Konto deiner Schule bei diesem Dienst, über OAuth",

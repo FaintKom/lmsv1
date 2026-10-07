@@ -44,15 +44,7 @@ const NOT_COPY = new Set([
 ]);
 
 /** Counts as of specs/077. Lower a number when you translate; never raise one. */
-const BASELINE: Record<string, number> = {
-  // Left on purpose: exercise-type names (Crossword, Word Search…) are being
-  // translated by specs/070 (#486); language names (Python, Java) are names.
-  // Only files #486 is rewriting are left, to keep the two PRs from colliding.
-  "app/(admin)/admin/content-library/[exerciseId]/page.tsx": 11,
-  "app/(admin)/admin/content-library/[exerciseId]/submissions/page.tsx": 4,
-  "app/(admin)/admin/content-library/page.tsx": 1,
-  "app/(admin)/admin/lessons/[lessonId]/edit/page.tsx": 1,
-};
+const BASELINE: Record<string, number> = {};
 
 function walk(dir: string, out: string[] = []): string[] {
   for (const entry of readdirSync(dir)) {

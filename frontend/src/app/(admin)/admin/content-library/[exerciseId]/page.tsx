@@ -328,7 +328,7 @@ export default function ExerciseEditorPage() {
        <CardContent><Robot2DEditor config={config} onConfigChange={setConfig} /></CardContent></Card>
      )}
      {exercise.exercise_type === "math_interactive" && (
-       <Card><CardHeader><CardTitle>Math Interactive Editor</CardTitle></CardHeader>
+       <Card><CardHeader><CardTitle>{exerciseTypeName(t, "math_interactive")}</CardTitle></CardHeader>
        <CardContent><MathEditor config={config} onConfigChange={setConfig} /></CardContent></Card>
      )}
      {exercise.exercise_type === "world_3d" && (
@@ -340,35 +340,35 @@ export default function ExerciseEditorPage() {
        <CardContent><SCORMConfigEditor config={config} onChange={setConfig} exerciseId={exerciseId} /></CardContent></Card>
      )}
      {exercise.exercise_type === "math_stepwise" && (
-       <Card><CardHeader><CardTitle>Step-by-Step Math</CardTitle></CardHeader>
+       <Card><CardHeader><CardTitle>{exerciseTypeName(t, "math_stepwise")}</CardTitle></CardHeader>
        <CardContent><MathStepwiseConfigEditor config={config} onChange={setConfig} /></CardContent></Card>
      )}
      {exercise.exercise_type === "math_system" && (
-       <Card><CardHeader><CardTitle>System of Equations</CardTitle></CardHeader>
+       <Card><CardHeader><CardTitle>{exerciseTypeName(t, "math_system")}</CardTitle></CardHeader>
        <CardContent><MathSystemConfigEditor config={config} onChange={setConfig} /></CardContent></Card>
      )}
      {exercise.exercise_type === "stereometry" && (
-       <Card><CardHeader><CardTitle>Solids</CardTitle></CardHeader>
+       <Card><CardHeader><CardTitle>{exerciseTypeName(t, "stereometry")}</CardTitle></CardHeader>
        <CardContent><StereometryConfigEditor config={config} onChange={setConfig} /></CardContent></Card>
      )}
      {exercise.exercise_type === "srs_flashcard" && (
-       <Card><CardHeader><CardTitle>Flashcards (SRS)</CardTitle></CardHeader>
+       <Card><CardHeader><CardTitle>{exerciseTypeName(t, "srs_flashcard")}</CardTitle></CardHeader>
        <CardContent><SRSFlashcardConfigEditor config={config} onChange={setConfig} /></CardContent></Card>
      )}
      {exercise.exercise_type === "crossword" && (
-       <Card><CardHeader><CardTitle>Crossword</CardTitle></CardHeader>
+       <Card><CardHeader><CardTitle>{exerciseTypeName(t, "crossword")}</CardTitle></CardHeader>
        <CardContent><CrosswordConfigEditor config={config} onChange={setConfig} /></CardContent></Card>
      )}
      {exercise.exercise_type === "word_search" && (
-       <Card><CardHeader><CardTitle>Word Search</CardTitle></CardHeader>
+       <Card><CardHeader><CardTitle>{exerciseTypeName(t, "word_search")}</CardTitle></CardHeader>
        <CardContent><WordSearchConfigEditor config={config} onChange={setConfig} /></CardContent></Card>
      )}
      {exercise.exercise_type === "map_pin_drop" && (
-       <Card><CardHeader><CardTitle>Map Pin Drop</CardTitle></CardHeader>
+       <Card><CardHeader><CardTitle>{exerciseTypeName(t, "map_pin_drop")}</CardTitle></CardHeader>
        <CardContent><MapPinDropConfigEditor config={config} onChange={setConfig} /></CardContent></Card>
      )}
      {exercise.exercise_type === "bubble_sheet" && (
-       <Card><CardHeader><CardTitle>Bubble Sheet</CardTitle></CardHeader>
+       <Card><CardHeader><CardTitle>{exerciseTypeName(t, "bubble_sheet")}</CardTitle></CardHeader>
        <CardContent><BubbleSheetConfigEditor config={config} onChange={setConfig} /></CardContent></Card>
      )}
    </div>
@@ -733,8 +733,8 @@ function QuizQuestionsEditor({
  onChange={(e) => setForm({ ...form, question_type: e.target.value })}
  className="rounded-lg border border-border-strong px-3 py-2 text-sm "
  >
- <option value="multiple_choice">Multiple Choice</option>
- <option value="text_answer">Text Answer</option>
+ <option value="multiple_choice">{t("admin.exerciseEditor.multipleChoice")}</option>
+ <option value="text_answer">{t("admin.exerciseEditor.textAnswer")}</option>
  </select>
  <input
  type="number"

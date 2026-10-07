@@ -1,6 +1,7 @@
 import type { TranslationMap } from "../meta";
 
 const es: TranslationMap = {
+ "admin.contentLibrary.newTemplateTitle": "Nueva plantilla",
  "bulk.csvFormat": "CSV con fila de encabezado; email es obligatorio, name y password son opcionales:",
  "xe.equationHint": "Texto simple. Puedes omitir el signo de multiplicar, y las variables pueden ir a cualquier lado:",
  "intg.how1": "Cada integración conecta la cuenta de tu centro en ese servicio, mediante OAuth",
