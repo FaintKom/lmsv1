@@ -4,28 +4,30 @@
  * rate, with avg-score + enrollment counts. Reads
  * /admin/analytics/v2/course-effectiveness.
  */
+import { useTranslation } from "@/lib/i18n/context";
 import { WidgetError } from "./widget-error";
 import { useCourseEffectiveness } from "@/hooks/use-dashboards";
 
 import type { WidgetProps } from "../widget-registry";
 
 export function CourseEffectivenessWidget(_props: WidgetProps) {
+  const { t } = useTranslation();
   const { data, isLoading, error } = useCourseEffectiveness();
 
-  if (isLoading) return <div className="text-sm text-text-muted">Loading…</div>;
+  if (isLoading) return <div className="text-sm text-text-muted">{t("exercise.loading")}</div>;
   if (error)
     return <WidgetError />;
   if (!data || data.length === 0)
-    return <div className="text-sm text-text-muted">No courses yet.</div>;
+    return <div className="text-sm text-text-muted">{t("an.noCourses")}</div>;
 
   return (
     <table className="w-full text-sm">
       <thead>
         <tr className="text-left text-xs uppercase text-text-muted">
-          <th className="pb-1">Course</th>
-          <th className="pb-1 text-right">Enrolls</th>
-          <th className="pb-1 text-right">Done %</th>
-          <th className="pb-1 text-right">Avg</th>
+          <th className="pb-1">{t("an.colCourse")}</th>
+          <th className="pb-1 text-right">{t("an.colEnrolled")}</th>
+          <th className="pb-1 text-right">{t("an.colCompleted")}</th>
+          <th className="pb-1 text-right">{t("an.colAvg")}</th>
         </tr>
       </thead>
       <tbody>

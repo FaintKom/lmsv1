@@ -6,6 +6,7 @@
  * under `widgets/`. DashboardCanvas + the Add-Widget menu read from
  * this single source.
  */
+import { useTranslation } from "@/lib/i18n/context";
 import { ComponentType } from "react";
 
 import { ActivityTimelineWidget } from "./widgets/activity-timeline-widget";
@@ -28,12 +29,14 @@ export type ConfigFieldType = "number" | "text" | "course";
 
 export interface ConfigField {
   key: string;
-  label: string;
+  /** i18n key of the field's label. */
+  labelKey: string;
   type: ConfigFieldType;
   default?: string | number;
   min?: number;
   max?: number;
-  help?: string;
+  /** i18n key of the hint under the field. */
+  helpKey?: string;
 }
 
 export interface WidgetMeta {
@@ -64,18 +67,18 @@ export const WIDGET_REGISTRY: Record<string, WidgetMeta> = {
     configFields: [
       {
         key: "title",
-        label: "Title",
+        labelKey: "an.fieldTitle",
         type: "text",
-        help: "Custom widget header. Empty = default name.",
+        helpKey: "an.fieldTitleHelp",
       },
       {
         key: "days",
-        label: "Window (days)",
+        labelKey: "an.fieldWindow",
         type: "number",
         default: 7,
         min: 1,
         max: 90,
-        help: "Compared to previous equal-length window.",
+        helpKey: "an.fieldWindowHelp",
       },
     ],
   },
@@ -87,10 +90,10 @@ export const WIDGET_REGISTRY: Record<string, WidgetMeta> = {
     minSize: { w: 4, h: 3 },
     Component: ActivityTimelineWidget,
     configFields: [
-      { key: "title", label: "Title", type: "text" },
+      { key: "title", labelKey: "an.fieldTitle", type: "text" },
       {
         key: "days",
-        label: "Days",
+        labelKey: "an.fieldDays",
         type: "number",
         default: 30,
         min: 7,
@@ -106,10 +109,10 @@ export const WIDGET_REGISTRY: Record<string, WidgetMeta> = {
     minSize: { w: 3, h: 3 },
     Component: TopMoversWidget,
     configFields: [
-      { key: "title", label: "Title", type: "text" },
+      { key: "title", labelKey: "an.fieldTitle", type: "text" },
       {
         key: "window_days",
-        label: "Window (days)",
+        labelKey: "an.fieldWindow",
         type: "number",
         default: 7,
         min: 1,
@@ -117,7 +120,7 @@ export const WIDGET_REGISTRY: Record<string, WidgetMeta> = {
       },
       {
         key: "limit",
-        label: "Rows",
+        labelKey: "an.fieldRows",
         type: "number",
         default: 5,
         min: 1,
@@ -132,7 +135,7 @@ export const WIDGET_REGISTRY: Record<string, WidgetMeta> = {
     defaultSize: { w: 8, h: 5 },
     minSize: { w: 4, h: 3 },
     Component: CourseEffectivenessWidget,
-    configFields: [{ key: "title", label: "Title", type: "text" }],
+    configFields: [{ key: "title", labelKey: "an.fieldTitle", type: "text" }],
   },
   "exercise-difficulty": {
     type: "exercise-difficulty",
@@ -142,12 +145,12 @@ export const WIDGET_REGISTRY: Record<string, WidgetMeta> = {
     minSize: { w: 4, h: 3 },
     Component: ExerciseDifficultyWidget,
     configFields: [
-      { key: "title", label: "Title", type: "text" },
+      { key: "title", labelKey: "an.fieldTitle", type: "text" },
       {
         key: "course_id",
-        label: "Filter by course",
+        labelKey: "an.fieldFilterCourse",
         type: "course",
-        help: "Leave empty for all courses.",
+        helpKey: "an.fieldAllCoursesHelp",
       },
     ],
   },
@@ -159,12 +162,12 @@ export const WIDGET_REGISTRY: Record<string, WidgetMeta> = {
     minSize: { w: 5, h: 4 },
     Component: TaskPerformanceWidget,
     configFields: [
-      { key: "title", label: "Title", type: "text" },
+      { key: "title", labelKey: "an.fieldTitle", type: "text" },
       {
         key: "course_id",
-        label: "Course",
+        labelKey: "an.colCourse",
         type: "course",
-        help: "Required — pick a course to load its task statistics.",
+        helpKey: "an.fieldTaskCourseHelp",
       },
     ],
   },
@@ -176,12 +179,12 @@ export const WIDGET_REGISTRY: Record<string, WidgetMeta> = {
     minSize: { w: 3, h: 3 },
     Component: StudentRisksWidget,
     configFields: [
-      { key: "title", label: "Title", type: "text" },
+      { key: "title", labelKey: "an.fieldTitle", type: "text" },
       {
         key: "course_id",
-        label: "Filter by course",
+        labelKey: "an.fieldFilterCourse",
         type: "course",
-        help: "Leave empty for all courses.",
+        helpKey: "an.fieldAllCoursesHelp",
       },
     ],
   },
@@ -192,7 +195,7 @@ export const WIDGET_REGISTRY: Record<string, WidgetMeta> = {
     defaultSize: { w: 6, h: 3 },
     minSize: { w: 3, h: 2 },
     Component: AttendanceImpactWidget,
-    configFields: [{ key: "title", label: "Title", type: "text" }],
+    configFields: [{ key: "title", labelKey: "an.fieldTitle", type: "text" }],
   },
   "lesson-funnel": {
     type: "lesson-funnel",
@@ -202,12 +205,12 @@ export const WIDGET_REGISTRY: Record<string, WidgetMeta> = {
     minSize: { w: 4, h: 3 },
     Component: LessonFunnelWidget,
     configFields: [
-      { key: "title", label: "Title", type: "text" },
+      { key: "title", labelKey: "an.fieldTitle", type: "text" },
       {
         key: "course_id",
-        label: "Course",
+        labelKey: "an.colCourse",
         type: "course",
-        help: "Required — pick a course to populate the funnel.",
+        helpKey: "an.fieldFunnelCourseHelp",
       },
     ],
   },
@@ -221,7 +224,7 @@ export const WIDGET_REGISTRY: Record<string, WidgetMeta> = {
     configFields: [
       {
         key: "limit",
-        label: "Rows",
+        labelKey: "an.fieldRows",
         type: "number",
         default: 6,
         min: 1,

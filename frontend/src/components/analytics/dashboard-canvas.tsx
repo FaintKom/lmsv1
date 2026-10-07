@@ -7,6 +7,7 @@
  * Layout is the source of truth for which widgets exist. Adding /
  * removing widgets mutates the layout array and saves via PATCH.
  */
+import { useTranslation } from "@/lib/i18n/context";
 import { useEffect, useMemo, useRef, useState } from "react";
 import GridLayout, { LayoutItem, useContainerWidth } from "react-grid-layout";
 
@@ -30,6 +31,7 @@ interface Props {
 }
 
 export function DashboardCanvas({ dashboard }: Props) {
+  const { t } = useTranslation();
   const update = useUpdateDashboard();
   const { width, containerRef, mounted } = useContainerWidth();
   const widgets = useMemo(
@@ -119,9 +121,9 @@ export function DashboardCanvas({ dashboard }: Props) {
   if (widgets.length === 0) {
     return (
       <div className="border-2 border-dashed border-border rounded-lg p-12 text-center text-text-muted">
-        <div className="text-base font-medium mb-1">No widgets yet</div>
+        <div className="text-base font-medium mb-1">{t("an.noWidgets")}</div>
         <div className="text-sm">
-          Use the Add widget button above to populate this dashboard.
+          {t("an.noWidgetsHint")}
         </div>
       </div>
     );
@@ -163,12 +165,11 @@ export function DashboardCanvas({ dashboard }: Props) {
           return (
             <div key={w.id}>
               <WidgetCard
-                title={`Unknown: ${w.type}`}
+                title={t("an.unknownWidget").replace("{type}", w.type)}
                 onRemove={() => handleRemove(w.id)}
               >
                 <div className="text-sm text-text-muted">
-                  This widget type isn’t registered. It may have been removed
-                  in a newer release.
+                  {t("an.unknownHint")}
                 </div>
               </WidgetCard>
             </div>
@@ -192,7 +193,7 @@ export function DashboardCanvas({ dashboard }: Props) {
           <div key={w.id} data-grid={widgetToLayout(w, meta.minSize)}>
             <div className="relative h-full">
               <WidgetCard
-                title={(w.props?.title as string | undefined) ?? meta.label}
+                title={(w.props?.title as string | undefined) ?? t(meta.i18nKey)}
                 onRemove={() => handleRemove(w.id)}
                 onConfigure={
                   meta.configFields && meta.configFields.length > 0

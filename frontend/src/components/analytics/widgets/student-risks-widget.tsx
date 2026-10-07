@@ -5,6 +5,7 @@
  *
  * Caller: components/analytics/widget-registry.tsx. No file I/O.
  */
+import { useTranslation } from "@/lib/i18n/context";
 import { WidgetError } from "./widget-error";
 import { useStudentRisks } from "@/hooks/use-dashboards";
 
@@ -16,15 +17,19 @@ const RISK_STYLES: Record<string, string> = {
   low: "bg-success/10 text-success",
 };
 
+// Status in words; the tint only repeats it.
+const RISK_KEY = { high: "an.riskHigh", medium: "an.riskMedium", low: "an.riskLow" } as const;
+
 export function StudentRisksWidget({ props }: WidgetProps) {
+  const { t } = useTranslation();
   const courseId = props?.course_id as string | undefined;
   const { data, isLoading, error } = useStudentRisks(courseId);
 
-  if (isLoading) return <div className="text-sm text-text-muted">Loading…</div>;
+  if (isLoading) return <div className="text-sm text-text-muted">{t("exercise.loading")}</div>;
   if (error)
     return <WidgetError />;
   if (!data || data.length === 0)
-    return <div className="text-sm text-text-muted">No risk data.</div>;
+    return <div className="text-sm text-text-muted">{t("an.noRisk")}</div>;
 
   const counts = {
     high: data.filter((r) => r.risk_level === "high").length,
@@ -37,7 +42,7 @@ export function StudentRisksWidget({ props }: WidgetProps) {
       <div className="flex gap-2 text-xs">
         {(["high", "medium", "low"] as const).map((lvl) => (
           <span key={lvl} className={`px-2 py-1 rounded ${RISK_STYLES[lvl]}`}>
-            {lvl}: {counts[lvl]}
+            {t(RISK_KEY[lvl])}: {counts[lvl]}
           </span>
         ))}
       </div>
@@ -53,7 +58,7 @@ export function StudentRisksWidget({ props }: WidgetProps) {
             <span
               className={`text-xs px-1.5 py-0.5 rounded ${RISK_STYLES[r.risk_level]}`}
             >
-              {r.risk_level}
+              {t(RISK_KEY[r.risk_level as keyof typeof RISK_KEY] ?? r.risk_level)}
             </span>
           </li>
         ))}

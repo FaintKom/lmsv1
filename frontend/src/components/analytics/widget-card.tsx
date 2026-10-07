@@ -8,6 +8,7 @@
  * from DashboardCanvas, not from here, so child interactive content
  * inside CardContent stays clickable.
  */
+import { useTranslation } from "@/lib/i18n/context";
 import { Loader2, Settings as SettingsIcon, X } from "lucide-react";
 import { ReactNode } from "react";
 
@@ -36,6 +37,7 @@ export function WidgetCard({
   className,
   headerAction,
 }: Props) {
+  const { t } = useTranslation();
   return (
     <Card variant="default" className={cn("h-full flex flex-col", className)}>
       <div className="widget-drag-handle flex items-center justify-between gap-2 px-4 py-3 border-b border-border cursor-move select-none">
@@ -52,7 +54,7 @@ export function WidgetCard({
                 onConfigure();
               }}
               className="p-1 rounded hover:bg-surface-2 text-text-muted hover:text-text"
-              aria-label="Widget settings"
+              aria-label={t("an.widgetSettings")}
             >
               <SettingsIcon className="w-4 h-4" />
             </button>
@@ -65,7 +67,7 @@ export function WidgetCard({
                 onRemove();
               }}
               className="p-1 rounded hover:bg-surface-2 text-text-muted hover:text-text"
-              aria-label="Remove widget"
+              aria-label={t("an.removeWidget")}
             >
               <X className="w-4 h-4" />
             </button>
@@ -79,7 +81,7 @@ export function WidgetCard({
           </div>
         ) : error ? (
           <div className="text-sm text-danger">
-            {error.message || "Failed to load widget"}
+            {error.message || t("an.widgetFailed")}
           </div>
         ) : (
           children

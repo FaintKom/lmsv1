@@ -9,27 +9,29 @@
  *
  * Caller: components/analytics/widget-registry.tsx. No file I/O.
  */
+import { useTranslation } from "@/lib/i18n/context";
 import { WidgetError } from "./widget-error";
 import { useLessonFunnel } from "@/hooks/use-dashboards";
 
 import type { WidgetProps } from "../widget-registry";
 
 export function LessonFunnelWidget({ props }: WidgetProps) {
+  const { t } = useTranslation();
   const courseId = props?.course_id as string | undefined;
   const { data, isLoading, error } = useLessonFunnel(courseId);
 
   if (!courseId) {
     return (
       <div className="text-sm text-text-muted">
-        Pick a course in widget settings to populate the funnel.
+        {t("an.pickCourse")}
       </div>
     );
   }
-  if (isLoading) return <div className="text-sm text-text-muted">Loading…</div>;
+  if (isLoading) return <div className="text-sm text-text-muted">{t("exercise.loading")}</div>;
   if (error)
     return <WidgetError />;
   if (!data || data.length === 0)
-    return <div className="text-sm text-text-muted">No lessons yet.</div>;
+    return <div className="text-sm text-text-muted">{t("an.noLessons")}</div>;
 
   const maxReached = Math.max(...data.map((s) => s.reached), 1);
 
@@ -44,7 +46,7 @@ export function LessonFunnelWidget({ props }: WidgetProps) {
             <div className="flex justify-between text-xs mb-0.5">
               <span className="truncate max-w-[60%]">{step.lesson_title}</span>
               <span className="text-text-muted">
-                {step.reached} reached · {step.completed} done
+                {t("an.reachedDone").replace("{reached}", String(step.reached)).replace("{done}", String(step.completed))}
               </span>
             </div>
             <div className="relative h-4 bg-surface-2 rounded overflow-hidden">

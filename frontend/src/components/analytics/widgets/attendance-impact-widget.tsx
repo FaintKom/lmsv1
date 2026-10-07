@@ -5,15 +5,17 @@
  *
  * Caller: components/analytics/widget-registry.tsx. No file I/O.
  */
+import { useTranslation } from "@/lib/i18n/context";
 import { WidgetError } from "./widget-error";
 import { useAttendanceImpact } from "@/hooks/use-dashboards";
 
 import type { WidgetProps } from "../widget-registry";
 
 export function AttendanceImpactWidget(_props: WidgetProps) {
+  const { t } = useTranslation();
   const { data, isLoading, error } = useAttendanceImpact();
 
-  if (isLoading) return <div className="text-sm text-text-muted">Loading…</div>;
+  if (isLoading) return <div className="text-sm text-text-muted">{t("exercise.loading")}</div>;
   if (error)
     return <WidgetError />;
   if (!data) return null;
@@ -21,17 +23,17 @@ export function AttendanceImpactWidget(_props: WidgetProps) {
   return (
     <div className="grid grid-cols-2 gap-3 h-full">
       <Tile
-        label="High attendance avg"
+        label={t("an.highAttendance")}
         value={data.high_attendance_avg_score}
       />
-      <Tile label="Low attendance avg" value={data.low_attendance_avg_score} />
+      <Tile label={t("an.lowAttendance")} value={data.low_attendance_avg_score} />
       <Tile
-        label="Correlation"
+        label={t("an.correlation")}
         value={data.correlation}
         formatter={(n) => Number(n ?? 0).toFixed(2)}
       />
       <Tile
-        label="Sample"
+        label={t("an.sample")}
         value={data.sample_size}
         formatter={(n) => `${n}`}
       />

@@ -6,6 +6,7 @@
  *
  * Persists via PATCH /admin/dashboards/{id} like layout changes.
  */
+import { useTranslation } from "@/lib/i18n/context";
 import { useAdminCourses, useUpdateDashboard } from "@/hooks/use-dashboards";
 import type { DashboardFilters, DashboardResponse } from "@/lib/api/analytics";
 
@@ -13,14 +14,10 @@ interface Props {
   dashboard: DashboardResponse;
 }
 
-const RANGE_OPTIONS = [
-  { value: "7d", label: "Last 7 days" },
-  { value: "14d", label: "Last 14 days" },
-  { value: "30d", label: "Last 30 days" },
-  { value: "90d", label: "Last 90 days" },
-];
+const RANGE_DAYS = [7, 14, 30, 90];
 
 export function DashboardFilterBar({ dashboard }: Props) {
+  const { t } = useTranslation();
   const update = useUpdateDashboard();
   const { data: courses } = useAdminCourses();
   const filters: DashboardFilters = dashboard.filters ?? {};
@@ -35,26 +32,26 @@ export function DashboardFilterBar({ dashboard }: Props) {
   return (
     <div className="flex flex-wrap items-center gap-3 px-3 py-2 bg-surface-2 border border-border rounded-md">
       <div className="text-sm text-text-muted">
-        Filters:
+        {t("an.filters")}
       </div>
 
       <label className="flex items-center gap-2 text-sm">
-        <span className="text-text-muted">Range</span>
+        <span className="text-text-muted">{t("an.range")}</span>
         <select
           value={filters.range ?? "30d"}
           onChange={(e) => patch({ range: e.target.value })}
           className="px-2 py-1 bg-surface border border-border rounded"
         >
-          {RANGE_OPTIONS.map((r) => (
-            <option key={r.value} value={r.value}>
-              {r.label}
+          {RANGE_DAYS.map((n) => (
+            <option key={n} value={`${n}d`}>
+              {t("an.lastDays").replace("{n}", String(n))}
             </option>
           ))}
         </select>
       </label>
 
       <label className="flex items-center gap-2 text-sm">
-        <span className="text-text-muted">Course</span>
+        <span className="text-text-muted">{t("an.colCourse")}</span>
         <select
           value={filters.course_ids?.[0] ?? ""}
           onChange={(e) =>
@@ -64,7 +61,7 @@ export function DashboardFilterBar({ dashboard }: Props) {
           }
           className="px-2 py-1 bg-surface border border-border rounded max-w-[16rem]"
         >
-          <option value="">— All courses —</option>
+          <option value="">{t("an.allCourses")}</option>
           {(courses ?? []).map((c) => (
             <option key={c.id} value={c.id}>
               {c.title}
@@ -79,7 +76,7 @@ export function DashboardFilterBar({ dashboard }: Props) {
           onClick={() => patch({ range: undefined, course_ids: [] })}
           className="ml-auto text-xs text-text-muted hover:text-text underline"
         >
-          Clear
+          {t("an.clear")}
         </button>
       ) : null}
     </div>

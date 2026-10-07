@@ -5,18 +5,20 @@
  *
  * Reads /admin/analytics/v2/xp-movers?window_days=N&limit=K.
  */
+import { useTranslation } from "@/lib/i18n/context";
 import { WidgetError } from "./widget-error";
 import { useXpMovers } from "@/hooks/use-dashboards";
 
 import type { WidgetProps } from "../widget-registry";
 
 export function TopMoversWidget({ props }: WidgetProps) {
+  const { t } = useTranslation();
   const windowDays = (props?.window_days as number | undefined) ?? 7;
   const limit = (props?.limit as number | undefined) ?? 5;
   const { data, isLoading, error } = useXpMovers(windowDays, limit);
 
   if (isLoading) {
-    return <div className="text-sm text-text-muted">Loading movers…</div>;
+    return <div className="text-sm text-text-muted">{t("exercise.loading")}</div>;
   }
   if (error) {
     return <WidgetError />;
@@ -25,16 +27,16 @@ export function TopMoversWidget({ props }: WidgetProps) {
 
   return (
     <div className="space-y-4">
-      <Section title={`Top ${limit} movers (${windowDays}d)`}>
+      <Section title={t("an.topMovers").replace("{n}", String(limit)).replace("{days}", String(windowDays))}>
         {data.movers.length === 0 ? (
-          <div className="text-xs text-text-muted">No activity yet.</div>
+          <div className="text-xs text-text-muted">{t("an.noActivityYet")}</div>
         ) : (
           <table className="w-full text-sm">
             <thead>
               <tr className="text-left text-xs uppercase text-text-muted">
-                <th className="pb-1">Student</th>
-                <th className="pb-1 text-right">Subs</th>
-                <th className="pb-1 text-right">Score Σ</th>
+                <th className="pb-1">{t("an.colStudent")}</th>
+                <th className="pb-1 text-right">{t("an.colSubmissions")}</th>
+                <th className="pb-1 text-right">{t("an.colScoreSum")}</th>
               </tr>
             </thead>
             <tbody>
@@ -56,9 +58,9 @@ export function TopMoversWidget({ props }: WidgetProps) {
         )}
       </Section>
 
-      <Section title="Decliners (active prior, silent now)">
+      <Section title={t("an.decliners")}>
         {data.decliners.length === 0 ? (
-          <div className="text-xs text-text-muted">No decliners.</div>
+          <div className="text-xs text-text-muted">{t("an.noDecliners")}</div>
         ) : (
           <ul className="text-sm divide-y divide-border">
             {data.decliners.map((d) => (
@@ -70,7 +72,7 @@ export function TopMoversWidget({ props }: WidgetProps) {
                   {d.full_name || d.email}
                 </span>
                 <span className="text-xs text-text-muted">
-                  {d.prior_count} prior
+                  {t("an.priorCount").replace("{n}", String(d.prior_count))}
                 </span>
               </li>
             ))}
