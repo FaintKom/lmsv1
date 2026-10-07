@@ -24,7 +24,7 @@ import { toast } from "sonner";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
-import { Check, Download, HelpCircle, Loader2, Pencil, Plus, Trash2 } from "lucide-react";
+import { Check, Circle, Download, HelpCircle, Loader2, Pencil, Plus, Trash2 } from "lucide-react";
 import dynamic from "next/dynamic";
 
 import {
@@ -701,11 +701,16 @@ function QuizQuestionsEditor({
                     {q.options.map((opt, oi) => (
                       <div
                         key={oi}
-                        className={`text-xs ${
+                        className={`flex items-center gap-1.5 text-xs ${
                           opt.is_correct ? "font-medium text-primary" : "text-text-muted"
                         }`}
                       >
-                        {opt.is_correct ? "✓" : "○"} {opt.text}
+                        {opt.is_correct ? (
+                          <Check className="h-3.5 w-3.5 shrink-0" aria-hidden="true" />
+                        ) : (
+                          <Circle className="h-3.5 w-3.5 shrink-0" aria-hidden="true" />
+                        )}
+                        {opt.text}
                       </div>
                     ))}
                   </div>

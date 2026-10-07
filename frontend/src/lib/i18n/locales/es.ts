@@ -1,6 +1,8 @@
 import type { TranslationMap } from "../meta";
 
 const es: TranslationMap = {
+ "live.passed": "Superado",
+ "live.notPassed": "No superado",
  "admin.contentLibrary.newTemplateTitle": "Nueva plantilla",
  "bulk.csvFormat": "CSV con fila de encabezado; email es obligatorio, name y password son opcionales:",
  "xe.equationHint": "Texto simple. Puedes omitir el signo de multiplicar, y las variables pueden ir a cualquier lado:",
@@ -1004,7 +1006,7 @@ const es: TranslationMap = {
  "theory.highlightAction": "Resaltar",
  "theory.underlineAction": "Subrayar",
  "theory.copyAction": "Copiar",
- "theory.copiedToast": "Copiado ✓",
+ "theory.copiedToast": "Copiado",
  "theory.removeMarkHint": "Haz clic para quitar la marca",
  "theory.noSource": "Aún no se han añadido diapositivas.",
  "theory.speakerNotes": "Notas del orador",

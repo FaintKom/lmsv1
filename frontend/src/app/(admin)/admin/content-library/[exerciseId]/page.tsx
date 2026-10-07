@@ -7,6 +7,8 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { PageHeader, PageLoading } from "@/components/ui/page-kit";
 import {
+ Check,
+ Circle,
  Eye,
  Save,
  Trash2,
@@ -686,9 +688,17 @@ function QuizQuestionsEditor({
  {q.options.map((opt, oi) => (
  <div
  key={oi}
- className={`text-xs ${opt.is_correct ? "font-medium text-primary " : "text-text-muted "}`}
+ className={`flex items-center gap-1.5 text-xs ${opt.is_correct ? "font-medium text-primary " : "text-text-muted "}`}
  >
- {opt.is_correct ? "✓" : "○"} {opt.text}
+ {opt.is_correct ? (
+ <>
+ <Check className="h-3.5 w-3.5 shrink-0" aria-hidden="true" />
+ <span className="sr-only">{t("xe.correct")}:</span>
+ </>
+ ) : (
+ <Circle className="h-3.5 w-3.5 shrink-0" aria-hidden="true" />
+ )}
+ {opt.text}
  </div>
  ))}
  </div>

@@ -1,6 +1,8 @@
 import type { TranslationMap } from "../meta";
 
 const de: TranslationMap = {
+ "live.passed": "Bestanden",
+ "live.notPassed": "Nicht bestanden",
  "admin.contentLibrary.newTemplateTitle": "Neue Vorlage",
  "bulk.csvFormat": "CSV mit Kopfzeile; email ist Pflicht, name und password sind optional:",
  "xe.equationHint": "Einfacher Text. Das Malzeichen kann fehlen, und Variablen dürfen auf beiden Seiten stehen:",
@@ -1030,7 +1032,7 @@ const de: TranslationMap = {
  "theory.highlightAction": "Markieren",
  "theory.underlineAction": "Unterstreichen",
  "theory.copyAction": "Kopieren",
- "theory.copiedToast": "Kopiert ✓",
+ "theory.copiedToast": "Kopiert",
  "theory.removeMarkHint": "Klicke, um die Markierung zu entfernen",
  "theory.noSource": "Noch keine Folien hinzugefügt.",
  "theory.speakerNotes": "Sprechernotizen",

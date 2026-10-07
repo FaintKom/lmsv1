@@ -20,6 +20,7 @@ import {
   SendHorizonal,
   Square,
   Users,
+  X,
   type LucideIcon,
 } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
@@ -726,7 +727,7 @@ export default function TeacherLivePage() {
                           aria-label={t("common.close")}
                           className="-my-1 flex h-9 w-9 shrink-0 items-center justify-center rounded-md text-text-subtle transition-colors hover:bg-warning-soft"
                         >
-                          ✕
+                          <X className="h-4 w-4" aria-hidden="true" />
                         </button>
                       </div>
                     ))}
