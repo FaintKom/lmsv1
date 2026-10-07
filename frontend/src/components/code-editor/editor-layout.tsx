@@ -5,6 +5,7 @@ import Editor from "@monaco-editor/react";
 import { Button } from "@/components/ui/button";
 import { Play, Send, ChevronDown, CheckCircle, XCircle } from "lucide-react";
 import apiClient from "@/lib/api-client";
+import { useTranslation } from "@/lib/i18n/context";
 
 interface TestResult {
  test_case_id: string;
@@ -36,6 +37,7 @@ export function EditorLayout({
  language = "python",
  starterCode = "",
 }: EditorLayoutProps) {
+ const { t } = useTranslation();
  const [code, setCode] = useState(starterCode);
  const [selectedLang, setSelectedLang] = useState(language);
  const [output, setOutput] = useState("");
@@ -67,9 +69,9 @@ export function EditorLayout({
  source_code: code,
  stdin: "",
  });
- setOutput(data.stdout || data.stderr || "No output");
+ setOutput(data.stdout || data.stderr || t("el.noOutput"));
  } catch {
- setOutput("Error executing code");
+ setOutput(t("el.runError"));
  } finally {
  setIsRunning(false);
  }
@@ -88,10 +90,13 @@ export function EditorLayout({
  setTotalPassed(data.total_passed);
  setTotalTests(data.total_tests);
  setOutput(
- `${data.total_passed}/${data.total_tests} tests passed (${data.execution_time_ms}ms)`
+ t("el.passedSummary")
+ .replace("{passed}", String(data.total_passed))
+ .replace("{total}", String(data.total_tests))
+ .replace("{ms}", String(data.execution_time_ms))
  );
  } catch {
- setOutput("Error submitting code");
+ setOutput(t("el.submitError"));
  } finally {
  setIsSubmitting(false);
  }
@@ -124,12 +129,12 @@ export function EditorLayout({
  disabled={isRunning}
  >
  <Play className="h-3.5 w-3.5" />
- {isRunning ? "Running..." : "Run"}
+ {isRunning ? t("exercise.running") : t("exercise.run")}
  </Button>
  {challengeId && (
  <Button size="sm" onClick={handleSubmit} disabled={isSubmitting}>
  <Send className="h-3.5 w-3.5" />
- {isSubmitting ? "Submitting..." : "Submit"}
+ {isSubmitting ? t("exercise.submitting") : t("exercise.submit")}
  </Button>
  )}
  </div>
@@ -169,7 +174,7 @@ export function EditorLayout({
  : "text-text-subtle hover:text-text-muted"
  }`}
  >
- Output
+ {t("exr.outputTab")}
  </button>
  {challengeId && (
  <button
@@ -180,7 +185,7 @@ export function EditorLayout({
  : "text-text-subtle hover:text-text-muted"
  }`}
  >
- Tests
+ {t("el.tests")}
  {results.length > 0 && (
  <span
  className={`ml-1.5 rounded-pill px-1.5 py-0.5 text-3xs font-bold ${
@@ -201,7 +206,7 @@ export function EditorLayout({
  <pre className="whitespace-pre-wrap font-mono text-sm text-text">
  {output || (
  <span className="text-text-subtle">
- Click Run to execute your code
+ {t("exercise.pressRunToTest")}
  </span>
  )}
  </pre>
@@ -209,7 +214,7 @@ export function EditorLayout({
  <div className="space-y-2.5">
  {results.length === 0 ? (
  <p className="text-sm text-text-subtle">
- Click Submit to run tests
+ {t("exercise.submitToRunTests")}
  </p>
  ) : (
  results.map((result, i) => (
@@ -228,7 +233,7 @@ export function EditorLayout({
  ) : (
  <XCircle className="h-4 w-4 text-danger-fg" />
  )}
- Test {i + 1}
+ {t("el.testN").replace("{n}", String(i + 1))}
  </span>
  <span className="text-xs text-text-subtle">
  {result.time_ms}ms
@@ -237,7 +242,7 @@ export function EditorLayout({
  {!result.passed && result.actual_output && (
  <div className="mt-2">
  <p className="text-sm font-medium text-text-subtle">
- Output:
+ {t("exercise.output")}
  </p>
  <pre className="mt-1 rounded-lg bg-surface p-2 font-mono text-xs text-text">
  {result.actual_output}
