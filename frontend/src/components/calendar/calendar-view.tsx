@@ -172,7 +172,7 @@ export function CalendarView({ canCreate = false }: Props) {
  {canCreate && (
  <button
  onClick={() => { setShowForm(!showForm); setSelectedEvent(null); }}
- className="flex items-center gap-1.5 rounded-lg bg-primary px-3 py-1.5 text-sm font-medium text-primary-fg hover:bg-primary-hover"
+ className="flex items-center gap-1.5 rounded-pill bg-primary px-3 py-1.5 text-sm font-medium text-primary-fg hover:bg-primary-hover"
  >
  <Plus className="h-4 w-4" /> New Event
  </button>
@@ -231,7 +231,7 @@ export function CalendarView({ canCreate = false }: Props) {
  <button
  type="submit"
  disabled={submitting}
- className="flex items-center gap-2 rounded-lg bg-primary px-4 py-2 text-sm font-medium text-primary-fg hover:bg-primary-hover disabled:opacity-50"
+ className="flex items-center gap-2 rounded-pill bg-primary px-4 py-2 text-sm font-medium text-primary-fg hover:bg-primary-hover disabled:opacity-50"
  >
  {submitting && <Loader2 className="h-4 w-4 animate-spin" />}
  Create Event

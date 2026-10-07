@@ -141,7 +141,7 @@ export function AttendanceMarker({ courseId, date }: AttendanceMarkerProps) {
         <button
           onClick={handleSave}
           disabled={markMutation.isPending || roster.length === 0}
-          className="flex items-center gap-2 rounded-lg bg-primary px-4 py-2 text-sm font-medium text-primary-fg hover:bg-primary-hover disabled:opacity-50"
+          className="flex items-center gap-2 rounded-pill bg-primary px-4 py-2 text-sm font-medium text-primary-fg hover:bg-primary-hover disabled:opacity-50"
         >
           {markMutation.isPending ? (
             <Loader2 className="h-4 w-4 animate-spin" />

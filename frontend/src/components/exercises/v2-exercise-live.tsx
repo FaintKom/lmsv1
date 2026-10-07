@@ -233,7 +233,7 @@ export function V2ExerciseLive({
           <button
             type="button"
             onClick={() => setRetrying(true)}
-            className="press-scale mt-1 rounded-md bg-primary px-4 py-2 text-sm font-bold text-primary-fg pointer-coarse:min-h-11"
+            className="press-scale mt-1 rounded-pill bg-primary px-4 py-2 text-sm font-bold text-primary-fg pointer-coarse:min-h-11"
           >
             {t("exercise.restored.retry")}
           </button>
