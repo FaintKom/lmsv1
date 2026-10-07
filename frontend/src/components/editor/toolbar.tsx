@@ -12,12 +12,14 @@ import {
  Heading2,
  Sigma,
 } from "lucide-react";
+import { useTranslation } from "@/lib/i18n/context";
 
 interface ToolbarProps {
  editor: Editor;
 }
 
 export function EditorBubbleMenu({ editor }: ToolbarProps) {
+ const { t } = useTranslation();
  const btnClass = (active: boolean) =>
  `rounded p-1.5 transition-colors ${
  active
@@ -33,21 +35,24 @@ export function EditorBubbleMenu({ editor }: ToolbarProps) {
  <button
  onClick={() => editor.chain().focus().toggleBold().run()}
  className={btnClass(editor.isActive("bold"))}
- title="Bold"
+ title={t("be.bold")}
+ aria-label={t("be.bold")}
  >
  <Bold className="h-4 w-4" />
  </button>
  <button
  onClick={() => editor.chain().focus().toggleItalic().run()}
  className={btnClass(editor.isActive("italic"))}
- title="Italic"
+ title={t("be.italic")}
+ aria-label={t("be.italic")}
  >
  <Italic className="h-4 w-4" />
  </button>
  <button
  onClick={() => editor.chain().focus().toggleStrike().run()}
  className={btnClass(editor.isActive("strike"))}
- title="Strikethrough"
+ title={t("be.strike")}
+ aria-label={t("be.strike")}
  >
  <Strikethrough className="h-4 w-4" />
  </button>
@@ -57,13 +62,14 @@ export function EditorBubbleMenu({ editor }: ToolbarProps) {
  <button
  onClick={() => editor.chain().focus().toggleCode().run()}
  className={btnClass(editor.isActive("code"))}
- title="Inline Code"
+ title={t("be.inlineCode")}
+ aria-label={t("be.inlineCode")}
  >
  <Code className="h-4 w-4" />
  </button>
  <button
  onClick={() => {
- const latex = window.prompt("Inline math (LaTeX):", "x^2");
+ const latex = window.prompt(t("be.inlineMathPrompt"), "x^2");
  if (latex) {
  editor.chain().focus().insertContent({
  type: "text",
@@ -72,7 +78,8 @@ export function EditorBubbleMenu({ editor }: ToolbarProps) {
  }
  }}
  className={btnClass(false)}
- title="Inline Math"
+ title={t("be.inlineMath")}
+ aria-label={t("be.inlineMath")}
  >
  <Sigma className="h-4 w-4" />
  </button>
@@ -81,27 +88,30 @@ export function EditorBubbleMenu({ editor }: ToolbarProps) {
 
  <button
  onClick={() => {
- const url = window.prompt("Link URL:");
+ const url = window.prompt(t("be.linkPrompt"));
  if (url) {
  editor.chain().focus().setLink({ href: url }).run();
  }
  }}
  className={btnClass(editor.isActive("link"))}
- title="Link"
+ title={t("be.link")}
+ aria-label={t("be.link")}
  >
  <Link className="h-4 w-4" />
  </button>
  <button
  onClick={() => editor.chain().focus().toggleHeading({ level: 1 }).run()}
  className={btnClass(editor.isActive("heading", { level: 1 }))}
- title="Heading 1"
+ title={t("be.heading").replace("{n}", "1")}
+ aria-label={t("be.heading").replace("{n}", "1")}
  >
  <Heading1 className="h-4 w-4" />
  </button>
  <button
  onClick={() => editor.chain().focus().toggleHeading({ level: 2 }).run()}
  className={btnClass(editor.isActive("heading", { level: 2 }))}
- title="Heading 2"
+ title={t("be.heading").replace("{n}", "2")}
+ aria-label={t("be.heading").replace("{n}", "2")}
  >
  <Heading2 className="h-4 w-4" />
  </button>

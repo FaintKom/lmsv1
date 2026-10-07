@@ -20,105 +20,129 @@ import {
 } from "lucide-react";
 import type { Editor } from "@tiptap/core";
 
-interface CommandItem {
- title: string;
- description: string;
+type Translate = (key: string) => string;
+
+interface CommandDef {
+ titleKey: string;
+ descKey: string;
  icon: React.ComponentType<{ className?: string }>;
- command: (editor: Editor) => void;
+ command: (editor: Editor, t: Translate) => void;
 }
 
-const COMMANDS: CommandItem[] = [
+/** A command as the menu shows it: names already in the reader's language. */
+interface CommandItem extends CommandDef {
+ title: string;
+ description: string;
+ t: Translate;
+}
+
+const COMMANDS: CommandDef[] = [
  {
- title: "Text",
- description: "Plain text paragraph",
+ titleKey: "be.text",
+ descKey: "be.textDesc",
  icon: Type,
  command: (editor) => editor.chain().focus().setParagraph().run(),
  },
  {
- title: "Heading 1",
- description: "Large section heading",
+ titleKey: "be.heading:1",
+ descKey: "be.h1Desc",
  icon: Heading1,
  command: (editor) => editor.chain().focus().toggleHeading({ level: 1 }).run(),
  },
  {
- title: "Heading 2",
- description: "Medium section heading",
+ titleKey: "be.heading:2",
+ descKey: "be.h2Desc",
  icon: Heading2,
  command: (editor) => editor.chain().focus().toggleHeading({ level: 2 }).run(),
  },
  {
- title: "Heading 3",
- description: "Small section heading",
+ titleKey: "be.heading:3",
+ descKey: "be.h3Desc",
  icon: Heading3,
  command: (editor) => editor.chain().focus().toggleHeading({ level: 3 }).run(),
  },
  {
- title: "Bullet List",
- description: "Unordered list with bullets",
+ titleKey: "be.bulletList",
+ descKey: "be.bulletDesc",
  icon: List,
  command: (editor) => editor.chain().focus().toggleBulletList().run(),
  },
  {
- title: "Numbered List",
- description: "Ordered list with numbers",
+ titleKey: "be.numberedList",
+ descKey: "be.numberedDesc",
  icon: ListOrdered,
  command: (editor) => editor.chain().focus().toggleOrderedList().run(),
  },
  {
- title: "Code Block",
- description: "Code with syntax highlighting",
+ titleKey: "be.codeBlock",
+ descKey: "be.codeDesc",
  icon: Code,
  command: (editor) => editor.chain().focus().toggleCodeBlock().run(),
  },
  {
- title: "Math Block",
- description: "LaTeX math formula",
+ titleKey: "be.mathBlock",
+ descKey: "be.mathDesc",
  icon: Sigma,
  command: (editor) => {
  editor.commands.setMathBlock({ latex: "" });
  },
  },
  {
- title: "Image",
- description: "Insert image by URL",
+ titleKey: "be.image",
+ descKey: "be.imageDesc",
  icon: Image,
- command: (editor) => {
- const url = window.prompt("Image URL:");
+ command: (editor, t) => {
+ const url = window.prompt(t("be.imagePrompt"));
  if (url) {
  editor.chain().focus().setImage({ src: url }).run();
  }
  },
  },
  {
- title: "Quote",
- description: "Block quotation",
+ titleKey: "be.quote",
+ descKey: "be.quoteDesc",
  icon: Quote,
  command: (editor) => editor.chain().focus().toggleBlockquote().run(),
  },
  {
- title: "Callout",
- description: "Info, warning, or tip box",
+ titleKey: "be.callout",
+ descKey: "be.calloutDesc",
  icon: AlertCircle,
  command: (editor) => editor.chain().focus().setCallout({ variant: "info" }).run(),
  },
  {
- title: "Divider",
- description: "Horizontal separator line",
+ titleKey: "be.divider",
+ descKey: "be.dividerDesc",
  icon: Minus,
  command: (editor) => editor.chain().focus().setHorizontalRule().run(),
  },
 ];
 
+/** "be.heading:2" → t("be.heading") with {n} filled in. */
+function label(t: Translate, key: string): string {
+ const [k, n] = key.split(":");
+ return n ? t(k).replace("{n}", n) : t(k);
+}
+
+/** The menu for one query, matched against names in the reader's language. */
+export function slashItems(t: Translate, query: string): CommandItem[] {
+ const q = query.toLowerCase();
+ return COMMANDS.map((c) => ({ ...c, title: label(t, c.titleKey), description: t(c.descKey), t })).filter(
+ (item) => item.title.toLowerCase().includes(q),
+ );
+}
+
 interface CommandListProps {
  items: CommandItem[];
  command: (item: CommandItem) => void;
+ emptyLabel: string;
 }
 
 interface CommandListHandle {
  onKeyDown: (props: SuggestionKeyDownProps) => boolean;
 }
 
-function CommandList({ items, command }: CommandListProps & { ref?: React.Ref<CommandListHandle> }) {
+function CommandList({ items, command, emptyLabel }: CommandListProps & { ref?: React.Ref<CommandListHandle> }) {
  const [selectedIndex, setSelectedIndex] = useState(0);
  const containerRef = useRef<HTMLDivElement>(null);
 
@@ -166,7 +190,7 @@ function CommandList({ items, command }: CommandListProps & { ref?: React.Ref<Co
  if (items.length === 0) {
  return (
  <div className="slash-menu rounded-lg border border-border-strong bg-surface p-3 shadow-lg ">
- <p className="text-sm text-text-subtle">No results</p>
+ <p className="text-sm text-text-subtle">{emptyLabel}</p>
  </div>
  );
  }
@@ -180,7 +204,7 @@ function CommandList({ items, command }: CommandListProps & { ref?: React.Ref<Co
  const Icon = item.icon;
  return (
  <button
- key={item.title}
+ key={item.titleKey}
  onClick={() => selectItem(index)}
  className={`flex w-full items-center gap-3 rounded-md px-3 py-2 text-left transition-colors ${
  index === selectedIndex
@@ -202,30 +226,45 @@ function CommandList({ items, command }: CommandListProps & { ref?: React.Ref<Co
  );
 }
 
-export const SlashCommands = Extension.create({
+/**
+ * The menu runs in TipTap callbacks, outside React, so the translator comes
+ * in as an option: `SlashCommands.configure({ t })`. Filtering matches the
+ * translated name, so "/заг" finds «Заголовок» for a Russian reader.
+ */
+export const SlashCommands = Extension.create<{ t: Translate }>({
  name: "slashCommands",
 
  addOptions() {
- return {
- suggestion: {
+ return { t: (key: string) => key };
+ },
+
+ addProseMirrorPlugins() {
+ const t: Translate = (key) => this.options.t(key);
+ return [
+ Suggestion<CommandItem>({
+ editor: this.editor,
  char: "/",
- command: ({ editor, range, props }: { editor: Editor; range: { from: number; to: number }; props: CommandItem }) => {
- props.command(editor);
+ command: ({ editor, range, props }) => {
+ props.command(editor, props.t);
  editor.chain().focus().deleteRange(range).run();
  },
- items: ({ query }: { query: string }) => {
- return COMMANDS.filter((item) =>
- item.title.toLowerCase().includes(query.toLowerCase())
- );
- },
+ items: ({ query }) => slashItems(t, query),
  render: () => {
  let component: ReactRenderer<unknown> | null = null;
  let popup: HTMLDivElement | null = null;
 
+ const place = (props: SuggestionProps<CommandItem>) => {
+ const rect = props.clientRect?.();
+ if (popup && rect) {
+ popup.style.left = `${rect.left}px`;
+ popup.style.top = `${rect.bottom + 4}px`;
+ }
+ };
+
  return {
- onStart: (props: SuggestionProps) => {
+ onStart: (props) => {
  component = new ReactRenderer(CommandList, {
- props,
+ props: { ...props, emptyLabel: t("be.noResults") },
  editor: props.editor,
  });
 
@@ -235,29 +274,11 @@ export const SlashCommands = Extension.create({
  document.body.appendChild(popup);
 
  popup.appendChild(component.element as HTMLElement);
-
- const { clientRect } = props;
- if (clientRect) {
- const rect = clientRect();
- if (rect) {
- popup.style.left = `${rect.left}px`;
- popup.style.top = `${rect.bottom + 4}px`;
- }
- }
+ place(props);
  },
- onUpdate: (props: SuggestionProps) => {
- component?.updateProps(props);
-
- if (popup) {
- const { clientRect } = props;
- if (clientRect) {
- const rect = clientRect();
- if (rect) {
- popup.style.left = `${rect.left}px`;
- popup.style.top = `${rect.bottom + 4}px`;
- }
- }
- }
+ onUpdate: (props) => {
+ component?.updateProps({ ...props, emptyLabel: t("be.noResults") });
+ place(props);
  },
  onKeyDown: (props: SuggestionKeyDownProps) => {
  if (props.event.key === "Escape") {
@@ -274,15 +295,6 @@ export const SlashCommands = Extension.create({
  },
  };
  },
- },
- };
- },
-
- addProseMirrorPlugins() {
- return [
- Suggestion({
- editor: this.editor,
- ...this.options.suggestion,
  }),
  ];
  },

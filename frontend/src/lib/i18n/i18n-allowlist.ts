@@ -68,9 +68,8 @@ export const I18N_ALLOWLIST: ReadonlySet<string> = new Set([
   "src/components/common/math-renderer.tsx",
   "src/components/common/youtube-embed.tsx",
   "src/components/courses/course-card.tsx",
-  "src/components/editor/block-editor.tsx",
+  // Translated through SlashCommands.configure({ t }), not the hook.
   "src/components/editor/slash-commands.tsx",
-  "src/components/editor/toolbar.tsx",
   "src/components/exercises/scorm-package-exercise.tsx",
   "src/components/exercises/v2/_grid-axes.tsx",
   "src/components/exercises/web-editor-exercise.tsx",

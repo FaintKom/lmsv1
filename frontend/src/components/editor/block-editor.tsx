@@ -42,6 +42,7 @@ import { MathPlot } from "./extensions/math-plot";
 import { Term } from "./extensions/term";
 import { SlashCommands } from "./slash-commands";
 import { EditorBubbleMenu } from "./toolbar";
+import { useTranslation } from "@/lib/i18n/context";
 
 const lowlight = createLowlight(common);
 
@@ -65,6 +66,8 @@ function ToolbarButton({
  type="button"
  onClick={onClick}
  title={title}
+ aria-label={title}
+ aria-pressed={active}
  className={`rounded p-1.5 transition-colors ${
  active
  ? "bg-primary-soft text-success-fg "
@@ -91,6 +94,7 @@ function EditorToolbar({
  editor: Editor;
  onImageUpload: (file: File) => void;
 }) {
+ const { t } = useTranslation();
  const fileInputRef = useRef<HTMLInputElement>(null);
 
  return (
@@ -99,28 +103,28 @@ function EditorToolbar({
  <ToolbarButton
  onClick={() => editor.chain().focus().toggleBold().run()}
  active={editor.isActive("bold")}
- title="Bold"
+ title={t("be.bold")}
  >
  <Bold className="h-4 w-4" />
  </ToolbarButton>
  <ToolbarButton
  onClick={() => editor.chain().focus().toggleItalic().run()}
  active={editor.isActive("italic")}
- title="Italic"
+ title={t("be.italic")}
  >
  <Italic className="h-4 w-4" />
  </ToolbarButton>
  <ToolbarButton
  onClick={() => editor.chain().focus().toggleStrike().run()}
  active={editor.isActive("strike")}
- title="Strikethrough"
+ title={t("be.strike")}
  >
  <Strikethrough className="h-4 w-4" />
  </ToolbarButton>
  <ToolbarButton
  onClick={() => editor.chain().focus().toggleCode().run()}
  active={editor.isActive("code")}
- title="Inline Code"
+ title={t("be.inlineCode")}
  >
  <Code className="h-4 w-4" />
  </ToolbarButton>
@@ -131,21 +135,21 @@ function EditorToolbar({
  <ToolbarButton
  onClick={() => editor.chain().focus().toggleHeading({ level: 1 }).run()}
  active={editor.isActive("heading", { level: 1 })}
- title="Heading 1"
+ title={t("be.heading").replace("{n}", "1")}
  >
  <Heading1 className="h-4 w-4" />
  </ToolbarButton>
  <ToolbarButton
  onClick={() => editor.chain().focus().toggleHeading({ level: 2 }).run()}
  active={editor.isActive("heading", { level: 2 })}
- title="Heading 2"
+ title={t("be.heading").replace("{n}", "2")}
  >
  <Heading2 className="h-4 w-4" />
  </ToolbarButton>
  <ToolbarButton
  onClick={() => editor.chain().focus().toggleHeading({ level: 3 }).run()}
  active={editor.isActive("heading", { level: 3 })}
- title="Heading 3"
+ title={t("be.heading").replace("{n}", "3")}
  >
  <Heading3 className="h-4 w-4" />
  </ToolbarButton>
@@ -156,14 +160,14 @@ function EditorToolbar({
  <ToolbarButton
  onClick={() => editor.chain().focus().toggleBulletList().run()}
  active={editor.isActive("bulletList")}
- title="Bullet List"
+ title={t("be.bulletList")}
  >
  <List className="h-4 w-4" />
  </ToolbarButton>
  <ToolbarButton
  onClick={() => editor.chain().focus().toggleOrderedList().run()}
  active={editor.isActive("orderedList")}
- title="Numbered List"
+ title={t("be.numberedList")}
  >
  <ListOrdered className="h-4 w-4" />
  </ToolbarButton>
@@ -174,28 +178,28 @@ function EditorToolbar({
  <ToolbarButton
  onClick={() => editor.chain().focus().toggleBlockquote().run()}
  active={editor.isActive("blockquote")}
- title="Blockquote"
+ title={t("be.quote")}
  >
  <Quote className="h-4 w-4" />
  </ToolbarButton>
  <ToolbarButton
  onClick={() => editor.chain().focus().toggleCodeBlock().run()}
  active={editor.isActive("codeBlock")}
- title="Code Block"
+ title={t("be.codeBlock")}
  >
  <Code2 className="h-4 w-4" />
  </ToolbarButton>
  <ToolbarButton
  onClick={() => editor.commands.setMathBlock({ latex: "" })}
  active={editor.isActive("mathBlock")}
- title="Math Block"
+ title={t("be.mathBlock")}
  >
  <Sigma className="h-4 w-4" />
  </ToolbarButton>
  <ToolbarButton
  onClick={() => editor.commands.setMathPlot()}
  active={editor.isActive("mathPlot")}
- title="Function Plot"
+ title={t("be.functionPlot")}
  >
  <Spline className="h-4 w-4" />
  </ToolbarButton>
@@ -204,13 +208,13 @@ function EditorToolbar({
  editor.chain().focus().setCallout({ variant: "info" }).run()
  }
  active={editor.isActive("callout")}
- title="Callout"
+ title={t("be.callout")}
  >
  <AlertCircle className="h-4 w-4" />
  </ToolbarButton>
  <ToolbarButton
  onClick={() => editor.chain().focus().setHorizontalRule().run()}
- title="Divider"
+ title={t("be.divider")}
  >
  <Minus className="h-4 w-4" />
  </ToolbarButton>
@@ -220,13 +224,13 @@ function EditorToolbar({
  {/* Link */}
  <ToolbarButton
  onClick={() => {
- const url = window.prompt("Link URL:");
+ const url = window.prompt(t("be.linkPrompt"));
  if (url) {
  editor.chain().focus().setLink({ href: url }).run();
  }
  }}
  active={editor.isActive("link")}
- title="Link"
+ title={t("be.link")}
  >
  <Link2 className="h-4 w-4" />
  </ToolbarButton>
@@ -239,13 +243,13 @@ function EditorToolbar({
  return;
  }
  if (editor.state.selection.empty) return;
- const definition = window.prompt("Term definition:");
+ const definition = window.prompt(t("be.termPrompt"));
  if (definition) {
  editor.chain().focus().setTerm({ definition }).run();
  }
  }}
  active={editor.isActive("term")}
- title="Term Hint"
+ title={t("be.termHint")}
  >
  <BookOpen className="h-4 w-4" />
  </ToolbarButton>
@@ -253,7 +257,7 @@ function EditorToolbar({
  {/* Image upload */}
  <ToolbarButton
  onClick={() => fileInputRef.current?.click()}
- title="Upload Image"
+ title={t("be.uploadImage")}
  >
  <ImageIcon className="h-4 w-4" />
  </ToolbarButton>
@@ -287,6 +291,9 @@ export function BlockEditor({
  onChange,
  editable = true,
 }: BlockEditorProps) {
+ const { t } = useTranslation();
+ const tRef = useRef(t);
+ tRef.current = t;
  const editor = useEditor({
  extensions: [
  StarterKit.configure({
@@ -296,10 +303,9 @@ export function BlockEditor({
  Placeholder.configure({
  placeholder: ({ node }) => {
  if (node.type.name === "heading") {
- const level = node.attrs.level;
- return `Heading ${level}`;
+ return tRef.current("be.heading").replace("{n}", String(node.attrs.level));
  }
- return "Type '/' for commands...";
+ return tRef.current("be.placeholder");
  },
  }),
  CodeBlockLowlight.configure({
@@ -326,7 +332,7 @@ export function BlockEditor({
  MathBlock,
  MathPlot,
  Term,
- ...(editable ? [SlashCommands] : []),
+ ...(editable ? [SlashCommands.configure({ t: (key: string) => tRef.current(key) })] : []),
  ],
  content: content || { type: "doc", content: [{ type: "paragraph" }] },
  editable,
@@ -362,7 +368,7 @@ export function BlockEditor({
  );
  editor.chain().focus().setImage({ src: data.url }).run();
  } catch {
- toast.error("Failed to upload image");
+ toast.error(tRef.current("be.uploadFailed"));
  }
  },
  [editor],
@@ -418,7 +424,7 @@ export function BlockEditor({
  if (!editor) {
  return (
  <div className="flex h-[300px] items-center justify-center rounded-lg border border-border-strong ">
- <p className="text-sm text-text-subtle">Loading editor...</p>
+ <p className="text-sm text-text-subtle">{t("admin.exerciseEditor.loadingEditor")}</p>
  </div>
  );
  }
