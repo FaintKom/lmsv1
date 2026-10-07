@@ -5,6 +5,7 @@ import { toast } from "sonner";
 import { Upload, Package, AlertCircle, CheckCircle2 } from "lucide-react";
 import apiClient from "@/lib/api-client";
 import { Button } from "@/components/ui/button";
+import { useTranslation } from "@/lib/i18n/context";
 
 // scorm-again types — kept loose so build does not break before the dep
 // is installed. After `npm install --legacy-peer-deps`, the dynamic
@@ -48,6 +49,7 @@ export function SCORMConfigEditor({
  onChange: (c: Record<string, unknown>) => void;
  exerciseId?: string;
 }) {
+ const { t } = useTranslation();
  const cfg = config as SCORMConfig;
  const [uploading, setUploading] = useState(false);
  const [pkg, setPkg] = useState<SCORMPackage | null>(null);
@@ -64,11 +66,11 @@ export function SCORMConfigEditor({
 
  const handleUpload = async (file: File) => {
  if (!file.name.toLowerCase().endsWith(".zip")) {
- toast.error("Upload a .zip exported from your authoring tool");
+ toast.error(t("scorm.notZip"));
  return;
  }
  if (file.size > 100 * 1024 * 1024) {
- toast.error("Package must be under 100 MB");
+ toast.error(t("scorm.tooBig"));
  return;
  }
  setUploading(true);
@@ -90,12 +92,12 @@ export function SCORMConfigEditor({
  title: data.title || "",
  });
  if (data.status === "extracted") {
- toast.success(`Imported "${data.title || data.original_filename}"`);
+ toast.success(t("scorm.imported").replace("{title}", data.title || data.original_filename || ""));
  } else {
- toast.error(`Import failed: ${data.error || "unknown error"}`);
+ toast.error(t("scorm.importFailed").replace("{error}", data.error || t("scorm.unknownError")));
  }
  } catch (e) {
- toast.error("Upload failed");
+ toast.error(t("scorm.uploadFailed"));
  // eslint-disable-next-line no-console
  console.error(e);
  } finally {
@@ -106,11 +108,9 @@ export function SCORMConfigEditor({
  return (
  <div className="space-y-4">
  <div className="rounded-lg border border-border-strong bg-surface p-4">
- <p className="mb-2 text-sm font-medium text-text">SCORM / xAPI Package</p>
+ <p className="mb-2 text-sm font-medium text-text">{t("scorm.packageTitle")}</p>
  <p className="mb-3 text-xs text-text-muted">
- Upload a <strong>.zip</strong> exported from Articulate Storyline,
- Articulate Rise, iSpring Suite, Adobe Captivate, or any tool that
- produces SCORM 1.2 / SCORM 2004 / xAPI (Tin Can) output. Max 100 MB.
+ {t("scorm.uploadHelp")}
  </p>
  <input
  ref={fileInputRef}
@@ -132,7 +132,7 @@ export function SCORMConfigEditor({
  size="sm"
  >
  <Upload className="h-4 w-4" />
- {uploading ? "Uploading..." : pkg ? "Replace package" : "Upload .zip"}
+ {uploading ? t("exercise.uploading") : pkg ? t("scorm.replace") : t("scorm.uploadZip")}
  </Button>
  </div>
 
@@ -156,14 +156,14 @@ export function SCORMConfigEditor({
  )}
  <div className="flex-1 text-sm">
  <p className="font-medium text-text">
- {pkg.title || pkg.original_filename || "Imported package"}
+ {pkg.title || pkg.original_filename || t("scorm.importedPackage")}
  </p>
  <p className="text-xs text-text-muted">
- {pkg.format} · status: {pkg.status}
- {pkg.launch_url ? ` · launch: ${pkg.launch_url}` : ""}
+ {t("scorm.statusLine").replace("{format}", pkg.format).replace("{status}", pkg.status)}
+ {pkg.launch_url ? ` · ${t("scorm.launch")}: ${pkg.launch_url}` : ""}
  </p>
  {pkg.error && (
- <p className="mt-1 text-xs text-danger-fg">Error: {pkg.error}</p>
+ <p className="mt-1 text-xs text-danger-fg">{t("scorm.error").replace("{error}", pkg.error)}</p>
  )}
  </div>
  </div>
@@ -184,6 +184,7 @@ export function SCORMPackageRenderer({
  config: Record<string, unknown>;
  onSubmit: (body: Record<string, unknown>) => void;
 }) {
+ const { t } = useTranslation();
  const cfg = config as SCORMConfig;
  const apiRef = useRef<ScormAPI | null>(null);
  const [iframeSrc, setIframeSrc] = useState<string | null>(null);
@@ -283,15 +284,14 @@ export function SCORMPackageRenderer({
  if (!cfg.package_id) {
  return (
  <div className="rounded-lg border border-border-strong bg-surface p-6 text-center text-sm text-text-muted">
- No SCORM package uploaded yet. Ask your teacher to upload one.
+ {t("scorm.noPackage")}
  </div>
  );
  }
  if (!cfg.launch_url) {
  return (
  <div className="rounded-lg border border-danger bg-danger-soft p-6 text-center text-sm text-danger-fg">
- SCORM package has no launch entry. The .zip may be malformed
- (no imsmanifest.xml or no resource href).
+ {t("scorm.noLaunch")}
  </div>
  );
  }
@@ -303,11 +303,11 @@ export function SCORMPackageRenderer({
  src={iframeSrc}
  className="h-[600px] w-full rounded-lg border border-border-strong bg-surface"
  sandbox="allow-scripts allow-same-origin allow-forms allow-popups"
- title={cfg.title || "SCORM content"}
+ title={cfg.title || t("scorm.contentTitle")}
  />
  ) : (
  <div className="flex h-[600px] w-full items-center justify-center rounded-lg border border-border-strong bg-surface">
- <p className="text-sm text-text-muted">Loading SCORM content…</p>
+ <p className="text-sm text-text-muted">{t("scorm.loading")}</p>
  </div>
  )}
  </div>

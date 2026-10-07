@@ -47,8 +47,6 @@ export const I18N_ALLOWLIST: ReadonlySet<string> = new Set([
   "src/app/privacy/page.tsx",
   "src/app/refund/page.tsx",
   "src/app/terms/page.tsx",
-  "src/components/calendar/calendar-view.tsx",
-  "src/components/code-editor/editor-layout.tsx",
   "src/components/common/auto-youtube.tsx",
   "src/components/common/content-renderer.tsx",
   "src/components/analytics/dashboard-canvas.tsx",
@@ -70,9 +68,7 @@ export const I18N_ALLOWLIST: ReadonlySet<string> = new Set([
   "src/components/courses/course-card.tsx",
   // Translated through SlashCommands.configure({ t }), not the hook.
   "src/components/editor/slash-commands.tsx",
-  "src/components/exercises/scorm-package-exercise.tsx",
   "src/components/exercises/v2/_grid-axes.tsx",
-  "src/components/exercises/web-editor-exercise.tsx",
   "src/components/exercises/word-search-exercise.tsx",
   "src/components/game/blockly/blockly-workspace.tsx",
   "src/components/game/math/math-editor.tsx",
@@ -127,7 +123,6 @@ export const I18N_ALLOWLIST: ReadonlySet<string> = new Set([
   "src/components/submissions/exercises/fill-blanks.tsx",
   "src/components/submissions/exercises/matching.tsx",
   "src/components/submissions/exercises/ordering.tsx",
-  "src/components/submissions/exercises/srs-flashcard.tsx",
   "src/components/submissions/exercises/true-false.tsx",
   // Holds the call above the router and portals somebody else's interface into
   // place. It renders one container and no words of its own — every string the

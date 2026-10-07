@@ -4,6 +4,7 @@ import { PartyPopper } from "lucide-react";
 import { useState, useEffect, useMemo, useCallback } from "react";
 
 import "./srs-flashcard.css";
+import { useTranslation } from "@/lib/i18n/context";
 
 interface Card {
   id?: string;
@@ -88,6 +89,8 @@ export default function SrsFlashcardExercise({
   dailyReviewCap = 100,
   onSubmit,
 }: SrsFlashcardProps) {
+  const { t } = useTranslation();
+  const days = (n: number) => t("srs.days").replace("{n}", String(n));
   const indexed = useMemo(
     () => cards.map((c, i) => ({ ...c, id: c.id || `c${i}` })),
     [cards],
@@ -139,11 +142,11 @@ export default function SrsFlashcardExercise({
     return (
       <div className="gl-mobile-card text-center">
         <PartyPopper className="mx-auto mb-3 h-8 w-8 text-primary" />
-        <h2 className="text-2xl font-bold text-text mb-2">All done for today!</h2>
+        <h2 className="text-2xl font-bold text-text mb-2">{t("srs.allDone")}</h2>
         <p className="text-text-muted">
           {reviewedToday > 0
-            ? `You reviewed ${reviewedToday} card${reviewedToday === 1 ? "" : "s"}. Come back tomorrow.`
-            : "No cards due right now."}
+            ? t("srs.reviewed").replace("{n}", String(reviewedToday))
+            : t("srs.noneDue")}
         </p>
       </div>
     );
@@ -155,7 +158,7 @@ export default function SrsFlashcardExercise({
         <p className="text-sm text-text-muted mb-3">{instructions}</p>
       )}
 
-      <div className="gl-mobile-progress" aria-label="Session progress">
+      <div className="gl-mobile-progress" aria-label={t("srs.progress")}>
         <div className="fill" style={{ width: `${progress}%` }} />
       </div>
 
@@ -171,17 +174,17 @@ export default function SrsFlashcardExercise({
         onKeyDown={(e) => {
           if (e.key === " " || e.key === "Enter") setFlipped((f) => !f);
         }}
-        aria-label={flipped ? "Flip back to front" : "Flip card to see answer"}
+        aria-label={flipped ? t("srs.flipBack") : t("srs.flipToAnswer")}
       >
         <div className="gl-flashcard-inner">
           <div className="gl-flashcard-face">
             <div className="term">{current.front}</div>
             {current.hint && <div className="hint">{current.hint}</div>}
-            <div className="hint">tap to reveal</div>
+            <div className="hint">{t("srs.tapReveal")}</div>
           </div>
           <div className="gl-flashcard-face back">
             <div className="definition">{current.back}</div>
-            <div className="hint">grade your recall below</div>
+            <div className="hint">{t("srs.gradeRecall")}</div>
           </div>
         </div>
       </div>
@@ -191,37 +194,37 @@ export default function SrsFlashcardExercise({
           className="gl-srs-btn again"
           disabled={!flipped}
           onClick={() => grade(0)}
-          aria-label="Again — didn't remember"
+          aria-label={t("srs.againLabel")}
         >
-          Again
-          <small>1d</small>
+          {t("exercise.again")}
+          <small>{days(1)}</small>
         </button>
         <button
           className="gl-srs-btn hard"
           disabled={!flipped}
           onClick={() => grade(3)}
-          aria-label="Hard"
+          aria-label={t("exercise.hard")}
         >
-          Hard
-          <small>{Math.max(1, Math.round((state[current.id!]?.interval ?? 1) * 1.2))}d</small>
+          {t("exercise.hard")}
+          <small>{days(Math.max(1, Math.round((state[current.id!]?.interval ?? 1) * 1.2)))}</small>
         </button>
         <button
           className="gl-srs-btn good"
           disabled={!flipped}
           onClick={() => grade(4)}
-          aria-label="Good"
+          aria-label={t("exercise.good")}
         >
-          Good
-          <small>{(state[current.id!]?.interval ?? 1) * 2.5 | 0}d</small>
+          {t("exercise.good")}
+          <small>{days((state[current.id!]?.interval ?? 1) * 2.5 | 0)}</small>
         </button>
         <button
           className="gl-srs-btn easy"
           disabled={!flipped}
           onClick={() => grade(5)}
-          aria-label="Easy"
+          aria-label={t("exercise.easy")}
         >
-          Easy
-          <small>{((state[current.id!]?.interval ?? 1) * 4) | 0}d</small>
+          {t("exercise.easy")}
+          <small>{days(((state[current.id!]?.interval ?? 1) * 4) | 0)}</small>
         </button>
       </div>
     </div>

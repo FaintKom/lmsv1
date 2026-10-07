@@ -5,6 +5,7 @@ import { Code2, Eye, Play, Send, RotateCcw, Maximize2, Minimize2 } from "lucide-
 import apiClient from "@/lib/api-client";
 import { startExerciseTimer, type ExerciseTimer } from "@/lib/api/exercises";
 import { toast } from "sonner";
+import { useTranslation } from "@/lib/i18n/context";
 
 interface WebEditorConfig {
  description?: string;
@@ -62,6 +63,7 @@ export default function WebEditorExercise({
  onSubmit,
  onAnswersChange,
 }: WebEditorExerciseProps) {
+ const { t } = useTranslation();
  const [htmlCode, setHtmlCode] = useState(config.starter_html || "");
  const [cssCode, setCssCode] = useState(config.starter_css || "");
  const [jsCode, setJsCode] = useState(config.starter_js || "");
@@ -141,7 +143,7 @@ export default function WebEditorExercise({
 
  const handleSubmit = async () => {
  if (!htmlCode.trim() && !cssCode.trim() && !jsCode.trim()) {
- toast.error("Write some code before submitting");
+ toast.error(t("we.emptyCode"));
  return;
  }
  setIsSubmitting(true);
@@ -150,10 +152,10 @@ export default function WebEditorExercise({
  web_code: { html: htmlCode, css: cssCode, js: jsCode },
  elapsed_seconds: timerRef.current.elapsedSeconds(),
  });
- toast.success("Code submitted!");
+ toast.success(t("we.submitted"));
  onSubmit({ _already_submitted: true, ...data });
  } catch {
- toast.error("Failed to submit");
+ toast.error(t("exercise.couldNotSubmit"));
  } finally {
  setIsSubmitting(false);
  }
@@ -171,7 +173,7 @@ export default function WebEditorExercise({
  {config.requirements && config.requirements.length > 0 && (
  <div className="mt-3">
  <p className="text-sm font-medium text-text-muted mb-1">
- Requirements
+ {t("exercise.requirements")}
  </p>
  <ul className="space-y-1">
  {config.requirements.map((req, i) => (
@@ -219,22 +221,24 @@ export default function WebEditorExercise({
  <button
  onClick={handleRunPreview}
  className="flex items-center gap-1 rounded-md px-2.5 py-1.5 text-xs font-medium text-primary hover:bg-success-soft transition-colors"
- title="Refresh preview"
+ title={t("we.refreshPreview")}
  >
- <Play className="h-3.5 w-3.5" />
- Run
+ <Play className="h-3.5 w-3.5" aria-hidden="true" />
+ {t("exercise.run")}
  </button>
  <button
  onClick={handleReset}
  className="flex items-center gap-1 rounded-md px-2.5 py-1.5 text-xs font-medium text-text-subtle hover:bg-surface-2 transition-colors"
- title="Reset to starter code"
+ title={t("we.reset")}
+ aria-label={t("we.reset")}
  >
- <RotateCcw className="h-3.5 w-3.5" />
+ <RotateCcw className="h-3.5 w-3.5" aria-hidden="true" />
  </button>
  <button
  onClick={() => setIsExpanded(!isExpanded)}
  className="flex items-center gap-1 rounded-md px-2.5 py-1.5 text-xs font-medium text-text-subtle hover:bg-surface-2 transition-colors"
- title={isExpanded ? "Exit fullscreen" : "Fullscreen"}
+ title={isExpanded ? t("we.exitFullscreen") : t("theory.fullscreen")}
+ aria-label={isExpanded ? t("we.exitFullscreen") : t("theory.fullscreen")}
  >
  {isExpanded ? <Minimize2 className="h-3.5 w-3.5" /> : <Maximize2 className="h-3.5 w-3.5" />}
  </button>
@@ -271,7 +275,7 @@ export default function WebEditorExercise({
  style={{ height: editorHeight }}
  >
  <div className="h-5 w-5 animate-spin rounded-pill border-2 border-primary border-t-transparent mr-2" />
- Loading editor...
+ {t("admin.exerciseEditor.loadingEditor")}
  </div>
  )}
  </div>
@@ -280,14 +284,14 @@ export default function WebEditorExercise({
  <div className={`${isExpanded ? "w-1/2 flex flex-col" : "md:w-1/2"}`}>
  <div className="flex items-center gap-2 border-b border-border-strong bg-surface-2 px-4 py-2">
  <Eye className="h-3.5 w-3.5 text-text-subtle" />
- <span className="text-xs font-semibold text-text-muted ">Preview</span>
+ <span className="text-xs font-semibold text-text-muted ">{t("common.preview")}</span>
  </div>
  <div className={`bg-surface ${isExpanded ? "flex-1" : ""}`} style={isExpanded ? undefined : { height: previewHeight }}>
  <iframe
  srcDoc={previewDoc}
  sandbox="allow-scripts allow-same-origin"
  className="w-full h-full border-0"
- title="Live preview"
+ title={t("we.livePreview")}
  style={{ minHeight: isExpanded ? undefined : previewHeight }}
  />
  </div>
@@ -306,7 +310,7 @@ export default function WebEditorExercise({
  {/* Submit button */}
  <div className="flex items-center justify-between">
  <p className="text-xs text-text-subtle ">
- Your code runs entirely in the browser preview — safe and sandboxed.
+ {t("we.sandboxNote")}
  </p>
  <button
  onClick={handleSubmit}
@@ -314,7 +318,7 @@ export default function WebEditorExercise({
  className="flex items-center gap-2 rounded-pill bg-primary px-5 py-2.5 text-sm font-semibold text-primary-fg hover:bg-primary-hover disabled:opacity-50 transition-colors"
  >
  <Send className="h-4 w-4" />
- {isSubmitting ? "Submitting..." : "Submit"}
+ {isSubmitting ? t("exercise.submitting") : t("exercise.submit")}
  </button>
  </div>
  </div>
