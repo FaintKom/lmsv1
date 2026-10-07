@@ -23,6 +23,7 @@ import {
   useState,
   type ReactNode,
 } from "react";
+import { Check } from "lucide-react";
 
 import {
   useCreateHighlight,
@@ -269,9 +270,15 @@ export function HighlightableContent({
             transform: "translateX(-50%)",
           }}
         >
-          <button style={{ cursor: "default" }}>
+          {/* A status, not a control: it was a button nobody could press. */}
+          <span
+            role="status"
+            className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-bold"
+            style={{ color: "var(--ink-on-fill)" }}
+          >
+            <Check className="h-3.5 w-3.5" aria-hidden="true" />
             {t("theory.copiedToast")}
-          </button>
+          </span>
         </div>
       )}
       <div

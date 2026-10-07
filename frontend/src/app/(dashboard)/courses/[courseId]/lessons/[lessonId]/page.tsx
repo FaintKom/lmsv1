@@ -39,7 +39,7 @@ import { ExerciseView } from "@/components/exercises/exercise-view";
 import { VideoPlayer } from "@/components/video-player";
 import { useTranslation } from "@/lib/i18n/context";
 import { useAuthStore } from "@/stores/auth-store";
-import { Printer } from "lucide-react";
+import { Check, Printer } from "lucide-react";
 
 interface LessonProgressItem {
  lesson_id: string;
@@ -402,9 +402,8 @@ export default function LessonViewerPage() {
            isCurrentModule ? "text-success-fg" : "text-text-subtle"
           )}
          >
-          {allDone
-           ? `${moduleCompleted}/${moduleLessons.length} ✓`
-           : `${moduleCompleted}/${moduleLessons.length}`}
+          {moduleCompleted}/{moduleLessons.length}
+          {allDone && <Check className="ml-0.5 inline h-3 w-3 align-[-2px]" aria-hidden="true" />}
          </span>
          {isExpanded ? (
           <ChevronDown className="h-3 w-3 shrink-0 text-text-subtle" />
@@ -446,7 +445,7 @@ export default function LessonViewerPage() {
                    : "border-[1.5px] border-border-strong bg-transparent"
                )}
               >
-               {isDone ? "✓" : isActive ? "▸" : ""}
+               {isDone && <Check className="h-2.5 w-2.5" strokeWidth={3.5} aria-hidden="true" />}
               </span>
               <span className="flex-1 truncate">{l.title}</span>
               {l.duration_minutes && (

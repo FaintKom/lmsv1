@@ -1,6 +1,8 @@
 import type { TranslationMap } from "../meta";
 
 const en: TranslationMap = {
+ "live.passed": "Passed",
+ "live.notPassed": "Not passed",
  "admin.contentLibrary.newTemplateTitle": "New template",
  "bulk.csvFormat": "CSV with a header row; email is required, name and password are optional:",
  "xe.equationHint": "Plain text. You can write multiplication without a sign, and variables may stand on either side:",
@@ -1030,7 +1032,7 @@ const en: TranslationMap = {
  "theory.highlightAction": "Highlight",
  "theory.underlineAction": "Underline",
  "theory.copyAction": "Copy",
- "theory.copiedToast": "Copied ✓",
+ "theory.copiedToast": "Copied",
  "theory.removeMarkHint": "Click to remove the mark",
  "theory.noSource": "No slides added yet.",
  "theory.speakerNotes": "Speaker notes",

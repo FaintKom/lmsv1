@@ -335,7 +335,7 @@ export default function StudentLessonPage() {
             aria-label={t("common.close")}
             className="absolute right-1 top-1 flex h-10 w-10 items-center justify-center rounded-md text-text-muted transition-colors hover:bg-surface-2 pointer-coarse:h-11 pointer-coarse:w-11"
           >
-            ✕
+            <X className="h-4 w-4" aria-hidden="true" />
           </button>
           <div className="mb-2 pr-7 text-sm font-bold text-text">
             {t("live.poll.results")}: {pollResult.question}

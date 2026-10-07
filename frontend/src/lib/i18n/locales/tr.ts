@@ -1,6 +1,8 @@
 import type { TranslationMap } from "../meta";
 
 const tr: TranslationMap = {
+ "live.passed": "Geçti",
+ "live.notPassed": "Geçmedi",
  "admin.contentLibrary.newTemplateTitle": "Yeni şablon",
  "bulk.csvFormat": "Başlık satırlı CSV; email zorunlu, name ve password isteğe bağlı:",
  "xe.equationHint": "Düz metin. Çarpma işaretini yazmayabilirsin, değişkenler iki tarafta da olabilir:",
@@ -997,7 +999,7 @@ const tr: TranslationMap = {
  "theory.highlightAction": "Vurgula",
  "theory.underlineAction": "Altını çiz",
  "theory.copyAction": "Kopyala",
- "theory.copiedToast": "Kopyalandı ✓",
+ "theory.copiedToast": "Kopyalandı",
  "theory.removeMarkHint": "İşareti kaldırmak için tıkla",
  "theory.noSource": "Henüz slayt eklenmedi.",
  "theory.speakerNotes": "Konuşmacı notları",

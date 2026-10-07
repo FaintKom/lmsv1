@@ -104,7 +104,7 @@ export function ReviewInspector({
           const row = progressById.get(m.id);
           const draft = drafts[m.id];
           return (
-            <div key={m.id} className="rounded-lg border border-border bg-surface p-4 shadow-sm">
+            <div key={m.id} className="rounded-lg border border-border bg-surface p-4">
               <div className="mb-2 flex items-center gap-2">
                 <span
                   className={`h-2 w-2 rounded-pill ${m.online ? "bg-primary" : "bg-ink-200"}`}

@@ -1,6 +1,8 @@
 import type { TranslationMap } from "../meta";
 
 const uk: TranslationMap = {
+ "live.passed": "Розв’язано",
+ "live.notPassed": "Не розв’язано",
  "admin.contentLibrary.newTemplateTitle": "Новий шаблон",
  "bulk.csvFormat": "CSV з рядком заголовків; email обов'язковий, name і password — ні:",
  "xe.equationHint": "Звичайний текст. Знак множення можна не писати, змінні можуть стояти з будь-якого боку:",
@@ -1030,7 +1032,7 @@ const uk: TranslationMap = {
  "theory.highlightAction": "Виділити",
  "theory.underlineAction": "Підкреслити",
  "theory.copyAction": "Копіювати",
- "theory.copiedToast": "Скопійовано ✓",
+ "theory.copiedToast": "Скопійовано",
  "theory.removeMarkHint": "Натисни, щоб прибрати позначку",
  "theory.noSource": "Слайди ще не додані.",
  "theory.speakerNotes": "Нотатки доповідача",

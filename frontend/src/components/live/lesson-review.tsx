@@ -62,7 +62,7 @@ export function LessonReview({
           </div>
           <div className="grid grid-cols-1 gap-3 lg:grid-cols-2">
             {results.map((ex) => (
-              <div key={ex.exercise_id} className="rounded-lg border border-border bg-surface p-4 shadow-sm">
+              <div key={ex.exercise_id} className="rounded-lg border border-border bg-surface p-4">
                 <div className="mb-2 text-sm font-bold text-text">{ex.title}</div>
                 {ex.students.map((s) => (
                   <div key={s.id} className="flex items-center gap-2 py-0.5 text-sm">
@@ -73,11 +73,11 @@ export function LessonReview({
                       {s.attempts} {t("live.attempts")}
                     </span>
                     <span
-                      className={`rounded-pill px-2 py-0.5 font-mono text-3xs font-bold ${
+                      className={`rounded-pill px-2 py-0.5 text-xs font-medium tabular-nums ${
                         s.passed ? "bg-success-soft text-success-fg" : "bg-danger-soft text-danger-fg"
                       }`}
                     >
-                      {s.score != null ? `${Math.round(s.score)}%` : s.passed ? "✓" : "✗"}
+                      {s.score != null ? `${Math.round(s.score)}%` : s.passed ? t("live.passed") : t("live.notPassed")}
                     </span>
                   </div>
                 ))}
@@ -87,7 +87,7 @@ export function LessonReview({
         </div>
       )}
       {!teacherView && (
-        <div className="mb-6 rounded-lg border border-border bg-surface p-6 shadow-sm">
+        <div className="mb-6 rounded-lg border border-border bg-surface p-6">
           <div className="eyebrow mb-3">{t("live.myResults")}</div>
           {myResults.length === 0 ? (
             <p className="text-sm text-text-muted">{t("live.noAttempted")}</p>
@@ -100,11 +100,11 @@ export function LessonReview({
                     {t("live.attemptsN").replace("{n}", String(mine.attempts))}
                   </span>
                   <span
-                    className={`rounded-pill px-2 py-0.5 font-mono text-3xs font-bold ${
+                    className={`rounded-pill px-2 py-0.5 text-xs font-medium tabular-nums ${
                       mine.passed ? "bg-success-soft text-success-fg" : "bg-danger-soft text-danger-fg"
                     }`}
                   >
-                    {mine.score != null ? `${Math.round(mine.score)}%` : mine.passed ? "✓" : "✗"}
+                    {mine.score != null ? `${Math.round(mine.score)}%` : mine.passed ? t("live.passed") : t("live.notPassed")}
                   </span>
                 </div>
               ))}
@@ -130,7 +130,7 @@ export function LessonReview({
         </div>
       )}
       {openBoard && (
-        <div className="h-[60vh] overflow-hidden rounded-lg border border-border bg-surface shadow-sm">
+        <div className="h-[60vh] overflow-hidden rounded-lg border border-border bg-surface">
           <BoardView lessonId={lesson.id} boardId={openBoard} handleRef={handleRef} />
         </div>
       )}
@@ -202,7 +202,7 @@ function LessonRecordings({
         {rows.map((r) => (
           <div
             key={r.id}
-            className="flex items-center gap-3 rounded-lg border border-border bg-surface px-4 py-2.5 shadow-sm"
+            className="flex items-center gap-3 rounded-lg border border-border bg-surface px-4 py-2.5"
           >
             <span className="min-w-0 flex-1 text-sm font-semibold text-text">
               {r.created_at

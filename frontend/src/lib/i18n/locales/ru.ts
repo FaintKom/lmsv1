@@ -1,6 +1,8 @@
 import type { TranslationMap } from "../meta";
 
 const ru: TranslationMap = {
+ "live.passed": "Решено",
+ "live.notPassed": "Не решено",
  "admin.contentLibrary.newTemplateTitle": "Новый шаблон",
  "bulk.csvFormat": "CSV со строкой заголовков; email обязателен, name и password — нет:",
  "xe.equationHint": "Обычный текст. Знак умножения можно не писать, переменные могут стоять с любой стороны:",
@@ -983,7 +985,7 @@ const ru: TranslationMap = {
  "theory.highlightAction": "Выделить",
  "theory.underlineAction": "Подчеркнуть",
  "theory.copyAction": "Копировать",
- "theory.copiedToast": "Скопировано ✓",
+ "theory.copiedToast": "Скопировано",
  "theory.removeMarkHint": "Нажми, чтобы убрать отметку",
  "theory.noSource": "Слайды ещё не добавлены.",
  "theory.speakerNotes": "Заметки докладчика",
