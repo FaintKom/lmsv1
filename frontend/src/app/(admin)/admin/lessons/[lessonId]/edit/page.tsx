@@ -1332,7 +1332,7 @@ function AssignmentBlockBody({
         <button
           onClick={save}
           disabled={busy || !form.title.trim() || !form.due_date}
-          className="ml-auto rounded-lg bg-primary px-3 py-1.5 text-xs font-medium text-primary-fg disabled:opacity-50"
+          className="ml-auto rounded-pill bg-primary px-3 py-1.5 text-xs font-medium text-primary-fg disabled:opacity-50"
         >
           {busy ? t("common.saving") : t("common.save")}
         </button>

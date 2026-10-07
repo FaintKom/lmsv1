@@ -355,7 +355,7 @@ export default function TeacherLivePage() {
       <div className="flex h-[calc(100vh-4rem)] flex-col items-center justify-center gap-5">
         <div className="text-xl font-extrabold text-text">{t("live.endedTitle")}</div>
         <button
-          className="press-scale rounded-md bg-primary px-5 py-2.5 text-sm font-bold text-primary-fg"
+          className="press-scale rounded-pill bg-primary px-5 py-2.5 text-sm font-bold text-primary-fg"
           onClick={() => router.push("/admin/groups")}
         >
           {t("common.back")}
@@ -773,7 +773,7 @@ export default function TeacherLivePage() {
                     type="submit"
                     disabled={!classMsg.trim()}
                     aria-label={t("live.messageAll")}
-                    className="press-scale flex h-9 w-9 shrink-0 items-center justify-center rounded-md bg-primary text-primary-fg disabled:opacity-50 pointer-coarse:h-11 pointer-coarse:w-11"
+                    className="press-scale flex h-9 w-9 shrink-0 items-center justify-center rounded-pill bg-primary text-primary-fg disabled:opacity-50 pointer-coarse:h-11 pointer-coarse:w-11"
                   >
                     <SendHorizonal size={15} aria-hidden />
                   </button>
