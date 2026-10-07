@@ -34,15 +34,15 @@ describe("тело нового задания", () => {
     // получает задание блоком, а не полем. Поле `lesson_id` не шлётся вовсе,
     // иначе задание, поставленное потом в другой курс, останется «чужим»
     // по записи о происхождении.
-    expect(newExercisePayload("fill_blanks")).toEqual({
+    expect(newExercisePayload("fill_blanks", "Пропуски")).toEqual({
       exercise_type: "fill_blanks",
-      title: "New Fill Blanks",
+      title: "Пропуски",
       config: {},
     });
   });
 
-  it("у незнакомого типа названием становится он сам, а не пустота", () => {
-    expect(newExercisePayload("brand_new_type").title).toBe("New brand_new_type");
+  it("без названия заданием называется его тип, а не пустота", () => {
+    expect(newExercisePayload("brand_new_type", "  ").title).toBe("brand_new_type");
   });
 });
 
@@ -62,6 +62,7 @@ describe("куда встаёт новый блок", () => {
       content: lesson,
       pageIndex: 0,
       exerciseType: "quiz",
+      title: "Тест",
     });
 
     const saved = client.put.mock.calls[0][1] as { content: { pages: { blocks: unknown[] }[] } };
@@ -81,6 +82,7 @@ describe("куда встаёт новый блок", () => {
       content: lesson,
       pageIndex: 1,
       exerciseType: "quiz",
+      title: "Тест",
     });
 
     expect(client.put.mock.calls[0][0]).toBe("/courses/c1/modules/m1/lessons/l1/");
@@ -94,6 +96,7 @@ describe("куда встаёт новый блок", () => {
       content: lesson,
       pageIndex: 1,
       exerciseType: "quiz",
+      title: "Тест",
     });
 
     const saved = client.put.mock.calls[0][1] as {
@@ -112,6 +115,7 @@ describe("куда встаёт новый блок", () => {
       content: lesson,
       pageIndex: 0,
       exerciseType: "quiz",
+      title: "Тест",
     });
 
     expect(created.exerciseId).toBe("e9");
@@ -130,6 +134,7 @@ describe("куда встаёт новый блок", () => {
         content: lesson,
         pageIndex: 0,
         exerciseType: "quiz",
+      title: "Тест",
       }),
     ).rejects.toThrow();
   });
