@@ -380,9 +380,8 @@ export default function BulkEnrollPage() {
  <CardContent className="space-y-4">
  <div className="flex items-center justify-between">
  <p className="text-xs font-medium text-text-muted ">
- Format: header row with <code className="rounded bg-surface-2 px-1 ">email</code> (required),{" "}
- <code className="rounded bg-surface-2 px-1 ">name</code> and{" "}
- <code className="rounded bg-surface-2 px-1 ">password</code> (optional).
+ {t("bulk.csvFormat")}{" "}
+ <code className="rounded bg-surface-2 px-1 ">email,name,password</code>
  </p>
  <button
  type="button"

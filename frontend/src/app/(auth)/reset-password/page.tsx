@@ -104,7 +104,7 @@ function ResetPasswordForm() {
  type="password"
  value={password}
  onChange={(e) => setPassword(e.target.value)}
- placeholder="At least 6 characters"
+ placeholder={t("auth.phMin6")}
  required
  />
  </div>
@@ -117,7 +117,7 @@ function ResetPasswordForm() {
  type="password"
  value={confirmPassword}
  onChange={(e) => setConfirmPassword(e.target.value)}
- placeholder="Repeat your password"
+ placeholder={t("auth.phRepeat")}
  required
  />
  </div>

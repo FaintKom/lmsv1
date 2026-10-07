@@ -1814,8 +1814,7 @@ export function MathSystemConfigEditor({ config, onChange }: EditorProps) {
          <Plus className="h-4 w-4" /> {t("xe.addEquation")}
        </Button>
        <p className={hintCls}>
-         Plain text. Implicit multiplication is fine (<code>2x</code>), and either side may hold the
-         variables (<code>y = 2x - 1</code>).
+         {t("xe.equationHint")} <code>2x</code>, <code>y = 2x - 1</code>
        </p>
      </div>
 

@@ -221,7 +221,7 @@ function RegisterForm() {
  id="reg-org"
  value={form.org_name}
  onChange={(e) => update("org_name", e.target.value)}
- placeholder="My School"
+ placeholder={t("auth.phSchool")}
  required
  />
  </div>
@@ -235,7 +235,7 @@ function RegisterForm() {
  id="reg-fullname"
  value={form.full_name}
  onChange={(e) => update("full_name", e.target.value)}
- placeholder="John Doe"
+ placeholder={t("auth.phName")}
  required
  aria-required="true"
  />
@@ -263,7 +263,7 @@ function RegisterForm() {
  type="password"
  value={form.password}
  onChange={(e) => update("password", e.target.value)}
- placeholder="Min 8 characters"
+ placeholder={t("auth.phMin8")}
  minLength={8}
  required
  aria-required="true"
