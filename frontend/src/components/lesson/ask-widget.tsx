@@ -92,13 +92,15 @@ export function AskWidget({ lessonId }: { lessonId: string }) {
                 </p>
               )}
               {item.answer === undefined && item.failure === undefined && (
-                <p role="status" className="flex items-center gap-2 text-sm text-ink-700">
-                  {/* A free model takes up to ~15s; still text reads as a hang. */}
+                <p role="status" className="flex items-center gap-2 text-sm text-text-muted">
+                  {/* A free model takes up to ~15s; still text reads as a hang.
+                      Dots breathe rather than bounce (specs/078), and take the
+                      theme's text colour: raw ink-700 stayed dark on dark. */}
                   <span aria-hidden="true" className="inline-flex gap-1">
                     {[0, 150, 300].map((delay) => (
                       <span
                         key={delay}
-                        className="size-1.5 rounded-full bg-ink-700 motion-safe:animate-bounce"
+                        className="size-1.5 rounded-full bg-current motion-safe:animate-pulse"
                         style={{ animationDelay: `${delay}ms` }}
                       />
                     ))}

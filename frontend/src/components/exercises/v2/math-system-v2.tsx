@@ -307,7 +307,7 @@ export function MathSystemV2({
               aria-hidden="true"
               style={{
                 width: 12,
-                borderLeft: "2px solid var(--color-border-strong)",
+                borderLeft: "2px solid var(--color-border-strong)", // design-allow: side-stripe — the { of a system of equations
                 borderTop: "2px solid var(--color-border-strong)",
                 borderBottom: "2px solid var(--color-border-strong)",
                 borderRadius: "8px 0 0 8px",

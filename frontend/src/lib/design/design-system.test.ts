@@ -75,7 +75,9 @@ const RULES: Record<RuleId, RegExp> = {
   emoji: /(?![©®™↔-↙])\p{Extended_Pictographic}/gu,
   // A coloured stripe down the side of a card, callout or tile (specs/075).
   // Hairlines (border-l, 1px) are structure and pass; thicker is decoration.
-  "side-stripe": /\bborder-[lrse]-(?:[2-8]|\[\d+px\])(?![\w-])/g,
+  // Inline styles too: the journal's timetable had `borderLeft: \`4px solid …\``
+  // in a style prop, which the class form never saw (specs/078).
+  "side-stripe": /\bborder-[lrse]-(?:[2-8]|\[\d+px\])(?![\w-])|\bborder(?:Left|Right|InlineStart|InlineEnd)(?:Width)?:\s*["'`]\s*[2-9]px/g,
   // A shadow with no blur is a costume, not depth (specs/075): the "step"
   // under a pressed-looking button. Inline styles and arbitrary Tailwind.
   "hard-shadow": /boxShadow:\s*["'`]0 \d+px 0(?: 0)? |\bshadow-\[0_\d+px_0(?:_0)?_/g,
@@ -159,6 +161,9 @@ function countFile(path: string, text: string): Partial<Record<RuleId, number>> 
       // Goal labels of the robot and 3D-world games live in the locale files
       // but are drawn only inside components/game, which is exempt.
       if (rule === "emoji" && /"(?:world|game)\.goal\./.test(line)) continue;
+      // One line, one rule, a reason in the code: `// design-allow: side-stripe — why`.
+      // For the brace of a system of equations, which is notation, not a stripe.
+      if (line.includes(`design-allow: ${rule}`)) continue;
       const hits = line.match(re)?.length ?? 0;
       if (hits) out[rule] = (out[rule] ?? 0) + hits;
     }
@@ -191,6 +196,7 @@ describe("design-system guard", () => {
       '<div className="rounded-2xl" />',
       '<span>⚠ {label}</span>',
       '<div className="border-l-4 border-primary" />',
+      '<button style={{ borderLeft: `4px solid ${color}` }} />',
       '<button style={{ boxShadow: "0 4px 0 0 var(--green-700)" }} />',
     ].join("\n");
     const hit = countFile("sample.tsx", sample);

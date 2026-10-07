@@ -1278,10 +1278,11 @@ function SchedBlock({
         background: clash
           ? "var(--clay-50)"
           : `color-mix(in srgb, ${color} 16%, var(--paper-2))`,
-        borderLeft: `4px solid ${clash ? "var(--clay-500)" : color}`,
+        // The group's colour is the tint above and a hairline ring, not a
+        // 4px stripe down the side (specs/075 side-stripe, DESIGN.md).
         boxShadow: clash
           ? "0 0 0 1.5px var(--clay-500)"
-          : "0 1px 3px rgba(10,26,16,.08), inset 0 0 0 1px var(--ink-100)",
+          : `inset 0 0 0 1px color-mix(in srgb, ${color} 55%, transparent)`,
       }}
       className="absolute overflow-hidden rounded-lg px-1.5 py-1 text-left"
     >
