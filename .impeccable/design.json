@@ -1,0 +1,123 @@
+{
+  "schemaVersion": 2,
+  "generatedAt": "2026-10-07T00:00:00Z",
+  "title": "Design System: GrassLMS",
+  "extensions": {
+    "colorMeta": {
+      "primary": { "role": "primary", "displayName": "Grass Green", "tonalRamp": ["#0a3d24", "#054d2f", "#07683f", "#0a8754", "#17915e", "#34a06a", "#8fd770", "#d4f1c4"] },
+      "paper": { "role": "neutral", "displayName": "Paper" },
+      "ground": { "role": "neutral", "displayName": "Open Field" },
+      "ink": { "role": "neutral", "displayName": "Ink", "tonalRamp": ["#0d150d", "#232b22", "#485444", "#677265", "#93a08d", "#c4cdbe", "#e3e8dd", "#f3f5ef"] },
+      "subject-lang": { "role": "secondary", "displayName": "Meadow" },
+      "subject-math": { "role": "secondary", "displayName": "Butter" },
+      "subject-code": { "role": "secondary", "displayName": "Lagoon Mist" },
+      "subject-other": { "role": "secondary", "displayName": "Fog" },
+      "reward": { "role": "tertiary", "displayName": "Sun" }
+    },
+    "typographyMeta": {
+      "display": { "displayName": "Display", "purpose": "The student's greeting only; 32px on phones." },
+      "headline": { "displayName": "Headline", "purpose": "One page title per screen via PageHeader; the figure in a StatTile." },
+      "title": { "displayName": "Title", "purpose": "Section headings inside a page." },
+      "body": { "displayName": "Body", "purpose": "Prose, capped at 65ch." },
+      "label": { "displayName": "Label", "purpose": "Field, tile and meta labels; sentence case." }
+    },
+    "shadows": [
+      { "name": "md", "value": "0 8px 24px -8px rgba(13, 21, 13, 0.14)", "purpose": "Menus and popovers; a card on hover." },
+      { "name": "lg", "value": "0 18px 50px -20px rgba(13, 21, 13, 0.20)", "purpose": "Dialogs and toasts." },
+      { "name": "focus", "value": "0 0 0 4px #d4f1c4", "purpose": "Soft halo around focused fields, with the 2px outline." }
+    ],
+    "motion": [
+      { "name": "fast", "value": "120ms", "purpose": "Press, hover, colour changes." },
+      { "name": "base", "value": "200ms", "purpose": "Most state transitions." },
+      { "name": "slow", "value": "400ms", "purpose": "Progress fill, entrances." },
+      { "name": "ease", "value": "cubic-bezier(0.2, 0.8, 0.2, 1)", "purpose": "The one easing curve." }
+    ],
+    "breakpoints": [
+      { "name": "sm", "value": "640px" },
+      { "name": "md", "value": "768px" },
+      { "name": "lg", "value": "1024px" }
+    ]
+  },
+  "components": [
+    {
+      "name": "Primary Button",
+      "kind": "button",
+      "refersTo": "button-primary",
+      "description": "The one green action per view.",
+      "html": "<button class=\"ds-btn-primary\">Continue learning</button>",
+      "css": ".ds-btn-primary{height:44px;padding:0 20px;border:0;border-radius:999px;background:#0a8754;color:#fff;font:600 13px Onest,system-ui,sans-serif;transition:background .12s cubic-bezier(.2,.8,.2,1),transform .12s}.ds-btn-primary:hover{background:#07683f}.ds-btn-primary:active{transform:scale(.96)}.ds-btn-primary:focus-visible{outline:2px solid #17915e;outline-offset:2px}"
+    },
+    {
+      "name": "Danger Ghost Button",
+      "kind": "button",
+      "refersTo": "button-danger-ghost",
+      "description": "Delete that is not the point of the screen.",
+      "html": "<button class=\"ds-btn-danger\">Delete</button>",
+      "css": ".ds-btn-danger{height:44px;padding:0 20px;border:0;border-radius:999px;background:transparent;color:#9e300f;font:600 13px Onest,system-ui,sans-serif;transition:background .12s}.ds-btn-danger:hover{background:#fdefe7}.ds-btn-danger:focus-visible{outline:2px solid #17915e;outline-offset:2px}"
+    },
+    {
+      "name": "Stat Tile",
+      "kind": "card",
+      "refersTo": "stat-tile",
+      "description": "A figure and its label; no colour, hidden until there is something to count.",
+      "html": "<div class=\"ds-tile\"><p class=\"ds-tile-l\">Enrolled courses</p><p class=\"ds-tile-v\">3</p></div>",
+      "css": ".ds-tile{background:#fff;border-radius:14px;padding:20px;width:200px}.ds-tile-l{margin:0;color:#485444;font:400 13px Onest,system-ui,sans-serif}.ds-tile-v{margin:6px 0 0;color:#0d150d;font:700 32px/1 Geologica,Onest,sans-serif;font-variant-numeric:tabular-nums}"
+    },
+    {
+      "name": "Filter Chip",
+      "kind": "chip",
+      "refersTo": "filter-chip-pressed",
+      "description": "Narrows a list; pressed is the brand fill.",
+      "html": "<button class=\"ds-chip\" aria-pressed=\"true\">All</button><button class=\"ds-chip\" aria-pressed=\"false\">Maths</button>",
+      "css": ".ds-chip{height:36px;padding:0 16px;margin-right:8px;border:1px solid #c4cdbe;border-radius:999px;background:#fff;color:#0d150d;font:500 13px Onest,system-ui,sans-serif}.ds-chip:hover{border-color:#677265}.ds-chip[aria-pressed=true]{background:#0a8754;border-color:#0a8754;color:#fff}"
+    },
+    {
+      "name": "Search Field",
+      "kind": "input",
+      "refersTo": "input",
+      "description": "Pill field with a visible focus ring.",
+      "html": "<input class=\"ds-input\" type=\"search\" placeholder=\"Filter courses\">",
+      "css": ".ds-input{height:44px;width:280px;padding:0 16px;border:1px solid #c4cdbe;border-radius:999px;background:#fff;color:#0d150d;font:400 13px Onest,system-ui,sans-serif}.ds-input:focus{outline:none;border-color:#0a8754;box-shadow:0 0 0 4px #d4f1c4}"
+    },
+    {
+      "name": "Tabs",
+      "kind": "nav",
+      "description": "Sections of one screen, underlined.",
+      "html": "<div class=\"ds-tabs\"><a class=\"ds-tab is-on\">Achievements</a><a class=\"ds-tab\">Certificates</a><a class=\"ds-tab\">Skills</a></div>",
+      "css": ".ds-tabs{display:flex;gap:24px;border-bottom:1px solid #e3e8dd}.ds-tab{padding:12px 2px;margin-bottom:-1px;border-bottom:2px solid transparent;color:#485444;font:500 13px Onest,system-ui,sans-serif;cursor:pointer}.ds-tab:hover{color:#0d150d;border-color:#c4cdbe}.ds-tab.is-on{color:#0d150d;border-color:#0a8754}"
+    }
+  ],
+  "narrative": {
+    "northStar": "The Open Field",
+    "overview": "GrassLMS is a field under an open sky: a wide, quiet ground where the work stands out. The frame of every screen is calm and identical, so a student or teacher never relearns the page. Character comes in on purpose and in few places: the colour of a course's subject, the field on the sign-in screen, the greeting on the student's home.",
+    "keyCharacteristics": [
+      "One frame for every screen from page-kit.",
+      "Width is the layout's job; pages never centre themselves.",
+      "Colour carries a subject, never a status alone.",
+      "Flat surfaces; shadow only on what floats.",
+      "Pills for actions, 14px corners for containers."
+    ],
+    "rules": [
+      { "name": "The One Green Rule", "body": "One filled green control per view. Everything else is outline, ghost or text.", "section": "colors" },
+      { "name": "The Words Carry It Rule", "body": "A status is said in words; colour only repeats it.", "section": "colors" },
+      { "name": "The No Eyebrow Rule", "body": "Nothing sits above a heading.", "section": "typography" },
+      { "name": "The Sentence Case Rule", "body": "Labels, tabs and buttons are sentence case; uppercase only in table column heads.", "section": "typography" },
+      { "name": "The Flat Card Rule", "body": "Cards sit flat; a shadow with no blur is banned.", "section": "elevation" }
+    ],
+    "dos": [
+      "Do build every screen from page-kit: PageHeader, StatTile, Tabs, FilterChips, EmptyState, PageLoading.",
+      "Do keep one filled Grass Green control per view.",
+      "Do let a course's subject colour be its surface, with ink text.",
+      "Do compute contrast against Paper (#fbfcf7) in both themes.",
+      "Do translate every string in all six locales in the same change."
+    ],
+    "donts": [
+      "Don't centre a page with mx-auto max-w-*; the layout owns width.",
+      "Don't put a label, crumb or date above a heading.",
+      "Don't draw a coloured stripe down the side of a card or a step shadow under a button.",
+      "Don't use emoji, gradients, glass or blurred blobs.",
+      "Don't show a row of zeros to someone who has not started yet.",
+      "Don't put white text on Sun or on the danger red."
+    ]
+  }
+}
