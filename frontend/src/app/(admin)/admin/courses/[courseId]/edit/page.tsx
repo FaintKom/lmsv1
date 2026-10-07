@@ -925,7 +925,7 @@ export default function CourseEditorPage() {
  {/* Add lesson form */}
  {addingLessonToModule === module.id ? (
  <div className="mt-3 rounded-lg border border-dashed border-border-strong p-4">
- <p className="mb-3 text-xs font-semibold uppercase tracking-wider text-text-subtle">{t("ce.newLesson")}</p>
+ <p className="mb-3 text-sm font-medium text-text-subtle">{t("ce.newLesson")}</p>
  <div className="space-y-3">
  <input
  type="text"
@@ -1188,7 +1188,7 @@ export default function CourseEditorPage() {
  {/* Add Assignment toggle */}
  {showAddAssignment ? (
  <div className="rounded-lg border border-dashed border-border-strong p-4">
- <p className="mb-3 text-xs font-semibold uppercase tracking-wider text-text-subtle">{t("ce.newAssignment")}</p>
+ <p className="mb-3 text-sm font-medium text-text-subtle">{t("ce.newAssignment")}</p>
  <div className="space-y-3">
  <div>
  <label className="mb-1 block text-sm font-medium text-text ">{t("ce.titleRequired")}</label>

@@ -11,7 +11,7 @@ import {
  X,
  Sparkles,
 } from "lucide-react";
-import { Button } from "@/components/ui/button";
+import { buttonClass } from "@/components/ui/button";
 import apiClient from "@/lib/api-client";
 
 interface OnboardingStep {
@@ -165,10 +165,8 @@ export function TeacherOnboarding() {
  <p className="text-xs text-text ">{step.description}</p>
  </div>
  {!isDone && (
- <Link href={step.href}>
- <Button size="sm" variant="outline" className="shrink-0">
+ <Link href={step.href} className={buttonClass({ size: "sm", variant: "outline", className: "shrink-0" })}>
  {step.cta} <ArrowRight className="ml-1 h-3 w-3" />
- </Button>
  </Link>
  )}
  </div>

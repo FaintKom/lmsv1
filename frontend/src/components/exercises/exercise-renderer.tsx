@@ -822,7 +822,7 @@ function CodeChallengeExercise({
  {/* Examples (sample I/O, public) */}
  {config.examples && config.examples.length > 0 && (
  <div className="px-5 pb-3 space-y-2">
- <p className="text-xs font-semibold uppercase tracking-wider text-text-subtle">
+ <p className="text-sm font-medium text-text-subtle">
  {t("exr.examples")}
  </p>
  {config.examples.map((ex, i) => (
@@ -851,7 +851,7 @@ function CodeChallengeExercise({
  {/* Visible test cases */}
  {visibleTests.length > 0 && (
  <div className="px-5 pb-3 space-y-2">
- <p className="text-xs font-semibold uppercase tracking-wider text-text-subtle">
+ <p className="text-sm font-medium text-text-subtle">
  {t("exr.testCases")}
  </p>
  {visibleTests.map((tc, i) => (
@@ -1003,7 +1003,7 @@ function CodeChallengeExercise({
  </div>
  {!r.passed && r.actual_output && (
  <div className="mt-2">
- <p className="text-xs font-medium uppercase text-text-subtle">{t("exr.output")}</p>
+ <p className="text-sm font-medium text-text-subtle">{t("exr.output")}</p>
  <pre className="mt-1 rounded-lg bg-surface p-2 font-mono text-sm text-text ">
  {r.actual_output}
  </pre>

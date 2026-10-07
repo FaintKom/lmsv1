@@ -6,7 +6,7 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { Loader2 } from "lucide-react";
 
 import apiClient from "@/lib/api-client";
-import { Button } from "@/components/ui/button";
+import { buttonClass } from "@/components/ui/button";
 import LocaleSwitcher from "@/components/layout/locale-switcher";
 import { useAuthStore } from "@/stores/auth-store";
 import { useTranslation } from "@/lib/i18n/context";
@@ -77,10 +77,8 @@ function DemoRunner() {
  </Link>
  <div className="flex items-center gap-2">
  <LocaleSwitcher />
- <Link href="/login">
- <Button variant="ghost" size="sm">
+ <Link href="/login" className={buttonClass({ variant: "ghost", size: "sm" })}>
  {t("demo.signIn")}
- </Button>
  </Link>
  </div>
  </div>

@@ -236,7 +236,7 @@ export function EditorLayout({
  </div>
  {!result.passed && result.actual_output && (
  <div className="mt-2">
- <p className="text-2xs font-medium uppercase text-text-subtle">
+ <p className="text-sm font-medium text-text-subtle">
  Output:
  </p>
  <pre className="mt-1 rounded-lg bg-surface p-2 font-mono text-xs text-text">

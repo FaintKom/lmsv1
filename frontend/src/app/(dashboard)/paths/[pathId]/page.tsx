@@ -5,7 +5,7 @@ import { useParams } from "next/navigation";
 import Link from "next/link";
 import apiClient from "@/lib/api-client";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
+import { Button, buttonClass } from "@/components/ui/button";
 import { ArrowLeft, CheckCircle, Lock, BookOpen, ArrowRight } from "lucide-react";
 import { toast } from "sonner";
 import { useTranslation } from "@/lib/i18n/context";
@@ -167,17 +167,13 @@ export default function PathDetailPage() {
  </p>
  </div>
  {isUnlocked && !step.completed && (
- <Link href={`/courses/${step.course_id}`}>
- <Button size="sm" variant={isCurrent ? "default" : "outline"}>
+ <Link href={`/courses/${step.course_id}`} className={buttonClass({ size: "sm", variant: isCurrent ? "default" : "outline" })}>
  {isCurrent ? t("paths.start") : t("paths.view")} <ArrowRight className="ml-1 h-3 w-3" />
- </Button>
  </Link>
  )}
  {step.completed && (
- <Link href={`/courses/${step.course_id}`}>
- <Button size="sm" variant="ghost">
+ <Link href={`/courses/${step.course_id}`} className={buttonClass({ size: "sm", variant: "ghost" })}>
  {t("paths.review")} <ArrowRight className="ml-1 h-3 w-3" />
- </Button>
  </Link>
  )}
  </CardContent>

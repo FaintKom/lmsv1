@@ -292,7 +292,7 @@ function TemplatesTab() {
  <div className="flex items-center gap-2">
  <FileStack className="h-5 w-5 text-primary" />
  <span
- className={`rounded-pill px-2 py-0.5 text-3xs font-semibold uppercase ${
+ className={`rounded-pill px-2 py-0.5 text-xs font-medium ${
  course.status === "published"
  ? "bg-primary-soft text-success-fg "
  : "bg-surface-2 text-text-muted "
@@ -566,7 +566,7 @@ function ExercisesTab() {
  if (types.length === 0) return null;
  return (
  <div key={group.key} className="mb-1.5">
- <p className="mb-0.5 text-2xs font-semibold uppercase tracking-wider text-text-subtle">{t(group.labelKey)}</p>
+ <p className="mb-0.5 text-sm font-medium text-text-subtle">{t(group.labelKey)}</p>
  <ul>
  {types.map((meta) => (
  <li key={meta.value}>
@@ -603,7 +603,7 @@ function ExercisesTab() {
  {/* Same five subject groups as the exercise picker (specs/017 US4) */}
  {EXERCISE_GROUPS.map((group) => (
  <div key={group.key} className="flex flex-wrap items-center gap-2">
- <span className="w-28 shrink-0 text-2xs font-semibold uppercase tracking-wider text-text-subtle">
+ <span className="w-28 shrink-0 text-sm font-medium text-text-subtle">
  {t(group.labelKey)}
  </span>
  {group.types.map((type) => {

@@ -254,7 +254,7 @@ export default function AdminCoursesPage() {
  {/* Category + source badges */}
  <div className="mb-2 flex flex-wrap items-center gap-1.5">
  {category && (
- <span className="rounded-pill bg-success-soft px-2 py-0.5 text-xs font-semibold uppercase tracking-wide text-primary ">
+ <span className="rounded-pill bg-success-soft px-2 py-0.5 text-xs font-semibold text-primary">
  {category}
  </span>
  )}

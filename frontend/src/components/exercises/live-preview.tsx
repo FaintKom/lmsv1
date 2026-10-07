@@ -64,7 +64,7 @@ export function LivePreview({
   return (
     <section className="mt-4 rounded-lg border border-border-strong bg-surface-2/40 p-3">
       <header className="mb-2 flex items-center justify-between">
-        <h4 className="text-xs font-semibold uppercase tracking-wider text-text-subtle">
+        <h4 className="text-sm font-medium text-text-subtle">
           {t("admin.livePreview.title")}
         </h4>
         {state.kind === "widget" && state.heavy && (

@@ -234,7 +234,7 @@ function DashboardHeader({
           >
             {active.name}
             {active.is_default ? (
-              <span className="ml-2 text-xs uppercase tracking-wide text-success">
+              <span className="ml-2 text-sm text-success">
                 {t("analytics.default")}
               </span>
             ) : null}

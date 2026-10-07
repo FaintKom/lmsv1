@@ -550,7 +550,7 @@ export default function LessonEditorPage() {
                   }
                 >
                   <div className="mb-2 flex flex-wrap items-center gap-2">
-                    <span className="rounded-pill bg-surface-2 px-2 py-0.5 text-2xs font-semibold uppercase tracking-wider text-text-subtle">
+                    <span className="rounded-pill bg-surface-2 px-2 py-0.5 text-xs font-semibold text-text-subtle">
                       {fill(t("admin.lessonEditor.pageLabel"), {
                         n: pageIndex + 1,
                         total: pages.length,
@@ -1083,7 +1083,7 @@ function ExerciseBlockBody({
         <div className="space-y-3">
           {EXERCISE_GROUPS.map((group) => (
             <div key={group.key}>
-              <p className="mb-1.5 text-2xs font-semibold uppercase tracking-wider text-text-subtle">
+              <p className="mb-1.5 text-sm font-medium text-text-subtle">
                 {t(group.labelKey)}
               </p>
               <div className="grid grid-cols-4 gap-1.5 sm:grid-cols-6">
@@ -1146,7 +1146,7 @@ function ExerciseBlockBody({
     <div className="rounded-lg border border-border-strong bg-surface-2 p-4">
       <div className="mb-3 flex items-center gap-2">
         <TypeIcon className="h-5 w-5 text-text-muted" strokeWidth={1.75} />
-        <span className="rounded-pill bg-surface-2 px-2 py-0.5 text-3xs font-semibold uppercase tracking-wider text-text-muted">
+        <span className="rounded-pill bg-surface-2 px-2 py-0.5 text-xs font-semibold text-text-muted">
           {exerciseTypeName(t, exercise.exercise_type)}
         </span>
       </div>

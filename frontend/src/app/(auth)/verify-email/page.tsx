@@ -4,7 +4,7 @@ import { Suspense, useEffect, useState } from "react";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import apiClient from "@/lib/api-client";
-import { Button } from "@/components/ui/button";
+import { buttonClass } from "@/components/ui/button";
 import { useTranslation } from "@/lib/i18n/context";
 import { CheckCircle, MailCheck, XCircle } from "lucide-react";
 
@@ -67,10 +67,8 @@ function VerifyEmailFlow() {
  {message || t("auth.pleaseWaitConfirm")}
  </p>
  {status !== "loading" && (
- <Link href="/login">
- <Button className="w-full">
+ <Link href="/login" className={buttonClass({ className: "w-full" })}>
  {status === "success" ? t("verifyEmail.signIn") : t("verifyEmail.backToSignIn")}
- </Button>
  </Link>
  )}
  </div>

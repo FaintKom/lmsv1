@@ -40,7 +40,7 @@ export function MenuVisibilitySection({ value, onToggle }: MenuVisibilitySection
         <div key={group} role="group" aria-labelledby={`menu-visibility-${group}`}>
           <h3
             id={`menu-visibility-${group}`}
-            className="bg-surface-2 px-6 py-2 text-3xs font-semibold uppercase tracking-wide text-text-subtle"
+            className="bg-surface-2 px-6 py-2 text-sm font-medium text-text-subtle"
           >
             {t(`nav.group.${group}`)}
           </h3>

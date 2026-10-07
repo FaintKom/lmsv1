@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { useState, useRef, useEffect } from "react";
 import { ArrowRight, Globe } from "lucide-react";
-import { Button } from "@/components/ui/button";
+import { buttonClass } from "@/components/ui/button";
 import { useTranslation } from "@/lib/i18n/context";
 import { LOCALES, type Locale } from "@/lib/i18n/meta";
 
@@ -85,27 +85,19 @@ export function LandingHeader() {
  {/* Pricing sits before Demo: a school owner opens the header looking
      for a number, and finding it is what makes the demo worth a click.
      Hidden below sm with the rest, for the reason noted above. */}
- <Link href="/pricing" className="hidden sm:block">
- <Button variant="ghost" size="sm">
+ <Link href="/pricing" className={buttonClass({ variant: "ghost", size: "sm", className: "max-sm:hidden" })}>
  {t("pricing.title")}
- </Button>
  </Link>
- <Link href="/demo?role=student" className="hidden sm:block">
- <Button variant="ghost" size="sm">
+ <Link href="/demo?role=student" className={buttonClass({ variant: "ghost", size: "sm", className: "max-sm:hidden" })}>
  {t("landing.ctaTryDemo")}
- </Button>
  </Link>
- <Link href="/login" className="hidden sm:block">
- <Button variant="ghost" size="sm">
+ <Link href="/login" className={buttonClass({ variant: "ghost", size: "sm", className: "max-sm:hidden" })}>
  {t("landing.signIn")}
- </Button>
  </Link>
- <Link href="/register">
- <Button size="sm" className="whitespace-nowrap">
+ <Link href="/register" className={buttonClass({ size: "sm", className: "whitespace-nowrap" })}>
  {t("landing.getStarted")}
  {/* At 320px the arrow is what tips the button past the edge. */}
  <ArrowRight className="hidden h-4 w-4 sm:block" />
- </Button>
  </Link>
  </div>
  </div>

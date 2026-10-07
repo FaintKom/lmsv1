@@ -141,7 +141,7 @@ function PacingBoard({ onOpen }: { onOpen: (groupId: string) => void }) {
                 <div className="text-2xl font-extrabold leading-none text-text">
                   {x.v}
                 </div>
-                <div className="mt-1 text-2xs font-bold uppercase tracking-wider text-text-subtle">
+                <div className="mt-1 text-sm font-medium text-text-subtle">
                   {x.label}
                 </div>
               </div>
@@ -367,7 +367,7 @@ function PacingTimeline({
       <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
         {kpis.map((x, i) => (
           <div key={i} className="rounded-xl border border-border bg-surface p-4">
-            <div className="text-2xs font-bold uppercase tracking-wider text-text-subtle">
+            <div className="text-sm font-medium text-text-subtle">
               {x.l}
             </div>
             <div

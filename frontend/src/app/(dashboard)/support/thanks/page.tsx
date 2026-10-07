@@ -4,7 +4,8 @@ import Link from "next/link";
 import { useEffect, useState } from "react";
 import { useSearchParams } from "next/navigation";
 
-import { Button } from "@/components/ui/button";
+import { buttonClass } from "@/components/ui/button";
+import { PageHeader } from "@/components/ui/page-kit";
 import { useTranslation } from "@/lib/i18n/context";
 import { getDonationStatus, type DonationStatusResponse } from "@/lib/api/donations";
 
@@ -24,20 +25,22 @@ export default function ThanksPage() {
   const displayName = donation && !donation.anonymous ? donation.donor_name : null;
 
   return (
-    <div className="mx-auto max-w-2xl space-y-6 p-8 text-center">
-      <h1 className="text-3xl font-extrabold tracking-tight text-text md:text-4xl">
-        {t("support.thanksTitle")}
-      </h1>
-      <p className="text-text-muted">
-        {displayName ? `${displayName} — ` : ""}
-        {t("support.thanksSubtext")}
-      </p>
-      <div className="flex flex-col items-center justify-center gap-3 sm:flex-row">
-        <Link href="/dashboard">
-          <Button>{t("support.thanksBackToDashboard")}</Button>
+    <div className="grid max-w-2xl gap-8">
+      <PageHeader
+        title={t("support.thanksTitle")}
+        description={
+          <>
+            {displayName ? `${displayName} — ` : ""}
+            {t("support.thanksSubtext")}
+          </>
+        }
+      />
+      <div className="flex flex-wrap gap-3">
+        <Link href="/dashboard" className={buttonClass()}>
+          {t("support.thanksBackToDashboard")}
         </Link>
-        <Link href="https://opencollective.com/grasslms" target="_blank" rel="noreferrer noopener">
-          <Button variant="outline">{t("support.thanksViewCollective")}</Button>
+        <Link href="https://opencollective.com/grasslms" target="_blank" rel="noreferrer noopener" className={buttonClass({ variant: "outline" })}>
+          {t("support.thanksViewCollective")}
         </Link>
       </div>
     </div>

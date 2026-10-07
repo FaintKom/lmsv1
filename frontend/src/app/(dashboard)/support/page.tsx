@@ -5,24 +5,20 @@ import Link from "next/link";
 import { DonationForm } from "@/components/support/donation-form";
 import { WhereMoneyGoes } from "@/components/support/where-money-goes";
 import { DirectCrypto } from "@/components/support/direct-crypto";
+import { PageHeader } from "@/components/ui/page-kit";
 import { useTranslation } from "@/lib/i18n/context";
 
 export default function SupportPage() {
   const { t } = useTranslation();
   return (
-    <div className="max-w-3xl space-y-8">
-      <header className="text-center">
-        <h1 className="mb-3 break-words text-3xl font-extrabold tracking-tight text-text md:text-4xl">
-          {t("support.heroTitle")}
-        </h1>
-        <p className="text-text-muted">{t("support.heroSubtitle")}</p>
-      </header>
+    <div className="grid max-w-3xl gap-8">
+      <PageHeader title={t("support.heroTitle")} description={t("support.heroSubtitle")} />
 
       <DonationForm />
       <WhereMoneyGoes />
       <DirectCrypto />
 
-      <p className="text-center text-sm">
+      <p className="text-sm">
         <Link
           href="https://opencollective.com/grasslms"
           target="_blank"

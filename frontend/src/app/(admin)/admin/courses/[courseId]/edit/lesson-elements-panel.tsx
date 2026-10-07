@@ -187,7 +187,7 @@ export function LessonElementsPanel({
         pages.map((page) => (
           <div key={page.index} className="py-1">
             {showPageTitles && (
-              <p className="mb-1 text-2xs font-medium uppercase tracking-wide text-text-subtle">
+              <p className="mb-1 text-sm font-medium text-text-subtle">
                 {t("admin.courseEdit.elementsPage").replace("{n}", String(page.index + 1))}
               </p>
             )}
@@ -301,7 +301,7 @@ function AddExercise({
               if (types.length === 0) return null;
               return (
                 <div key={group} className="mb-1.5">
-                  <p className="mb-0.5 text-2xs font-medium uppercase tracking-wide text-text-subtle">
+                  <p className="mb-0.5 text-sm font-medium text-text-subtle">
                     {t(`exerciseGroups.${group}`)}
                   </p>
                   <ul>

@@ -383,7 +383,7 @@ export function MathStepwiseRenderer({
  return (
  <div className="space-y-4">
  <div className="rounded-lg border border-border-strong bg-surface p-4">
- <p className="mb-1 text-xs font-medium uppercase text-text-muted">Problem</p>
+ <p className="mb-1 text-sm font-medium text-text-muted">Problem</p>
  <p className="text-base text-text">{cfg.problem || "(no problem set)"}</p>
  </div>
 

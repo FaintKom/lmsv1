@@ -14,7 +14,7 @@
 import Link from "next/link";
 import { ArrowRight, ChevronDown, Radio, Hand, CheckCircle2, Clock } from "lucide-react";
 
-import { Button } from "@/components/ui/button";
+import { buttonClass } from "@/components/ui/button";
 import { ExerciseGallery } from "@/components/landing/exercise-gallery";
 import { Comparison } from "@/components/landing/comparison";
 import { RoleShowcase } from "@/components/landing/role-showcase";
@@ -58,16 +58,12 @@ export default function Home() {
               {t("landing.hero.sub")}
             </p>
             <div className="flex flex-col items-center justify-center gap-4 sm:flex-row">
-              <Link href="/register">
-                <Button size="lg">
+              <Link href="/register" className={buttonClass({ size: "lg" })}>
                   {t("landing.ctaCreateFree")}
                   <ArrowRight className="h-5 w-5" />
-                </Button>
               </Link>
-              <Link href="/login">
-                <Button variant="outline" size="lg">
+              <Link href="/login" className={buttonClass({ variant: "outline", size: "lg" })}>
                   {t("landing.signIn")}
-                </Button>
               </Link>
             </div>
           </div>
@@ -181,16 +177,12 @@ export default function Home() {
             <h2 className="mb-4 break-words text-2xl font-bold text-text sm:text-3xl">{t("landing.ctaReady")}</h2>
             <p className="mb-8 text-text-muted">{t("landing.ctaReadySub")}</p>
             <div className="mb-10 flex flex-col items-center justify-center gap-4 sm:flex-row">
-              <Link href="/register">
-                <Button size="lg">
+              <Link href="/register" className={buttonClass({ size: "lg" })}>
                   {t("landing.ctaCreateFree")}
                   <ArrowRight className="h-5 w-5" />
-                </Button>
               </Link>
-              <Link href="/demo?role=student">
-                <Button variant="outline" size="lg">
+              <Link href="/demo?role=student" className={buttonClass({ variant: "outline", size: "lg" })}>
                   {t("landing.ctaTryDemo")}
-                </Button>
               </Link>
             </div>
           </div>

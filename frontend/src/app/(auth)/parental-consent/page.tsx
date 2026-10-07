@@ -4,7 +4,7 @@ import { Suspense, useState } from "react";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import apiClient from "@/lib/api-client";
-import { Button } from "@/components/ui/button";
+import { Button, buttonClass } from "@/components/ui/button";
 import { useTranslation } from "@/lib/i18n/context";
 import { CheckCircle, ShieldCheck, XCircle } from "lucide-react";
 
@@ -82,10 +82,8 @@ function ParentalConsentFlow() {
  </Button>
  )}
  {(status === "success" || status === "error") && (
- <Link href="/login">
- <Button className="w-full">
+ <Link href="/login" className={buttonClass({ className: "w-full" })}>
  {t("parentalConsent.backToSignIn")}
- </Button>
  </Link>
  )}
  </div>

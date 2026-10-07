@@ -459,7 +459,7 @@ function CodeConfigEditor({
                   </div>
                   <div className="grid grid-cols-2 gap-2">
                     <div>
-                      <label className="mb-0.5 block text-3xs uppercase tracking-wider text-text-subtle">
+                      <label className="mb-0.5 block text-sm text-text-subtle">
                         Input
                       </label>
                       <textarea
@@ -470,7 +470,7 @@ function CodeConfigEditor({
                       />
                     </div>
                     <div>
-                      <label className="mb-0.5 block text-3xs uppercase tracking-wider text-text-subtle">
+                      <label className="mb-0.5 block text-sm text-text-subtle">
                         Output
                       </label>
                       <textarea
@@ -482,7 +482,7 @@ function CodeConfigEditor({
                     </div>
                   </div>
                   <div className="mt-2">
-                    <label className="mb-0.5 block text-3xs uppercase tracking-wider text-text-subtle">
+                    <label className="mb-0.5 block text-sm text-text-subtle">
                       Explanation (optional)
                     </label>
                     <input
@@ -1081,7 +1081,7 @@ function TestCasesEditor({
               </li>
               <li>Line endings: LF or CRLF, both work.</li>
             </ul>
-            <p className="mb-1 text-3xs uppercase tracking-wider text-text-subtle">
+            <p className="mb-1 text-sm text-text-subtle">
               Example
             </p>
             <pre className="overflow-x-auto rounded bg-surface p-2 font-mono text-2xs leading-snug text-text">
@@ -1110,13 +1110,13 @@ function TestCasesEditor({
                 </div>
                 <div className="grid grid-cols-2 gap-3">
                   <div>
-                    <p className="text-3xs uppercase text-text-subtle">Input</p>
+                    <p className="text-sm text-text-subtle">Input</p>
                     <pre className="mt-0.5 rounded bg-surface-2 p-2 font-mono text-xs text-text">
                       {tc.input || "(empty)"}
                     </pre>
                   </div>
                   <div>
-                    <p className="text-3xs uppercase text-text-subtle">Expected Output</p>
+                    <p className="text-sm text-text-subtle">Expected Output</p>
                     <pre className="mt-0.5 rounded bg-surface-2 p-2 font-mono text-xs text-text">
                       {tc.expected_output}
                     </pre>

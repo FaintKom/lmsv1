@@ -15,12 +15,15 @@ interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
   size?: "sm" | "md" | "lg" | "icon";
 }
 
-const Button = forwardRef<HTMLButtonElement, ButtonProps>(
-  ({ className, variant = "default", size = "md", ...props }, ref) => {
-    return (
-      <button
-        ref={ref}
-        className={cn(
+type ButtonLook = Pick<ButtonProps, "variant" | "size" | "className">;
+
+/**
+ * The button's look, for a link that navigates. `<Link><Button/></Link>` puts
+ * a button inside an anchor: two tab stops, and a screen reader announces
+ * both. A link styled as a button is one control.
+ */
+export function buttonClass({ className, variant = "default", size = "md" }: ButtonLook = {}) {
+  return cn(
           "inline-flex cursor-pointer touch-manipulation items-center justify-center gap-2 rounded-pill font-semibold focus-visible:outline-none",
           {
             "press-scale bg-primary text-primary-fg hover:bg-primary-hover":
@@ -49,11 +52,13 @@ const Button = forwardRef<HTMLButtonElement, ButtonProps>(
             "h-10 w-10 p-0": size === "icon",
           },
           className
-        )}
-        {...props}
-      />
-    );
-  }
+  );
+}
+
+const Button = forwardRef<HTMLButtonElement, ButtonProps>(
+  ({ className, variant, size, ...props }, ref) => (
+    <button ref={ref} className={buttonClass({ className, variant, size })} {...props} />
+  )
 );
 
 Button.displayName = "Button";
