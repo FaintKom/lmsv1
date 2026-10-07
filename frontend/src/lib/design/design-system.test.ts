@@ -110,7 +110,6 @@ const EXEMPT: { prefix: string; why: string }[] = [
   { prefix: "components/common/content-renderer.tsx", why: "lesson content: base styles for the author's HTML in a sandboxed iframe" },
   { prefix: "components/editor/editor-styles.css", why: "lesson content: how the author's rich text looks while it is written" },
   { prefix: "components/editor/extensions/callout.ts", why: "lesson content: the callout icon is saved into the lesson's HTML" },
-  { prefix: "components/sat/sat-question-bank.ts", why: "question data: figures belong to the SAT item" },
   { prefix: "components/exercises/v2/map-pin-v2.tsx", why: "exercise scene: the map's sky and water" },
   { prefix: "components/exercises/v2/solid-view.tsx", why: "Three.js needs a literal fallback before the CSS token is read" },
   { prefix: "app/student-cabinet/", why: "3D cabinet scene: colours are scene materials" },
