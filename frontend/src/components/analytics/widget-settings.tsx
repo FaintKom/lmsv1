@@ -6,6 +6,7 @@
  * builds a small form. Submitting calls `onSave(nextProps)` which the
  * dashboard-canvas wires into a PATCH /admin/dashboards/{id}.
  */
+import { useTranslation } from "@/lib/i18n/context";
 import { X } from "lucide-react";
 import { useEffect, useState } from "react";
 
@@ -21,6 +22,7 @@ interface Props {
 }
 
 export function WidgetSettings({ meta, currentProps, onSave, onClose }: Props) {
+  const { t } = useTranslation();
   const [draft, setDraft] = useState<Record<string, unknown>>(
     () => currentProps ?? {},
   );
@@ -32,13 +34,13 @@ export function WidgetSettings({ meta, currentProps, onSave, onClose }: Props) {
   if (!meta.configFields || meta.configFields.length === 0) {
     return (
       <div className="absolute right-0 top-10 w-72 bg-surface border border-border rounded-md shadow-lg z-30 p-3 text-sm text-text-muted">
-        Nothing to configure for this widget.
+        {t("an.nothingToConfigure")}
         <button
           type="button"
           onClick={onClose}
           className="mt-3 w-full text-left text-primary"
         >
-          Close
+          {t("common.close")}
         </button>
       </div>
     );
@@ -62,12 +64,12 @@ export function WidgetSettings({ meta, currentProps, onSave, onClose }: Props) {
       onClick={(e) => e.stopPropagation()}
     >
       <div className="flex items-center justify-between border-b border-border px-3 py-2">
-        <div className="text-sm font-semibold text-text">{meta.label} settings</div>
+        <div className="text-sm font-semibold text-text">{t("an.settingsOf").replace("{name}", t(meta.i18nKey))}</div>
         <button
           type="button"
           onClick={onClose}
           className="p-1 hover:bg-surface-2 rounded"
-          aria-label="Close settings"
+          aria-label={t("an.closeSettings")}
         >
           <X className="w-4 h-4" />
         </button>
@@ -94,13 +96,13 @@ export function WidgetSettings({ meta, currentProps, onSave, onClose }: Props) {
             onClick={onClose}
             className="px-3 py-1.5 text-sm rounded hover:bg-surface-2"
           >
-            Cancel
+            {t("common.cancel")}
           </button>
           <button
             type="submit"
             className="px-3 py-1.5 text-sm bg-primary text-primary-fg rounded-pill hover:bg-primary/90"
           >
-            Save
+            {t("common.save")}
           </button>
         </div>
       </form>
@@ -115,9 +117,10 @@ interface FieldProps {
 }
 
 function Field({ field, value, onChange }: FieldProps) {
+  const { t } = useTranslation();
   return (
     <label className="block">
-      <div className="text-xs font-medium text-text mb-1">{field.label}</div>
+      <div className="text-xs font-medium text-text mb-1">{t(field.labelKey)}</div>
       {field.type === "course" ? (
         <CoursePicker
           value={(value as string | undefined) ?? ""}
@@ -146,8 +149,8 @@ function Field({ field, value, onChange }: FieldProps) {
           className="w-full px-2 py-1 text-sm bg-surface-2 border border-border rounded"
         />
       )}
-      {field.help ? (
-        <div className="text-xs text-text-muted mt-1">{field.help}</div>
+      {field.helpKey ? (
+        <div className="text-xs text-text-muted mt-1">{t(field.helpKey)}</div>
       ) : null}
     </label>
   );
@@ -160,6 +163,7 @@ function CoursePicker({
   value: string;
   onChange: (v: string) => void;
 }) {
+  const { t } = useTranslation();
   const { data: courses, isLoading } = useAdminCourses();
 
   return (
@@ -169,7 +173,7 @@ function CoursePicker({
       className="w-full px-2 py-1 text-sm bg-surface-2 border border-border rounded"
       disabled={isLoading}
     >
-      <option value="">— All courses —</option>
+      <option value="">{t("an.allCourses")}</option>
       {(courses ?? []).map((c) => (
         <option key={c.id} value={c.id}>
           {c.title}

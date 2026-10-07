@@ -6,6 +6,7 @@
  * widget props (default 7d) so different tiles can show different
  * windows on the same dashboard.
  */
+import { useTranslation } from "@/lib/i18n/context";
 import { ArrowDown, ArrowUp, Minus } from "lucide-react";
 
 import { WidgetError } from "./widget-error";
@@ -16,22 +17,24 @@ import type { WidgetProps } from "../widget-registry";
 
 interface TileSpec {
   key: keyof KpiDeltasResponse["metrics"];
+  /** i18n key */
   label: string;
   formatter?: (n: number) => string;
 }
 
 const TILES: TileSpec[] = [
-  { key: "submissions", label: "Submissions" },
+  { key: "submissions", label: "an.kpiSubmissions" },
   {
     key: "avg_score",
-    label: "Avg score",
+    label: "an.kpiAvgScore",
     formatter: (n) => Number(n ?? 0).toFixed(1),
   },
-  { key: "active_students", label: "Active students" },
-  { key: "new_enrollments", label: "New enrollments" },
+  { key: "active_students", label: "an.kpiActive" },
+  { key: "new_enrollments", label: "an.kpiEnrollments" },
 ];
 
 export function KpiTileWidget({ props }: WidgetProps) {
+  const { t } = useTranslation();
   const days = (props?.days as number | undefined) ?? 7;
   const { data, isLoading, error } = useKpiDeltas(days);
 
@@ -40,13 +43,13 @@ export function KpiTileWidget({ props }: WidgetProps) {
   // failure and any role, not just a refusal (specs/066).
   if (error) return <WidgetError />;
   if (isLoading || !data) {
-    return <div className="text-sm text-text-muted">Loading KPIs…</div>;
+    return <div className="text-sm text-text-muted">{t("exercise.loading")}</div>;
   }
 
   return (
     <div className="grid grid-cols-2 gap-3 h-full">
-      {TILES.map((t) => {
-        const m = (data.metrics?.[t.key] as KpiMetric | undefined) ?? {
+      {TILES.map((tile) => {
+        const m = (data.metrics?.[tile.key] as KpiMetric | undefined) ?? {
           current: 0,
           previous: 0,
           delta_pct: null,
@@ -54,14 +57,14 @@ export function KpiTileWidget({ props }: WidgetProps) {
         const current = m.current ?? 0;
         return (
           <div
-            key={t.key}
+            key={tile.key}
             className="bg-surface-2 rounded-md p-3 flex flex-col justify-between"
           >
             <div className="text-sm text-text-muted">
-              {t.label}
+              {t(tile.label)}
             </div>
             <div className="text-2xl font-bold text-text mt-1">
-              {t.formatter ? t.formatter(current) : current}
+              {tile.formatter ? tile.formatter(current) : current}
             </div>
             <DeltaPill metric={m} />
           </div>
@@ -72,11 +75,12 @@ export function KpiTileWidget({ props }: WidgetProps) {
 }
 
 function DeltaPill({ metric }: { metric: KpiMetric }) {
+  const { t } = useTranslation();
   if (metric.delta_pct == null) {
     return (
       <div className="inline-flex items-center gap-1 text-xs text-text-muted mt-1">
         <Minus className="w-3 h-3" />
-        no baseline
+        {t("an.noBaseline")}
       </div>
     );
   }

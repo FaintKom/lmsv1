@@ -3,29 +3,31 @@
  * ExerciseDifficultyWidget — table of exercises sorted by lowest
  * pass-rate. Reads /admin/analytics/v2/exercise-difficulty.
  */
+import { useTranslation } from "@/lib/i18n/context";
 import { WidgetError } from "./widget-error";
 import { useExerciseDifficulty } from "@/hooks/use-dashboards";
 
 import type { WidgetProps } from "../widget-registry";
 
 export function ExerciseDifficultyWidget({ props }: WidgetProps) {
+  const { t } = useTranslation();
   const courseId = props?.course_id as string | undefined;
   const { data, isLoading, error } = useExerciseDifficulty(courseId);
 
-  if (isLoading) return <div className="text-sm text-text-muted">Loading…</div>;
+  if (isLoading) return <div className="text-sm text-text-muted">{t("exercise.loading")}</div>;
   if (error)
     return <WidgetError />;
   if (!data || data.length === 0)
-    return <div className="text-sm text-text-muted">No exercises yet.</div>;
+    return <div className="text-sm text-text-muted">{t("an.noExercises")}</div>;
 
   return (
     <table className="w-full text-sm">
       <thead>
         <tr className="text-left text-xs uppercase text-text-muted">
-          <th className="pb-1">Exercise</th>
-          <th className="pb-1 text-right">Attempts</th>
-          <th className="pb-1 text-right">Pass %</th>
-          <th className="pb-1 text-right">Avg</th>
+          <th className="pb-1">{t("an.colExercise")}</th>
+          <th className="pb-1 text-right">{t("an.colAttempts")}</th>
+          <th className="pb-1 text-right">{t("an.colPassed")}</th>
+          <th className="pb-1 text-right">{t("an.colAvg")}</th>
         </tr>
       </thead>
       <tbody>

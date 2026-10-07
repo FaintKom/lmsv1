@@ -6,6 +6,7 @@
  * the pending count plus the oldest items so a teacher sees what to grade
  * next without leaving analytics.
  */
+import { useTranslation } from "@/lib/i18n/context";
 import Link from "next/link";
 
 import { WidgetError } from "./widget-error";
@@ -13,21 +14,22 @@ import { useReviewQueue } from "@/hooks/use-dashboards";
 
 import type { WidgetProps } from "../widget-registry";
 
-function daysAgo(iso: string): string {
+function daysAgo(iso: string, t: (key: string) => string): string {
   const then = new Date(iso).getTime();
   if (Number.isNaN(then)) return "";
   const days = Math.floor((Date.now() - then) / 86_400_000);
-  if (days <= 0) return "today";
+  if (days <= 0) return t("an.today");
   if (days === 1) return "1d ago";
-  return `${days}d ago`;
+  return t("an.daysAgo").replace("{n}", String(days));
 }
 
 export function ReviewQueueWidget({ props }: WidgetProps) {
+  const { t } = useTranslation();
   const limit = (props?.limit as number | undefined) ?? 6;
   const { data, isLoading, error } = useReviewQueue();
 
   if (isLoading) {
-    return <div className="text-sm text-text-muted">Loading queue…</div>;
+    return <div className="text-sm text-text-muted">{t("exercise.loading")}</div>;
   }
   if (error) {
     return <WidgetError />;
@@ -45,14 +47,14 @@ export function ReviewQueueWidget({ props }: WidgetProps) {
       <div className="flex items-baseline justify-between">
         <span className="text-3xl font-bold text-text">{data.length}</span>
         <Link href="/admin/review" className="text-xs text-primary hover:underline">
-          Open review →
+          {t("an.openReview")}
         </Link>
       </div>
       <div className="text-sm text-text-muted">
-        Awaiting grading
+        {t("an.awaiting")}
       </div>
       {shown.length === 0 ? (
-        <div className="text-xs text-text-muted">Nothing to grade.</div>
+        <div className="text-xs text-text-muted">{t("an.nothingToGrade")}</div>
       ) : (
         <ul className="text-sm divide-y divide-border">
           {shown.map((item) => (
@@ -67,7 +69,7 @@ export function ReviewQueueWidget({ props }: WidgetProps) {
                 </span>
               </span>
               <span className="shrink-0 text-xs text-text-muted">
-                {daysAgo(item.submitted_at)}
+                {daysAgo(item.submitted_at, t)}
               </span>
             </li>
           ))}

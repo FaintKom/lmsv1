@@ -16,17 +16,19 @@ import {
   YAxis,
 } from "recharts";
 
+import { useTranslation } from "@/lib/i18n/context";
 import { WidgetError } from "./widget-error";
 import { useActivityTimeline } from "@/hooks/use-dashboards";
 
 import type { WidgetProps } from "../widget-registry";
 
 export function ActivityTimelineWidget({ props }: WidgetProps) {
+  const { t } = useTranslation();
   const days = (props?.days as number | undefined) ?? 30;
   const { data, isLoading, error } = useActivityTimeline(days);
 
   if (isLoading) {
-    return <div className="text-sm text-text-muted">Loading activity…</div>;
+    return <div className="text-sm text-text-muted">{t("exercise.loading")}</div>;
   }
   if (error) {
     return <WidgetError />;
@@ -34,7 +36,7 @@ export function ActivityTimelineWidget({ props }: WidgetProps) {
   if (!data || data.length === 0) {
     return (
       <div className="text-sm text-text-muted">
-        No activity in the last {days} days.
+        {t("an.noActivityDays").replace("{n}", String(days))}
       </div>
     );
   }
@@ -69,6 +71,7 @@ export function ActivityTimelineWidget({ props }: WidgetProps) {
         <Line
           type="monotone"
           dataKey="submissions"
+          name={t("an.seriesSubmissions")}
           stroke="var(--primary, #3b82f6)"
           strokeWidth={2}
           dot={false}
@@ -76,6 +79,7 @@ export function ActivityTimelineWidget({ props }: WidgetProps) {
         <Line
           type="monotone"
           dataKey="active_students"
+          name={t("an.seriesActive")}
           stroke="var(--secondary, #10b981)"
           strokeWidth={2}
           dot={false}
