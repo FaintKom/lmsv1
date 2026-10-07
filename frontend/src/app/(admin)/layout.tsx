@@ -8,12 +8,14 @@ import { Sidebar } from "@/components/layout/sidebar";
 import { BrandVars } from "@/components/layout/brand-vars";
 import { MobileTabBar } from "@/components/layout/mobile-tab-bar";
 import { Menu } from "lucide-react";
+import { useTranslation } from "@/lib/i18n/context";
 
 export default function AdminLayout({
  children,
 }: {
  children: React.ReactNode;
 }) {
+ const { t } = useTranslation();
  const router = useRouter();
  const pathname = usePathname();
  const { user, branding, isAuthenticated, isLoading, fetchUser } = useAuthStore();
@@ -62,7 +64,7 @@ export default function AdminLayout({
  href="#main-content"
  className="sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-[200] focus:rounded-lg focus:bg-primary focus:px-4 focus:py-2 focus:text-sm focus:font-medium focus:text-primary-fg focus:shadow-lg"
  >
- Skip to content
+ {t("common.skipToContent")}
  </a>
  <Sidebar open={sidebarOpen} onClose={() => setSidebarOpen(false)} />
  <div className="flex flex-1 flex-col overflow-hidden">
@@ -71,7 +73,7 @@ export default function AdminLayout({
  <button
  onClick={() => setSidebarOpen(true)}
  className="rounded-lg p-2 text-text-muted hover:bg-surface-2 "
- aria-label="Open menu"
+ aria-label={t("common.openMenu")}
  >
  <Menu className="h-5 w-5" />
  </button>

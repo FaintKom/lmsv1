@@ -1,6 +1,15 @@
 import type { TranslationMap } from "../meta";
 
 const ru: TranslationMap = {
+ "common.skipToContent": "Перейти к содержимому",
+ "common.openMenu": "Открыть меню",
+ "notif.title": "Уведомления",
+ "notif.markAllRead": "Отметить все прочитанными",
+ "err.title": "Что-то пошло не так",
+ "err.unexpected": "На странице произошла ошибка, после которой она не может продолжить работу.",
+ "err.reload": "Перезагрузить страницу",
+ "nf.message": "По этому адресу страницы нет.",
+ "auth.tagline": "Программирование, языки и математика на одной учебной платформе: для школ и онлайн-курсов.",
  "tour.welcomeTitle": "Добро пожаловать в GrassLMS",
  "tour.welcomeDesc": "Это главная страница вашей школы. Дальше покажем, где лежат курсы, упражнения, оценки и люди.",
  "tour.coursesTitle": "Курсы",

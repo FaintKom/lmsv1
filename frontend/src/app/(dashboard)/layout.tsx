@@ -8,6 +8,7 @@ import { BrandVars } from "@/components/layout/brand-vars";
 import { MobileTabBar } from "@/components/layout/mobile-tab-bar";
 import { LiveLessonBanner } from "@/components/live/live-lesson-banner";
 import { Menu } from "lucide-react";
+import { useTranslation } from "@/lib/i18n/context";
 
 // Routes under the (dashboard) route group that should render for all roles,
 // including admin/teacher/super_admin. Without this whitelist, admins hitting
@@ -26,6 +27,7 @@ export default function DashboardLayout({
 }: {
  children: React.ReactNode;
 }) {
+ const { t } = useTranslation();
  const router = useRouter();
  const pathname = usePathname();
  const { isAuthenticated, isLoading, fetchUser } = useAuthStore();
@@ -98,7 +100,7 @@ export default function DashboardLayout({
  href="#main-content"
  className="sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-[200] focus:rounded-lg focus:bg-primary focus:px-4 focus:py-2 focus:text-sm focus:font-medium focus:text-primary-fg focus:shadow-lg"
  >
- Skip to content
+ {t("common.skipToContent")}
  </a>
  {!hiddenForLesson && <Sidebar open={sidebarOpen} onClose={() => setSidebarOpen(false)} />}
  <div className="flex flex-1 flex-col overflow-hidden">
@@ -110,7 +112,7 @@ export default function DashboardLayout({
  else { setSidebarOpen(true); }
  }}
  className="rounded-lg p-2 text-text-muted hover:bg-surface-2 "
- aria-label="Toggle menu"
+ aria-label={t("common.openMenu")}
  >
  <Menu className="h-5 w-5" />
  </button>
