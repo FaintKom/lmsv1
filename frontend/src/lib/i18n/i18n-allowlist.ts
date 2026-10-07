@@ -71,8 +71,6 @@ export const I18N_ALLOWLIST: ReadonlySet<string> = new Set([
   "src/components/editor/block-editor.tsx",
   "src/components/editor/slash-commands.tsx",
   "src/components/editor/toolbar.tsx",
-  "src/components/exercises/exercise-config-panel.tsx",
-  "src/components/exercises/math-stepwise-exercise.tsx",
   "src/components/exercises/scorm-package-exercise.tsx",
   "src/components/exercises/v2/_grid-axes.tsx",
   "src/components/exercises/web-editor-exercise.tsx",

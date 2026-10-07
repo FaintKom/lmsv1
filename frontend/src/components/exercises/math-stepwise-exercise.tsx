@@ -23,6 +23,7 @@ import { Check, X, Plus, Loader2, Trash2, Sparkles } from "lucide-react";
 import apiClient from "@/lib/api-client";
 import { equationOf } from "@/lib/exercises/math-problem";
 import { Button } from "@/components/ui/button";
+import { useTranslation } from "@/lib/i18n/context";
 
 interface MathStepwiseConfig {
  problem?: string; // initial expression (LHS of equation, or full eq)
@@ -81,6 +82,7 @@ export function MathStepwiseConfigEditor({
  config: Record<string, unknown>;
  onChange: (c: Record<string, unknown>) => void;
 }) {
+ const { t } = useTranslation();
  const cfg = config as MathStepwiseConfig;
  const labelCls = "mb-1 block text-sm font-medium text-text";
  const inputCls =
@@ -90,7 +92,7 @@ export function MathStepwiseConfigEditor({
 
  const generateSteps = async () => {
  if (!cfg.problem) {
- toast.error("Enter a problem first");
+ toast.error(t("msw.enterProblemFirst"));
  return;
  }
  setGenerating(true);
@@ -103,11 +105,9 @@ export function MathStepwiseConfigEditor({
  });
  const steps = (data.steps as Array<{ expression: string }>).map((s) => s.expression);
  onChange({ ...config, expected_steps: steps });
- toast.success(`Generated ${steps.length} step${steps.length === 1 ? "" : "s"}`);
+ toast.success(t("msw.generated").replace("{n}", String(steps.length)));
  } catch {
- toast.error(
- `Could not read “${equationOf(cfg.problem)}” as an equation. Try it as plain algebra, e.g. x^2 - 5x + 6 = 0.`,
- );
+ toast.error(t("msw.cannotRead").replace("{eq}", equationOf(cfg.problem)));
  } finally {
  setGenerating(false);
  }
@@ -116,25 +116,22 @@ export function MathStepwiseConfigEditor({
  return (
  <div className="space-y-4">
  <div>
- <label className={labelCls}>Problem (plain text: x^2 - 5x + 6 = 0)</label>
+ <label className={labelCls}>{t("msw.problemLabel")}</label>
  <textarea
  rows={2}
  value={cfg.problem || ""}
  onChange={(e) => onChange({ ...config, problem: e.target.value })}
- placeholder="Solve for x: x^2 - 5x + 6 = 0"
+ placeholder={t("msw.problemPlaceholder")}
  className={inputCls}
  />
  <p className={`mt-1 text-xs text-text-muted`}>
- Caret <code>^</code> = power. Implicit multiplication OK (<code>5x</code>).
- LaTeX preview shows under the field for students. Write the wording
- first if you like — <code>Solve for x:</code> is dropped before the
- equation reaches the step generator.
+ {t("msw.problemHelp")}
  </p>
  </div>
 
  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
  <div>
- <label className={labelCls}>Variable to solve for</label>
+ <label className={labelCls}>{t("msw.variable")}</label>
  <input
  type="text"
  value={cfg.variable || "x"}
@@ -144,7 +141,7 @@ export function MathStepwiseConfigEditor({
  />
  </div>
  <div>
- <label className={labelCls}>Max student steps</label>
+ <label className={labelCls}>{t("msw.maxSteps")}</label>
  <input
  type="number"
  value={cfg.max_steps ?? 10}
@@ -157,7 +154,7 @@ export function MathStepwiseConfigEditor({
  </div>
 
  <div>
- <label className={labelCls}>Expected final answer</label>
+ <label className={labelCls}>{t("msw.expectedFinal")}</label>
  <input
  type="text"
  value={cfg.final_answer || ""}
@@ -175,17 +172,16 @@ export function MathStepwiseConfigEditor({
  onChange={(e) => onChange({ ...config, validate_steps: e.target.checked })}
  className="h-4 w-4 rounded border-border-strong text-primary focus:ring-primary"
  />
- Validate each intermediate step (SymPy equivalence)
+ {t("msw.validateSteps")}
  </label>
  <p className="mt-1 text-xs text-text-muted">
- When off, only the final answer is checked. When on, every student
- step is verified against the previous one for algebraic equivalence.
+ {t("msw.validateHelp")}
  </p>
  </div>
 
  <div className="rounded-lg border border-border-strong bg-surface p-3">
  <div className="flex items-center justify-between mb-2">
- <span className="text-sm font-medium text-text">Expected steps (hint sequence)</span>
+ <span className="text-sm font-medium text-text">{t("msw.expectedSteps")}</span>
  <Button
  type="button"
  size="sm"
@@ -194,13 +190,12 @@ export function MathStepwiseConfigEditor({
  onClick={generateSteps}
  >
  {generating ? <Loader2 className="h-3 w-3 animate-spin" /> : <Sparkles className="h-3 w-3" />}
- Auto-generate via SymPy
+ {t("msw.autoGenerate")}
  </Button>
  </div>
  {(cfg.expected_steps || []).length === 0 ? (
  <p className="text-xs text-text-muted">
- Empty — students will simply work to the final answer. Generate to
- give them a canonical move-to-zero → factor → solve trace.
+ {t("msw.noSteps")}
  </p>
  ) : (
  <ol className="list-decimal pl-5 space-y-1 text-sm text-text">
@@ -233,6 +228,7 @@ export function MathStepwiseRenderer({
  config: Record<string, unknown>;
  onSubmit: (body: Record<string, unknown>) => void;
 }) {
+ const { t } = useTranslation();
  const cfg = config as MathStepwiseConfig;
  // Best-effort xAPI emit to the internal LRS. Never blocks submission;
  // failures are swallowed so a brief network blip doesn't void the
@@ -316,7 +312,7 @@ export function MathStepwiseRenderer({
  } catch {
  setSteps((s) =>
  s.map((row, idx) =>
- idx === i ? { ...row, status: "bad", note: "Cannot parse" } : row
+ idx === i ? { ...row, status: "bad", note: t("msw.cannotParse") } : row
  )
  );
  }
@@ -325,7 +321,7 @@ export function MathStepwiseRenderer({
  const addStep = () => {
  const max = cfg.max_steps ?? 10;
  if (steps.length >= max) {
- toast.error(`Maximum ${max} steps`);
+ toast.error(t("msw.maxStepsReached").replace("{n}", String(max)));
  return;
  }
  setSteps((s) => [...s, { value: "", status: "pending" }]);
@@ -337,7 +333,7 @@ export function MathStepwiseRenderer({
  const submitFinal = async () => {
  const expected = (cfg.final_answer || "").trim();
  if (!finalAnswer.trim()) {
- toast.error("Enter your final answer");
+ toast.error(t("msw.enterFinal"));
  return;
  }
  const stepValues = steps.map((s) => s.value);
@@ -369,12 +365,12 @@ export function MathStepwiseRenderer({
  });
  void emitXapi(Boolean(data.correct), finalAnswer, stepValues);
  if (data.correct) {
- toast.success("Correct!");
+ toast.success(t("msw.correct"));
  } else {
- toast.error("Final answer is incorrect");
+ toast.error(t("msw.incorrect"));
  }
  } catch {
- toast.error("Cannot check answer (parse error)");
+ toast.error(t("msw.cannotCheck"));
  } finally {
  setChecking(false);
  }
@@ -383,12 +379,12 @@ export function MathStepwiseRenderer({
  return (
  <div className="space-y-4">
  <div className="rounded-lg border border-border-strong bg-surface p-4">
- <p className="mb-1 text-sm font-medium text-text-muted">Problem</p>
- <p className="text-base text-text">{cfg.problem || "(no problem set)"}</p>
+ <p className="mb-1 text-sm font-medium text-text-muted">{t("msw.problem")}</p>
+ <p className="text-base text-text">{cfg.problem || t("msw.noProblem")}</p>
  </div>
 
  <div className="space-y-2">
- <p className="text-sm font-medium text-text">Your steps</p>
+ <p className="text-sm font-medium text-text">{t("msw.yourSteps")}</p>
  {steps.map((step, i) => (
  <div key={i} className="flex items-start gap-2">
  <span className="mt-3 w-6 text-right text-xs text-text-muted">{i + 1}.</span>
@@ -428,7 +424,7 @@ export function MathStepwiseRenderer({
  )
  }
  onBlur={() => void validateStep(i)}
- placeholder="Type your step..."
+ placeholder={t("msw.stepPlaceholder")}
  className="w-full rounded-lg border border-border-strong bg-surface px-3 py-2 text-sm text-text outline-none focus:border-primary focus:ring-2 focus:ring-primary-soft"
  />
  )}
@@ -443,9 +439,10 @@ export function MathStepwiseRenderer({
  <button
  onClick={() => removeStep(i)}
  className="rounded p-1 text-text-subtle hover:bg-surface-2"
- title="Remove step"
+ aria-label={t("msw.removeStep")}
+ title={t("msw.removeStep")}
  >
- <Trash2 className="h-3 w-3" />
+ <Trash2 className="h-3 w-3" aria-hidden="true" />
  </button>
  )}
  </div>
@@ -453,30 +450,30 @@ export function MathStepwiseRenderer({
  ))}
  <Button type="button" size="sm" variant="outline" onClick={addStep}>
  <Plus className="h-3 w-3" />
- Add step
+ {t("msw.addStep")}
  </Button>
  </div>
 
  <div className="rounded-lg border border-border-strong bg-surface p-4">
  <label className="mb-1 block text-sm font-medium text-text">
- Final answer
+ {t("msw.finalAnswer")}
  </label>
  <input
  type="text"
  value={finalAnswer}
  onChange={(e) => setFinalAnswer(e.target.value)}
- placeholder="e.g. x = 2 or x = 3"
+ placeholder={t("msw.finalPlaceholder")}
  className="w-full rounded-lg border border-border-strong bg-surface px-3 py-2 text-sm text-text outline-none focus:border-primary focus:ring-2 focus:ring-primary-soft"
  />
  <p className="mt-1 text-xs text-text-muted">
- Multiple solutions: separate with &quot;or&quot;, comma, or semicolon.
+ {t("msw.multipleHelp")}
  </p>
  </div>
 
  <div className="flex justify-end">
  <Button size="sm" onClick={submitFinal} disabled={checking || !finalAnswer.trim()}>
  {checking && <Loader2 className="h-3 w-3 animate-spin" />}
- Submit
+ {t("exercise.submit")}
  </Button>
  </div>
  </div>
