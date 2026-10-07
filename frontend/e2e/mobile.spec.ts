@@ -93,13 +93,13 @@ test.describe("phone layout", () => {
     await page.addInitScript(() => localStorage.setItem("cookie-consent", "accepted"));
     await new LoginPage(page).loginViaUi("student");
     await page.goto("/dashboard");
-    await expect(page.getByRole("button", { name: /toggle menu/i })).toBeVisible({
+    await expect(page.getByRole("button", { name: /open menu/i })).toBeVisible({
       timeout: 20_000,
     });
   });
 
   test("a student can reach sign out", async ({ page }) => {
-    await page.getByRole("button", { name: /toggle menu/i }).click();
+    await page.getByRole("button", { name: /open menu/i }).click();
 
     const signOut = page.getByRole("button", { name: /sign out|выйти/i }).first();
     await expect(signOut).toBeVisible();
@@ -112,7 +112,7 @@ test.describe("phone layout", () => {
   });
 
   test("the notifications panel opens inside the screen", async ({ page }) => {
-    await page.getByRole("button", { name: /toggle menu/i }).click();
+    await page.getByRole("button", { name: /open menu/i }).click();
 
     const bell = page.getByRole("button", { name: /notifications/i }).first();
     await expect(bell).toBeVisible();
