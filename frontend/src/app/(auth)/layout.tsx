@@ -1,6 +1,9 @@
+"use client";
+
 import Link from "next/link";
 import { coverArtProps } from "@/lib/course-cover";
 import { SUBJECT_SURFACE, type Subject } from "@/lib/subject";
+import { useTranslation } from "@/lib/i18n/context";
 
 /** Fixed seeds: the panel looks the same on every visit. Staggered, not stacked. */
 const FIELDS: { subject: Subject; seed: string; shift: string }[] = [
@@ -14,13 +17,14 @@ export default function AuthLayout({
 }: {
   children: React.ReactNode;
 }) {
+  const { t } = useTranslation();
   return (
     <div className="flex min-h-screen">
       <a
         href="#auth-content"
         className="sr-only focus:not-sr-only focus:absolute focus:left-4 focus:top-4 focus:z-50 focus:rounded-lg focus:bg-primary focus:px-4 focus:py-2 focus:text-primary-fg"
       >
-        Skip to content
+        {t("common.skipToContent")}
       </a>
 
       {/* Left side — the field (specs/076). The three subjects GrassLMS
@@ -47,8 +51,7 @@ export default function AuthLayout({
         </div>
 
         <p className="max-w-sm text-base leading-relaxed text-text-muted">
-          The modern learning platform for schools and online courses.
-          Programming, languages, and mathematics.
+          {t("auth.tagline")}
         </p>
       </div>
 

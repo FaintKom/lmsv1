@@ -4,6 +4,7 @@ import { useEffect, useState, useRef } from "react";
 import { useRouter } from "next/navigation";
 import apiClient from "@/lib/api-client";
 import { Bell, Check, CheckCheck } from "lucide-react";
+import { useTranslation } from "@/lib/i18n/context";
 
 interface NotificationData {
  id: string;
@@ -15,6 +16,7 @@ interface NotificationData {
 }
 
 export function NotificationBell() {
+ const { t } = useTranslation();
  const router = useRouter();
  const [unread, setUnread] = useState(0);
  const [notifications, setNotifications] = useState<NotificationData[]>([]);
@@ -117,16 +119,16 @@ export function NotificationBell() {
      against a 240px drawer, and `right-4` put its left edge at -96. Anchoring
      left instead keeps it on screen, because the drawer starts at x=0. */}
  {open && (
- <div role="region" aria-label="Notifications" className="fixed left-2 top-16 z-50 w-80 max-w-[calc(100vw-1rem)] rounded-lg border border-border-strong bg-surface shadow-lg sm:absolute sm:bottom-full sm:left-0 sm:top-auto sm:mb-2">
+ <div role="region" aria-label={t("notif.title")} className="fixed left-2 top-16 z-50 w-80 max-w-[calc(100vw-1rem)] rounded-lg border border-border-strong bg-surface shadow-lg sm:absolute sm:bottom-full sm:left-0 sm:top-auto sm:mb-2">
  <div className="flex items-center justify-between border-b border-border px-4 py-3">
- <h3 className="text-sm font-semibold text-text">Notifications</h3>
+ <h3 className="text-sm font-semibold text-text">{t("notif.title")}</h3>
  {unread > 0 && (
  <button
  onClick={handleMarkAllRead}
  className="flex items-center gap-1 text-xs font-medium text-primary hover:text-success-fg"
  >
- <CheckCheck className="h-3 w-3" />
- Mark all read
+ <CheckCheck className="h-3 w-3" aria-hidden="true" />
+ {t("notif.markAllRead")}
  </button>
  )}
  </div>

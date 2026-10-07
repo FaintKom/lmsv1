@@ -19,9 +19,6 @@
 export const I18N_ALLOWLIST: ReadonlySet<string> = new Set([
   "src/app/(admin)/admin/billing/page.tsx",
   "src/app/(admin)/admin/content-library/[exerciseId]/json-config-panel.tsx",
-  "src/app/(admin)/layout.tsx",
-  "src/app/(auth)/layout.tsx",
-  "src/app/(dashboard)/layout.tsx",
   // my-room + my-avatar are pure redirect stubs — they bounce to
   // /achievements?tab=room|avatar. No user-visible strings, so no i18n.
   "src/app/(dashboard)/my-avatar/page.tsx",
@@ -43,7 +40,6 @@ export const I18N_ALLOWLIST: ReadonlySet<string> = new Set([
   "src/app/layout.tsx",
   // Custom 404 page is brand-adjacent (logo + generic copy). Not yet
   // translated; same bucket as the legal pages below.
-  "src/app/not-found.tsx",
   "src/app/privacy/page.tsx",
   "src/app/refund/page.tsx",
   "src/app/terms/page.tsx",
@@ -109,7 +105,6 @@ export const I18N_ALLOWLIST: ReadonlySet<string> = new Set([
   "src/components/providers/query-provider.tsx",
   "src/components/room/item-preview.tsx",
   "src/components/room/room-canvas.tsx",
-  "src/components/layout/notification-bell.tsx",
   "src/components/layout/org-switcher.tsx",
   "src/components/math/problem-generator.tsx",
   "src/components/onboarding/teacher-onboarding.tsx",
@@ -128,7 +123,6 @@ export const I18N_ALLOWLIST: ReadonlySet<string> = new Set([
   "src/components/ui/card.tsx",
   "src/components/ui/chip.tsx",
   "src/components/ui/confirm-dialog.tsx",
-  "src/components/ui/error-boundary.tsx",
   "src/components/ui/highlight.tsx",
   "src/components/ui/input.tsx",
   "src/components/ui/skeleton.tsx",

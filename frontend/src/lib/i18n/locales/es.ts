@@ -1,6 +1,15 @@
 import type { TranslationMap } from "../meta";
 
 const es: TranslationMap = {
+ "common.skipToContent": "Saltar al contenido",
+ "common.openMenu": "Abrir menú",
+ "notif.title": "Notificaciones",
+ "notif.markAllRead": "Marcar todo como leído",
+ "err.title": "Algo salió mal",
+ "err.unexpected": "La página encontró un error del que no pudo recuperarse.",
+ "err.reload": "Recargar la página",
+ "nf.message": "No hay ninguna página en esta dirección.",
+ "auth.tagline": "Programación, idiomas y matemáticas en una sola plataforma de aprendizaje, para escuelas y cursos en línea.",
  "tour.welcomeTitle": "Te damos la bienvenida a GrassLMS",
  "tour.welcomeDesc": "Este es el panel de tu escuela. Los siguientes pasos muestran dónde están los cursos, los ejercicios, las notas y las personas.",
  "tour.coursesTitle": "Cursos",

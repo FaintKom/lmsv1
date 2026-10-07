@@ -1,6 +1,15 @@
 import type { TranslationMap } from "../meta";
 
 const tr: TranslationMap = {
+ "common.skipToContent": "İçeriğe geç",
+ "common.openMenu": "Menüyü aç",
+ "notif.title": "Bildirimler",
+ "notif.markAllRead": "Tümünü okundu say",
+ "err.title": "Bir şeyler ters gitti",
+ "err.unexpected": "Sayfa, toparlanamadığı bir hatayla karşılaştı.",
+ "err.reload": "Sayfayı yeniden yükle",
+ "nf.message": "Bu adreste bir sayfa yok.",
+ "auth.tagline": "Programlama, diller ve matematik tek bir öğrenme platformunda; okullar ve çevrim içi kurslar için.",
  "tour.welcomeTitle": "GrassLMS'e hoş geldiniz",
  "tour.welcomeDesc": "Bu, okulunuzun panosu. Sonraki adımlar dersleri, alıştırmaları, notları ve kişileri nerede bulacağınızı gösterir.",
  "tour.coursesTitle": "Kurslar",
