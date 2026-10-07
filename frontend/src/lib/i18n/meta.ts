@@ -4,13 +4,13 @@
 
 export type Locale = "en" | "es" | "ru" | "tr" | "de" | "uk";
 
-export const LOCALES: { code: Locale; name: string; flag: string }[] = [
-  { code: "en", name: "English", flag: "🇺🇸" },
-  { code: "es", name: "Espanol", flag: "🇪🇸" },
-  { code: "ru", name: "Русский", flag: "🇷🇺" },
-  { code: "tr", name: "Turkce", flag: "🇹🇷" },
-  { code: "de", name: "Deutsch", flag: "🇩🇪" },
-  { code: "uk", name: "Українська", flag: "🇺🇦" },
+export const LOCALES: { code: Locale; name: string }[] = [
+  { code: "en", name: "English" },
+  { code: "es", name: "Español" },
+  { code: "ru", name: "Русский" },
+  { code: "tr", name: "Türkçe" },
+  { code: "de", name: "Deutsch" },
+  { code: "uk", name: "Українська" },
 ];
 
 export const DEFAULT_LOCALE: Locale = "en";

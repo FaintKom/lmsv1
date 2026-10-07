@@ -23,8 +23,8 @@ const SRC_DIR = resolve(__dirname, "..", "..");
 const SKIP = /^(components\/(room|avatar|game)\/|app\/(voxel-gallery|room-dev|avatar-fitting|student-cabinet)\/)/;
 
 const RULES: [string, RegExp][] = [
-  // >Some text< on one line
-  ["jsx-text", />\s*([A-Z][a-z]{2,}[^<>{}\n]*?)\s*</g],
+  // >Some text< on one line. Not after "=" or "-": `=> Promise<void>` is a type.
+  ["jsx-text", /(?<![=-])>\s*([A-Z][a-z]{2,}[^<>{}\n]*?)\s*</g],
   // a line of JSX that is nothing but two or more words
   ["jsx-line", /^\s+([A-Z][a-z]{2,}(?: [a-zA-Z,.'!?-]+)+)\s*$/gm],
   ["toast", /toast\.(?:success|error|info|warning)\(\s*"([^"]+)"/g],
@@ -32,30 +32,26 @@ const RULES: [string, RegExp][] = [
   ["attr", /\s(?:placeholder|title|aria-label)="([A-Z][a-z][^"]*)"/g],
 ];
 
+/** English-looking strings that are not interface copy. Each has its reason. */
+const NOT_COPY = new Set([
+  "GrassLMS", // the brand
+  "English", // translation editor: stored language values, shown as examples
+  "Russian",
+  "Welcome2026!", // bulk enrol: the actual default password, so it must read as typed
+  "Python", // language names in the code editor
+  "JavaScript",
+  "Java",
+]);
+
 /** Counts as of specs/077. Lower a number when you translate; never raise one. */
 const BASELINE: Record<string, number> = {
   // Left on purpose: exercise-type names (Crossword, Word Search…) are being
   // translated by specs/070 (#486); language names (Python, Java) are names.
-  "app/(admin)/admin/content-library/[exerciseId]/page.tsx": 14,
-  "app/(admin)/admin/content-library/[exerciseId]/exercise-config-editors.tsx": 3,
+  // Only files #486 is rewriting are left, to keep the two PRs from colliding.
+  "app/(admin)/admin/content-library/[exerciseId]/page.tsx": 11,
   "app/(admin)/admin/content-library/[exerciseId]/submissions/page.tsx": 4,
-  "app/(admin)/admin/integrations/page.tsx": 4,
-  "app/(auth)/register/page.tsx": 3,
-  "components/exercises/exercise-renderer.tsx": 3,
-  "components/landing/landing-header.tsx": 3,
-  "components/layout/sidebar.tsx": 3,
-  "app/(admin)/admin/bulk-enroll/page.tsx": 2,
-  "app/(auth)/reset-password/page.tsx": 2,
-  "components/layout/locale-switcher.tsx": 2,
   "app/(admin)/admin/content-library/page.tsx": 1,
-  "app/(admin)/admin/journal/page.tsx": 1,
   "app/(admin)/admin/lessons/[lessonId]/edit/page.tsx": 1,
-  "app/(auth)/login/page.tsx": 1,
-  "app/(dashboard)/parent/children/[childId]/page.tsx": 1,
-  "app/demo/page.tsx": 1,
-  "components/exercises/v2/math-system-v2.tsx": 1,
-  "components/live/chat-panel.tsx": 1,
-  "lib/i18n/context.tsx": 1,
 };
 
 function walk(dir: string, out: string[] = []): string[] {
@@ -72,7 +68,7 @@ export function literalsIn(source: string): string[] {
   const code = source.replace(/\/\*[\s\S]*?\*\//g, "").replace(/^\s*\/\/.*$/gm, "");
   const found: string[] = [];
   for (const [, re] of RULES) for (const m of code.matchAll(re)) found.push(m[1].trim());
-  return found;
+  return found.filter((s) => !NOT_COPY.has(s));
 }
 
 function scan(): Record<string, string[]> {

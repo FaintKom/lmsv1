@@ -180,7 +180,7 @@ export default function ChildDetailPage() {
  {g.score}/{g.max_score}
  </span>
  ) : (
- <span className="text-sm text-text-subtle">Pending</span>
+ <span className="text-sm text-text-subtle">{t("parent.notMarked")}</span>
  )}
  </div>
  </div>

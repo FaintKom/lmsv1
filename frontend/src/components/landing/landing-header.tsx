@@ -8,7 +8,7 @@ import { useTranslation } from "@/lib/i18n/context";
 import { LOCALES, type Locale } from "@/lib/i18n/meta";
 
 function HeaderLocaleSwitcher() {
- const { locale, setLocale } = useTranslation();
+ const { locale, setLocale, t } = useTranslation();
  const [open, setOpen] = useState(false);
  const ref = useRef<HTMLDivElement>(null);
 
@@ -27,17 +27,17 @@ function HeaderLocaleSwitcher() {
  <button
  onClick={() => setOpen(!open)}
  className="flex items-center gap-1.5 rounded-lg px-2 py-1.5 text-xs font-medium text-text-muted hover:bg-surface-2 hover:text-text"
- aria-label="Change language"
+ aria-label={t("lang.change")}
  aria-expanded={open}
  aria-haspopup="listbox"
  >
  <Globe className="h-3.5 w-3.5" aria-hidden="true" />
- <span>{current?.flag}</span>
+ <span>{current?.code.toUpperCase()}</span>
  </button>
  {open && (
  <div
  role="listbox"
- aria-label="Select language"
+ aria-label={t("lang.select")}
  className="absolute right-0 top-full mt-1 w-40 rounded-lg border border-border-strong bg-surface py-1 shadow-lg z-50"
  >
  {LOCALES.map((l) => (
@@ -51,7 +51,7 @@ function HeaderLocaleSwitcher() {
  locale === l.code ? "font-semibold text-primary" : "text-text-muted"
  }`}
  >
- <span>{l.flag}</span>
+ <span className="w-6 text-xs font-medium text-text-subtle">{l.code.toUpperCase()}</span>
  <span>{l.name}</span>
  </button>
  ))}

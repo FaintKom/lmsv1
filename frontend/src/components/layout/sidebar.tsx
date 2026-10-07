@@ -243,7 +243,7 @@ export function Sidebar({ open, onClose }: SidebarProps) {
  {branding.display_name}
  </span>
  <span className="block text-xs font-medium text-text-subtle">
- Learning Platform
+ {t("nav.platformTagline")}
  </span>
  </div>
  )}
@@ -267,7 +267,7 @@ export function Sidebar({ open, onClose }: SidebarProps) {
 
  {/* Navigation */}
  <nav
- aria-label="Main navigation"
+ aria-label={t("nav.mainLabel")}
  className={cn("flex-1 overflow-y-auto py-3", railMode ? "px-2" : "px-4")}
  >
  {railMode ? (

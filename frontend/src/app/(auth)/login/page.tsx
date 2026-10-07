@@ -115,7 +115,7 @@ export default function LoginPage() {
  type="password"
  value={password}
  onChange={(e) => setPassword(e.target.value)}
- placeholder="Your password"
+ placeholder={t("auth.phPassword")}
  required
  aria-required="true"
  />

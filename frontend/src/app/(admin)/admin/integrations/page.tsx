@@ -289,10 +289,10 @@ export default function IntegrationsPage() {
  {t("admin.integrations.howItWorks")}
  </h3>
  <ul className="space-y-1.5 text-xs text-text-muted ">
- <li>Each integration connects to your organization's external account via secure OAuth</li>
- <li>Only admins and teachers can connect/disconnect integrations</li>
- <li>Student data is never shared with third-party services without explicit action</li>
- <li>Disconnecting an integration removes all stored tokens immediately</li>
+ <li>{t("intg.how1")}</li>
+ <li>{t("intg.how2")}</li>
+ <li>{t("intg.how3")}</li>
+ <li>{t("intg.how4")}</li>
  </ul>
  </CardContent>
  </Card>

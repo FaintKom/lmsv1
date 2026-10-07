@@ -326,7 +326,7 @@ export default function ExerciseRenderer({ exercise, courseId, prevLesson, nextL
  ) : submitting ? (
  <div className="flex items-center justify-center gap-2 py-8 text-sm text-text-muted">
  <Loader2 className="h-4 w-4 animate-spin" />
- Submitting...
+ {t("exr.submitting")}
  </div>
  ) : previewMode && SELF_PERSISTING_TYPES.has(exercise.exercise_type) ? (
  // These components submit to the server themselves and have no
@@ -823,7 +823,7 @@ function CodeChallengeExercise({
  {config.examples && config.examples.length > 0 && (
  <div className="px-5 pb-3 space-y-2">
  <p className="text-xs font-semibold uppercase tracking-wider text-text-subtle">
- Examples
+ {t("exr.examples")}
  </p>
  {config.examples.map((ex, i) => (
  <div
@@ -899,7 +899,7 @@ function CodeChallengeExercise({
  {!previewMode && (
  <Button size="sm" onClick={handleSubmit} disabled={isSubmitting || !code.trim()}>
  <Send className="h-3.5 w-3.5" />
- {isSubmitting ? "Submitting..." : "Submit"}
+ {isSubmitting ? t("exr.submitting") : "Submit"}
  </Button>
  )}
  </div>
@@ -945,7 +945,7 @@ function CodeChallengeExercise({
  : "text-text-subtle hover:text-text-muted "
  }`}
  >
- Output
+ {t("exr.outputTab")}
  </button>
  <button
  role="tab"
