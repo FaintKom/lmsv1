@@ -36,7 +36,7 @@ export const Callout = Node.create({
  // rests on colour alone (DS v3: no side stripe, no emoji).
  const colors: Record<string, string> = {
  info: "border-info bg-info-soft text-info",
- warning: "border-warning bg-sun-50 text-warning-fg",
+ warning: "border-warning bg-warning-soft text-warning-fg",
  success: "border-primary bg-success-soft text-primary-text",
  error: "border-danger bg-danger-soft text-danger-fg",
  };

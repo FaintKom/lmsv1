@@ -20,6 +20,8 @@ describe("Callout", () => {
     expect(html).toContain('role="note"');
     expect(html).not.toMatch(/\p{Extended_Pictographic}/u);
     expect(html).not.toMatch(/border-l-[2-8]/);
+    // Theme tokens only: a fixed light tint (bg-sun-50) left light text unreadable in dark mode.
+    expect(html).toMatch(/bg-[a-z]+-soft/);
   });
 
   it("falls back to info for an unknown variant", () => {
