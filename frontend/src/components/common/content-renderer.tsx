@@ -1,5 +1,6 @@
 "use client";
 
+import { useTranslation } from "@/lib/i18n/context";
 import { useMemo } from "react";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
@@ -295,6 +296,7 @@ function unwrapFullHtmlDoc(html: string): string {
 }
 
 function SandboxedIframe({ html }: { html: string }) {
+ const { t } = useTranslation();
  // Remove any embedded <!DOCTYPE html><html>...<body>...</body></html>
  // wrapper the author may have pasted in. Keeps their <style> blocks.
  const cleaned = unwrapFullHtmlDoc(html);
@@ -355,7 +357,7 @@ function SandboxedIframe({ html }: { html: string }) {
  className="w-full border-0 rounded-lg overflow-hidden bg-surface "
  style={{ minHeight: 120 }}
  scrolling="no"
- title="Interactive widget"
+ title={t("ui.interactiveWidget")}
  />
  );
 }

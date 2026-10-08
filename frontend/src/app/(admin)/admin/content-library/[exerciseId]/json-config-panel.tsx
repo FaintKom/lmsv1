@@ -1,5 +1,6 @@
 "use client";
 
+import { useTranslation } from "@/lib/i18n/context";
 import { useCallback, useEffect, useRef, useState } from "react";
 import Editor, { type OnMount } from "@monaco-editor/react";
 import { AlertTriangle, Check, Code2, Copy } from "lucide-react";
@@ -12,6 +13,7 @@ interface JsonConfigPanelProps {
 }
 
 export default function JsonConfigPanel({ config, onChange }: JsonConfigPanelProps) {
+  const { t } = useTranslation();
   const [internalText, setInternalText] = useState(() =>
     JSON.stringify(config, null, 2)
   );
@@ -65,7 +67,7 @@ export default function JsonConfigPanel({ config, onChange }: JsonConfigPanelPro
 
   const handleCopy = () => {
     navigator.clipboard.writeText(internalText);
-    toast.success("JSON copied");
+    toast.success(t("ui.jsonCopied"));
   };
 
   const handleFormat = () => {
@@ -85,25 +87,25 @@ export default function JsonConfigPanel({ config, onChange }: JsonConfigPanelPro
         <div className="flex items-center gap-2">
           <Code2 className="h-4 w-4 text-text-muted" />
           <span className="text-sm font-medium text-text-muted">
-            JSON Config
+            {t("ui.jsonConfig")}
           </span>
         </div>
         <div className="flex items-center gap-1">
           {parseError ? (
             <span className="flex items-center gap-1 text-xs text-danger-fg mr-2">
               <AlertTriangle className="h-3.5 w-3.5" />
-              Invalid
+              {t("ui.jsonInvalid")}
             </span>
           ) : (
             <span className="flex items-center gap-1 text-xs text-primary mr-2">
               <Check className="h-3.5 w-3.5" />
-              Valid
+              {t("ui.jsonValid")}
             </span>
           )}
-          <Button variant="ghost" size="sm" onClick={handleFormat} title="Format">
+          <Button variant="ghost" size="sm" onClick={handleFormat} title={t("ui.format")} aria-label={t("ui.format")}>
             <Code2 className="h-3.5 w-3.5" />
           </Button>
-          <Button variant="ghost" size="sm" onClick={handleCopy} title="Copy">
+          <Button variant="ghost" size="sm" onClick={handleCopy} title={t("ui.copy")} aria-label={t("ui.copy")}>
             <Copy className="h-3.5 w-3.5" />
           </Button>
         </div>

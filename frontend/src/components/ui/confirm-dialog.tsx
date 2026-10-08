@@ -1,5 +1,6 @@
 "use client";
 
+import { useTranslation } from "@/lib/i18n/context";
 import { createContext, useContext, useState, useCallback, useEffect, useRef, ReactNode } from "react";
 import { AlertTriangle, X } from "lucide-react";
 import { Button } from "./button";
@@ -25,6 +26,7 @@ export function useConfirm() {
 }
 
 export function ConfirmProvider({ children }: { children: ReactNode }) {
+ const { t } = useTranslation();
  const [state, setState] = useState<{
  open: boolean;
  options: ConfirmOptions;
@@ -124,7 +126,7 @@ export function ConfirmProvider({ children }: { children: ReactNode }) {
  <button
  onClick={() => handleClose(false)}
  className="absolute right-4 top-4 rounded-lg p-1 text-text-subtle hover:bg-surface-2 hover:text-text-muted"
- aria-label="Close dialog"
+ aria-label={t("common.close")}
  >
  <X className="h-4 w-4" aria-hidden="true" />
  </button>
@@ -135,7 +137,7 @@ export function ConfirmProvider({ children }: { children: ReactNode }) {
  </div>
  <div className="flex-1">
  <h3 id={titleId} className="text-base font-semibold text-text ">
- {state.options.title || "Confirm Action"}
+ {state.options.title || t("ui.confirmTitle")}
  </h3>
  <p id={descId} className="mt-1 text-sm text-text-muted ">{state.options.message}</p>
  </div>
@@ -146,14 +148,14 @@ export function ConfirmProvider({ children }: { children: ReactNode }) {
  variant="outline"
  onClick={() => handleClose(false)}
  >
- {state.options.cancelLabel || "Cancel"}
+ {state.options.cancelLabel || t("common.cancel")}
  </Button>
  <button
  ref={confirmBtnRef}
  onClick={() => handleClose(true)}
  className={`rounded-lg px-4 py-2 text-sm font-medium transition-colors ${styles.button}`}
  >
- {state.options.confirmLabel || "Confirm"}
+ {state.options.confirmLabel || t("common.confirm")}
  </button>
  </div>
  </div>

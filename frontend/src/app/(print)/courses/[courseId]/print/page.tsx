@@ -17,6 +17,7 @@
  * Playwright must be primed with a logged-in session cookie.
  */
 
+import { useTranslation } from "@/lib/i18n/context";
 import { useEffect, useState } from "react";
 import { useParams, useSearchParams } from "next/navigation";
 import apiClient from "@/lib/api-client";
@@ -73,6 +74,7 @@ interface ExportedCourse {
 }
 
 export default function CoursePrintPage() {
+ const { t } = useTranslation();
  const params = useParams();
  const search = useSearchParams();
  const courseId = String(params.courseId);
@@ -97,14 +99,14 @@ export default function CoursePrintPage() {
  if (error) {
  return (
  <div className="mx-auto max-w-3xl p-8">
- <h1 className="text-2xl font-bold text-danger-fg">Cannot render</h1>
+ <h1 className="text-2xl font-bold text-danger-fg">{t("ui.cannotRender")}</h1>
  <p className="mt-2 text-sm text-text-muted">{error}</p>
  </div>
  );
  }
  if (!course) {
  return (
- <div className="mx-auto max-w-3xl p-8 text-sm text-text-muted">Loading...</div>
+ <div className="mx-auto max-w-3xl p-8 text-sm text-text-muted">{t("exercise.loading")}</div>
  );
  }
 
@@ -145,7 +147,7 @@ export default function CoursePrintPage() {
  onClick={() => window.print()}
  className="rounded-lg border border-border-strong bg-paper-2 px-3 py-1.5 text-sm text-text hover:bg-surface-2"
  >
- Print / Save as PDF
+ {t("ui.printSave")}
  </button>
  </footer>
  </article>
@@ -207,6 +209,7 @@ function ExerciseBlock({
  exercise: ExportedExercise;
  variant: "student" | "teacher";
 }) {
+ const { t } = useTranslation();
  const isTeacher = variant === "teacher";
  return (
  <div className="rounded-lg border border-border-strong bg-paper-2 p-3">
@@ -240,7 +243,7 @@ function ExerciseBlock({
  )}
  {isTeacher && q.correct_answer && (
  <p className="mt-1 text-xs text-success-fg">
- Answer: <code>{q.correct_answer}</code>
+ {t("exercise.answerLabel")} <code>{q.correct_answer}</code>
  </p>
  )}
  </li>
@@ -249,7 +252,7 @@ function ExerciseBlock({
  )}
  {exercise.test_cases.length > 0 && (
  <div className="mt-2 space-y-1 text-xs text-text-muted">
- <p className="font-semibold">Test cases:</p>
+ <p className="font-semibold">{t("ui.testCases")}</p>
  {exercise.test_cases.map((tc, i) => (
  <p key={i} className="font-mono">
  in: <code>{tc.input || "(none)"}</code>

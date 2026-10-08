@@ -18,13 +18,11 @@
  */
 export const I18N_ALLOWLIST: ReadonlySet<string> = new Set([
   "src/app/(admin)/admin/billing/page.tsx",
-  "src/app/(admin)/admin/content-library/[exerciseId]/json-config-panel.tsx",
   // my-room + my-avatar are pure redirect stubs — they bounce to
   // /achievements?tab=room|avatar. No user-visible strings, so no i18n.
   "src/app/(dashboard)/my-avatar/page.tsx",
   "src/app/(dashboard)/my-room/page.tsx",
   "src/app/(dashboard)/parent/children/page.tsx",
-  "src/app/(print)/courses/[courseId]/print/page.tsx",
   "src/app/(print)/layout.tsx",
   "src/app/acceptable-use/page.tsx",
   // Dev-only avatar fitting-room harness (not in nav, no-ops in production).
@@ -43,9 +41,7 @@ export const I18N_ALLOWLIST: ReadonlySet<string> = new Set([
   "src/app/privacy/page.tsx",
   "src/app/refund/page.tsx",
   "src/app/terms/page.tsx",
-  "src/components/common/content-renderer.tsx",
   "src/components/common/math-renderer.tsx",
-  "src/components/common/youtube-embed.tsx",
   "src/components/courses/course-card.tsx",
   // Translated through SlashCommands.configure({ t }), not the hook.
   "src/components/editor/slash-commands.tsx",
@@ -71,10 +67,6 @@ export const I18N_ALLOWLIST: ReadonlySet<string> = new Set([
   "src/components/providers/query-provider.tsx",
   "src/components/room/item-preview.tsx",
   "src/components/room/room-canvas.tsx",
-  "src/components/layout/org-switcher.tsx",
-  "src/components/submissions/exercises/categorize.tsx",
-  "src/components/submissions/exercises/matching.tsx",
-  "src/components/submissions/exercises/ordering.tsx",
   // Holds the call above the router and portals somebody else's interface into
   // place. It renders one container and no words of its own — every string the
   // participant reads comes from media-stage.tsx, which does translate.
@@ -82,7 +74,6 @@ export const I18N_ALLOWLIST: ReadonlySet<string> = new Set([
   "src/components/ui/bottom-sheet.tsx",
   "src/components/ui/button.tsx",
   "src/components/ui/card.tsx",
-  "src/components/ui/confirm-dialog.tsx",
   "src/components/ui/highlight.tsx",
   "src/components/ui/input.tsx",
   "src/components/ui/skeleton.tsx",
@@ -90,5 +81,4 @@ export const I18N_ALLOWLIST: ReadonlySet<string> = new Set([
   "src/components/ui/toaster.tsx",
   "src/components/ui/tooltip.tsx",
   "src/components/ui/xp-pill.tsx",
-  "src/components/video-player.tsx",
 ]);
