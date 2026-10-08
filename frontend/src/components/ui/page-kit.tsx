@@ -221,7 +221,7 @@ export function FilterChips({ items, value, onChange, className, ...aria }: Filt
           type="button"
           aria-pressed={item.value === value}
           onClick={() => onChange(item.value)}
-          className="press-scale inline-flex h-9 items-center gap-1.5 rounded-pill border border-border-strong bg-surface px-4 text-sm font-medium text-text transition-colors hover:border-text-subtle aria-pressed:border-primary aria-pressed:bg-primary aria-pressed:text-primary-fg"
+          className="press-scale inline-flex h-9 pointer-coarse:h-11 items-center gap-1.5 rounded-pill border border-border-strong bg-surface px-4 text-sm font-medium text-text transition-colors hover:border-text-subtle aria-pressed:border-primary aria-pressed:bg-primary aria-pressed:text-primary-fg"
         >
           {item.label}
           {item.count !== undefined && (

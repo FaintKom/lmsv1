@@ -126,7 +126,7 @@ export default function DashboardPage() {
  <p className="text-sm text-text-muted">{today}</p>
  </div>
  <div className="flex flex-wrap gap-2">
- <StreakPill days={streak} />
+ {streak > 0 && <StreakPill days={streak} />}
  {xp > 0 && <XpPill xp={xp} />}
  </div>
  </header>
@@ -144,9 +144,10 @@ export default function DashboardPage() {
  {...coverArtProps(currentSubject, current.course!.id)}
  className="pointer-events-none absolute inset-0 -z-10 hidden h-full w-full sm:block"
  />
- <div className="grid gap-2">
- <p className="text-sm opacity-80">{current.course!.category || t("dash.continue")}</p>
+ {/* Category under the title, never over it: a line above a heading is the eyebrow DESIGN.md rules out. */}
+ <div className="grid gap-1">
  <h2 className="text-2xl sm:max-w-[60%] font-bold leading-tight">{current.course!.title}</h2>
+ {current.course!.category && <p className="text-sm opacity-80">{current.course!.category}</p>}
  </div>
  <div className="grid gap-4">
  <div className="flex items-center gap-3 sm:max-w-[60%]">
@@ -159,7 +160,7 @@ export default function DashboardPage() {
  href={`/courses/${current.course!.id}`}
  className="press-scale inline-flex h-11 w-fit items-center gap-2 rounded-pill bg-primary px-5 text-sm font-semibold text-primary-fg hover:bg-primary-hover"
  >
- {t("dash.continue")}
+ {current.enrollment.progress_percent ? t("dash.continue") : t("course.startLearning")}
  <ArrowRight className="h-4 w-4" aria-hidden />
  </Link>
  </div>
@@ -183,7 +184,7 @@ export default function DashboardPage() {
  {upcomingEvents.length === 0 ? (
  <div className="grid justify-items-start gap-2 py-2">
  <p className="text-sm text-text-muted">{t("dash.noEvents")}</p>
- <Link href="/calendar" className="inline-flex items-center gap-1 text-sm font-medium text-primary hover:text-primary-hover">
+ <Link href="/calendar" className="inline-flex items-center gap-1 pointer-coarse:min-h-11 text-sm font-medium text-primary hover:text-primary-hover">
  {t("nav.calendar")} <ArrowRight className="h-3.5 w-3.5" aria-hidden />
  </Link>
  </div>

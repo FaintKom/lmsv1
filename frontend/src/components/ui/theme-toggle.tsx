@@ -87,7 +87,7 @@ export function ThemeToggle({ className }: { className?: string }) {
             aria-checked={active}
             onClick={() => pick(value)}
             className={cn(
-              "inline-flex min-h-[36px] items-center justify-center gap-1.5 rounded-pill px-2 py-1.5 text-sm font-semibold transition-colors sm:px-3",
+              "inline-flex min-h-[36px] pointer-coarse:min-h-11 items-center justify-center gap-1.5 rounded-pill px-2 py-1.5 text-sm font-semibold transition-colors sm:px-3",
               active
                 ? "bg-surface text-text shadow-xs"
                 : "text-text-muted hover:text-text",
