@@ -52,7 +52,6 @@ export const I18N_ALLOWLIST: ReadonlySet<string> = new Set([
   "src/components/exercises/v2/_grid-axes.tsx",
   "src/components/exercises/word-search-exercise.tsx",
   "src/components/game/blockly/blockly-workspace.tsx",
-  "src/components/game/math/math-editor.tsx",
   "src/components/game/math/math-exercise.tsx",
   "src/components/game/math/templates/arithmetic-puzzle.tsx",
   "src/components/game/math/templates/card-sort.tsx",

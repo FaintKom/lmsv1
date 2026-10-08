@@ -3,7 +3,8 @@
 import { useState, useCallback, useEffect, useRef } from "react";
 import { Check, ChevronDown } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { MATH_TEMPLATES, TEMPLATE_LIST } from "./template-registry";
+import { MATH_TEMPLATES, TEMPLATE_LIST, templateText } from "./template-registry";
+import { useTranslation } from "@/lib/i18n/context";
 import { CommaListInput } from "@/components/exercises/comma-list-input";
 import { parseNumberList } from "@/components/exercises/comma-list";
 import Editor from "@monaco-editor/react";
@@ -16,6 +17,7 @@ function TemplatePicker({
  value: string;
  onChange: (type: string) => void;
 }) {
+ const { t } = useTranslation();
  const [open, setOpen] = useState(false);
  const wrapRef = useRef<HTMLDivElement>(null);
 
@@ -51,7 +53,7 @@ function TemplatePicker({
  aria-expanded={open}
  >
  <CurrentIcon className="h-4 w-4 shrink-0 text-text-muted" strokeWidth={1.75} />
- <span className="flex-1 truncate">{current.label}</span>
+ <span className="flex-1 truncate">{templateText(t, current.type)}</span>
  <ChevronDown className={`h-4 w-4 shrink-0 text-text-subtle transition-transform ${open ? "rotate-180" : ""}`} />
  </button>
  {open && (
@@ -59,17 +61,17 @@ function TemplatePicker({
  role="listbox"
  className="absolute left-0 right-0 z-30 mt-1 max-h-72 overflow-auto rounded-lg border border-border-strong bg-bg shadow-lg"
  >
- {list.map((t) => {
- const Icon = t.Icon;
- const selected = t.type === value;
+ {list.map((tpl) => {
+ const Icon = tpl.Icon;
+ const selected = tpl.type === value;
  return (
  <button
- key={t.type}
+ key={tpl.type}
  type="button"
  role="option"
  aria-selected={selected}
  onClick={() => {
- onChange(t.type);
+ onChange(tpl.type);
  setOpen(false);
  }}
  className={`flex w-full items-center gap-2 px-3 py-2 text-left text-sm transition-colors ${
@@ -79,7 +81,7 @@ function TemplatePicker({
  }`}
  >
  <Icon className="h-4 w-4 shrink-0" strokeWidth={1.75} />
- <span className="flex-1 truncate">{t.label}</span>
+ <span className="flex-1 truncate">{templateText(t, tpl.type)}</span>
  {selected && <Check className="h-3.5 w-3.5 shrink-0 text-primary" />}
  </button>
  );
@@ -96,6 +98,7 @@ interface MathEditorProps {
 }
 
 export default function MathEditor({ config, onConfigChange }: MathEditorProps) {
+ const { t } = useTranslation();
  const templateType = (config.template_type as string) || "coordinate_plane";
  const customHtml = (config.custom_html as string) || "";
  const instructions = (config.instructions as string) || "";
@@ -114,27 +117,27 @@ export default function MathEditor({ config, onConfigChange }: MathEditorProps) 
  {/* Template selector — compact dropdown with icons */}
  <div>
  <label className="mb-2 block text-xs font-medium text-text-muted ">
- Template Type
+ {t("me.templateType")}
  </label>
  <TemplatePicker
  value={templateType}
  onChange={(t) => updateConfig({ template_type: t })}
  />
  <p className="mt-1 text-xs text-text-subtle">
- {MATH_TEMPLATES[templateType]?.description}
+ {templateText(t, templateType, "Desc")}
  </p>
  </div>
 
  {/* Instructions */}
  <div>
  <label className="mb-1.5 block text-xs font-medium text-text-muted ">
- Instructions (shown to student)
+ {t("me.instructions")}
  </label>
  <textarea
  value={instructions}
  onChange={(e) => updateConfig({ instructions: e.target.value })}
  rows={2}
- placeholder="Enter instructions for the student..."
+ placeholder={t("me.instructionsPh")}
  className="w-full rounded-lg border border-border-strong bg-surface px-3 py-2 text-sm "
  />
  </div>
@@ -195,6 +198,7 @@ function CoordinatePlaneConfig({
  config: Record<string, unknown>;
  onChange: (c: Record<string, unknown>) => void;
 }) {
+ const { t } = useTranslation();
  const points = (config.target_points as { x: number; y: number }[]) || [{ x: 3, y: 2 }];
  const gridRange = (config.grid_range as number) || 6;
 
@@ -202,20 +206,20 @@ function CoordinatePlaneConfig({
  <div className="space-y-3">
  <div className="grid grid-cols-2 gap-3">
  <div>
- <label className="mb-1 block text-xs text-text-muted">Grid Range (±)</label>
+ <label className="mb-1 block text-xs text-text-muted">{t("me.gridRange")}</label>
  <input type="number" min={3} max={20} value={gridRange}
  onChange={(e) => onChange({ ...config, grid_range: parseInt(e.target.value) || 6 })}
  className="w-full rounded-lg border border-border-strong bg-surface px-3 py-2 text-sm " />
  </div>
  <div>
- <label className="mb-1 block text-xs text-text-muted">Tolerance</label>
+ <label className="mb-1 block text-xs text-text-muted">{t("me.tolerance")}</label>
  <input type="number" step={0.1} min={0.1} max={2} value={(config.tolerance as number) || 0.5}
  onChange={(e) => onChange({ ...config, tolerance: parseFloat(e.target.value) || 0.5 })}
  className="w-full rounded-lg border border-border-strong bg-surface px-3 py-2 text-sm " />
  </div>
  </div>
  <div>
- <label className="mb-1 block text-xs text-text-muted">Target Points</label>
+ <label className="mb-1 block text-xs text-text-muted">{t("me.targetPoints")}</label>
  {points.map((p, i) => (
  <div key={i} className="mb-1.5 flex items-center gap-2">
  <span className="text-xs text-text-subtle">({i + 1})</span>
@@ -227,34 +231,36 @@ function CoordinatePlaneConfig({
  className="w-20 rounded border border-border-strong px-2 py-1 text-sm " />
  {points.length > 1 && (
  <button onClick={() => onChange({ ...config, target_points: points.filter((_, j) => j !== i) })}
+ aria-label={t("me.deletePoint")} title={t("me.deletePoint")}
  className="text-xs text-danger-fg hover:text-danger-fg">&times;</button>
  )}
  </div>
  ))}
  <button onClick={() => onChange({ ...config, target_points: [...points, { x: 0, y: 0 }] })}
- className="text-xs text-primary hover:text-success-fg">+ Add point</button>
+ className="text-xs text-primary hover:text-success-fg">{t("me.addPoint")}</button>
  </div>
  </div>
  );
 }
 
 function NumberLineConfig({ config, onChange }: { config: Record<string, unknown>; onChange: (c: Record<string, unknown>) => void }) {
+ const { t } = useTranslation();
  return (
  <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
  <div>
- <label className="mb-1 block text-xs text-text-muted">Min</label>
+ <label className="mb-1 block text-xs text-text-muted">{t("me.min")}</label>
  <input type="number" value={(config.range_min as number) ?? 0}
  onChange={(e) => onChange({ ...config, range_min: parseInt(e.target.value) })}
  className="w-full rounded-lg border border-border-strong bg-surface px-3 py-2 text-sm " />
  </div>
  <div>
- <label className="mb-1 block text-xs text-text-muted">Max</label>
+ <label className="mb-1 block text-xs text-text-muted">{t("me.max")}</label>
  <input type="number" value={(config.range_max as number) ?? 10}
  onChange={(e) => onChange({ ...config, range_max: parseInt(e.target.value) })}
  className="w-full rounded-lg border border-border-strong bg-surface px-3 py-2 text-sm " />
  </div>
  <div>
- <label className="mb-1 block text-xs text-text-muted">Targets (comma-sep)</label>
+ <label className="mb-1 block text-xs text-text-muted">{t("me.targets")}</label>
  <CommaListInput<number>
  value={(config.targets as number[]) || [3, 7]}
  onChange={(next) => onChange({ ...config, targets: next })}
@@ -262,7 +268,7 @@ function NumberLineConfig({ config, onChange }: { config: Record<string, unknown
  className="w-full rounded-lg border border-border-strong bg-surface px-3 py-2 text-sm " />
  </div>
  <div>
- <label className="mb-1 block text-xs text-text-muted">Tick Interval</label>
+ <label className="mb-1 block text-xs text-text-muted">{t("me.tickInterval")}</label>
  <input type="number" step={0.5} min={0.5} value={(config.tick_interval as number) || 1}
  onChange={(e) => onChange({ ...config, tick_interval: parseFloat(e.target.value) || 1 })}
  className="w-full rounded-lg border border-border-strong bg-surface px-3 py-2 text-sm " />
@@ -272,11 +278,12 @@ function NumberLineConfig({ config, onChange }: { config: Record<string, unknown
 }
 
 function FractionsConfig({ config, onChange }: { config: Record<string, unknown>; onChange: (c: Record<string, unknown>) => void }) {
+ const { t } = useTranslation();
  return (
  <div className="space-y-3">
  <div>
  <label className="mb-1 block text-xs text-text-muted">
- Prompt shown to the student (clear the field to show no prompt)
+ {t("me.fracPrompt")}
  </label>
  <input
  type="text"
@@ -295,28 +302,28 @@ function FractionsConfig({ config, onChange }: { config: Record<string, unknown>
  checked={config.show_count !== false}
  onChange={(e) => onChange({ ...config, show_count: e.target.checked })}
  />
- Show the running count (e.g. 2/8) beside the shape
+ {t("me.showCount")}
  </label>
  <div className="grid grid-cols-3 gap-3">
  <div>
- <label className="mb-1 block text-xs text-text-muted">Numerator</label>
+ <label className="mb-1 block text-xs text-text-muted">{t("me.numerator")}</label>
  <input type="number" min={1} value={(config.target_numerator as number) || 3}
  onChange={(e) => onChange({ ...config, target_numerator: parseInt(e.target.value) || 1 })}
  className="w-full rounded-lg border border-border-strong bg-surface px-3 py-2 text-sm " />
  </div>
  <div>
- <label className="mb-1 block text-xs text-text-muted">Denominator</label>
+ <label className="mb-1 block text-xs text-text-muted">{t("me.denominator")}</label>
  <input type="number" min={2} value={(config.target_denominator as number) || 8}
  onChange={(e) => onChange({ ...config, target_denominator: parseInt(e.target.value) || 2 })}
  className="w-full rounded-lg border border-border-strong bg-surface px-3 py-2 text-sm " />
  </div>
  <div>
- <label className="mb-1 block text-xs text-text-muted">Display</label>
+ <label className="mb-1 block text-xs text-text-muted">{t("me.display")}</label>
  <select value={(config.display_type as string) || "pie"}
  onChange={(e) => onChange({ ...config, display_type: e.target.value })}
  className="w-full rounded-lg border border-border-strong bg-surface px-3 py-2 text-sm ">
- <option value="pie">Pie</option>
- <option value="bar">Bar</option>
+ <option value="pie">{t("me.pie")}</option>
+ <option value="bar">{t("me.bar")}</option>
  </select>
  </div>
  </div>
@@ -332,6 +339,7 @@ function EquationBalanceConfig({
  config: Record<string, unknown>;
  onChange: (c: Record<string, unknown>) => void;
 }) {
+ const { t } = useTranslation();
  interface Term { value: number; label: string }
  const terms: Term[] =
  (config.available_terms as Term[]) ||
@@ -352,7 +360,7 @@ function EquationBalanceConfig({
  <div className="space-y-3">
  <div className="grid grid-cols-3 gap-3">
  <div>
- <label className="mb-1 block text-xs text-text-muted">Left Side Numbers (comma-sep)</label>
+ <label className="mb-1 block text-xs text-text-muted">{t("me.leftNumbers")}</label>
  <CommaListInput<number>
  value={(config.left_fixed as number[]) || [5]}
  onChange={(next) => onChange({ ...config, left_fixed: next })}
@@ -361,7 +369,7 @@ function EquationBalanceConfig({
  />
  </div>
  <div>
- <label className="mb-1 block text-xs text-text-muted">Right Side Fixed (comma-sep)</label>
+ <label className="mb-1 block text-xs text-text-muted">{t("me.rightFixed")}</label>
  <CommaListInput<number>
  value={(config.right_fixed as number[]) || [2]}
  onChange={(next) => onChange({ ...config, right_fixed: next })}
@@ -370,15 +378,15 @@ function EquationBalanceConfig({
  />
  </div>
  <div>
- <label className="mb-1 block text-xs text-text-muted">Student adds terms to</label>
+ <label className="mb-1 block text-xs text-text-muted">{t("me.studentAddsTo")}</label>
  <select
  value={(config.target_side as string) || "right"}
  onChange={(e) => onChange({ ...config, target_side: e.target.value })}
  className="w-full rounded-lg border border-border-strong bg-surface px-3 py-2 text-sm"
  >
- <option value="right">Right side only</option>
- <option value="left">Left side only</option>
- <option value="both">Either side</option>
+ <option value="right">{t("me.rightOnly")}</option>
+ <option value="left">{t("me.leftOnly")}</option>
+ <option value="both">{t("me.eitherSide")}</option>
  </select>
  </div>
  </div>
@@ -386,44 +394,43 @@ function EquationBalanceConfig({
  <div>
  <div className="mb-1.5 flex items-center justify-between">
  <label className="block text-xs text-text-muted">
- Available Terms ({terms.length}) — what the student can drag onto the
- scale; a negative value subtracts (specs/020)
+ {t("me.availableTerms").replace("{n}", String(terms.length))}
  </label>
  <button
  type="button"
  onClick={addTerm}
  className="text-xs font-medium text-primary hover:underline"
  >
- + Add term
+ {t("me.addTerm")}
  </button>
  </div>
  <div className="space-y-1.5">
- {terms.map((t, i) => (
+ {terms.map((term, i) => (
  <div
  key={i}
  className="flex items-center gap-2 rounded-lg border border-border-strong bg-surface px-3 py-1.5"
  >
  <span className="w-8 text-xs font-semibold text-text-subtle">#{i + 1}</span>
  <label className="flex items-center gap-1 text-xs text-text-muted">
- Value
+ {t("me.value")}
  <input
  type="number"
- value={t.value}
+ value={term.value}
  onChange={(e) => {
  const v = parseInt(e.target.value) || 0;
  // Keep label in sync with value if it tracked the number.
  const patch: Partial<Term> = { value: v };
- if (t.label === String(t.value)) patch.label = String(v);
+ if (term.label === String(term.value)) patch.label = String(v);
  updateTerm(i, patch);
  }}
  className={numCls}
  />
  </label>
  <label className="flex items-center gap-1 text-xs text-text-muted">
- Label
+ {t("me.label")}
  <input
  type="text"
- value={t.label}
+ value={term.label}
  onChange={(e) => updateTerm(i, { label: e.target.value })}
  className="w-24 rounded border border-border-strong bg-surface px-2 py-1 text-sm"
  />
@@ -432,7 +439,8 @@ function EquationBalanceConfig({
  type="button"
  onClick={() => removeTerm(i)}
  className="ml-auto rounded p-1 text-text-subtle hover:bg-danger-soft hover:text-danger-fg"
- title="Delete term"
+ title={t("me.deleteTerm")}
+ aria-label={t("me.deleteTerm")}
  >
  ×
  </button>
@@ -463,6 +471,7 @@ function ArithmeticPuzzleConfig({
  config: Record<string, unknown>;
  onChange: (c: Record<string, unknown>) => void;
 }) {
+ const { t } = useTranslation();
  type BlankPos = "a" | "b" | "result";
  interface Row {
  a: number;
@@ -596,7 +605,7 @@ function ArithmeticPuzzleConfig({
  return (
  <div className="space-y-3">
  <p className="text-xs text-text-subtle">
- Each row is an equation. Pick which cell the student must fill in (the blank).
+ {t("me.apHelp")}
  </p>
  <div className="space-y-2">
  {rows.map((r, i) => (
@@ -611,7 +620,7 @@ function ArithmeticPuzzleConfig({
  onChange={(e) => updateRow(i, { a: parseInt(e.target.value) || 0 })}
  className={numCls}
  disabled={r.blank === "a"}
- title={r.blank === "a" ? "Blank — auto-computed" : "Operand A"}
+ title={r.blank === "a" ? t("me.blankAuto") : t("me.operandA")}
  />
  <select
  value={r.op}
@@ -629,7 +638,7 @@ function ArithmeticPuzzleConfig({
  onChange={(e) => updateRow(i, { b: parseInt(e.target.value) || 0 })}
  className={numCls}
  disabled={r.blank === "b"}
- title={r.blank === "b" ? "Blank — auto-computed" : "Operand B"}
+ title={r.blank === "b" ? t("me.blankAuto") : t("me.operandB")}
  />
  <span className="text-sm font-semibold text-text-muted">=</span>
  <input
@@ -638,10 +647,10 @@ function ArithmeticPuzzleConfig({
  onChange={(e) => updateRow(i, { result: parseInt(e.target.value) || 0 })}
  className={numCls}
  disabled={r.blank === "result"}
- title={r.blank === "result" ? "Blank — auto-computed" : "Result"}
+ title={r.blank === "result" ? t("me.blankAuto") : t("me.result")}
  />
  <div className="ml-2 flex items-center gap-2 text-xs text-text-muted">
- <span>Blank:</span>
+ <span>{t("me.blankColon")}</span>
  {(["a", "b", "result"] as const).map((pos) => (
  <label key={pos} className="flex items-center gap-1">
  <input
@@ -651,18 +660,19 @@ function ArithmeticPuzzleConfig({
  onChange={() => updateRow(i, { blank: pos })}
  className="h-3 w-3 accent-green-600"
  />
- {pos === "result" ? "result" : pos}
+ {pos === "result" ? t("me.resultShort") : pos}
  </label>
  ))}
  </div>
  <span className="ml-auto text-3xs text-text-subtle">
- answer = {fillBlankValue(r)}
+ {t("me.answerEq").replace("{n}", String(fillBlankValue(r)))}
  </span>
  <button
  type="button"
  onClick={() => removeRow(i)}
  className="rounded p-1 text-text-subtle hover:bg-danger-soft hover:text-danger-fg"
- title="Delete row"
+ title={t("me.deleteRow")}
+ aria-label={t("me.deleteRow")}
  >
  ×
  </button>
@@ -674,7 +684,7 @@ function ArithmeticPuzzleConfig({
  onClick={addRow}
  className="text-xs font-medium text-primary hover:underline"
  >
- + Add equation
+ {t("me.addEquation")}
  </button>
  </div>
  );
@@ -695,6 +705,7 @@ function FunctionGraphConfig({
  config: Record<string, unknown>;
  onChange: (c: Record<string, unknown>) => void;
 }) {
+ const { t } = useTranslation();
  const fnType = ((config.function_type as string) || "linear") as
  | "linear"
  | "quadratic"
@@ -715,7 +726,7 @@ function FunctionGraphConfig({
 
  const paramFields: { key: string; label: string }[] =
  fnType === "linear"
- ? [{ key: "m", label: "Slope m" }, { key: "b", label: "Intercept b" }]
+ ? [{ key: "m", label: t("me.slopeM") }, { key: "b", label: t("me.interceptB") }]
  : fnType === "quadratic"
  ? [
  { key: "a", label: "a" },
@@ -723,9 +734,9 @@ function FunctionGraphConfig({
  { key: "c", label: "c" },
  ]
  : [
- { key: "a", label: "Coefficient a" },
- { key: "base", label: "Base" },
- { key: "c", label: "Vertical shift c" },
+ { key: "a", label: t("me.coefA") },
+ { key: "base", label: t("me.base") },
+ { key: "c", label: t("me.vshiftC") },
  ];
 
  const formula =
@@ -739,15 +750,15 @@ function FunctionGraphConfig({
  <div className="space-y-3">
  <div className="grid grid-cols-2 gap-3">
  <div>
- <label className="mb-1 block text-xs text-text-muted">Function Type</label>
+ <label className="mb-1 block text-xs text-text-muted">{t("me.functionType")}</label>
  <select value={fnType} onChange={(e) => setType(e.target.value)} className={inputCls}>
- <option value="linear">Linear (y = mx + b)</option>
- <option value="quadratic">Quadratic (y = ax² + bx + c)</option>
- <option value="exponential">Exponential (y = a·base^x + c)</option>
+ <option value="linear">{t("me.linear")}</option>
+ <option value="quadratic">{t("me.quadratic")}</option>
+ <option value="exponential">{t("me.exponential")}</option>
  </select>
  </div>
  <div>
- <label className="mb-1 block text-xs text-text-muted">Grid Range (±)</label>
+ <label className="mb-1 block text-xs text-text-muted">{t("me.gridRange")}</label>
  <input
  type="number"
  min={3}
@@ -761,7 +772,7 @@ function FunctionGraphConfig({
 
  <div>
  <p className="mb-1 text-xs font-medium text-text-muted">
- Target parameters — <span className="font-mono">{formula}</span>
+ {t("me.targetParams")} <span className="font-mono">{formula}</span>
  </p>
  <div className="grid grid-cols-3 gap-3">
  {paramFields.map((f) => (
@@ -797,6 +808,7 @@ function EquationSolverConfig({
  config: Record<string, unknown>;
  onChange: (c: Record<string, unknown>) => void;
 }) {
+ const { t } = useTranslation();
  interface Step {
  id?: string;
  action?: string;
@@ -909,7 +921,7 @@ function EquationSolverConfig({
  <div className="space-y-3">
  <div className="grid grid-cols-2 gap-3">
  <div>
- <label className="mb-1 block text-xs text-text-muted">Initial Left Side</label>
+ <label className="mb-1 block text-xs text-text-muted">{t("me.initialLeft")}</label>
  <input
  type="text"
  value={initialLeft}
@@ -918,7 +930,7 @@ function EquationSolverConfig({
  />
  </div>
  <div>
- <label className="mb-1 block text-xs text-text-muted">Initial Right Side</label>
+ <label className="mb-1 block text-xs text-text-muted">{t("me.initialRight")}</label>
  <input
  type="text"
  value={initialRight}
@@ -930,13 +942,13 @@ function EquationSolverConfig({
 
  <div>
  <div className="mb-1.5 flex items-center justify-between">
- <label className="block text-xs text-text-muted">Steps</label>
+ <label className="block text-xs text-text-muted">{t("me.steps")}</label>
  <button
  type="button"
  onClick={addStep}
  className="text-xs font-medium text-primary hover:underline"
  >
- + Add step
+ {t("me.addStep")}
  </button>
  </div>
  <div className="space-y-2">
@@ -951,14 +963,15 @@ function EquationSolverConfig({
  type="text"
  value={s.actionLabel}
  onChange={(e) => updateStep(i, { actionLabel: e.target.value })}
- placeholder='e.g. "Subtract 5 from both sides"'
+ placeholder={t("me.stepPh")}
  className={`flex-1 ${inputCls}`}
  />
  <button
  type="button"
  onClick={() => removeStep(i)}
  className="rounded p-1 text-text-subtle hover:bg-danger-soft hover:text-danger-fg"
- title="Delete step"
+ title={t("me.deleteStep")}
+ aria-label={t("me.deleteStep")}
  >
  ×
  </button>
@@ -969,7 +982,7 @@ function EquationSolverConfig({
  type="text"
  value={s.resultLeft}
  onChange={(e) => updateStep(i, { resultLeft: e.target.value })}
- placeholder="Resulting left"
+ placeholder={t("me.resultingLeft")}
  className={`w-32 ${inputCls}`}
  />
  <span className="text-xs text-text-muted">=</span>
@@ -977,7 +990,7 @@ function EquationSolverConfig({
  type="text"
  value={s.resultRight}
  onChange={(e) => updateStep(i, { resultRight: e.target.value })}
- placeholder="Resulting right"
+ placeholder={t("me.resultingRight")}
  className={`w-32 ${inputCls}`}
  />
  </div>
@@ -996,12 +1009,12 @@ function EquationSolverConfig({
  </div>
 
  <div>
- <label className="mb-1 block text-xs text-text-muted">Final Answer</label>
+ <label className="mb-1 block text-xs text-text-muted">{t("me.finalAnswer")}</label>
  <input
  type="text"
  value={finalAnswerStr}
  onChange={(e) => writeAll(steps, { finalAnswer: e.target.value })}
- placeholder="e.g. x = 6"
+ placeholder={t("me.finalPh")}
  className={`w-full ${inputCls}`}
  />
  </div>
@@ -1017,6 +1030,7 @@ function MCMathConfig({
  config: Record<string, unknown>;
  onChange: (c: Record<string, unknown>) => void;
 }) {
+ const { t } = useTranslation();
  interface Choice { text: string; correct: boolean }
  const choices: Choice[] =
  (config.choices as Choice[]) ||
@@ -1041,7 +1055,7 @@ function MCMathConfig({
  return (
  <div className="space-y-3">
  <div>
- <label className="mb-1 block text-xs text-text-muted">Question (supports KaTeX with $...$)</label>
+ <label className="mb-1 block text-xs text-text-muted">{t("me.questionKatex")}</label>
  <textarea
  rows={2}
  value={(config.question as string) || ""}
@@ -1052,14 +1066,14 @@ function MCMathConfig({
 
  <div>
  <div className="mb-1.5 flex items-center justify-between">
- <label className="block text-xs text-text-muted">Choices</label>
+ <label className="block text-xs text-text-muted">{t("me.choices")}</label>
  <button
  type="button"
  onClick={addChoice}
  className="text-xs font-medium text-primary hover:underline"
  disabled={choices.length >= 6}
  >
- + Add choice
+ {t("me.addChoice")}
  </button>
  </div>
  <div className="space-y-2">
@@ -1070,7 +1084,7 @@ function MCMathConfig({
  >
  <label
  className="flex items-center gap-1.5 text-xs font-semibold text-text-muted"
- title="Mark this choice as correct"
+ title={t("me.markCorrect")}
  >
  <input
  type="radio"
@@ -1085,7 +1099,7 @@ function MCMathConfig({
  type="text"
  value={c.text}
  onChange={(e) => updateChoice(i, { text: e.target.value })}
- placeholder={`Choice ${labels[i]}`}
+ placeholder={t("me.choiceN").replace("{x}", labels[i])}
  className="flex-1 rounded border border-border-strong bg-surface px-2 py-1 text-sm"
  />
  {choices.length > 2 && (
@@ -1093,7 +1107,8 @@ function MCMathConfig({
  type="button"
  onClick={() => removeChoice(i)}
  className="rounded p-1 text-text-subtle hover:bg-danger-soft hover:text-danger-fg"
- title="Delete choice"
+ title={t("me.deleteChoice")}
+ aria-label={t("me.deleteChoice")}
  >
  ×
  </button>
@@ -1102,12 +1117,12 @@ function MCMathConfig({
  ))}
  </div>
  <p className="mt-1 text-2xs text-text-subtle">
- Tick the radio next to the correct answer. Exactly one must be correct.
+ {t("me.tickCorrect")}
  </p>
  </div>
 
  <div>
- <label className="mb-1 block text-xs text-text-muted">Explanation (shown after answering)</label>
+ <label className="mb-1 block text-xs text-text-muted">{t("me.explanationAfter")}</label>
  <textarea
  rows={2}
  value={(config.explanation as string) || ""}
@@ -1120,18 +1135,19 @@ function MCMathConfig({
 }
 
 function NumericInputConfig({ config, onChange }: { config: Record<string, unknown>; onChange: (c: Record<string, unknown>) => void }) {
+ const { t } = useTranslation();
  return (
  <div className="space-y-3">
  <div>
  <label className="mb-1 block text-xs text-text-muted">
- Question — LaTeX supported, e.g. $x^2$ (specs/020)
+ {t("me.questionLatex")}
  </label>
  <textarea rows={2} value={(config.question as string) || ""} onChange={(e) => onChange({ ...config, question: e.target.value })}
  className="w-full rounded-lg border border-border-strong bg-surface px-3 py-2 text-sm " />
  </div>
  <div className="grid grid-cols-2 gap-3">
  <div>
- <label className="mb-1 block text-xs text-text-muted">Correct Answers (comma-sep)</label>
+ <label className="mb-1 block text-xs text-text-muted">{t("me.correctAnswers")}</label>
  <CommaListInput<number>
  value={(config.correct_answers as number[]) || [7]}
  onChange={(next) => onChange({ ...config, correct_answers: next })}
@@ -1139,14 +1155,14 @@ function NumericInputConfig({ config, onChange }: { config: Record<string, unkno
  className="w-full rounded-lg border border-border-strong bg-surface px-3 py-2 text-sm " />
  </div>
  <div>
- <label className="mb-1 block text-xs text-text-muted">Tolerance</label>
+ <label className="mb-1 block text-xs text-text-muted">{t("me.tolerance")}</label>
  <input type="number" step={0.01} value={(config.tolerance as number) || 0.01}
  onChange={(e) => onChange({ ...config, tolerance: parseFloat(e.target.value) || 0.01 })}
  className="w-full rounded-lg border border-border-strong bg-surface px-3 py-2 text-sm " />
  </div>
  </div>
  <div>
- <label className="mb-1 block text-xs text-text-muted">Explanation</label>
+ <label className="mb-1 block text-xs text-text-muted">{t("me.explanation")}</label>
  <textarea rows={2} value={(config.explanation as string) || ""} onChange={(e) => onChange({ ...config, explanation: e.target.value })}
  className="w-full rounded-lg border border-border-strong bg-surface px-3 py-2 text-sm " />
  </div>
@@ -1162,6 +1178,7 @@ function ScatterPlotConfig({
  config: Record<string, unknown>;
  onChange: (c: Record<string, unknown>) => void;
 }) {
+ const { t } = useTranslation();
  const points: { x: number; y: number }[] =
  (config.points as { x: number; y: number }[]) ||
  [
@@ -1184,27 +1201,27 @@ function ScatterPlotConfig({
  <div className="space-y-3">
  <div className="grid grid-cols-3 gap-3">
  <div>
- <label className="mb-1 block text-xs text-text-muted">Mode</label>
+ <label className="mb-1 block text-xs text-text-muted">{t("me.mode")}</label>
  <select
  value={(config.mode as string) || "best_fit"}
  onChange={(e) => onChange({ ...config, mode: e.target.value })}
  className="w-full rounded-lg border border-border-strong bg-surface px-3 py-2 text-sm"
  >
- <option value="best_fit">Best Fit Line</option>
- <option value="correlation">Identify Correlation</option>
- <option value="read_value">Read a Value</option>
+ <option value="best_fit">{t("me.bestFit")}</option>
+ <option value="correlation">{t("me.correlation")}</option>
+ <option value="read_value">{t("me.readValue")}</option>
  </select>
  {/* specs/020 US5: say what each mode asks the student to do */}
  <p className="mt-1 text-2xs text-text-subtle">
  {((config.mode as string) || "best_fit") === "best_fit"
- ? "Student draws the line of best fit through the points; graded against target slope and intercept."
+ ? t("me.bestFitHelp")
  : ((config.mode as string) || "best_fit") === "correlation"
- ? "Student looks at the cloud of points and picks positive / negative / no correlation."
- : "Student reads a value off the plot and types the number."}
+ ? t("me.correlationHelp")
+ : t("me.readValueHelp")}
  </p>
  </div>
  <div>
- <label className="mb-1 block text-xs text-text-muted">Target Slope</label>
+ <label className="mb-1 block text-xs text-text-muted">{t("me.targetSlope")}</label>
  <input
  type="number"
  step={0.1}
@@ -1214,7 +1231,7 @@ function ScatterPlotConfig({
  />
  </div>
  <div>
- <label className="mb-1 block text-xs text-text-muted">Target Intercept</label>
+ <label className="mb-1 block text-xs text-text-muted">{t("me.targetIntercept")}</label>
  <input
  type="number"
  step={0.5}
@@ -1227,13 +1244,13 @@ function ScatterPlotConfig({
 
  <div>
  <div className="mb-1.5 flex items-center justify-between">
- <label className="block text-xs text-text-muted">Data Points ({points.length})</label>
+ <label className="block text-xs text-text-muted">{t("me.dataPoints").replace("{n}", String(points.length))}</label>
  <button
  type="button"
  onClick={addPoint}
  className="text-xs font-medium text-primary hover:underline"
  >
- + Add point
+ {t("me.addPoint")}
  </button>
  </div>
  <div className="space-y-1.5">
@@ -1267,7 +1284,8 @@ function ScatterPlotConfig({
  type="button"
  onClick={() => removePoint(i)}
  className="ml-auto rounded p-1 text-text-subtle hover:bg-danger-soft hover:text-danger-fg"
- title="Delete point"
+ title={t("me.deletePoint")}
+ aria-label={t("me.deletePoint")}
  >
  ×
  </button>
@@ -1296,6 +1314,7 @@ function TwoWayTableConfig({
  config: Record<string, unknown>;
  onChange: (c: Record<string, unknown>) => void;
 }) {
+ const { t } = useTranslation();
  const rowHeaders = (config.row_headers as string[]) || ["Boys", "Girls", "Total"];
  const colHeaders = (config.col_headers as string[]) || ["Soccer", "Basketball", "Total"];
  const cells: (number | null)[][] =
@@ -1409,7 +1428,7 @@ function TwoWayTableConfig({
  <div className="grid grid-cols-2 gap-3">
  <div>
  <div className="mb-1 flex items-center justify-between">
- <label className="text-xs text-text-muted">Row Headers</label>
+ <label className="text-xs text-text-muted">{t("me.rowHeaders")}</label>
  <div className="flex gap-1">
  {rowHeaders.length > 1 && (
  <button type="button" onClick={() => removeRow(rowHeaders.length - 1)} className="text-xs text-text-subtle hover:text-danger-fg">−</button>
@@ -1431,7 +1450,7 @@ function TwoWayTableConfig({
  </div>
  <div>
  <div className="mb-1 flex items-center justify-between">
- <label className="text-xs text-text-muted">Column Headers</label>
+ <label className="text-xs text-text-muted">{t("me.colHeaders")}</label>
  <div className="flex gap-1">
  {colHeaders.length > 1 && (
  <button type="button" onClick={() => removeCol(colHeaders.length - 1)} className="text-xs text-text-subtle hover:text-danger-fg">−</button>
@@ -1455,8 +1474,7 @@ function TwoWayTableConfig({
 
  <div>
  <p className="mb-1.5 text-xs text-text-muted">
- Cells — tick the checkbox to make a cell a blank the student fills.
- The value next to it becomes the expected answer.
+ {t("me.cellsHelp")}
  </p>
  <div className="overflow-x-auto rounded-lg border border-border-strong bg-surface">
  <table className="w-full text-xs">
@@ -1486,14 +1504,15 @@ function TwoWayTableConfig({
  className={`w-16 rounded border px-1.5 py-0.5 text-center text-xs ${
  isBlank ? "border-warning bg-warning-soft" : "border-border-strong bg-surface"
  }`}
- title={isBlank ? "Expected answer" : "Shown value"}
+ title={isBlank ? t("me.expectedAnswer") : t("me.shownValue")}
  />
  <input
  type="checkbox"
  checked={isBlank}
  onChange={(e) => setCell(r, c, e.target.checked, displayValue)}
  className="h-3 w-3 accent-sun-500"
- title="Blank for student"
+ title={t("me.blankForStudent")}
+ aria-label={t("me.blankForStudent")}
  />
  </div>
  </td>
@@ -1521,6 +1540,7 @@ function CardSortConfig({
  config: Record<string, unknown>;
  onChange: (c: Record<string, unknown>) => void;
 }) {
+ const { t } = useTranslation();
  interface Category { id: string; label: string; color: string }
  interface Card { id: string; text: string; category: string }
 
@@ -1587,15 +1607,15 @@ function CardSortConfig({
  {/* Categories */}
  <div>
  <div className="mb-2 flex items-center justify-between">
- <p className="text-xs font-semibold uppercase tracking-wider text-text-muted">
- Categories ({categories.length})
+ <p className="text-sm font-medium text-text-muted">
+ {t("me.categories").replace("{n}", String(categories.length))}
  </p>
  <button
  type="button"
  onClick={addCategory}
  className="text-xs font-medium text-primary hover:underline"
  >
- + Add category
+ {t("me.addCategory")}
  </button>
  </div>
  <div className="space-y-2">
@@ -1609,13 +1629,14 @@ function CardSortConfig({
  value={cat.color || "var(--viz-1)"}
  onChange={(e) => updateCategory(i, { color: e.target.value })}
  className="h-6 w-8 cursor-pointer rounded border border-border-strong"
- title="Category colour"
+ title={t("me.categoryColour")}
+ aria-label={t("me.categoryColour")}
  />
  <input
  type="text"
  value={cat.label}
  onChange={(e) => updateCategory(i, { label: e.target.value })}
- placeholder="Category label"
+ placeholder={t("me.categoryLabel")}
  className={`flex-1 ${inputCls}`}
  />
  <span className="font-mono text-3xs text-text-subtle">id: {cat.id}</span>
@@ -1623,7 +1644,8 @@ function CardSortConfig({
  type="button"
  onClick={() => removeCategory(i)}
  className="rounded p-1 text-text-subtle hover:bg-danger-soft hover:text-danger-fg"
- title="Delete category"
+ title={t("me.deleteCategory")}
+ aria-label={t("me.deleteCategory")}
  >
  ×
  </button>
@@ -1635,8 +1657,8 @@ function CardSortConfig({
  {/* Cards */}
  <div>
  <div className="mb-2 flex items-center justify-between">
- <p className="text-xs font-semibold uppercase tracking-wider text-text-muted">
- Cards ({cards.length})
+ <p className="text-sm font-medium text-text-muted">
+ {t("me.cards").replace("{n}", String(cards.length))}
  </p>
  <button
  type="button"
@@ -1644,7 +1666,7 @@ function CardSortConfig({
  className="text-xs font-medium text-primary hover:underline"
  disabled={categories.length === 0}
  >
- + Add card
+ {t("me.addCard")}
  </button>
  </div>
  <div className="space-y-2">
@@ -1658,7 +1680,7 @@ function CardSortConfig({
  type="text"
  value={card.text}
  onChange={(e) => updateCard(i, { text: e.target.value })}
- placeholder="Card text"
+ placeholder={t("me.cardText")}
  className={`flex-1 ${inputCls}`}
  />
  <select
@@ -1674,7 +1696,8 @@ function CardSortConfig({
  type="button"
  onClick={() => removeCard(i)}
  className="rounded p-1 text-text-subtle hover:bg-danger-soft hover:text-danger-fg"
- title="Delete card"
+ title={t("me.deleteCard")}
+ aria-label={t("me.deleteCard")}
  >
  ×
  </button>
@@ -1698,6 +1721,7 @@ function TablePatternConfig({
  config: Record<string, unknown>;
  onChange: (c: Record<string, unknown>) => void;
 }) {
+ const { t } = useTranslation();
  const xValues: number[] = (config.x_values as number[]) || [1, 2, 3, 4, 5];
  const yValues: (number | null)[] = (config.y_values as (number | null)[]) || [3, 5, null, 9, null];
  const existingAnswers = (config.answers as Record<string, number>) || {};
@@ -1737,7 +1761,7 @@ function TablePatternConfig({
  <div className="space-y-3">
  <div className="grid grid-cols-2 gap-3">
  <div>
- <label className="mb-1 block text-xs text-text-muted">Rule Label</label>
+ <label className="mb-1 block text-xs text-text-muted">{t("me.ruleLabel")}</label>
  <input
  type="text"
  value={(config.rule_label as string) || ""}
@@ -1747,7 +1771,7 @@ function TablePatternConfig({
  />
  </div>
  <div>
- <label className="mb-1 block text-xs text-text-muted">Rule Answer</label>
+ <label className="mb-1 block text-xs text-text-muted">{t("me.ruleAnswer")}</label>
  <input
  type="text"
  value={(config.rule_answer as string) || ""}
@@ -1760,17 +1784,17 @@ function TablePatternConfig({
 
  <div>
  <div className="mb-1.5 flex items-center justify-between">
- <label className="block text-xs text-text-muted">Rows ({rows.length})</label>
+ <label className="block text-xs text-text-muted">{t("me.rows").replace("{n}", String(rows.length))}</label>
  <button
  type="button"
  onClick={addRow}
  className="text-xs font-medium text-primary hover:underline"
  >
- + Add row
+ {t("me.addRow")}
  </button>
  </div>
  <p className="mb-2 text-2xs text-text-subtle">
- Tick "Blank" on rows where the student should fill in the y-value.
+ {t("me.blankRowsHelp")}
  </p>
  <div className="space-y-1.5">
  {rows.map((r, i) => (
@@ -1795,7 +1819,7 @@ function TablePatternConfig({
  value={r.y}
  onChange={(e) => updateRow(i, { y: parseFloat(e.target.value) || 0 })}
  className={`${numCls} ${r.blank ? "bg-warning-soft border-warning" : ""}`}
- title={r.blank ? "Expected answer (student fills)" : "Shown to student"}
+ title={r.blank ? t("me.expectedStudentFills") : t("me.shownToStudent")}
  />
  </label>
  <label className="flex items-center gap-1 text-xs text-text-subtle">
@@ -1805,13 +1829,14 @@ function TablePatternConfig({
  onChange={(e) => updateRow(i, { blank: e.target.checked })}
  className="h-3 w-3 accent-sun-500"
  />
- Blank
+ {t("me.blank")}
  </label>
  <button
  type="button"
  onClick={() => removeRow(i)}
  className="ml-auto rounded p-1 text-text-subtle hover:bg-danger-soft hover:text-danger-fg"
- title="Delete row"
+ title={t("me.deleteRow")}
+ aria-label={t("me.deleteRow")}
  >
  ×
  </button>
@@ -1824,20 +1849,21 @@ function TablePatternConfig({
 }
 
 function InequalityConfig({ config, onChange }: { config: Record<string, unknown>; onChange: (c: Record<string, unknown>) => void }) {
+ const { t } = useTranslation();
  return (
  <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
  <div>
- <label className="mb-1 block text-xs text-text-muted">Slope</label>
+ <label className="mb-1 block text-xs text-text-muted">{t("me.slope")}</label>
  <input type="number" step={0.5} value={(config.slope as number) ?? 1} onChange={(e) => onChange({ ...config, slope: parseFloat(e.target.value) })}
  className="w-full rounded-lg border border-border-strong bg-surface px-3 py-2 text-sm " />
  </div>
  <div>
- <label className="mb-1 block text-xs text-text-muted">Intercept</label>
+ <label className="mb-1 block text-xs text-text-muted">{t("me.intercept")}</label>
  <input type="number" step={0.5} value={(config.intercept as number) ?? 0} onChange={(e) => onChange({ ...config, intercept: parseFloat(e.target.value) })}
  className="w-full rounded-lg border border-border-strong bg-surface px-3 py-2 text-sm " />
  </div>
  <div>
- <label className="mb-1 block text-xs text-text-muted">Operator</label>
+ <label className="mb-1 block text-xs text-text-muted">{t("me.operator")}</label>
  <select value={(config.operator as string) || ">="} onChange={(e) => onChange({ ...config, operator: e.target.value })}
  className="w-full rounded-lg border border-border-strong bg-surface px-3 py-2 text-sm ">
  <option value=">">{">"}</option><option value=">=">{"\u2265"}</option>
@@ -1845,7 +1871,7 @@ function InequalityConfig({ config, onChange }: { config: Record<string, unknown
  </select>
  </div>
  <div>
- <label className="mb-1 block text-xs text-text-muted">Grid Range</label>
+ <label className="mb-1 block text-xs text-text-muted">{t("me.gridRangePlain")}</label>
  <input type="number" min={3} max={10} value={(config.grid_range as number) || 6} onChange={(e) => onChange({ ...config, grid_range: parseInt(e.target.value) })}
  className="w-full rounded-lg border border-border-strong bg-surface px-3 py-2 text-sm " />
  </div>
@@ -1854,10 +1880,11 @@ function InequalityConfig({ config, onChange }: { config: Record<string, unknown
 }
 
 function GraphTransformConfig({ config, onChange }: { config: Record<string, unknown>; onChange: (c: Record<string, unknown>) => void }) {
+ const { t } = useTranslation();
  return (
  <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
  <div>
- <label className="mb-1 block text-xs text-text-muted">Parent Function</label>
+ <label className="mb-1 block text-xs text-text-muted">{t("me.parentFunction")}</label>
  <select value={(config.parent_function as string) || "x^2"} onChange={(e) => onChange({ ...config, parent_function: e.target.value })}
  className="w-full rounded-lg border border-border-strong bg-surface px-3 py-2 text-sm ">
  <option value="x^2">x²</option><option value="|x|">|x|</option>
@@ -1865,17 +1892,17 @@ function GraphTransformConfig({ config, onChange }: { config: Record<string, unk
  </select>
  </div>
  <div>
- <label className="mb-1 block text-xs text-text-muted">Target H shift</label>
+ <label className="mb-1 block text-xs text-text-muted">{t("me.targetH")}</label>
  <input type="number" step={0.5} value={(config.target_h as number) ?? 2} onChange={(e) => onChange({ ...config, target_h: parseFloat(e.target.value) })}
  className="w-full rounded-lg border border-border-strong bg-surface px-3 py-2 text-sm " />
  </div>
  <div>
- <label className="mb-1 block text-xs text-text-muted">Target V shift</label>
+ <label className="mb-1 block text-xs text-text-muted">{t("me.targetV")}</label>
  <input type="number" step={0.5} value={(config.target_v as number) ?? -1} onChange={(e) => onChange({ ...config, target_v: parseFloat(e.target.value) })}
  className="w-full rounded-lg border border-border-strong bg-surface px-3 py-2 text-sm " />
  </div>
  <div>
- <label className="mb-1 block text-xs text-text-muted">Target stretch (a)</label>
+ <label className="mb-1 block text-xs text-text-muted">{t("me.targetStretch")}</label>
  <input type="number" step={0.25} value={(config.target_a as number) ?? 1} onChange={(e) => onChange({ ...config, target_a: parseFloat(e.target.value) })}
  className="w-full rounded-lg border border-border-strong bg-surface px-3 py-2 text-sm " />
  </div>
@@ -1904,6 +1931,7 @@ function VennConfig({
  config: Record<string, unknown>;
  onChange: (c: Record<string, unknown>) => void;
 }) {
+ const { t } = useTranslation();
  type RegionKey = "a_only" | "intersection" | "b_only" | "neither";
 
  const setALabel = (config.set_a_label as string) || "Set A";
@@ -1958,10 +1986,10 @@ function VennConfig({
  : ["a_only", "b_only", "neither"];
 
  const regionLabel: Record<RegionKey, string> = {
- a_only: `Only ${setALabel}`,
- intersection: "Both (intersection)",
- b_only: `Only ${setBLabel}`,
- neither: "Neither",
+ a_only: t("me.onlySet").replace("{set}", setALabel),
+ intersection: t("me.both"),
+ b_only: t("me.onlySet").replace("{set}", setBLabel),
+ neither: t("me.neither"),
  };
 
  const inputCls =
@@ -1972,7 +2000,7 @@ function VennConfig({
  {/* Labels + total */}
  <div className="grid grid-cols-3 gap-3">
  <div>
- <label className="mb-1 block text-xs text-text-muted">Set A Label</label>
+ <label className="mb-1 block text-xs text-text-muted">{t("me.setALabel")}</label>
  <input
  type="text"
  value={setALabel}
@@ -1981,7 +2009,7 @@ function VennConfig({
  />
  </div>
  <div>
- <label className="mb-1 block text-xs text-text-muted">Set B Label</label>
+ <label className="mb-1 block text-xs text-text-muted">{t("me.setBLabel")}</label>
  <input
  type="text"
  value={setBLabel}
@@ -1990,7 +2018,7 @@ function VennConfig({
  />
  </div>
  <div>
- <label className="mb-1 block text-xs text-text-muted">Total</label>
+ <label className="mb-1 block text-xs text-text-muted">{t("me.total")}</label>
  <input
  type="number"
  value={total}
@@ -2008,16 +2036,16 @@ function VennConfig({
  onChange={(e) => onChange({ ...config, use_intersection: e.target.checked })}
  className="h-4 w-4 accent-green-600"
  />
- Use intersection (overlap circles)
+ {t("me.useIntersection")}
  <span className="text-xs text-text-subtle">
- — turn off to show two separate circles with no "Both" region
+ — {t("me.intersectionHelp")}
  </span>
  </label>
 
  {/* Per-region rows */}
  <div className="space-y-2">
- <p className="text-xs font-semibold uppercase tracking-wider text-text-muted">
- Regions
+ <p className="text-sm font-medium text-text-muted">
+ {t("me.regions")}
  </p>
  {visibleKeys.map((key) => {
  const blank = regions[key] === null;
@@ -2036,11 +2064,11 @@ function VennConfig({
  onChange={(e) => toggleBlank(key, e.target.checked)}
  className="h-3.5 w-3.5 accent-green-600"
  />
- Blank for student
+ {t("me.blankForStudent")}
  </label>
  {blank ? (
  <div className="flex items-center gap-1.5">
- <span className="text-xs text-text-subtle">Expected answer:</span>
+ <span className="text-xs text-text-subtle">{t("me.expectedAnswerColon")}</span>
  <input
  type="number"
  value={answers[key] ?? 0}
@@ -2050,7 +2078,7 @@ function VennConfig({
  </div>
  ) : (
  <div className="flex items-center gap-1.5">
- <span className="text-xs text-text-subtle">Shown value:</span>
+ <span className="text-xs text-text-subtle">{t("me.shownValueColon")}</span>
  <input
  type="number"
  value={regions[key] ?? 0}
@@ -2068,13 +2096,14 @@ function VennConfig({
 }
 
 function CustomHtmlEditor({ html, onChange }: { html: string; onChange: (h: string) => void }) {
+ const { t } = useTranslation();
  return (
  <div>
  <label className="mb-1.5 block text-xs font-medium text-text-muted ">
- Custom HTML/JS/CSS
+ {t("me.customHtml")}
  </label>
  <p className="mb-2 text-xs text-text-subtle">
- Use <code className="bg-surface-2 px-1 rounded ">window.LMS.reportResult({"{"} passed: true, score: 1.0 {"}"})</code> to submit the result.
+ {t("me.customHtmlBefore")} <code className="bg-surface-2 px-1 rounded ">window.LMS.reportResult({"{"} passed: true, score: 1.0 {"}"})</code> {t("me.customHtmlAfter")}
  </p>
  <div className="h-[300px] rounded-lg border border-border-strong overflow-hidden ">
  <Editor

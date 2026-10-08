@@ -243,3 +243,20 @@ const PICKER_HIDDEN = new Set([
 export const TEMPLATE_LIST = Object.values(MATH_TEMPLATES).filter(
  (t) => !PICKER_HIDDEN.has(t.type)
 );
+
+/** Old seed types that render a canonical template; they share its name. */
+const TEMPLATE_ALIAS: Record<string, string> = {
+  function_graphing: "function_graph",
+  graph_transformation: "graph_transform",
+  inequality_graphing: "inequality_graph",
+  card_sorting: "card_sort",
+};
+
+/** The template's name (or, with `"Desc"`, its description) in the reader's language. */
+export function templateText(t: (key: string) => string, type: string, part: "" | "Desc" = ""): string {
+  const key = `mt.${TEMPLATE_ALIAS[type] ?? type}${part}`;
+  const text = t(key);
+  if (text !== key) return text;
+  const tpl = MATH_TEMPLATES[type];
+  return (part === "Desc" ? tpl?.description : tpl?.label) ?? type;
+}

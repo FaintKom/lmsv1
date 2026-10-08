@@ -73,7 +73,7 @@ import {
   getExerciseIcon,
   type ExerciseType,
 } from "@/lib/api/exercises";
-import { TEMPLATE_LIST } from "@/components/game/math/template-registry";
+import { TEMPLATE_LIST, templateText } from "@/components/game/math/template-registry";
 import { exerciseBlockState } from "./exercise-block-state";
 import { textBlockEditor } from "./text-block-editor";
 import type { LessonBlock } from "@/types/api";
@@ -1118,17 +1118,17 @@ function ExerciseBlockBody({
                   so "Number Line" is findable from the catalogue (US5). */}
               {group.key === "math" && mathExpanded && (
                 <div className="mt-1.5 grid grid-cols-4 gap-1.5 rounded-lg border border-border-strong bg-surface p-2 sm:grid-cols-6">
-                  {TEMPLATE_LIST.map(({ type, label, Icon: TplIcon }) => (
+                  {TEMPLATE_LIST.map(({ type, Icon: TplIcon }) => (
                     <button
                       key={type}
                       onClick={() =>
                         onPickExerciseType("math_interactive", { template_type: type })
                       }
                       className="flex flex-col items-center gap-1.5 rounded-lg px-2 py-2 text-center text-2xs text-text-muted transition-colors hover:bg-primary-soft hover:text-primary"
-                      title={label}
+                      title={templateText(t, type)}
                     >
                       <TplIcon className="h-4 w-4" strokeWidth={1.75} />
-                      <span className="leading-tight">{label}</span>
+                      <span className="leading-tight">{templateText(t, type)}</span>
                     </button>
                   ))}
                 </div>
