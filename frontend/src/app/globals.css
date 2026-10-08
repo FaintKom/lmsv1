@@ -640,6 +640,15 @@ input, textarea, [contenteditable="true"] { caret-color: var(--color-primary); }
 .tap-target {
   position: relative;
 }
+/* Fields reach 44px under a finger (PRODUCT.md). Most pages hand-roll their
+   inputs with py-2 (37px); one rule covers them all and leaves the desktop
+   density alone. Checkboxes and radios are hit through their labels. */
+@media (pointer: coarse) {
+  input:not([type="checkbox"], [type="radio"], [type="range"], [type="color"], [type="file"], [type="hidden"]),
+  select {
+    min-height: 44px;
+  }
+}
 .tap-target::after {
   content: "";
   position: absolute;

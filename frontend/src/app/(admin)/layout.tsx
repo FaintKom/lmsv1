@@ -72,7 +72,7 @@ export default function AdminLayout({
  <div className="flex h-14 items-center border-b border-border-strong/60 bg-surface px-4 md:hidden ">
  <button
  onClick={() => setSidebarOpen(true)}
- className="rounded-lg p-2 text-text-muted hover:bg-surface-2 "
+ className="rounded-lg p-3 text-text-muted hover:bg-surface-2"
  aria-label={t("common.openMenu")}
  >
  <Menu className="h-5 w-5" />

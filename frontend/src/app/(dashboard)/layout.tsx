@@ -111,7 +111,7 @@ export default function DashboardLayout({
  if (hiddenForLesson) { setHiddenForLesson(false); }
  else { setSidebarOpen(true); }
  }}
- className="rounded-lg p-2 text-text-muted hover:bg-surface-2 "
+ className="rounded-lg p-3 text-text-muted hover:bg-surface-2"
  aria-label={t("common.openMenu")}
  >
  <Menu className="h-5 w-5" />

@@ -72,7 +72,7 @@ export function NewcomerChecklist({
  </div>
  <button
  onClick={handleDismiss}
- className="tap-target rounded-sm p-1.5 text-text-subtle transition-colors hover:bg-surface-2 hover:text-text"
+ className="tap-target rounded-sm p-1.5 pointer-coarse:p-3.5 text-text-subtle transition-colors hover:bg-surface-2 hover:text-text"
  aria-label={t("onboarding.dismiss")}
  >
  <X className="h-4 w-4" />
