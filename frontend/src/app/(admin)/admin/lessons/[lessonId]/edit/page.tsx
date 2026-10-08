@@ -87,6 +87,7 @@ import {
 import { useTranslation } from "@/lib/i18n/context";
 import { adoptDetachedExercises } from "./adopt-exercises";
 import { anchoredBlockId } from "./block-anchor";
+import { lessonSnapshot, shouldAutosave } from "./autosave-gate";
 
 function EditorLoading() {
   const { t } = useTranslation();
@@ -167,7 +168,9 @@ export default function LessonEditorPage() {
   // the student view — refuse instead (specs/017 FR-003).
   const [legacyType, setLegacyType] = useState<string | null>(null);
 
-  const initialLoadRef = useRef(false);
+  // Снимок урока после загрузки или последнего сохранения; null — урок не
+  // загрузился, автосохранение выключено (specs/096).
+  const baselineRef = useRef<string | null>(null);
   const saveTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   /* ── Initial fetch ── */
@@ -194,10 +197,12 @@ export default function LessonEditorPage() {
           setLegacyType(lesson.content_type);
           setCourseTitle(courseRes.data?.title || "");
           setLoading(false);
-          return; // initialLoadRef stays false → autosave never fires
+          return; // baselineRef stays null → autosave never fires
         }
-        setTitle(lesson.title || "");
-        setDuration(lesson.duration_minutes ? String(lesson.duration_minutes) : "");
+        const loadedTitle = lesson.title || "";
+        const loadedDuration = lesson.duration_minutes ? String(lesson.duration_minutes) : "";
+        setTitle(loadedTitle);
+        setDuration(loadedDuration);
         // Exercises attached outside any block become trailing blocks on the
         // last page, in by-lesson order — the order students already saw
         // (specs/017 US2).
@@ -212,6 +217,11 @@ export default function LessonEditorPage() {
           loaded[loaded.length - 1].blocks.push(...orphans);
         }
         setPages(loaded);
+        baselineRef.current = lessonSnapshot({
+          title: loadedTitle,
+          duration: loadedDuration,
+          pages: loaded,
+        });
         setExercises(exercisesRes.data || []);
         // Прокрутка идёт после того, как блоки отрисованы: до этого момента
         // элемента, к которому ведёт ссылка, на странице ещё нет. Подсветка
@@ -231,10 +241,7 @@ export default function LessonEditorPage() {
         if (!cancelled) toast.error(t("admin.lessonEditor.failedLoad"));
         console.error(err);
       } finally {
-        if (!cancelled) {
-          setLoading(false);
-          initialLoadRef.current = true;
-        }
+        if (!cancelled) setLoading(false);
       }
     }
     load();
@@ -245,9 +252,15 @@ export default function LessonEditorPage() {
 
   /* ── Debounced lesson auto-save (title / duration / blocks structure) ── */
   const triggerSave = useCallback(() => {
-    if (!initialLoadRef.current || legacyType) return;
-    setSaveStatus("dirty");
+    if (legacyType) return;
+    // Таймер гасится до проверки: правка, откаченная к сохранённому, не уходит.
     if (saveTimerRef.current) clearTimeout(saveTimerRef.current);
+    const draft = { title, duration, pages };
+    if (!shouldAutosave(baselineRef.current, draft)) {
+      setSaveStatus((s) => (s === "dirty" ? "idle" : s));
+      return;
+    }
+    setSaveStatus("dirty");
     saveTimerRef.current = setTimeout(async () => {
       setSaveStatus("saving");
       try {
@@ -256,6 +269,7 @@ export default function LessonEditorPage() {
           content: buildPagesContent(pages),
           duration_minutes: duration ? parseInt(duration, 10) : null,
         });
+        baselineRef.current = lessonSnapshot(draft);
         setSaveStatus("saved");
         setTimeout(() => setSaveStatus((s) => (s === "saved" ? "idle" : s)), 2000);
       } catch (err) {
