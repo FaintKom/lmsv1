@@ -1,10 +1,12 @@
 "use client";
 
+import { useTranslation } from "@/lib/i18n/context";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import type { MathTemplateProps } from "../template-registry";
 
 export default function TablePattern({ config, onComplete }: MathTemplateProps) {
+ const { t } = useTranslation();
  const xValues = (config.x_values as number[]) || [1, 2, 3, 4, 5, 6];
  const yValues = (config.y_values as (number | null)[]) || [3, 5, null, 9, null, 13]; // null = blank
  const ruleLabel = (config.rule_label as string) || "";
@@ -121,7 +123,7 @@ export default function TablePattern({ config, onComplete }: MathTemplateProps) 
  value={userRule}
  onChange={(e) => { setUserRule(e.target.value); setChecked(false); }}
  disabled={checked && ruleCorrect}
- placeholder="e.g. 2x + 1"
+ placeholder={t("mx.rulePh")}
  className={`w-40 rounded-lg border-2 px-4 py-2 text-center text-sm font-bold outline-none transition-colors ${
  checked
  ? ruleCorrect
@@ -134,11 +136,11 @@ export default function TablePattern({ config, onComplete }: MathTemplateProps) 
  )}
 
  <Button onClick={handleCheck} disabled={checked && Object.values(cellResults).every(Boolean) && (!ruleLabel || ruleCorrect)}>
- {checked && Object.values(cellResults).every(Boolean) && (!ruleLabel || ruleCorrect) ? "Correct!" : "Check Answers"}
+ {checked && Object.values(cellResults).every(Boolean) && (!ruleLabel || ruleCorrect) ? t("mx.correct") : t("mx.checkAnswers")}
  </Button>
 
  {checked && !(Object.values(cellResults).every(Boolean) && (!ruleLabel || ruleCorrect)) && (
- <p className="text-xs text-text-muted">Look for the pattern between x and f(x) values.</p>
+ <p className="text-xs text-text-muted">{t("mx.patternHint")}</p>
  )}
  </div>
  );

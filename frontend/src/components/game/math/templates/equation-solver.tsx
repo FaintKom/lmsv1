@@ -1,5 +1,6 @@
 "use client";
 
+import { useTranslation } from "@/lib/i18n/context";
 import { useState, useCallback } from "react";
 import { Button } from "@/components/ui/button";
 import type { MathTemplateProps } from "../template-registry";
@@ -33,6 +34,7 @@ const DEFAULT_CONFIG: EquationConfig = {
 };
 
 export default function EquationSolver({ config, onComplete }: MathTemplateProps) {
+ const { t } = useTranslation();
  const cfg: EquationConfig = {
  ...DEFAULT_CONFIG,
  ...((config.equation_config || config) as Partial<EquationConfig>),
@@ -82,7 +84,7 @@ export default function EquationSolver({ config, onComplete }: MathTemplateProps
  return (
  <div className="flex flex-col items-center gap-5">
  <p className="text-sm text-text-muted ">
- Solve the equation step by step. Choose the correct operation at each step.
+ {t("mx.solveIntro")}
  </p>
 
  {/* Equation display */}
@@ -112,7 +114,7 @@ export default function EquationSolver({ config, onComplete }: MathTemplateProps
  {!completed && (
  <div className="space-y-2 pt-2">
  <p className="text-center text-xs font-medium text-text-muted ">
- Step {currentStep + 1} of {totalSteps}: What should you do next?
+ {t("mx.stepOf").replace("{n}", String(currentStep + 1)).replace("{total}", String(totalSteps))}
  </p>
  <div className="flex flex-col gap-2">
  {stepChoices.map((choice) => (
@@ -135,7 +137,7 @@ export default function EquationSolver({ config, onComplete }: MathTemplateProps
  {/* Final answer */}
  {completed && (
  <div className="rounded-lg border-2 border-warning bg-warning-soft px-6 py-4 text-center ">
- <p className="text-xs font-medium text-warning-fg mb-1">Answer</p>
+ <p className="text-xs font-medium text-warning-fg mb-1">{t("mx.answer")}</p>
  <span className="font-mono text-2xl font-bold text-warning-fg ">
  {cfg.final_answer}
  </span>

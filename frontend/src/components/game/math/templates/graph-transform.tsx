@@ -1,5 +1,6 @@
 "use client";
 
+import { useTranslation } from "@/lib/i18n/context";
 import { useState, useMemo } from "react";
 import { Button } from "@/components/ui/button";
 import type { MathTemplateProps } from "../template-registry";
@@ -17,6 +18,7 @@ function evalParent(fn: ParentFn, x: number): number {
 }
 
 export default function GraphTransform({ config, onComplete }: MathTemplateProps) {
+ const { t } = useTranslation();
  const parentFn = (config.parent_function as ParentFn) || "x^2";
  const gridRange = (config.grid_range as number) || 6;
  const targetH = (config.target_h as number) ?? 2; // horizontal shift
@@ -87,13 +89,13 @@ export default function GraphTransform({ config, onComplete }: MathTemplateProps
  {/* Legend */}
  <div className="flex items-center gap-4 text-xs">
  <span className="flex items-center gap-1.5">
- <span className="inline-block h-0.5 w-5 bg-ink-400" /> Parent: y = {fnLabel}
+ <span className="inline-block h-0.5 w-5 bg-ink-400" /> {t("mx.parent").replace("{fn}", fnLabel)}
  </span>
  <span className="flex items-center gap-1.5">
- <span className="inline-block h-0.5 w-5 bg-primary" style={{ borderBottom: "2px dashed var(--color-success)" }} /> Target
+ <span className="inline-block h-0.5 w-5 bg-primary" style={{ borderBottom: "2px dashed var(--color-success)" }} /> {t("mx.target")}
  </span>
  <span className="flex items-center gap-1.5">
- <span className="inline-block h-0.5 w-5 bg-primary" /> Your graph
+ <span className="inline-block h-0.5 w-5 bg-primary" /> {t("mx.yourGraph")}
  </span>
  </div>
 
@@ -124,10 +126,10 @@ export default function GraphTransform({ config, onComplete }: MathTemplateProps
      (specs/020 US1, owner decision) */}
  <div className="w-full max-w-sm space-y-3">
  {([
- { label: "↔ Horizontal shift", value: h, set: setH, min: -5, max: 5, step: 0.5 },
- { label: "↕ Vertical shift", value: v, set: setV, min: -5, max: 5, step: 0.5 },
- { label: "↕ Stretch", value: a, set: setA, min: -3, max: 3, step: 0.25 },
- ] as const).map((p) => (
+ { label: t("mx.hShift"), value: h, set: setH, min: -5, max: 5, step: 0.5 },
+ { label: t("mx.vShift"), value: v, set: setV, min: -5, max: 5, step: 0.5 },
+ { label: t("mx.stretch"), value: a, set: setA, min: -3, max: 3, step: 0.25 },
+ ]).map((p) => (
  <div key={p.label} className="flex items-center gap-3">
  <label className="flex-1 text-right text-xs font-medium text-text-muted">{p.label}</label>
  <input
@@ -150,7 +152,7 @@ export default function GraphTransform({ config, onComplete }: MathTemplateProps
  </div>
 
  <Button onClick={handleCheck} disabled={checked && isCorrect}>
- {checked && isCorrect ? "Correct!" : "Check Answer"}
+ {checked && isCorrect ? t("mx.correct") : t("mx.checkAnswer")}
  </Button>
  </div>
  );

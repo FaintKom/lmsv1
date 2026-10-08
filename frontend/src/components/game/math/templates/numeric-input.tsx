@@ -1,5 +1,6 @@
 "use client";
 
+import { useTranslation } from "@/lib/i18n/context";
 import { useState, useRef } from "react";
 import { Button } from "@/components/ui/button";
 import { MathRenderer } from "@/components/common/math-renderer";
@@ -45,6 +46,7 @@ function parseAnswer(input: string): number | null {
 }
 
 export default function NumericInput({ config, onComplete }: MathTemplateProps) {
+ const { t } = useTranslation();
  const cfg: NumericConfig = { ...DEFAULT_CONFIG, ...config } as NumericConfig;
  const [answer, setAnswer] = useState("");
  const [submitted, setSubmitted] = useState(false);
@@ -90,7 +92,7 @@ export default function NumericInput({ config, onComplete }: MathTemplateProps) 
  {/* Answer input */}
  <div className="flex flex-col items-center gap-2 sm:flex-row sm:gap-3">
  <label className="text-sm font-medium text-text-muted ">
- Answer:
+ {t("exercise.answerLabel")}
  </label>
  <input
  ref={inputRef}
@@ -100,7 +102,7 @@ export default function NumericInput({ config, onComplete }: MathTemplateProps) 
  onChange={(e) => setAnswer(e.target.value)}
  onKeyDown={handleKeyDown}
  disabled={submitted}
- placeholder={cfg.allow_fraction ? "e.g., 7 or 3/4" : "Enter a number"}
+ placeholder={cfg.allow_fraction ? t("mx.phFraction") : t("mx.enterNumber")}
  className={`w-full max-w-[200px] rounded-lg border-2 px-4 py-3 text-center text-xl font-bold outline-none transition-colors ${
  submitted
  ? isCorrect
@@ -116,10 +118,10 @@ export default function NumericInput({ config, onComplete }: MathTemplateProps) 
  {!submitted && (
  <p className="text-xs text-text-subtle">
  {cfg.allow_fraction && cfg.allow_decimal
- ? "Enter a number, decimal, or fraction (e.g., 3/4)"
+ ? t("mx.fmtAll")
  : cfg.allow_fraction
- ? "Enter a number or fraction"
- : "Enter a number"}
+ ? t("mx.fmtFraction")
+ : t("mx.enterNumber")}
  </p>
  )}
 
@@ -129,11 +131,11 @@ export default function NumericInput({ config, onComplete }: MathTemplateProps) 
  <>
  {cfg.hint && (
  <Button variant="outline" size="sm" onClick={() => setShowHint(true)}>
- Hint
+ {t("exercise.hint")}
  </Button>
  )}
  <Button onClick={handleSubmit} disabled={!answer.trim()}>
- Check Answer
+ {t("mx.checkAnswer")}
  </Button>
  </>
  ) : null}
@@ -154,7 +156,7 @@ export default function NumericInput({ config, onComplete }: MathTemplateProps) 
  : "border-danger bg-danger-soft "
  }`}>
  <p className={`text-sm font-semibold mb-1 ${isCorrect ? "text-primary " : "text-danger-fg "}`}>
- {isCorrect ? "Correct!" : `Incorrect. The answer is ${cfg.correct_answers[0]}`}
+ {isCorrect ? t("mx.correct") : t("mx.incorrectAnswer").replace("{a}", String(cfg.correct_answers[0]))}
  </p>
  <p className="text-sm text-text ">
  {cfg.explanation}

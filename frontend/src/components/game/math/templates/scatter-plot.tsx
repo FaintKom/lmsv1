@@ -1,5 +1,6 @@
 "use client";
 
+import { useTranslation } from "@/lib/i18n/context";
 import { useState, useCallback, useRef, useMemo } from "react";
 import { Button } from "@/components/ui/button";
 import type { MathTemplateProps } from "../template-registry";
@@ -10,6 +11,7 @@ interface DataPoint {
 }
 
 export default function ScatterPlot({ config, onComplete }: MathTemplateProps) {
+ const { t } = useTranslation();
  const points = (config.points as DataPoint[]) || [
  { x: 1, y: 2 }, { x: 2, y: 4 }, { x: 3, y: 5 }, { x: 4, y: 4 },
  { x: 5, y: 7 }, { x: 6, y: 8 }, { x: 7, y: 9 }, { x: 8, y: 10 },
@@ -167,7 +169,7 @@ export default function ScatterPlot({ config, onComplete }: MathTemplateProps) {
  {/* Info bar */}
  {mode === "best_fit" && !checked && (
  <p className="text-xs text-text-muted ">
- Drag the orange dots to draw a line of best fit. Slope: <b className="text-primary ">{userSlope === Infinity ? "∞" : userSlope.toFixed(2)}</b>, y-intercept: <b className="text-primary ">{userIntercept.toFixed(2)}</b>
+ {t("mx.dragDots")} {t("mx.slopeColon")} <b className="text-primary ">{userSlope === Infinity ? "∞" : userSlope.toFixed(2)}</b>, {t("mx.yInterceptColon")} <b className="text-primary ">{userIntercept.toFixed(2)}</b>
  </p>
  )}
 
@@ -175,33 +177,33 @@ export default function ScatterPlot({ config, onComplete }: MathTemplateProps) {
  {(mode === "correlation" || mode === "read_value") && !checked && (
  <div className="flex items-center gap-3">
  <label className="text-sm font-medium text-text-muted ">
- {mode === "correlation" ? "Correlation:" : "Answer:"}
+ {mode === "correlation" ? t("mx.correlationColon") : t("exercise.answerLabel")}
  </label>
  {mode === "correlation" ? (
  <select value={answer} onChange={(e) => setAnswer(e.target.value)}
  className="rounded-lg border-2 border-primary bg-surface px-4 py-2 text-sm font-semibold ">
- <option value="">Select...</option>
- <option value="positive">Positive</option>
- <option value="negative">Negative</option>
- <option value="none">No correlation</option>
+ <option value="">{t("mx.choose")}</option>
+ <option value="positive">{t("mx.positive")}</option>
+ <option value="negative">{t("mx.negative")}</option>
+ <option value="none">{t("mx.noCorrelation")}</option>
  </select>
  ) : (
  <input type="text" value={answer} onChange={(e) => setAnswer(e.target.value)}
  onKeyDown={(e) => e.key === "Enter" && handleCheck()}
- placeholder="Enter value"
+ placeholder={t("mx.enterValue")}
  className="w-28 rounded-lg border-2 border-primary bg-surface px-3 py-2 text-center text-lg font-bold " />
  )}
  </div>
  )}
 
  <Button onClick={handleCheck} disabled={checked && isCorrect}>
- {checked && isCorrect ? "Correct!" : "Check Answer"}
+ {checked && isCorrect ? t("mx.correct") : t("mx.checkAnswer")}
  </Button>
 
  {checked && !isCorrect && (
  <p className="text-xs text-danger-fg">
- {mode === "best_fit" ? `Target: slope ≈ ${targetSlope}, intercept ≈ ${targetIntercept}` :
- `Correct answer: ${config.correct_answer}`}
+ {mode === "best_fit" ? t("mx.targetLine").replace("{m}", String(targetSlope)).replace("{b}", String(targetIntercept)) :
+ t("mx.correctAnswerIs").replace("{a}", String(config.correct_answer))}
  </p>
  )}
  </div>

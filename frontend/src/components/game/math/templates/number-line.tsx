@@ -1,10 +1,12 @@
 "use client";
 
+import { useTranslation } from "@/lib/i18n/context";
 import { useState, useCallback, useRef } from "react";
 import { Button } from "@/components/ui/button";
 import type { MathTemplateProps } from "../template-registry";
 
 export default function NumberLine({ config, onComplete }: MathTemplateProps) {
+ const { t } = useTranslation();
  const rangeMin = (config.range_min as number) ?? 0;
  const rangeMax = (config.range_max as number) ?? 10;
  const targets = (config.targets as number[]) || [3, 7];
@@ -87,7 +89,7 @@ export default function NumberLine({ config, onComplete }: MathTemplateProps) {
  return (
  <div className="flex flex-col items-center gap-4">
  <div className="flex flex-wrap items-center gap-2 text-sm text-text-muted ">
- <span>Place each marker at its target:</span>
+ <span>{t("mx.placeMarkers")}</span>
  {targets.map((t, i) => {
  const style = MARKER_STYLES[i % MARKER_STYLES.length];
  return (
@@ -150,7 +152,7 @@ export default function NumberLine({ config, onComplete }: MathTemplateProps) {
  </svg>
 
  <Button onClick={handleCheck} disabled={checked && results.every(Boolean)}>
- {checked && results.every(Boolean) ? "Correct!" : "Check Answer"}
+ {checked && results.every(Boolean) ? t("mx.correct") : t("mx.checkAnswer")}
  </Button>
  </div>
  );

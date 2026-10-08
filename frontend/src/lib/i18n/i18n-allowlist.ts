@@ -52,23 +52,6 @@ export const I18N_ALLOWLIST: ReadonlySet<string> = new Set([
   "src/components/exercises/v2/_grid-axes.tsx",
   "src/components/exercises/word-search-exercise.tsx",
   "src/components/game/blockly/blockly-workspace.tsx",
-  "src/components/game/math/math-exercise.tsx",
-  "src/components/game/math/templates/arithmetic-puzzle.tsx",
-  "src/components/game/math/templates/card-sort.tsx",
-  "src/components/game/math/templates/coordinate-plane.tsx",
-  "src/components/game/math/templates/equation-balance.tsx",
-  "src/components/game/math/templates/equation-solver.tsx",
-  "src/components/game/math/templates/function-graph.tsx",
-  "src/components/game/math/templates/graph-transform.tsx",
-  "src/components/game/math/templates/inequality-graph.tsx",
-  "src/components/game/math/templates/multiple-choice-math.tsx",
-  "src/components/game/math/templates/number-line.tsx",
-  "src/components/game/math/templates/numeric-input.tsx",
-  "src/components/game/math/templates/scatter-plot.tsx",
-  "src/components/game/math/templates/table-pattern.tsx",
-  "src/components/game/math/templates/two-way-table.tsx",
-  "src/components/game/math/templates/venn-diagram.tsx",
-  "src/components/game/math/templates/visual-fractions.tsx",
   // The 3D scene: geometry, materials and a frame loop. These three files
   // contain no user-visible text of any kind — every word around the level
   // lives in world-3d-exercise.tsx, which came off this list when it was

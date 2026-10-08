@@ -1,10 +1,12 @@
 "use client";
 
+import { useTranslation } from "@/lib/i18n/context";
 import { useState, useCallback } from "react";
 import { Button } from "@/components/ui/button";
 import type { MathTemplateProps } from "../template-registry";
 
 export default function VisualFractions({ config, onComplete }: MathTemplateProps) {
+ const { t } = useTranslation();
  const targetNumerator = (config.target_numerator as number) || 3;
  const targetDenominator = (config.target_denominator as number) || 8;
  const displayType = (config.display_type as "pie" | "bar") || "pie";
@@ -13,7 +15,7 @@ export default function VisualFractions({ config, onComplete }: MathTemplateProp
  const prompt =
  config.prompt !== undefined
  ? String(config.prompt)
- : `Shade ${targetNumerator}/${targetDenominator} of the shape`;
+ : t("mx.shadePrompt").replace("{n}", String(targetNumerator)).replace("{d}", String(targetDenominator));
  const showCount = config.show_count !== false;
 
  const [selected, setSelected] = useState<Set<number>>(new Set());
@@ -132,14 +134,14 @@ export default function VisualFractions({ config, onComplete }: MathTemplateProp
  {!checked || !isCorrect ? (
  <>
  <Button variant="outline" size="sm" onClick={handleReset}>
- Reset
+ {t("mx.reset")}
  </Button>
  <Button size="sm" onClick={handleCheck}>
- Check Answer
+ {t("mx.checkAnswer")}
  </Button>
  </>
  ) : (
- <p className="text-sm font-medium text-primary">Correct!</p>
+ <p className="text-sm font-medium text-primary">{t("mx.correct")}</p>
  )}
  </div>
  </div>

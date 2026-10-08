@@ -1,10 +1,12 @@
 "use client";
 
+import { useTranslation } from "@/lib/i18n/context";
 import { useState, useCallback, useRef, useMemo } from "react";
 import { Button } from "@/components/ui/button";
 import type { MathTemplateProps } from "../template-registry";
 
 export default function InequalityGraph({ config, onComplete }: MathTemplateProps) {
+ const { t } = useTranslation();
  const gridRange = (config.grid_range as number) || 6;
  const targetSlope = (config.slope as number) ?? 1;
  const targetIntercept = (config.intercept as number) ?? 0;
@@ -148,14 +150,14 @@ export default function InequalityGraph({ config, onComplete }: MathTemplateProp
  {/* Typed parameters — sliders let the answer be scrolled into place
      (specs/020 US1, owner decision) */}
  <div className="flex items-center gap-3">
- <label className="w-28 text-right text-xs font-medium text-text-muted">slope</label>
+ <label className="w-28 text-right text-xs font-medium text-text-muted">{t("mx.slope")}</label>
  <input type="number" min={-5} max={5} step={0.5} value={userSlope}
  onChange={(e) => { const v = parseFloat(e.target.value); if (!Number.isNaN(v)) { setUserSlope(Math.max(-5, Math.min(5, v))); setChecked(false); } }}
  className="w-24 rounded-lg border border-border-strong bg-surface px-2 py-1.5 text-center font-mono text-sm text-primary focus:border-primary focus:outline-none" />
  </div>
 
  <div className="flex items-center gap-3">
- <label className="w-28 text-right text-xs font-medium text-text-muted">intercept</label>
+ <label className="w-28 text-right text-xs font-medium text-text-muted">{t("mx.intercept")}</label>
  <input type="number" min={-5} max={5} step={0.5} value={userIntercept}
  onChange={(e) => { const v = parseFloat(e.target.value); if (!Number.isNaN(v)) { setUserIntercept(Math.max(-5, Math.min(5, v))); setChecked(false); } }}
  className="w-24 rounded-lg border border-border-strong bg-surface px-2 py-1.5 text-center font-mono text-sm text-primary focus:border-primary focus:outline-none" />
@@ -163,18 +165,18 @@ export default function InequalityGraph({ config, onComplete }: MathTemplateProp
 
  {/* Shade instruction */}
  <p className="text-center text-xs text-text-subtle">
- {shadedSide ? `Shaded: ${shadedSide} the line` : "Click above or below the line to shade the solution region"}
- {isDashed ? " (dashed = strict inequality)" : " (solid = includes boundary)"}
+ {shadedSide ? t(shadedSide === "above" ? "mx.shadedAbove" : "mx.shadedBelow") : t("mx.clickToShade")}
+ {" "}{isDashed ? t("mx.dashedStrict") : t("mx.solidIncl")}
  </p>
  </div>
 
  <Button onClick={handleCheck} disabled={!shadedSide || (checked && isCorrect)}>
- {checked && isCorrect ? "Correct!" : "Check Answer"}
+ {checked && isCorrect ? t("mx.correct") : t("mx.checkAnswer")}
  </Button>
 
  {checked && !isCorrect && (
  <p className="text-xs text-danger-fg">
- Target: y {targetOperator} {targetSlope}x {targetIntercept >= 0 ? "+" : ""} {targetIntercept}
+ {t("mx.targetColon")} y {targetOperator} {targetSlope}x {targetIntercept >= 0 ? "+" : ""} {targetIntercept}
  </p>
  )}
  </div>
