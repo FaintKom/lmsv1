@@ -289,7 +289,10 @@ export default function WebEditorExercise({
  <div className={`bg-surface ${isExpanded ? "flex-1" : ""}`} style={isExpanded ? undefined : { height: previewHeight }}>
  <iframe
  srcDoc={previewDoc}
- sandbox="allow-scripts allow-same-origin"
+ // Opaque origin on purpose (specs/095): the code here is the
+ // author's starter code, opened by someone else. With
+ // allow-same-origin it would call /api/v1 as the viewer.
+ sandbox="allow-scripts"
  className="w-full h-full border-0"
  title={t("we.livePreview")}
  style={{ minHeight: isExpanded ? undefined : previewHeight }}
