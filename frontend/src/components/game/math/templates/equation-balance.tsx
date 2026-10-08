@@ -1,5 +1,6 @@
 "use client";
 
+import { useTranslation } from "@/lib/i18n/context";
 import { useState, useCallback } from "react";
 import { Button } from "@/components/ui/button";
 import type { MathTemplateProps } from "../template-registry";
@@ -11,6 +12,7 @@ interface Term {
 }
 
 export default function EquationBalance({ config, onComplete }: MathTemplateProps) {
+ const { t } = useTranslation();
  const leftFixed = (config.left_fixed as number[]) || [5];
  const rightFixed = (config.right_fixed as number[]) || [2];
  const availableTerms = (config.available_terms as { value: number; label: string }[]) || [
@@ -79,10 +81,10 @@ export default function EquationBalance({ config, onComplete }: MathTemplateProp
 
  const helperText =
  targetSide === "left"
- ? "Add terms to the left side to balance the equation"
+ ? t("mx.balanceLeft")
  : targetSide === "both"
- ? "Add terms to either side to balance the equation"
- : "Add terms to the right side to balance the equation";
+ ? t("mx.balanceBoth")
+ : t("mx.balanceRight");
 
  return (
  <div className="flex flex-col items-center gap-4">
@@ -117,7 +119,7 @@ export default function EquationBalance({ config, onComplete }: MathTemplateProp
  {/* Terms placed on the left pan (removable) */}
  {leftAdded.length > 0 && (
  <div className="flex flex-wrap gap-2">
- <span className="text-xs text-text-subtle self-center">Left:</span>
+ <span className="text-xs text-text-subtle self-center">{t("mx.leftColon")}</span>
  {leftAdded.map((term) => (
  <button
  key={term.id}
@@ -134,7 +136,7 @@ export default function EquationBalance({ config, onComplete }: MathTemplateProp
  {/* Terms placed on the right pan (removable) */}
  {rightAdded.length > 0 && (
  <div className="flex flex-wrap gap-2">
- <span className="text-xs text-text-subtle self-center">Right:</span>
+ <span className="text-xs text-text-subtle self-center">{t("mx.rightColon")}</span>
  {rightAdded.map((term) => (
  <button
  key={term.id}
@@ -150,7 +152,7 @@ export default function EquationBalance({ config, onComplete }: MathTemplateProp
 
  {/* Term bank — actions depend on target_side */}
  <div className="flex flex-wrap items-center gap-2">
- <span className="text-xs text-text-subtle">Available:</span>
+ <span className="text-xs text-text-subtle">{t("mx.available")}</span>
  {bank.map((term) =>
  targetSide === "both" ? (
  <div
@@ -161,7 +163,8 @@ export default function EquationBalance({ config, onComplete }: MathTemplateProp
  onClick={() => addToSide(term, "left")}
  disabled={checked}
  className="bg-surface-2 px-2 py-1.5 text-sm font-semibold text-text transition-colors hover:bg-primary-soft hover:text-success-fg"
- title="Add to left side"
+ title={t("mx.addLeft")}
+ aria-label={t("mx.addLeft")}
  >
  ← {term.label}
  </button>
@@ -169,7 +172,8 @@ export default function EquationBalance({ config, onComplete }: MathTemplateProp
  onClick={() => addToSide(term, "right")}
  disabled={checked}
  className="border-l border-border-strong bg-surface-2 px-2 py-1.5 text-sm font-semibold text-text transition-colors hover:bg-primary-soft hover:text-success-fg"
- title="Add to right side"
+ title={t("mx.addRight")}
+ aria-label={t("mx.addRight")}
  >
  {term.label} →
  </button>
@@ -186,22 +190,22 @@ export default function EquationBalance({ config, onComplete }: MathTemplateProp
  )
  )}
  {bank.length === 0 && !checked && (
- <span className="text-xs text-text-subtle italic">All terms placed</span>
+ <span className="text-xs text-text-subtle italic">{t("mx.allPlaced")}</span>
  )}
  </div>
 
  <div className="flex gap-2">
  <Button variant="outline" size="sm" onClick={handleReset}>
- Reset
+ {t("mx.reset")}
  </Button>
  <Button size="sm" onClick={handleCheck} disabled={checked && isBalanced}>
- {checked && isBalanced ? "Balanced!" : "Check"}
+ {checked && isBalanced ? t("mx.balanced") : t("exercise.check")}
  </Button>
  </div>
 
  {checked && !isBalanced && (
  <p className="text-xs text-danger-fg">
- Not balanced yet. Left = {leftSum}, Right = {rightSum}. Difference: {Math.abs(diff)}
+ {t("mx.notBalanced").replace("{l}", String(leftSum)).replace("{r}", String(rightSum)).replace("{d}", String(Math.abs(diff)))}
  </p>
  )}
  </div>

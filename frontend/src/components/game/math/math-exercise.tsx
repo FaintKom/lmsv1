@@ -1,5 +1,6 @@
 "use client";
 
+import { useTranslation } from "@/lib/i18n/context";
 import { useState, useCallback, useEffect, useRef, Suspense } from "react";
 import { Loader2 } from "lucide-react";
 import { MATH_TEMPLATES } from "./template-registry";
@@ -23,6 +24,7 @@ export default function MathExercise({
  config,
  onSubmit,
 }: MathExerciseProps) {
+ const { t } = useTranslation();
  const templateType = (config.template_type as string) || "coordinate_plane";
  const customHtml = config.custom_html as string | undefined;
  const instructions = (config.instructions as string) || "";
@@ -72,7 +74,7 @@ export default function MathExercise({
  if (!template || !template.component) {
  return (
  <div className="py-8 text-center text-sm text-text-muted">
- Unknown template type: {templateType}
+ {t("mx.unknownTemplate").replace("{type}", templateType)}
  </div>
  );
  }
@@ -83,14 +85,14 @@ export default function MathExercise({
  <div className="mx-auto max-w-2xl space-y-4 px-3 py-4 sm:px-0">
  {instructions && (
  <div className="rounded-lg bg-primary-soft px-4 py-3 text-sm font-medium text-info-fg ">
- 📝 {instructions}
+ {instructions}
  </div>
  )}
  <Suspense
  fallback={
  <div className="flex items-center justify-center py-12 text-sm text-text-muted">
  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
- Loading...
+ {t("exercise.loading")}
  </div>
  }
  >
@@ -108,6 +110,7 @@ function HtmlSandbox({
  html: string;
  onResult: (success: boolean, score: number) => void;
 }) {
+ const { t } = useTranslation();
  useEffect(() => {
  const handler = (e: MessageEvent) => {
  if (e.data?.type === "lms-exercise-result") {
@@ -160,7 +163,7 @@ ${html}
  srcDoc={srcdoc}
  sandbox="allow-scripts"
  className="h-[400px] w-full rounded-lg border border-border-strong "
- title="Math Exercise"
+ title={t("mx.mathExercise")}
  />
  );
 }

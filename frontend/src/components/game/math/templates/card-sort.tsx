@@ -1,5 +1,6 @@
 "use client";
 
+import { useTranslation } from "@/lib/i18n/context";
 import { useState, useCallback } from "react";
 import { Button } from "@/components/ui/button";
 import type { MathTemplateProps } from "../template-registry";
@@ -32,6 +33,7 @@ const DEFAULT_CARDS: Card[] = [
 ];
 
 export default function CardSort({ config, onComplete }: MathTemplateProps) {
+ const { t } = useTranslation();
  const categories = (config.categories as Category[]) || DEFAULT_CATEGORIES;
  const initialCards = (config.cards as Card[]) || DEFAULT_CARDS;
 
@@ -112,7 +114,7 @@ export default function CardSort({ config, onComplete }: MathTemplateProps) {
  {unsorted.length > 0 && (
  <div className="flex flex-wrap gap-2 rounded-lg border-2 border-dashed border-border-strong bg-surface-2 p-4 ">
  <span className="w-full text-xs font-medium text-text-subtle mb-1">
- Drag cards to the correct category ({unsorted.length} remaining)
+ {t("mx.dragToCategory").replace("{n}", String(unsorted.length))}
  </span>
  {unsorted.map((card) => (
  <button
@@ -182,7 +184,7 @@ export default function CardSort({ config, onComplete }: MathTemplateProps) {
  >
  <span>{card.text}</span>
  {!checked && (
- <button onClick={() => moveBack(card)} className="ml-2 text-text-subtle hover:text-danger-fg text-xs">✕</button>
+ <button onClick={() => moveBack(card)} aria-label={t("mx.moveBack")} title={t("mx.moveBack")} className="ml-2 text-text-subtle hover:text-danger-fg text-xs">✕</button>
  )}
  </div>
  ))}
@@ -191,7 +193,7 @@ export default function CardSort({ config, onComplete }: MathTemplateProps) {
  {/* Drop hint */}
  {(sorted[cat.id] || []).length === 0 && (
  <div className="flex flex-1 items-center justify-center text-xs text-text-subtle italic">
- Drop cards here
+ {t("mx.dropHere")}
  </div>
  )}
  </div>
@@ -200,15 +202,15 @@ export default function CardSort({ config, onComplete }: MathTemplateProps) {
 
  {/* Actions */}
  <div className="flex items-center gap-3 justify-center">
- <Button variant="outline" size="sm" onClick={handleReset}>Reset</Button>
+ <Button variant="outline" size="sm" onClick={handleReset}>{t("mx.reset")}</Button>
  <Button onClick={handleCheck} disabled={(checked && Object.values(results).every(Boolean)) || unsorted.length === initialCards.length}>
- {checked && Object.values(results).every(Boolean) ? "All Correct!" : "Check"}
+ {checked && Object.values(results).every(Boolean) ? t("mx.allCorrect") : t("exercise.check")}
  </Button>
  </div>
 
  {checked && !Object.values(results).every(Boolean) && (
  <p className="text-center text-xs text-text-muted">
- {Object.values(results).filter(Boolean).length}/{initialCards.length} correct. Check the red cards.
+ {t("mx.cardsWrong").replace("{n}", String(Object.values(results).filter(Boolean).length)).replace("{total}", String(initialCards.length))}
  </p>
  )}
  </div>

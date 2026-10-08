@@ -1,5 +1,6 @@
 "use client";
 
+import { useTranslation } from "@/lib/i18n/context";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import type { MathTemplateProps } from "../template-registry";
@@ -30,6 +31,7 @@ const DEFAULT: VennConfig = {
 };
 
 export default function VennDiagram({ config, onComplete }: MathTemplateProps) {
+ const { t } = useTranslation();
  const raw = (config as Partial<VennConfig> & { regions?: Record<string, number | null> }) || {};
  // Accept legacy `both` key in regions / answers as an alias for `intersection`.
  const rawRegions = (raw.regions || {}) as Record<string, number | null>;
@@ -93,10 +95,10 @@ export default function VennDiagram({ config, onComplete }: MathTemplateProps) {
  : (["a_only", "b_only", "neither"] as const)
  );
  const regionLabels: Record<string, string> = {
- a_only: `Only ${set_a_label}`,
- b_only: `Only ${set_b_label}`,
- intersection: "Both",
- neither: "Neither",
+ a_only: t("me.onlySet").replace("{set}", set_a_label),
+ b_only: t("me.onlySet").replace("{set}", set_b_label),
+ intersection: t("mx.both"),
+ neither: t("me.neither"),
  };
 
  // Geometry: when intersection is on, circles overlap; when off, they sit
@@ -140,7 +142,7 @@ export default function VennDiagram({ config, onComplete }: MathTemplateProps) {
  className="rounded-lg border border-border-strong bg-surface ">
  {/* Background rect representing "universe" */}
  <rect x={10} y={10} width={440} height={280} rx={12} fill="none" stroke="var(--color-text-subtle)" strokeWidth={1.5} strokeDasharray="6 3" />
- <text x={230} y={30} textAnchor="middle" fontSize={12} fill="var(--color-text-subtle)">Total: {total}</text>
+ <text x={230} y={30} textAnchor="middle" fontSize={12} fill="var(--color-text-subtle)">{t("mx.totalN").replace("{n}", String(total))}</text>
 
  {/* Circle A */}
  <circle cx={cxA} cy={155} r={radius} fill={COLOR_A} opacity={0.12} stroke={COLOR_A} strokeWidth={2.5} />
@@ -171,7 +173,7 @@ export default function VennDiagram({ config, onComplete }: MathTemplateProps) {
  <foreignObject x={370} y={230} width={80} height={50}>
  <div className="flex h-full items-center justify-center">{renderValue("neither")}</div>
  </foreignObject>
- <text x={410} y={228} textAnchor="middle" fontSize={10} fill="var(--color-text-subtle)">Neither</text>
+ <text x={410} y={228} textAnchor="middle" fontSize={10} fill="var(--color-text-subtle)">{t("me.neither")}</text>
  </svg>
 
  {/* Legend — inline backgrounds match the SVG circle colors exactly */}
@@ -200,11 +202,11 @@ export default function VennDiagram({ config, onComplete }: MathTemplateProps) {
  </div>
 
  <Button onClick={handleCheck} disabled={checked && Object.values(results).every(Boolean)}>
- {checked && Object.values(results).every(Boolean) ? "Correct!" : "Check Answers"}
+ {checked && Object.values(results).every(Boolean) ? t("mx.correct") : t("mx.checkAnswers")}
  </Button>
 
  {checked && !Object.values(results).every(Boolean) && (
- <p className="text-xs text-text-muted">All regions must add up to {total}.</p>
+ <p className="text-xs text-text-muted">{t("mx.regionsAddUp").replace("{n}", String(total))}</p>
  )}
  </div>
  );

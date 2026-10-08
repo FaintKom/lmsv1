@@ -1,5 +1,6 @@
 "use client";
 
+import { useTranslation } from "@/lib/i18n/context";
 import { useState, useCallback, useRef, useMemo } from "react";
 import { Button } from "@/components/ui/button";
 import type { MathTemplateProps } from "../template-registry";
@@ -42,8 +43,8 @@ function getParamLabels(type: FunctionType): { key: string; label: string; min: 
  switch (type) {
  case "linear":
  return [
- { key: "m", label: "slope (m)", min: -5, max: 5, step: 0.5 },
- { key: "b", label: "y-intercept (b)", min: -5, max: 5, step: 0.5 },
+ { key: "m", label: "mx.slopeM", min: -5, max: 5, step: 0.5 },
+ { key: "b", label: "mx.yInterceptB", min: -5, max: 5, step: 0.5 },
  ];
  case "quadratic":
  return [
@@ -54,8 +55,8 @@ function getParamLabels(type: FunctionType): { key: string; label: string; min: 
  case "exponential":
  return [
  { key: "a", label: "a", min: -3, max: 3, step: 0.5 },
- { key: "base", label: "base", min: 0.5, max: 4, step: 0.5 },
- { key: "c", label: "c (shift)", min: -5, max: 5, step: 0.5 },
+ { key: "base", label: "mx.base", min: 0.5, max: 4, step: 0.5 },
+ { key: "c", label: "mx.cShift", min: -5, max: 5, step: 0.5 },
  ];
  default:
  return [];
@@ -76,6 +77,7 @@ function getFnString(type: FunctionType, params: Record<string, number>): string
 }
 
 export default function FunctionGraph({ config, onComplete }: MathTemplateProps) {
+ const { t } = useTranslation();
  const cfg: GraphConfig = { ...DEFAULT_CONFIG, ...config } as GraphConfig;
  const { function_type, target_params, grid_range, mode, show_target, tolerance } = cfg;
 
@@ -155,8 +157,8 @@ export default function FunctionGraph({ config, onComplete }: MathTemplateProps)
  <div className="flex flex-col items-center gap-4">
  <p className="text-sm text-text-muted ">
  {mode === "match_graph"
- ? "Enter the parameters to match the target graph (dashed line)"
- : `Find the parameters for: ${getFnString(function_type, target_params)}`}
+ ? t("mx.matchPrompt")
+ : t("mx.findParams").replace("{fn}", getFnString(function_type, target_params))}
  </p>
 
  {/* Graph */}
@@ -193,7 +195,7 @@ export default function FunctionGraph({ config, onComplete }: MathTemplateProps)
  {paramDefs.map((p) => (
  <div key={p.key} className="flex items-center gap-3">
  <label className="flex-1 text-right text-xs font-medium text-text-muted">
- {p.label}
+ {p.label.startsWith("mx.") ? t(p.label) : p.label}
  </label>
  <input
  type="number"
@@ -217,12 +219,12 @@ export default function FunctionGraph({ config, onComplete }: MathTemplateProps)
  </div>
 
  <Button onClick={handleCheck} disabled={checked && isCorrect}>
- {checked && isCorrect ? "Correct!" : "Check Answer"}
+ {checked && isCorrect ? t("mx.correct") : t("mx.checkAnswer")}
  </Button>
 
  {checked && !isCorrect && (
  <p className="text-xs text-danger-fg">
- Not quite. Adjust the parameters to better match the target graph.
+ {t("mx.notQuiteGraph")}
  </p>
  )}
  </div>

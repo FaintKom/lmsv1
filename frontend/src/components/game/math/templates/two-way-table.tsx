@@ -1,5 +1,6 @@
 "use client";
 
+import { useTranslation } from "@/lib/i18n/context";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import type { MathTemplateProps } from "../template-registry";
@@ -10,6 +11,7 @@ interface TableCell {
 }
 
 export default function TwoWayTable({ config, onComplete }: MathTemplateProps) {
+ const { t } = useTranslation();
  const rowHeaders = (config.row_headers as string[]) || ["Boys", "Girls", "Total"];
  const colHeaders = (config.col_headers as string[]) || ["Soccer", "Basketball", "Total"];
  const cells = (config.cells as (number | null)[][]) || [
@@ -125,13 +127,12 @@ export default function TwoWayTable({ config, onComplete }: MathTemplateProps) {
  </div>
 
  <Button onClick={handleCheck} disabled={checked && Object.values(results).every(Boolean)}>
- {checked && Object.values(results).every(Boolean) ? "All Correct!" : "Check Answers"}
+ {checked && Object.values(results).every(Boolean) ? t("mx.allCorrect") : t("mx.checkAnswers")}
  </Button>
 
  {checked && !Object.values(results).every(Boolean) && (
  <p className="text-xs text-text-muted ">
- {Object.values(results).filter(Boolean).length}/{Object.values(results).length} correct.
- Hint: rows and columns must add up to the totals.
+ {t("mx.tableHint").replace("{n}", String(Object.values(results).filter(Boolean).length)).replace("{total}", String(Object.values(results).length))}
  </p>
  )}
  </div>

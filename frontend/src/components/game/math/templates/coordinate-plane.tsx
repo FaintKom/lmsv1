@@ -1,5 +1,6 @@
 "use client";
 
+import { useTranslation } from "@/lib/i18n/context";
 import { useState, useCallback, useRef } from "react";
 import { Button } from "@/components/ui/button";
 import type { MathTemplateProps } from "../template-registry";
@@ -21,6 +22,7 @@ const POINT_COLORS = [
 ];
 
 export default function CoordinatePlane({ config, onComplete }: MathTemplateProps) {
+ const { t } = useTranslation();
  const targetPoints = (config.target_points as { x: number; y: number; label?: string }[]) || [
  { x: 3, y: 2 },
  { x: -2, y: 4 },
@@ -119,7 +121,7 @@ export default function CoordinatePlane({ config, onComplete }: MathTemplateProp
  return (
  <div className="flex flex-col items-center gap-4">
  <div className="flex flex-wrap items-center gap-2 text-sm text-text-muted ">
- <span>Drag each point to its target:</span>
+ <span>{t("mx.dragPoints")}</span>
  {targetPoints.map((p, i) => {
  const color = POINT_COLORS[i % POINT_COLORS.length];
  return (
@@ -181,7 +183,7 @@ export default function CoordinatePlane({ config, onComplete }: MathTemplateProp
  </svg>
 
  <Button onClick={handleCheck} disabled={checked && results.every(Boolean)}>
- {checked && results.every(Boolean) ? "Correct!" : "Check Answer"}
+ {checked && results.every(Boolean) ? t("mx.correct") : t("mx.checkAnswer")}
  </Button>
  </div>
  );

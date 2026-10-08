@@ -1,5 +1,6 @@
 "use client";
 
+import { useTranslation } from "@/lib/i18n/context";
 import { useState, useCallback } from "react";
 import { Button } from "@/components/ui/button";
 import type { MathTemplateProps } from "../template-registry";
@@ -79,6 +80,7 @@ function solveBlank(which: "a" | "b" | "r", x: number, y: number, op: string): n
 }
 
 export default function ArithmeticPuzzle({ config, onComplete }: MathTemplateProps) {
+ const { t } = useTranslation();
  // Accept canonical `equations` OR legacy `rows` shape.
  const rawEquations = config.equations as
  | { cells: { value: number | null; display: string }[]; answer: number; blankIndex: number }[]
@@ -125,7 +127,7 @@ export default function ArithmeticPuzzle({ config, onComplete }: MathTemplatePro
  return (
  <div className="flex flex-col items-center gap-6">
  <p className="text-sm text-text-muted ">
- Fill in the missing numbers
+ {t("mx.fillMissing")}
  </p>
 
  <div className="space-y-4">
@@ -184,7 +186,7 @@ export default function ArithmeticPuzzle({ config, onComplete }: MathTemplatePro
  </div>
 
  <Button onClick={handleCheck} disabled={checked && results.every(Boolean)}>
- {checked && results.every(Boolean) ? "All Correct!" : "Check Answers"}
+ {checked && results.every(Boolean) ? t("mx.allCorrect") : t("mx.checkAnswers")}
  </Button>
  </div>
  );

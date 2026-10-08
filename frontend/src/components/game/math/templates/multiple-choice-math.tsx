@@ -1,5 +1,6 @@
 "use client";
 
+import { useTranslation } from "@/lib/i18n/context";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { MathRenderer, containsMath } from "@/components/common/math-renderer";
@@ -31,6 +32,7 @@ const DEFAULT_CONFIG: MCConfig = {
 };
 
 export default function MultipleChoiceMath({ config, onComplete }: MathTemplateProps) {
+ const { t } = useTranslation();
  const cfg: MCConfig = { ...DEFAULT_CONFIG, ...config } as MCConfig;
  const [selected, setSelected] = useState<number | null>(null);
  const [submitted, setSubmitted] = useState(false);
@@ -108,7 +110,7 @@ export default function MultipleChoiceMath({ config, onComplete }: MathTemplateP
  </span>
  {submitted && choice.correct && (
  <span className="ml-auto text-xs font-semibold text-primary ">
- Correct
+ {t("xe.correct")}
  </span>
  )}
  </button>
@@ -119,7 +121,7 @@ export default function MultipleChoiceMath({ config, onComplete }: MathTemplateP
  {/* Submit / Explanation */}
  {!submitted ? (
  <Button onClick={handleSubmit} disabled={selected === null}>
- Check Answer
+ {t("mx.checkAnswer")}
  </Button>
  ) : (
  <div className={`rounded-lg border p-4 ${
@@ -128,7 +130,7 @@ export default function MultipleChoiceMath({ config, onComplete }: MathTemplateP
  : "border-warning bg-warning-soft "
  }`}>
  <p className={`text-xs font-semibold mb-1 ${isCorrect ? "text-primary " : "text-warning-fg "}`}>
- {isCorrect ? "Correct!" : "Not quite"}
+ {isCorrect ? t("mx.correct") : t("mx.notQuite")}
  </p>
  <p className="text-sm text-text ">
  {cfg.explanation}
