@@ -3,7 +3,7 @@ import uuid
 from datetime import datetime, timedelta, timezone
 
 from fastapi import APIRouter, Cookie, Depends, Query, Request, Response
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -678,7 +678,7 @@ class ForgotPasswordRequest(BaseModel):
 
 class ResetPasswordRequest(BaseModel):
     token: str
-    new_password: str
+    new_password: str = Field(min_length=8)
 
 
 @router.post("/forgot-password")
@@ -747,9 +747,6 @@ async def reset_password_endpoint(
         reset_token.used = True
         await db.flush()
         raise BadRequestError("Reset token has expired")
-
-    if len(data.new_password) < 6:
-        raise BadRequestError("Password must be at least 6 characters")
 
     # Update password
     result = await db.execute(select(User).where(User.id == reset_token.user_id))
