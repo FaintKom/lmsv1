@@ -43,7 +43,6 @@ export const I18N_ALLOWLIST: ReadonlySet<string> = new Set([
   "src/app/privacy/page.tsx",
   "src/app/refund/page.tsx",
   "src/app/terms/page.tsx",
-  "src/components/common/auto-youtube.tsx",
   "src/components/common/content-renderer.tsx",
   "src/components/common/math-renderer.tsx",
   "src/components/common/youtube-embed.tsx",
@@ -87,19 +86,13 @@ export const I18N_ALLOWLIST: ReadonlySet<string> = new Set([
   "src/components/gamification/rank-medal.tsx",
   "src/components/avatar/avatar-canvas.tsx",
   "src/components/avatar/avatar-item-preview.tsx",
-  "src/components/gamification/streak-widget.tsx",
   "src/components/providers/query-provider.tsx",
   "src/components/room/item-preview.tsx",
   "src/components/room/room-canvas.tsx",
   "src/components/layout/org-switcher.tsx",
-  "src/components/math/problem-generator.tsx",
-  "src/components/onboarding/teacher-onboarding.tsx",
-  "src/components/skills/skill-graph-v2.tsx",
   "src/components/submissions/exercises/categorize.tsx",
-  "src/components/submissions/exercises/fill-blanks.tsx",
   "src/components/submissions/exercises/matching.tsx",
   "src/components/submissions/exercises/ordering.tsx",
-  "src/components/submissions/exercises/true-false.tsx",
   // Holds the call above the router and portals somebody else's interface into
   // place. It renders one container and no words of its own — every string the
   // participant reads comes from media-stage.tsx, which does translate.
@@ -107,7 +100,6 @@ export const I18N_ALLOWLIST: ReadonlySet<string> = new Set([
   "src/components/ui/bottom-sheet.tsx",
   "src/components/ui/button.tsx",
   "src/components/ui/card.tsx",
-  "src/components/ui/chip.tsx",
   "src/components/ui/confirm-dialog.tsx",
   "src/components/ui/highlight.tsx",
   "src/components/ui/input.tsx",
@@ -117,5 +109,4 @@ export const I18N_ALLOWLIST: ReadonlySet<string> = new Set([
   "src/components/ui/tooltip.tsx",
   "src/components/ui/xp-pill.tsx",
   "src/components/video-player.tsx",
-  "src/components/waitlist-form.tsx",
 ]);
