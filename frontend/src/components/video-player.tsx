@@ -17,6 +17,7 @@
  * needs @vimeo/player, which is a separate dep.
  */
 
+import { useTranslation } from "@/lib/i18n/context";
 import { useEffect, useRef, useState } from "react";
 
 import apiClient from "@/lib/api-client";
@@ -68,6 +69,7 @@ interface YTPlayer {
 }
 
 export function VideoPlayer({ url, lessonId }: VideoPlayerProps) {
+ const { t } = useTranslation();
  const containerRef = useRef<HTMLDivElement>(null);
  const playerRef = useRef<YTPlayer | null>(null);
  const resumePositionRef = useRef<number>(0);
@@ -229,7 +231,7 @@ export function VideoPlayer({ url, lessonId }: VideoPlayerProps) {
  if (!embedUrl) {
  return (
  <div className="flex aspect-video items-center justify-center rounded-lg bg-ink-900 text-white">
- Preparing video...
+ {t("ui.preparingVideo")}
  </div>
  );
  }

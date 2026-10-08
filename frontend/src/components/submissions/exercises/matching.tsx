@@ -1,5 +1,6 @@
 "use client";
 
+import { useTranslation } from "@/lib/i18n/context";
 import { useState } from "react";
 
 interface Pair {
@@ -13,6 +14,7 @@ interface MatchingExerciseProps {
 }
 
 export default function MatchingExercise({ pairs, onSubmit }: MatchingExerciseProps) {
+ const { t } = useTranslation();
  const [shuffledRight] = useState(() =>
  [...pairs.map((p) => p.right)].sort(() => Math.random() - 0.5)
  );
@@ -42,7 +44,7 @@ export default function MatchingExercise({ pairs, onSubmit }: MatchingExercisePr
 
  return (
  <div>
- <div className="grid grid-cols-2 gap-4 sm:gap-6" role="group" aria-label="Match items from left to right">
+ <div className="grid grid-cols-2 gap-4 sm:gap-6" role="group" aria-label={t("ui.matchItems")}>
  {/* Left column */}
  <div className="space-y-2">
  {pairs.map((p) => (
@@ -94,7 +96,7 @@ export default function MatchingExercise({ pairs, onSubmit }: MatchingExercisePr
  disabled={Object.keys(selected).length < pairs.length}
  className="mt-6 w-full rounded-pill bg-primary px-4 py-2.5 text-sm font-semibold text-primary-fg transition-colors hover:bg-primary-hover disabled:opacity-50 "
  >
- Submit Answer
+ {t("ui.submitAnswer")}
  </button>
  </div>
  );

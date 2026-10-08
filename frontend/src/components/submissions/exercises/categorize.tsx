@@ -1,5 +1,6 @@
 "use client";
 
+import { useTranslation } from "@/lib/i18n/context";
 import { useState } from "react";
 import { X } from "lucide-react";
 
@@ -19,6 +20,7 @@ export default function CategorizeExercise({
  allItems,
  onSubmit,
 }: CategorizeExerciseProps) {
+ const { t } = useTranslation();
  const [assignments, setAssignments] = useState<Record<string, string[]>>(() => {
  const init: Record<string, string[]> = {};
  categories.forEach((c) => (init[c.name] = []));
@@ -58,7 +60,7 @@ export default function CategorizeExercise({
  <div>
  {/* Available items */}
  <div className="mb-4">
- <h4 className="mb-2 text-sm font-semibold text-text-muted ">Items to categorize</h4>
+ <h4 className="mb-2 text-sm font-semibold text-text-muted ">{t("ui.itemsToCategorize")}</h4>
  <div className="flex flex-wrap gap-2">
  {availableItems.map((item) => (
  <button
@@ -72,7 +74,7 @@ export default function CategorizeExercise({
  </button>
  ))}
  {availableItems.length === 0 && (
- <p className="text-sm text-text-subtle">All items assigned!</p>
+ <p className="text-sm text-text-subtle">{t("ui.allAssigned")}</p>
  )}
  </div>
  </div>
@@ -102,7 +104,7 @@ export default function CategorizeExercise({
  {item}
  <button
  onClick={() => removeItem(item, cat.name)}
- aria-label={`Remove ${item}`}
+ aria-label={t("ui.removeItem").replace("{item}", String(item))}
  className="rounded-pill p-1 transition-colors hover:bg-primary-soft "
  >
  <X className="h-3.5 w-3.5" />
@@ -111,7 +113,7 @@ export default function CategorizeExercise({
  ))}
  </div>
  {!assignments[cat.name]?.length && (
- <p className="text-sm text-text-subtle ">Drop items here</p>
+ <p className="text-sm text-text-subtle ">{t("ui.dropItemsHere")}</p>
  )}
  {/* Click-to-assign buttons for mobile */}
  {availableItems.length > 0 && (
@@ -136,7 +138,7 @@ export default function CategorizeExercise({
  disabled={totalAssigned < allItems.length}
  className="mt-6 w-full rounded-pill bg-primary px-4 py-2.5 text-sm font-semibold text-primary-fg transition-colors hover:bg-primary-hover disabled:opacity-50 "
  >
- Submit Answer
+ {t("ui.submitAnswer")}
  </button>
  </div>
  );

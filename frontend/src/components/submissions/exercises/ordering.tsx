@@ -1,5 +1,6 @@
 "use client";
 
+import { useTranslation } from "@/lib/i18n/context";
 import { useState } from "react";
 import { GripVertical, ArrowUp, ArrowDown } from "lucide-react";
 
@@ -9,6 +10,7 @@ interface OrderingExerciseProps {
 }
 
 export default function OrderingExercise({ items, onSubmit }: OrderingExerciseProps) {
+ const { t } = useTranslation();
  const [order, setOrder] = useState(() =>
  [...items].sort(() => Math.random() - 0.5)
  );
@@ -23,7 +25,7 @@ export default function OrderingExercise({ items, onSubmit }: OrderingExercisePr
 
  return (
  <div>
- <div className="space-y-2" role="list" aria-label="Drag to reorder items">
+ <div className="space-y-2" role="list" aria-label={t("ui.dragReorder")}>
  {order.map((item, i) => (
  <div
  key={item}
@@ -39,7 +41,7 @@ export default function OrderingExercise({ items, onSubmit }: OrderingExercisePr
  <button
  onClick={() => moveItem(i, "up")}
  disabled={i === 0}
- aria-label={`Move ${item} up`}
+ aria-label={t("ui.moveUp").replace("{item}", String(item))}
  className="rounded-lg p-2 text-text-subtle transition-colors hover:bg-surface-2 hover:text-text-muted disabled:opacity-30 "
  >
  <ArrowUp className="h-4 w-4" />
@@ -47,7 +49,7 @@ export default function OrderingExercise({ items, onSubmit }: OrderingExercisePr
  <button
  onClick={() => moveItem(i, "down")}
  disabled={i === order.length - 1}
- aria-label={`Move ${item} down`}
+ aria-label={t("ui.moveDown").replace("{item}", String(item))}
  className="rounded-lg p-2 text-text-subtle transition-colors hover:bg-surface-2 hover:text-text-muted disabled:opacity-30 "
  >
  <ArrowDown className="h-4 w-4" />
@@ -61,7 +63,7 @@ export default function OrderingExercise({ items, onSubmit }: OrderingExercisePr
  onClick={() => onSubmit({ order })}
  className="mt-6 w-full rounded-pill bg-primary px-4 py-2.5 text-sm font-semibold text-primary-fg transition-colors hover:bg-primary-hover "
  >
- Submit Answer
+ {t("ui.submitAnswer")}
  </button>
  </div>
  );

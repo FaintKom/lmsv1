@@ -1,5 +1,6 @@
 "use client";
 
+import { useTranslation } from "@/lib/i18n/context";
 import { useCallback, useEffect, useState } from "react";
 
 interface VideoMetadata {
@@ -61,6 +62,7 @@ function extractVideoId(url: string): string | null {
 }
 
 export function YouTubeEmbed({ url, className }: YouTubeEmbedProps) {
+ const { t } = useTranslation();
  const videoId = extractVideoId(url);
  const [metadata, setMetadata] = useState<VideoMetadata | null>(null);
  const [playing, setPlaying] = useState(false);
@@ -107,7 +109,7 @@ export function YouTubeEmbed({ url, className }: YouTubeEmbedProps) {
  >
  <iframe
  src={`https://www.youtube.com/embed/${videoId}?autoplay=${playing ? 1 : 0}&rel=0`}
- title="YouTube video player"
+ title={t("ui.youtubePlayer")}
  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
  allowFullScreen
  className="absolute inset-0 h-full w-full border-0"
@@ -140,7 +142,7 @@ export function YouTubeEmbed({ url, className }: YouTubeEmbedProps) {
  handlePlay();
  }
  }}
- aria-label={`Play video: ${metadata.title ?? "YouTube video"}`}
+ aria-label={t("ui.playVideo").replace("{title}", metadata.title ?? t("ui.youtubeVideo"))}
  >
  {/* Thumbnail */}
  <img

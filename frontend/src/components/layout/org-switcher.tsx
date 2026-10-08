@@ -1,5 +1,6 @@
 "use client";
 
+import { useTranslation } from "@/lib/i18n/context";
 import { useEffect, useState } from "react";
 import { Building2, Check, ChevronDown } from "lucide-react";
 import { toast } from "sonner";
@@ -25,6 +26,7 @@ interface MembershipsResponse {
  * so single-school users see nothing new.
  */
 export function OrgSwitcher() {
+ const { t } = useTranslation();
  const [loading, setLoading] = useState(true);
  const [data, setData] = useState<MembershipsResponse | null>(null);
  const [open, setOpen] = useState(false);
@@ -60,12 +62,12 @@ export function OrgSwitcher() {
  setSwitching(true);
  try {
  await apiClient.post(`/me/switch-org/${orgId}`);
- toast.success("Switched organization — reloading...");
+ toast.success(t("ui.orgSwitched"));
  // Full reload so every cached query and store picks up the new
  // org_id / role from /auth/me on the next page.
  setTimeout(() => window.location.reload(), 400);
  } catch {
- toast.error("Could not switch organization");
+ toast.error(t("ui.orgSwitchFailed"));
  setSwitching(false);
  }
  }
