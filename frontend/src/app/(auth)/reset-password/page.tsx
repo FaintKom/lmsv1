@@ -28,7 +28,7 @@ function ResetPasswordForm() {
  setError(t("auth.passwordsDontMatch"));
  return;
  }
- if (password.length < 6) {
+ if (password.length < 8) {
  setError(t("auth.passwordTooShort"));
  return;
  }
@@ -104,7 +104,7 @@ function ResetPasswordForm() {
  type="password"
  value={password}
  onChange={(e) => setPassword(e.target.value)}
- placeholder={t("auth.phMin6")}
+ placeholder={t("auth.phMin8")}
  required
  />
  </div>

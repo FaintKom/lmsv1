@@ -347,6 +347,42 @@ async def test_reset_password_invalid_token(client: AsyncClient):
     assert resp.status_code == 400
 
 
+@pytest.mark.asyncio
+async def test_reset_password_requires_8_chars(client: AsyncClient, db, student):
+    """Reset holds the same 8-char minimum as change-password (specs/095)."""
+    from datetime import datetime, timedelta, timezone
+
+    from app.auth.models import PasswordResetToken
+
+    old_hash = student.hashed_password
+    reset = PasswordResetToken(
+        user_id=student.id,
+        token=str(uuid.uuid4()),
+        expires_at=datetime.now(timezone.utc) + timedelta(hours=1),
+    )
+    db.add(reset)
+    await db.flush()
+
+    resp = await client.post(
+        "/api/v1/auth/reset-password",
+        json={"token": reset.token, "new_password": "Abc1234"},
+    )
+    assert resp.status_code == 422
+    await db.refresh(student)
+    await db.refresh(reset)
+    assert student.hashed_password == old_hash
+    assert reset.used is False
+
+    # Positive control: the same live token accepts 8 characters.
+    resp = await client.post(
+        "/api/v1/auth/reset-password",
+        json={"token": reset.token, "new_password": "Abc12345"},
+    )
+    assert resp.status_code == 200
+    await db.refresh(student)
+    assert student.hashed_password != old_hash
+
+
 # ─── GDPR Data Export ───────────────────────────────────────────────────
 
 
